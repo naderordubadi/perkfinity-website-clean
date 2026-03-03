@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Perkfinity — Perks Done Right</title>
+  <meta name="description" content="Perkfinity connects people and local businesses through perks & rewards — privacy-first and simple QR signup."/>
+  <link rel="icon" href="assets/Perkfinity-App-Icon.png"/>
+  <!-- Cache-bust params: bump v= value any time you update CSS/JS -->
+  <link rel="stylesheet" href="styles.css?v=1"/>
+</head>
+<body>
+  <header class="header">
+    <div class="container header-inner">
+      <a class="brand" href="#top" data-scroll="top" aria-label="Perkfinity home">
+        <img src="assets/Perkfinity-Logo.png" alt="Perkfinity logo">
+      </a>
+
+      <nav class="nav" aria-label="Primary navigation">
+        <a href="#members" data-scroll="members">For Members</a>
+        <a href="#merchants" data-scroll="merchants">For Merchants</a>
+        <a href="#how" data-scroll="how">How it Works</a>
+      </nav>
+
+      <a class="btn btn-green" href="#contact" data-scroll="contact" aria-label="Contact Us">
+        <span aria-hidden="true" class="btn-ico">✉</span>
+        Contact Us
+      </a>
+    </div>
+  </header>
+
+  <main id="top">
+    <!-- HERO -->
+    <section class="hero">
+      <div class="container hero-grid">
+        <div>
+          <h1>Perks Done Right.</h1>
+          <p class="lede">Connecting People and Local Businesses<br>Through <strong>Perks &amp; Rewards</strong></p>
+
+          <div class="chips" aria-label="Key highlights">
+            <div class="chip"><img src="assets/ico-lock.svg" alt="">Privacy-First</div>
+            <div class="chip"><img src="assets/ico-tag.svg" alt="">Digital Coupons</div>
+            <div class="chip"><img src="assets/ico-qr.svg" alt="">Simple QR Code</div>
+          </div>
+        </div>
+
+        <div class="hero-visual" aria-label="Hero visual">
+          <!-- IMPORTANT: No bubbles overlay here to avoid duplicates.
+               The hero-photo.png already includes the QR bubbles from your crop. -->
+          <img class="photo" src="assets/hero-photo.png" alt="Member using Perkfinity on phone">
+        </div>
+      </div>
+
+      <div class="wave" aria-hidden="true">
+        <svg viewBox="0 0 1440 140" preserveAspectRatio="none">
+          <path d="M0,80 C240,140 480,40 720,90 C960,140 1200,60 1440,88 L1440,140 L0,140 Z" fill="#ffffff"></path>
+        </svg>
+      </div>
+    </section>
+
+    <!-- THREE ITEMS -->
+    <section class="triple">
+      <div class="container triple-inner">
+        <div class="triple-item section-anchor" id="members">
+          <div class="badge"><img src="assets/ico-member.svg" alt=""></div>
+          <h3>For Members</h3>
+          <p>Discover Local Perks &amp; Rewards</p>
+        </div>
+        <div class="triple-item section-anchor" id="merchants">
+          <div class="badge"><img src="assets/ico-store.svg" alt=""></div>
+          <h3>For Merchants</h3>
+          <p>Grow &amp; Retain Customers</p>
+        </div>
+        <div class="triple-item section-anchor" id="communities">
+          <div class="badge"><img src="assets/ico-community.svg" alt=""></div>
+          <h3>For Communities</h3>
+          <p>Support Local Business</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- LAUNCH BAND + WAITLIST -->
+    <section class="launch section-anchor" id="how">
+      <div class="container">
+        <h2>Launching Soon!</h2>
+        <p>Be the First to <span class="green">Unlock Perks</span> in Your Area</p>
+
+        <!-- Email capture endpoint (works when you set FORMSPREE_ENDPOINT in Vercel) -->
+        <form id="waitlistForm" class="waitlist" data-endpoint="/api/subscribe" aria-label="Join the waitlist">
+          <label class="pill-input" aria-label="Email address">
+            <span aria-hidden="true">✉</span>
+            <input type="email" name="email" placeholder="Enter your email" required>
+          </label>
+          <button class="btn btn-green" type="submit">Join the Waitlist →</button>
+        </form>
+        <div id="waitlistStatus" class="status" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <!-- FEATURE CARDS -->
+    <section class="features">
+      <div class="container">
+        <div class="cards">
+          <div class="card">
+            <div class="ci"><img src="assets/ico-phone.svg" alt=""></div>
+            <h3>Access Exclusive<br>Coupons &amp; Perks</h3>
+            <p>Save at your favorite local spots with digital coupons and special offers.</p>
+          </div>
+
+          <div class="card">
+            <div class="ci"><img src="assets/ico-store.svg" alt=""></div>
+            <h3>Earn Perks &amp; Rewards<br>With Every Visit</h3>
+            <p>Collect perks and redeem them for discounts &amp; upgrades.</p>
+          </div>
+
+          <div class="card">
+            <div class="ci"><img src="assets/ico-shield.svg" alt=""></div>
+            <h3>Privacy-First Platform</h3>
+            <p>No personal information shared with merchants.<br><strong>Your privacy is our priority.</strong></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- BOTTOM SIGNUP -->
+    <section class="signup section-anchor" id="signup">
+      <div class="container signup-inner">
+        <div class="signup-left">
+          <div class="mail-badge"><img src="assets/ico-qr.svg" alt=""></div>
+          <div>
+            <h4>Sign Up to Be the First to Be Informed on New Updates</h4>
+            <div class="sub">Get early access, launch details &amp; <span class="accent">exclusive perks</span>.</div>
+          </div>
+        </div>
+
+        <form id="signupForm" class="inline-form" data-endpoint="/api/subscribe" aria-label="Sign up for updates">
+          <input type="email" name="email" placeholder="Enter your email address" required>
+          <button class="btn btn-purple" type="submit">Sign Up →</button>
+          <span id="signupStatus" class="inline-status" aria-live="polite"></span>
+        </form>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer section-anchor" id="contact">
+      <div class="container">
+        <div class="row">
+          <span>✉ <strong>hello@perkfinity.net</strong></span>
+          <span class="sep">|</span>
+          <span>🌐 <strong>www.perkfinity.net</strong></span>
+        </div>
+      </div>
+    </footer>
+  </main>
+
+  <script src="app.js?v=1"></script>
+</body>
+</html>
