@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Perkfinity — Perks Done Right</title>
+  <meta name="description" content="Perkfinity connects people and local businesses through perks & rewards — privacy-first and simple QR signup."/>
+  <link rel="icon" href="assets/Perkfinity-App-Icon.png"/>
+  <style>
+    :root {
+      --max: 1200px;
+      --headerH: 76px;
+      /* Tweak knobs if you need perfect alignment (in % of image width/height) */
+      --navTop: 2.7%;
+      --navLeft: 36%;
+      --navGap: 7.3%;
+      --contactLeft: 83%;
+      --contactTop: 1.9%;
+
+      --waitInputLeft: 26.3%;
+      --waitInputTop: 54.2%;
+      --waitInputW: 44.0%;
+      --waitInputH: 3.0%;
+
+      --waitBtnLeft: 71.3%;
+      --waitBtnTop: 54.05%;
+      --waitBtnW: 16.0%;
+      --waitBtnH: 3.25%;
+
+      --signupInputLeft: 11.0%;
+      --signupInputTop: 86.75%;
+      --signupInputW: 56.5%;
+      --signupInputH: 3.15%;
+
+      --signupBtnLeft: 69.0%;
+      --signupBtnTop: 86.65%;
+      --signupBtnW: 18.0%;
+      --signupBtnH: 3.35%;
+    }
+
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:#F9F7F1;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial}
+    a{color:inherit}
+    .wrap{max-width:var(--max);margin:0 auto;padding:0 14px}
+    .stage{position:relative; width:100%; max-width:var(--max); margin:0 auto;}
+    .stage img{width:100%; height:auto; display:block; border-radius:0}
+    .overlay{position:absolute; inset:0; pointer-events:none;}
+    .hotspot{position:absolute; pointer-events:auto;}
+    .hotspot a{display:block; width:100%; height:100%;}
+    .field{position:absolute; pointer-events:auto; display:flex; align-items:center;}
+    .field input{
+      width:100%; height:100%;
+      border:none; outline:none; background:transparent;
+      font-size: clamp(12px, 1.2vw, 16px);
+      padding:0 14px; color:#fff;
+    }
+    /* The inputs sit on top of the artwork; keep them invisible but clickable */
+    .field.invisible input{color:transparent; caret-color:#fff;}
+    .field.invisible input::placeholder{color:transparent;}
+    .btnOverlay{position:absolute; pointer-events:auto; background:transparent; border:none; cursor:pointer;}
+    .btnOverlay:focus{outline:2px solid rgba(107,193,122,.9); outline-offset:3px; border-radius:999px;}
+    .status{margin:10px auto 0; max-width:var(--max); padding:0 14px; font-weight:700; color:#3b3b52; min-height:20px}
+    .status small{opacity:.75}
+
+    /* Mobile: make tapping easier */
+    @media (max-width: 520px){
+      :root {
+        --waitInputH: 4.1%;
+        --waitBtnH: 4.3%;
+        --signupInputH: 4.2%;
+        --signupBtnH: 4.4%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="stage" id="stage">
+      <!-- The pixel-perfect approved design -->
+      <img src="assets/Website-Main.png" alt="Perkfinity landing page design" id="mock">
+
+      <!-- Interactive overlays (tabs + forms) -->
+      <div class="overlay" aria-hidden="true">
+        <!-- NAV hotspots (so tabs "work") -->
+        <div class="hotspot" style="left:calc(var(--navLeft)); top:calc(var(--navTop)); width:10.5%; height:3.6%;">
+          <a href="#members" data-jump="members" aria-label="For Members"></a>
+        </div>
+        <div class="hotspot" style="left:calc(var(--navLeft) + var(--navGap)); top:calc(var(--navTop)); width:11.8%; height:3.6%;">
+          <a href="#merchants" data-jump="merchants" aria-label="For Merchants"></a>
+        </div>
+        <div class="hotspot" style="left:calc(var(--navLeft) + var(--navGap)*2); top:calc(var(--navTop)); width:10.8%; height:3.6%;">
+          <a href="#how" data-jump="how" aria-label="How it Works"></a>
+        </div>
+        <div class="hotspot" style="left:calc(var(--contactLeft)); top:calc(var(--contactTop)); width:14.0%; height:4.2%;">
+          <a href="#contact" data-jump="contact" aria-label="Contact Us"></a>
+        </div>
+
+        <!-- Waitlist email field + button -->
+        <div class="field invisible" style="left:var(--waitInputLeft); top:var(--waitInputTop); width:var(--waitInputW); height:var(--waitInputH);">
+          <input id="waitEmail" type="email" autocomplete="email" placeholder="Enter your email" aria-label="Waitlist email"/>
+        </div>
+        <button class="btnOverlay" id="waitBtn" style="left:var(--waitBtnLeft); top:var(--waitBtnTop); width:var(--waitBtnW); height:var(--waitBtnH);" aria-label="Join the waitlist"></button>
+
+        <!-- Updates signup email field + button -->
+        <div class="field" style="left:var(--signupInputLeft); top:var(--signupInputTop); width:var(--signupInputW); height:var(--signupInputH);">
+          <input id="signupEmail" type="email" autocomplete="email" placeholder="Enter your email address" aria-label="Updates email"/>
+        </div>
+        <button class="btnOverlay" id="signupBtn" style="left:var(--signupBtnLeft); top:var(--signupBtnTop); width:var(--signupBtnW); height:var(--signupBtnH);" aria-label="Sign up for updates"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Real anchors so browser URL updates; JS will scroll to exact pixel positions -->
+  <div id="members"></div>
+  <div id="merchants"></div>
+  <div id="how"></div>
+  <div id="contact"></div>
+
+  <div class="status" id="status" aria-live="polite"><small>Build: PIXEL-OVERLAY-2026-03-02</small></div>
+
+  <script>
+    const ORIGINAL_W = 1365; // Website-Main.png width
+    const ORIGINAL_H = 2048; // Website-Main.png height
+
+    // Map nav clicks to Y positions inside the image (in original pixels)
+    const Y = {
+      members: 790,
+      merchants: 790,
+      how: 1040,
+      contact: 1860
+    };
+
+    function stageTop() {
+      const stage = document.getElementById('stage');
+      const rect = stage.getBoundingClientRect();
+      return rect.top + window.scrollY;
+    }
+
+    function currentScale() {
+      const img = document.getElementById('mock');
+      return img.getBoundingClientRect().width / ORIGINAL_W;
+    }
+
+    function jumpTo(key) {
+      const s = currentScale();
+      const top = stageTop() + (Y[key] || 0) * s - 80;
+      window.scrollTo({ top, behavior: 'smooth' });
+    }
+
+    document.querySelectorAll('[data-jump]').forEach(a => {
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        jumpTo(a.getAttribute('data-jump'));
+      });
+    });
+
+    function validEmail(v) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(v || '').trim().toLowerCase());
+    }
+
+    async function submitEmail(email, source) {
+      const status = document.getElementById('status');
+      if (!validEmail(email)) {
+        status.textContent = 'Please enter a valid email.';
+        return;
+      }
+      status.textContent = 'Submitting...';
+
+      try {
+        // If /api/subscribe exists, use it. If not, store locally.
+        const res = await fetch('/api/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify({ email, source })
+        });
+
+        if (res.ok) {
+          status.textContent = "You're on the list. Thank you!";
+          return;
+        }
+
+        // Fallback local save
+        const key = 'perkfinity_emails';
+        const arr = JSON.parse(localStorage.getItem(key) || '[]');
+        arr.push({ email, source, ts: Date.now() });
+        localStorage.setItem(key, JSON.stringify(arr));
+        status.textContent = "Saved locally (email API not connected yet).";
+      } catch (err) {
+        // Fallback local save
+        const key = 'perkfinity_emails';
+        const arr = JSON.parse(localStorage.getItem(key) || '[]');
+        arr.push({ email, source, ts: Date.now() });
+        localStorage.setItem(key, JSON.stringify(arr));
+        status.textContent = "Saved locally (offline).";
+      }
+    }
+
+    document.getElementById('waitBtn').addEventListener('click', () => {
+      submitEmail(document.getElementById('waitEmail').value, 'waitlist');
+    });
+
+    document.getElementById('signupBtn').addEventListener('click', () => {
+      submitEmail(document.getElementById('signupEmail').value, 'signup');
+    });
+
+    // Enter key submits
+    ['waitEmail','signupEmail'].forEach(id => {
+      const el = document.getElementById(id);
+      el.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          if (id === 'waitEmail') document.getElementById('waitBtn').click();
+          else document.getElementById('signupBtn').click();
+        }
+      });
+    });
+  </script>
+</body>
+</html>
