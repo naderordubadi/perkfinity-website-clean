@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Perkfinity — For Merchants</title>
+  <meta name="description" content="Perkfinity helps local businesses grow and retain customers with perks and rewards."/>
+  <link rel="icon" href="assets/Perkfinity-App-Icon.png"/>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+  <header class="header">
+    <div class="container header-inner">
+      <a class="brand" href="index.html" aria-label="Perkfinity home">
+        <img src="assets/Perkfinity-Logo.png" alt="Perkfinity logo">
+      </a>
+
+      <nav class="nav" aria-label="Primary navigation">
+        <a href="index.html#members">For Members</a>
+        <a href="merchants.html">For Merchants</a>
+        <a href="index.html#how">How it Works</a>
+      </nav>
+
+      <a class="btn btn-green" href="index.html#contact" aria-label="Contact Us">
+        <span aria-hidden="true" style="display:inline-grid;place-items:center;width:22px;height:22px;border-radius:8px;background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.22);">✉</span>
+        Contact Us
+      </a>
+    </div>
+  </header>
+
+  <main>
+    <!-- Simple hero text for merchants -->
+    <section class="section">
+      <div class="container">
+        <h1>For Merchants</h1>
+        <p>Join the Perkfinity merchant interest list to get early access and learn how perks & rewards can help you grow and retain customers.</p>
+      </div>
+    </section>
+
+    <!-- Merchant Interest Form -->
+    <section class="section" id="merchant-interest">
+      <div class="container">
+        <h2>Merchant Interest List</h2>
+        <p>Share your details and we’ll reach out with launch information and next steps.</p>
+
+        <form
+          id="merchantInterestForm"
+          class="merchant-form"
+          method="POST"
+          action="https://formspree.io/f/xeerkpay"
+        >
+          <!-- Store details -->
+          <div class="form-row">
+            <label>
+              Store Name *
+              <input type="text" name="store_name" required>
+            </label>
+          </div>
+
+          <div class="form-row">
+            <label>
+              Street Address *
+              <input type="text" name="street_address" required>
+            </label>
+          </div>
+
+          <div class="form-row">
+            <label>
+              Unit / Suite
+              <input type="text" name="unit">
+            </label>
+          </div>
+
+          <div class="form-row form-row-inline">
+            <label>
+              City *
+              <input type="text" name="city" required>
+            </label>
+            <label>
+              State *
+              <input type="text" name="state" required>
+            </label>
+            <label>
+              ZIP Code *
+              <input type="text" name="zip" required>
+            </label>
+          </div>
+
+          <!-- Contact details -->
+          <div class="form-row">
+            <label>
+              Contact Name *
+              <input type="text" name="contact_name" required>
+            </label>
+          </div>
+
+          <div class="form-row form-row-inline">
+            <label>
+              Email Address *
+              <input type="email" name="email" required>
+            </label>
+            <label>
+              Phone Number
+              <input type="tel" name="phone">
+            </label>
+          </div>
+
+          <!-- Business info -->
+          <div class="form-row">
+            <label>
+              Type of Business *
+              <input type="text" name="business_type" placeholder="e.g. café, bakery, salon" required>
+            </label>
+          </div>
+
+          <div class="form-row">
+            <label>
+              Notes / Questions
+              <textarea name="notes" rows="3" placeholder="Anything else you’d like us to know?"></textarea>
+            </label>
+          </div>
+
+          <!-- Submit -->
+          <div class="form-row">
+            <button class="btn btn-green" type="submit">Join Merchant Interest List →</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <footer class="footer section" id="contact">
+      <div class="container">
+        <div class="row">
+          <span>✉ <strong>hello@perkfinity.net</strong></span>
+          <span class="sep">|</span>
+          <span>🌐 <strong>www.perkfinity.net</strong></span>
+        </div>
+      </div>
+    </footer>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
