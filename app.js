@@ -1,5 +1,5 @@
 function validateEmail(email){
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email).trim().toLowerCase());
+  return /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(String(email).trim().toLowerCase());
 }
 async function postJSON(url, payload){
   return fetch(url, {
@@ -41,10 +41,14 @@ function wireForm(formId, statusId){
 wireForm('waitlistForm','waitlistStatus');
 wireForm('signupForm','signupStatus');
 
-// Smooth scroll for in-page links
+// Smooth scroll for in-page links ONLY (fixed)
 document.querySelectorAll('a[href^="#"]').forEach(a=>{
   a.addEventListener('click', (e)=>{
-    const id = a.getAttribute('href').slice(1);
+    const href = a.getAttribute('href');
+    // Skip if it's a full page link like "merchants.html"
+    if(href !== '#top' && href.includes('.html')) return;
+    
+    const id = href.slice(1);
     const el = document.getElementById(id);
     if(el){
       e.preventDefault();
