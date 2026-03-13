@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Perkfinity — For Merchants</title>
-  <meta name="description" content="Perkfinity helps local businesses grow and retain customers with perks and rewards."/>
+  <title>Perkfinity — For Merchants | Grow Your Business</title>
+  <meta name="description" content="Grow and retain customers with Perkfinity's privacy-first digital perks platform. Free setup, no hardware, no POS integration needed."/>
   <link rel="icon" href="assets/Perkfinity-App-Icon.png"/>
   <link rel="stylesheet" href="styles.css"/>
 </head>
@@ -14,130 +14,292 @@
       <a class="brand" href="index.html" aria-label="Perkfinity home">
         <img src="assets/Perkfinity-Logo.png" alt="Perkfinity logo">
       </a>
-
       <nav class="nav" aria-label="Primary navigation">
-        <a href="index.html#members">For Members</a>
+        <a href="members.html">For Members</a>
         <a href="merchants.html">For Merchants</a>
         <a href="index.html#how">How it Works</a>
       </nav>
-
       <a class="btn btn-green" href="index.html#contact" aria-label="Contact Us">
-        <span aria-hidden="true" style="display:inline-grid;place-items:center;width:22px;height:22px;border-radius:8px;background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.22);">✉</span>
+        <span aria-hidden="true" style="display:inline-grid;place-items:center;width:20px;height:20px;border-radius:7px;background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.22);">✉</span>
         Contact Us
       </a>
     </div>
   </header>
 
   <main>
-    <!-- Simple hero text for merchants -->
-    <section class="section">
-      <div class="container">
-        <h1>For Merchants</h1>
-        <p>Join the Perkfinity merchant interest list to get early access and learn how perks & rewards can help you grow and retain customers.</p>
-      </div>
-    </section>
 
-    <!-- Merchant Interest Form -->
-    <section class="section" id="merchant-interest">
-      <div class="container">
-        <h2>Merchant Interest List</h2>
-        <p>Share your details and we’ll reach out with launch information and next steps.</p>
-
-        <form
-          id="merchantInterestForm"
-          class="merchant-form"
-          method="POST"
-          action="https://formspree.io/f/xeerkpay"
-        >
-          <!-- Store details -->
-          <div class="form-row">
-            <label>
-              Store Name *
-              <input type="text" name="store_name" required>
-            </label>
+    <!-- ===== HERO ===== -->
+    <section class="merchant-hero">
+      <div class="container merchant-hero-inner">
+        <div>
+          <div class="breadcrumb" style="color:rgba(255,255,255,.55);margin-bottom:14px">
+            <a href="index.html" style="color:rgba(255,255,255,.65)">Home</a>
+            <span class="sep" style="opacity:.4">›</span>
+            <span>For Merchants</span>
           </div>
-
-          <div class="form-row">
-            <label>
-              Street Address *
-              <input type="text" name="street_address" required>
-            </label>
+          <h1>Grow Your Business<br>with Perkfinity</h1>
+          <p class="hero-sub">One App. Safe. Simple. Local Perks.</p>
+          <div class="hero-badges">
+            <span class="hero-badge">🚀 Free Setup</span>
+            <span class="hero-badge">📱 No Hardware Needed</span>
+            <span class="hero-badge">🔒 Privacy-First</span>
+            <span class="hero-badge">⚡ No POS Integration</span>
           </div>
-
-          <div class="form-row">
-            <label>
-              Unit / Suite
-              <input type="text" name="unit">
-            </label>
-          </div>
-
-          <div class="form-row form-row-inline">
-            <label>
-              City *
-              <input type="text" name="city" required>
-            </label>
-            <label>
-              State *
-              <input type="text" name="state" required>
-            </label>
-            <label>
-              ZIP Code *
-              <input type="text" name="zip" required>
-            </label>
-          </div>
-
-          <!-- Contact details -->
-          <div class="form-row">
-            <label>
-              Contact Name *
-              <input type="text" name="contact_name" required>
-            </label>
-          </div>
-
-          <div class="form-row form-row-inline">
-            <label>
-              Email Address *
-              <input type="email" name="email" required>
-            </label>
-            <label>
-              Phone Number
-              <input type="tel" name="phone">
-            </label>
-          </div>
-
-          <!-- Business info -->
-          <div class="form-row">
-            <label>
-              Type of Business *
-              <input type="text" name="business_type" placeholder="e.g. café, bakery, salon" required>
-            </label>
-          </div>
-
-          <div class="form-row">
-            <label>
-              Notes / Questions
-              <textarea name="notes" rows="3" placeholder="Anything else you’d like us to know?"></textarea>
-            </label>
-          </div>
-
-          <!-- Submit -->
-          <div class="form-row">
-            <button class="btn btn-green" type="submit">Join Merchant Interest List →</button>
-          </div>
-        </form>
-      </div>
-    </section>
-
-    <footer class="footer section" id="contact">
-      <div class="container">
-        <div class="row">
-          <span>✉ <strong>hello@perkfinity.net</strong></span>
-          <span class="sep">|</span>
-          <span>🌐 <strong>www.perkfinity.net</strong></span>
+          <a href="#merchant-interest" class="btn btn-green" style="font-size:16px;padding:15px 32px">
+            Join the Merchant Interest List →
+          </a>
+        </div>
+        <div class="merchant-hero-img" aria-hidden="true">
+          <svg viewBox="0 0 320 280" fill="none" style="width:80%;max-width:260px">
+            <!-- Stylized store illustration -->
+            <rect x="60" y="100" width="200" height="140" rx="8" fill="rgba(255,255,255,.12)" stroke="rgba(255,255,255,.25)" stroke-width="2"/>
+            <path d="M60 130h200" stroke="rgba(255,255,255,.2)" stroke-width="1.5"/>
+            <rect x="120" y="170" width="80" height="70" rx="4" fill="rgba(107,193,122,.25)" stroke="rgba(107,193,122,.4)" stroke-width="1.5"/>
+            <path d="M60 100l20-40h160l20 40" stroke="rgba(255,255,255,.35)" stroke-width="2" stroke-linejoin="round"/>
+            <!-- QR code on storefront -->
+            <rect x="74" y="145" width="38" height="38" rx="4" fill="rgba(255,255,255,.15)" stroke="rgba(255,255,255,.3)" stroke-width="1.5"/>
+            <rect x="79" y="150" width="8" height="8" fill="rgba(255,255,255,.5)" rx="1"/>
+            <rect x="91" y="150" width="8" height="8" fill="rgba(255,255,255,.5)" rx="1"/>
+            <rect x="79" y="162" width="8" height="8" fill="rgba(255,255,255,.5)" rx="1"/>
+            <rect x="91" y="162" width="4" height="4" fill="rgba(255,255,255,.5)" rx="1"/>
+            <rect x="98" y="158" width="4" height="8" fill="rgba(255,255,255,.5)" rx="1"/>
+            <!-- Checkmark badge -->
+            <circle cx="250" cy="95" r="28" fill="#6BC17A" opacity=".9"/>
+            <path d="M239 95l7 8 14-16" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- Stars/sparkles -->
+            <circle cx="50" cy="70" r="3" fill="rgba(255,255,255,.4)"/>
+            <circle cx="280" cy="150" r="4" fill="rgba(107,193,122,.5)"/>
+            <circle cx="40" cy="180" r="2.5" fill="rgba(255,255,255,.3)"/>
+          </svg>
         </div>
       </div>
-    </footer>
+    </section>
+
+    <!-- ===== WHAT IS PERKFINITY ===== -->
+    <section class="info-section bg-white">
+      <div class="container">
+        <span class="section-label">
+          <svg viewBox="0 0 16 16" fill="none" style="width:13px;height:13px"><circle cx="8" cy="8" r="6" stroke="#fff" stroke-width="1.5"/><path d="M8 5v3.5l2 1.5" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>
+          What is Perkfinity?
+        </span>
+        <h2>A Privacy-First Digital<br>Perks Platform</h2>
+        <p class="section-sub">Perkfinity helps local businesses attract and retain nearby customers through digital perks — with <strong>no hardware, no POS integration, and no disruption</strong> to your existing workflow. Customers use one app to discover your offers.</p>
+        <div class="tier-grid">
+          <div class="tier-card">
+            <div class="tier-badge"><span class="tier-dot">1</span> Tier 1</div>
+            <h3>Digital Coupons</h3>
+            <p>Offer instant digital coupons to new and returning customers. Simple, effective, and trackable with zero hardware required.</p>
+          </div>
+          <div class="tier-card">
+            <div class="tier-badge"><span class="tier-dot">2</span> Tier 2</div>
+            <h3>Points &amp; Rewards</h3>
+            <p>Build a loyalty loop — customers earn points with every visit and redeem them for rewards you define. Keeps them coming back.</p>
+          </div>
+          <div class="tier-card">
+            <div class="tier-badge"><span class="tier-dot">3</span> Tier 3</div>
+            <h3>Insights &amp; Promotions</h3>
+            <p>Unlock advanced analytics, premium app visibility, and targeted promotional tools to grow your customer base.</p>
+          </div>
+        </div>
+        <p style="margin:22px 0 0;color:var(--muted);font-size:14px;font-weight:850;text-align:center">All tiers available at launch. The difference is simply pricing and feature depth.</p>
+      </div>
+    </section>
+
+    <!-- ===== WHY IT WORKS ===== -->
+    <section class="info-section">
+      <div class="container">
+        <span class="section-label">
+          <svg viewBox="0 0 16 16" fill="none" style="width:13px;height:13px"><path d="M2 12l4-4 3 3 5-7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          The Data
+        </span>
+        <h2>Why Local Businesses<br>Use Digital Perks</h2>
+        <p class="section-sub">Research consistently shows that loyalty programs and digital deals are proven drivers of repeat business and higher spend.</p>
+        <div class="stat-grid">
+          <div class="stat-card">
+            <div class="stat-icon" aria-hidden="true">
+              <svg viewBox="0 0 26 26" fill="none"><path d="M3 20l5-5.5 4.5 4.5 10-12" stroke="#5B3FA5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div>
+              <div class="stat-num">5–10%</div>
+              <p><strong>Increase in customer retention</strong> from loyalty programs, which can increase profits by <strong>25–95%</strong></p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" aria-hidden="true">
+              <svg viewBox="0 0 26 26" fill="none"><path d="M13 23s-10-5.6-10-12.5a5.5 5.5 0 0 1 10-3.1 5.5 5.5 0 0 1 10 3.1C23 17.4 13 23 13 23z" fill="#6BC17A" fill-opacity=".25" stroke="#5B3FA5" stroke-width="2"/></svg>
+            </div>
+            <div>
+              <div class="stat-num">70%</div>
+              <p>Customers are <strong>70% more likely to return</strong> after redeeming a coupon at your business</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" aria-hidden="true">
+              <svg viewBox="0 0 26 26" fill="none"><path d="M7 11l1.5-4h9L19 11M8 11v10h10V11M11 21v-6h4v6" stroke="#5B3FA5" stroke-width="2" stroke-linejoin="round"/></svg>
+            </div>
+            <div>
+              <div class="stat-num">67%</div>
+              <p>Repeat customers spend up to <strong>67% more</strong> than first-time customers at your store</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" aria-hidden="true">
+              <svg viewBox="0 0 26 26" fill="none"><rect x="6" y="4" width="10" height="18" rx="2.5" stroke="#5B3FA5" stroke-width="2"/><circle cx="11" cy="19" r="1.2" fill="#6BC17A"/><path d="M8 9h6" stroke="#6BC17A" stroke-width="2" stroke-linecap="round"/></svg>
+            </div>
+            <div>
+              <div class="stat-num">↑ YoY</div>
+              <p>Mobile coupon engagement continues to <strong>grow year over year</strong> — customers expect digital perks</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== PRICING ===== -->
+    <section class="info-section bg-white">
+      <div class="container">
+        <span class="section-label">
+          <svg viewBox="0 0 16 16" fill="none" style="width:13px;height:13px"><path d="M8 2v1.5m0 9V14M3.5 5l1.2 1.2m6.6-1.2L10 6.2M2 8h1.5m9 0H14M5 11l-1.5 1.5m9-1.5 1.5 1.5" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>
+          Transparent Pricing
+        </span>
+        <h2>Simple, Honest Pricing</h2>
+        <p class="section-sub">No surprises — final pricing is shared before activation. <strong>No automatic enrollment.</strong></p>
+        <div class="pricing-grid">
+          <!-- Left: tier cards -->
+          <div>
+            <div class="price-card">
+              <div class="price-tier-label">Interest List</div>
+              <h3>Join Today — It's Free</h3>
+              <div class="price-free">Free — No Obligation</div>
+              <div class="value-checks" style="gap:10px">
+                <div class="value-check" style="font-size:14px">
+                  <span class="check-ico" style="width:22px;height:22px" aria-hidden="true"><svg viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5 6.5-7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                  Early partner visibility in the app
+                </div>
+                <div class="value-check" style="font-size:14px">
+                  <span class="check-ico" style="width:22px;height:22px" aria-hidden="true"><svg viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5 6.5-7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                  Priority placement during launch
+                </div>
+                <div class="value-check" style="font-size:14px">
+                  <span class="check-ico" style="width:22px;height:22px" aria-hidden="true"><svg viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5 6.5-7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                  Lock in early partner pricing
+                </div>
+                <div class="value-check" style="font-size:14px">
+                  <span class="check-ico" style="width:22px;height:22px" aria-hidden="true"><svg viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5 6.5-7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                  Help shape Perkfinity's features
+                </div>
+              </div>
+            </div>
+            <div class="price-card">
+              <div class="price-tier-label">Tier 1 — After Launch</div>
+              <h3>Digital Coupon Plan</h3>
+              <div class="value-checks" style="gap:10px">
+                <div class="value-check" style="font-size:14px">
+                  <span class="check-ico" style="width:22px;height:22px" aria-hidden="true"><svg viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5 6.5-7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                  Free setup
+                </div>
+                <div class="value-check" style="font-size:14px">
+                  <span class="check-ico" style="width:22px;height:22px" aria-hidden="true"><svg viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5 6.5-7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                  Up to 10 redemptions included
+                </div>
+                <div class="value-check" style="font-size:14px">
+                  <span class="check-ico" style="width:22px;height:22px" aria-hidden="true"><svg viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5 6.5-7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                  Low monthly subscription after threshold
+                </div>
+              </div>
+              <div class="price-note">Final pricing shared before activation. No auto-enrollment.</div>
+            </div>
+          </div>
+          <!-- Right: CTA box -->
+          <div class="cta-box">
+            <h3>Joining the interest list does NOT obligate you to sign up or pay.</h3>
+            <div class="value-checks" style="gap:10px;margin-bottom:18px">
+              <div class="value-check" style="font-size:14px">
+                <span class="check-ico" style="width:22px;height:22px" aria-hidden="true"><svg viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5 6.5-7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                Early partner visibility in the app
+              </div>
+              <div class="value-check" style="font-size:14px">
+                <span class="check-ico" style="width:22px;height:22px" aria-hidden="true"><svg viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5 6.5-7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                Priority placement during launch
+              </div>
+              <div class="value-check" style="font-size:14px">
+                <span class="check-ico" style="width:22px;height:22px" aria-hidden="true"><svg viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5 6.5-7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                Lock in early partner pricing
+              </div>
+              <div class="value-check" style="font-size:14px">
+                <span class="check-ico" style="width:22px;height:22px" aria-hidden="true"><svg viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5 6.5-7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                Help shape features
+              </div>
+            </div>
+            <p class="launch-note">⚡ Launching this Summer (June).<br>Limited early partner spots available.</p>
+            <a href="#merchant-interest" class="btn btn-green" style="width:100%;justify-content:center">
+              Reserve Your Spot →
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== MERCHANT INTEREST FORM ===== -->
+    <section class="merchant-form-section" id="merchant-interest">
+      <div class="container">
+        <h2>Merchant Interest List</h2>
+        <p class="form-sub">Share your details and we'll reach out with launch information and next steps.</p>
+        <div class="merchant-form-panel">
+          <form
+            id="merchantInterestForm"
+            method="POST"
+            action="https://formspree.io/f/xeerkpay"
+            aria-label="Merchant interest form"
+          >
+            <div class="form-row">
+              <label>Store Name *<input type="text" name="store_name" required></label>
+            </div>
+            <div class="form-row">
+              <label>Street Address *<input type="text" name="street_address" required></label>
+            </div>
+            <div class="form-row">
+              <label>Unit / Suite<input type="text" name="unit"></label>
+            </div>
+            <div class="form-row form-row-3">
+              <label>City *<input type="text" name="city" required></label>
+              <label>State *<input type="text" name="state" required></label>
+              <label>ZIP Code *<input type="text" name="zip" required></label>
+            </div>
+            <div class="form-row">
+              <label>Contact Name *<input type="text" name="contact_name" required></label>
+            </div>
+            <div class="form-row form-row-2">
+              <label>Email Address *<input type="email" name="email" required></label>
+              <label>Phone Number<input type="tel" name="phone"></label>
+            </div>
+            <div class="form-row">
+              <label>Type of Business *<input type="text" name="business_type" placeholder="e.g. café, bakery, salon" required></label>
+            </div>
+            <div class="form-row">
+              <label>Notes / Questions<textarea name="notes" rows="3" placeholder="Anything else you'd like us to know?"></textarea></label>
+            </div>
+            <div class="form-row" style="margin-top:6px">
+              <button class="btn btn-green" type="submit" style="width:100%;justify-content:center;font-size:16px;padding:15px 24px">
+                Join Merchant Interest List →
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+
   </main>
+
+  <footer class="site-footer" id="contact">
+    <div class="container">
+      <div class="row">
+        <span>✉ <strong>hello@perkfinity.net</strong></span>
+        <span class="sep">|</span>
+        <span>🌐 <strong>www.perkfinity.net</strong></span>
+      </div>
+    </div>
+  </footer>
 
   <script src="app.js"></script>
 </body>
