@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Perkfinity — For Members</title>
+  <meta name="description" content="Join the Perkfinity members waitlist and be first to unlock perks in your area."/>
+  <link rel="icon" href="assets/Perkfinity-App-Icon.png"/>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+  <header class="header">
+    <div class="container header-inner">
+      <a class="brand" href="index.html" aria-label="Perkfinity home">
+        <img src="assets/Perkfinity-Logo.png" alt="Perkfinity logo">
+      </a>
+
+      <nav class="nav" aria-label="Primary navigation">
+        <a href="members.html">For Members</a>
+        <a href="merchants.html">For Merchants</a>
+        <a href="index.html#how">How it Works</a>
+      </nav>
+
+      <a class="btn btn-green" href="index.html#contact" aria-label="Contact Us">
+        <span aria-hidden="true" style="display:inline-grid;place-items:center;width:22px;height:22px;border-radius:8px;background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.22);">✉</span>
+        Contact Us
+      </a>
+    </div>
+  </header>
+
+  <main>
+    <section class="section">
+      <div class="container">
+        <h1>For Members</h1>
+        <p>Sign up for the Perkfinity members waitlist and be the first to unlock exclusive perks and rewards from local businesses in your area.</p>
+      </div>
+    </section>
+
+    <section class="section" id="member-waitlist">
+      <div class="container">
+        <h2>Join the Members Waitlist</h2>
+        <p>Enter your details below and we'll notify you the moment Perkfinity launches near you.</p>
+
+        <form
+          id="memberWaitlistForm"
+          class="merchant-form"
+          method="POST"
+          action="https://formspree.io/f/mvzwrvng"
+        >
+          <div class="form-row">
+            <label>
+              Full Name *
+              <input type="text" name="full_name" placeholder="Jane Smith" required>
+            </label>
+          </div>
+
+          <div class="form-row">
+            <label>
+              Email Address *
+              <input type="email" name="email" placeholder="jane@email.com" required>
+            </label>
+          </div>
+
+          <div class="form-row form-row-inline">
+            <label>
+              City *
+              <input type="text" name="city" placeholder="Your city" required>
+            </label>
+            <label>
+              ZIP Code *
+              <input type="text" name="zip" placeholder="92688" required>
+            </label>
+          </div>
+
+          <div class="form-row">
+            <button class="btn btn-green" type="submit">Join the Members Waitlist →</button>
+          </div>
+        </form>
+
+      </div>
+    </section>
+
+    <footer class="footer section" id="contact">
+      <div class="container">
+        <div class="row">
+          <span>✉ <strong>hello@perkfinity.net</strong></span>
+          <span class="sep">|</span>
+          <span>🌐 <strong>www.perkfinity.net</strong></span>
+        </div>
+      </div>
+    </footer>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
