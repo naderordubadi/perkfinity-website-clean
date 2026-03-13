@@ -54,10 +54,29 @@ function wireForm(formId, statusId){
   });
 }
 
+/**
+ * Hero Slider Logic for Homepage
+ */
+function initHeroSlider() {
+  const slider = document.querySelector('.hero-slider');
+  if (!slider) return;
+  const imgs = slider.querySelectorAll('img');
+  if (imgs.length < 2) return;
+  
+  let current = 0;
+  setInterval(() => {
+    imgs[current].classList.remove('active');
+    current = (current + 1) % imgs.length;
+    imgs[current].classList.add('active');
+  }, 5000);
+}
+
+
 // Wire up forms on page load
 document.addEventListener('DOMContentLoaded', () => {
-  // Homepage forms
+  // Homepage forms & Hero
   wireForm('newsletterForm', 'newsletterStatus');
+  initHeroSlider();
   
   // Sub-page forms
   wireForm('memberWaitlistForm', 'waitlistStatus');
