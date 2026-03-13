@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Perkfinity — For Members</title>
-  <meta name="description" content="Join the Perkfinity members waitlist and be first to unlock perks in your area."/>
+  <title>Perkfinity — For Members | Perks &amp; Rewards Await</title>
+  <meta name="description" content="Join the Perkfinity members waitlist and be the first to unlock exclusive perks, digital coupons, and rewards from local businesses near you."/>
   <link rel="icon" href="assets/Perkfinity-App-Icon.png"/>
   <link rel="stylesheet" href="styles.css"/>
 </head>
@@ -14,82 +14,236 @@
       <a class="brand" href="index.html" aria-label="Perkfinity home">
         <img src="assets/Perkfinity-Logo.png" alt="Perkfinity logo">
       </a>
-
       <nav class="nav" aria-label="Primary navigation">
         <a href="members.html">For Members</a>
         <a href="merchants.html">For Merchants</a>
         <a href="index.html#how">How it Works</a>
       </nav>
-
       <a class="btn btn-green" href="index.html#contact" aria-label="Contact Us">
-        <span aria-hidden="true" style="display:inline-grid;place-items:center;width:22px;height:22px;border-radius:8px;background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.22);">✉</span>
+        <span aria-hidden="true" style="display:inline-grid;place-items:center;width:20px;height:20px;border-radius:7px;background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.22);">✉</span>
         Contact Us
       </a>
     </div>
   </header>
 
   <main>
-    <section class="section">
-      <div class="container">
-        <h1>For Members</h1>
-        <p>Sign up for the Perkfinity members waitlist and be the first to unlock exclusive perks and rewards from local businesses in your area.</p>
-      </div>
-    </section>
 
-    <section class="section" id="member-waitlist">
-      <div class="container">
-        <h2>Join the Members Waitlist</h2>
-        <p>Enter your details below and we'll notify you the moment Perkfinity launches near you.</p>
-
-        <form
-          id="memberWaitlistForm"
-          class="merchant-form"
-          method="POST"
-          action="https://formspree.io/f/mvzwrvng"
-        >
-          <div class="form-row">
-            <label>
-              Full Name *
-              <input type="text" name="full_name" placeholder="Jane Smith" required>
-            </label>
+    <!-- ===== HERO ===== -->
+    <section class="members-hero">
+      <div class="container members-hero-grid">
+        <div>
+          <div class="breadcrumb">
+            <a href="index.html">Home</a>
+            <span class="sep">›</span>
+            <span>For Members</span>
           </div>
-
-          <div class="form-row">
-            <label>
-              Email Address *
-              <input type="email" name="email" placeholder="jane@email.com" required>
-            </label>
+          <h1>Perks &amp; Rewards<br>Await!</h1>
+          <p class="hero-sub">Save Money and Earn Rewards<br>at Local Businesses</p>
+          <div class="value-checks">
+            <div class="value-check">
+              <span class="check-ico" aria-hidden="true"><svg viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5 6.5-7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              Exclusive Discounts
+            </div>
+            <div class="value-check">
+              <span class="check-ico" aria-hidden="true"><svg viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5 6.5-7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              Earn Points &amp; Perks
+            </div>
+            <div class="value-check">
+              <span class="check-ico" aria-hidden="true"><svg viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5 6.5-7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              Digital Coupons
+            </div>
+            <div class="value-check">
+              <span class="check-ico" aria-hidden="true"><svg viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5 6.5-7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              Privacy-First — Your Data Stays Yours
+            </div>
           </div>
-
-          <div class="form-row form-row-inline">
-            <label>
-              City *
-              <input type="text" name="city" placeholder="Your city" required>
-            </label>
-            <label>
-              ZIP Code *
-              <input type="text" name="zip" placeholder="92688" required>
-            </label>
-          </div>
-
-          <div class="form-row">
-            <button class="btn btn-green" type="submit">Join the Members Waitlist →</button>
-          </div>
-        </form>
-
-      </div>
-    </section>
-
-    <footer class="footer section" id="contact">
-      <div class="container">
-        <div class="row">
-          <span>✉ <strong>hello@perkfinity.net</strong></span>
-          <span class="sep">|</span>
-          <span>🌐 <strong>www.perkfinity.net</strong></span>
+        </div>
+        <div class="hero-visual" aria-label="Member using Perkfinity on phone">
+          <img src="assets/hero-photo.png" alt="Member enjoying perks with Perkfinity">
         </div>
       </div>
-    </footer>
+      <div class="members-wave" aria-hidden="true">
+        <svg viewBox="0 0 1440 140" preserveAspectRatio="none">
+          <path d="M0,90 C280,140 560,40 860,95 C1060,135 1260,60 1440,90 L1440,140 L0,140 Z" fill="#ffffff"/>
+        </svg>
+      </div>
+    </section>
+
+    <!-- ===== HOW IT WORKS ===== -->
+    <section class="how-section">
+      <div class="container">
+        <h2>How It Works</h2>
+        <p class="how-sub">Available on iOS &amp; Android &nbsp;·&nbsp; Quick &amp; Easy Sign Up</p>
+        <div class="steps-grid">
+
+          <div class="step-card">
+            <div class="step-num" aria-hidden="true">1</div>
+            <div class="step-icon" aria-hidden="true">
+              <svg viewBox="0 0 50 50" fill="none">
+                <rect x="13" y="6" width="24" height="38" rx="5" stroke="#5B3FA5" stroke-width="2.5" fill="#fff"/>
+                <circle cx="25" cy="39" r="2.5" fill="#6BC17A"/>
+                <path d="M19 14h12" stroke="#6BC17A" stroke-width="2.5" stroke-linecap="round"/>
+                <path d="M19 20h8" stroke="#5B3FA5" stroke-width="2" stroke-linecap="round" opacity=".45"/>
+              </svg>
+            </div>
+            <h3>Download the Perkfinity App</h3>
+            <p>Free on iOS &amp; Android — install in seconds and start discovering local perks.</p>
+          </div>
+
+          <div class="step-card">
+            <div class="step-num" aria-hidden="true">2</div>
+            <div class="step-icon" aria-hidden="true">
+              <svg viewBox="0 0 50 50" fill="none">
+                <path d="M25 8C17.3 8 11 14.3 11 22c0 10.5 14 22 14 22s14-11.5 14-22c0-7.7-6.3-14-14-14z" stroke="#5B3FA5" stroke-width="2.5" fill="#fff"/>
+                <circle cx="25" cy="22" r="5" fill="#6BC17A"/>
+              </svg>
+            </div>
+            <h3>Sign Up &amp; Find Local Perks</h3>
+            <p>Quick &amp; easy signup — no credit card needed. Discover deals at businesses near you.</p>
+          </div>
+
+          <div class="step-card">
+            <div class="step-num" aria-hidden="true">3</div>
+            <div class="step-icon" aria-hidden="true">
+              <svg viewBox="0 0 50 50" fill="none">
+                <path d="M8 8h13v13H8V8zm21 0h13v13H29V8zM8 29h13v13H8V29z" stroke="#5B3FA5" stroke-width="2.5"/>
+                <path d="M30 30h5v5h-5v-5zm8 0h2.5v2.5H38V30zm-3 8h5.5v5H35V38z" fill="#6BC17A"/>
+                <circle cx="42" cy="10" r="6" fill="#6BC17A" stroke="#fff" stroke-width="2"/>
+                <path d="M39.5 10l2 2 3.5-3.5" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <h3>Scan, Earn &amp; Redeem Perks</h3>
+            <p>Scan the store's QR code, collect points, and redeem them for real rewards.</p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== WAITLIST CTA + FORM ===== -->
+    <section class="members-cta" id="member-waitlist">
+      <div class="container">
+        <h2>Join the Waitlist!</h2>
+        <p class="cta-sub">Be the First to <span class="highlight">Unlock Perks</span> in Your Area</p>
+
+        <div class="member-form-panel">
+          <form
+            id="memberWaitlistForm"
+            method="POST"
+            action="https://formspree.io/f/mvzwrvng"
+            aria-label="Join the members waitlist"
+          >
+            <div class="form-row">
+              <label>
+                Full Name *
+                <input type="text" name="full_name" placeholder="Jane Smith" required>
+              </label>
+            </div>
+            <div class="form-row">
+              <label>
+                Email Address *
+                <input type="email" name="email" placeholder="jane@email.com" required>
+              </label>
+            </div>
+            <div class="form-row form-row-2">
+              <label>
+                City *
+                <input type="text" name="city" placeholder="Your city" required>
+              </label>
+              <label>
+                ZIP Code *
+                <input type="text" name="zip" placeholder="92688" required>
+              </label>
+            </div>
+            <div class="form-row" style="margin-top:6px">
+              <button class="btn btn-green" type="submit" style="width:100%;justify-content:center;font-size:16px;padding:15px 24px">
+                Join the Members Waitlist →
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== DISCOVER PERKS ===== -->
+    <section class="discover-section">
+      <div class="container">
+        <h2>Discover Local Perks &amp; Rewards</h2>
+        <div class="benefit-cards">
+
+          <div class="benefit-card">
+            <div class="benefit-icon" aria-hidden="true">
+              <svg viewBox="0 0 30 30" fill="none">
+                <path d="M16 3h9v9l-12 12L4 15 16 3z" stroke="#5B3FA5" stroke-width="2" fill="#fff" stroke-linejoin="round"/>
+                <circle cx="21" cy="8" r="2" fill="#6BC17A"/>
+              </svg>
+            </div>
+            <div>
+              <h3>Exclusive Coupons &amp; Deals</h3>
+              <p>Save instantly with digital coupons at your favorite local spots. New offers added regularly.</p>
+            </div>
+          </div>
+
+          <div class="benefit-card">
+            <div class="benefit-icon" aria-hidden="true">
+              <svg viewBox="0 0 30 30" fill="none">
+                <path d="M15 2L27 8v8c0 7-5 11-12 14C8 27 3 23 3 16V8L15 2z" stroke="#5B3FA5" stroke-width="2" fill="#fff" stroke-linejoin="round"/>
+                <path d="M9.5 15.5l3.5 3.5 8-9" stroke="#6BC17A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div>
+              <h3>Earn Points With Every Visit</h3>
+              <p>Your personal information is never shared with merchants. Shop and earn in complete privacy.</p>
+            </div>
+          </div>
+
+          <div class="benefit-card">
+            <div class="benefit-icon" aria-hidden="true">
+              <svg viewBox="0 0 30 30" fill="none">
+                <path d="M4 4h9v9H4V4zm13 0h9v9h-9V4zM4 17h9v9H4V17z" stroke="#5B3FA5" stroke-width="2"/>
+                <path d="M18 18h3.5v3.5H18V18zm5.5 0h2v2h-2v-2zm-2 5H24v2.5h-2.5V23z" fill="#6BC17A"/>
+              </svg>
+            </div>
+            <div>
+              <h3>Simple QR Code Check-In</h3>
+              <p>No complicated app login at the register — just scan and go. Fast and effortless.</p>
+            </div>
+          </div>
+
+          <div class="benefit-card">
+            <div class="benefit-icon" aria-hidden="true">
+              <svg viewBox="0 0 30 30" fill="none">
+                <rect x="3" y="8" width="24" height="14" rx="3" stroke="#5B3FA5" stroke-width="2" fill="#fff"/>
+                <path d="M3 13h24" stroke="#6BC17A" stroke-width="2"/>
+                <path d="M7 18h6M19 18h4" stroke="#5B3FA5" stroke-width="2" stroke-linecap="round" opacity=".5"/>
+              </svg>
+            </div>
+            <div>
+              <h3>Multi-Merchant, One App</h3>
+              <p>One app works across all participating local businesses. Earn and redeem perks everywhere.</p>
+            </div>
+          </div>
+
+        </div>
+        <div style="text-align:center">
+          <a href="#member-waitlist" class="btn btn-purple" style="font-size:16px;padding:16px 34px">
+            Join the Waitlist Now →
+          </a>
+        </div>
+      </div>
+    </section>
+
   </main>
+
+  <footer class="site-footer" id="contact">
+    <div class="container">
+      <div class="row">
+        <span>✉ <strong>hello@perkfinity.net</strong></span>
+        <span class="sep">|</span>
+        <span>🌐 <strong>www.perkfinity.net</strong></span>
+      </div>
+    </div>
+  </footer>
 
   <script src="app.js"></script>
 </body>
