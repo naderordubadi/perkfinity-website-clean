@@ -131,15 +131,23 @@
 
           <!-- STEP 4: Payment (Plaid Integration) -->
           <div id="step-4-bank" class="wizard-step" style="display:none;">
-            <h3 style="margin-top:0;margin-bottom:20px;color:var(--purpleDark)">Step 4: Connect Bank Account</h3>
-            <p style="font-size:14px;color:var(--muted);margin-bottom:20px">Securely connect your bank via Plaid to set up your $15.99/mo Tier 1 subscription. No hidden fees.</p>
+            <h3 style="margin-top:0;margin-bottom:12px;color:var(--purpleDark)">Step 4: Connect Bank Account</h3>
+
+            <!-- Trial tier notice -->
+            <div id="trial-bank-notice" style="display:none;padding:14px 18px;background:rgba(107,193,122,.12);border:1px solid rgba(107,193,122,.4);border-radius:12px;margin-bottom:18px;font-size:14px;color:#1a6b2b">
+              🟢 <strong>No charge today!</strong> You're on the <strong>Trial Plan</strong>. We collect your payment info now, but <strong>you won't be billed until you reach 10 active members</strong>. Cancel anytime before that.
+            </div>
+            <!-- Tier 1 notice -->
+            <div id="tier1-bank-notice" style="display:none;padding:14px 18px;background:rgba(91,63,165,.06);border:1px solid rgba(91,63,165,.2);border-radius:12px;margin-bottom:18px;font-size:14px;color:var(--purpleDark)">
+              💳 Your <strong>$15.99/mo Tier 1</strong> subscription will begin once your bank is connected. No hidden fees.
+            </div>
             
             <div style="padding:40px 20px;border:1px solid var(--border);border-radius:16px;margin-bottom:30px;background:#FAFAFA;text-align:center">
               <div style="width:60px;height:60px;background:var(--purpleLight);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px">
                 <span style="font-size:24px">🏦</span>
               </div>
               <h4 style="margin:0 0 10px;color:var(--ink)">Plaid Secure Connection</h4>
-              <p style="margin:0 0 20px;font-size:14px;color:var(--muted)">We use Plaid to verify your account and process payments securely without storing your bank credentials.</p>
+              <p style="margin:0 0 20px;font-size:14px;color:var(--muted)">We use Plaid to securely verify your bank account without storing your credentials.</p>
               
               <button class="btn btn-purple" id="btnPlaidLink" style="padding:15px 30px;font-size:16px" onclick="openMockPlaidLink()">
                 🔗 Connect Bank with Plaid
@@ -292,15 +300,14 @@
           const data = await res.json();
           currentMerchantId = data.data?.merchant?.id || data.merchantId;
 
-          if (selectedTier === 'trial') {
-            // Trial tier activated instantly — jump to QR poster
-            generateSign();
-          } else {
-            // Tier 1 — requires Plaid bank connection
-            currentPlaidToken = data.data?.plaid_link_token;
-            document.querySelectorAll('.wizard-step').forEach(el => el.style.display = 'none');
-            document.getElementById('step-4-bank').style.display = 'block';
-          }
+          // ALL tiers collect bank info — Trial won't be charged until 10 members
+          currentPlaidToken = data.data?.plaid_link_token;
+          document.querySelectorAll('.wizard-step').forEach(el => el.style.display = 'none');
+          document.getElementById('step-4-bank').style.display = 'block';
+
+          // Show the correct notice banner for the selected tier
+          document.getElementById('trial-bank-notice').style.display = selectedTier === 'trial' ? 'block' : 'none';
+          document.getElementById('tier1-bank-notice').style.display = selectedTier === 'tier1' ? 'block' : 'none';
 
         } catch(e) {
           err.innerText = e.message;
