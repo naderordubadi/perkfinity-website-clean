@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Perkfinity — Merchant Login</title>
+  <meta name="description" content="Log in to your Perkfinity Merchant Dashboard."/>
+  <link rel="icon" href="assets/Perkfinity-App-Icon.png"/>
+  <link rel="stylesheet" href="styles.css"/>
+  <style>
+    .login-container {
+      max-width: 480px;
+      margin: 80px auto;
+      background: white;
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+    }
+    .form-row { margin-bottom: 24px; }
+    .form-row label { display: block; font-weight: 700; color: var(--purpleDark); margin-bottom: 8px; font-size: 15px; }
+    .form-row input {
+      width: 100%;
+      padding: 14px 18px;
+      border-radius: 12px;
+      border: 1.5px solid var(--border);
+      font-size: 16px;
+      outline: none;
+      transition: all 0.2s ease;
+      box-sizing: border-box;
+      background: #fdfdfd;
+    }
+    .form-row input:focus { border-color: var(--purple); background: #fff; box-shadow: 0 0 0 4px rgba(91,63,165,0.1); }
+    .error-box { display: none; padding: 14px; background: rgba(220,53,69,0.1); color: #dc3545; border-radius: 10px; font-size: 14px; margin-bottom: 20px; font-weight: 600; text-align: center; }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="container header-inner">
+      <a class="brand" href="index.html" aria-label="Perkfinity home">
+        <img src="assets/Perkfinity-Logo.png" alt="Perkfinity logo">
+      </a>
+      <nav class="nav" aria-label="Primary navigation">
+        <a href="members.html">For Members</a>
+        <a href="merchants.html">For Merchants</a>
+        <a href="login.html" aria-current="page">Merchant Login</a>
+        <a href="signup.html">Merchant Sign Up</a>
+        <a href="how-it-works.html">How it Works</a>
+      </nav>
+      <a class="btn btn-green" href="mailto:hello@perkfinity.net" aria-label="Contact Us">
+        <span aria-hidden="true" style="display:inline-grid;place-items:center;width:20px;height:20px;border-radius:7px;background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.22);">✉</span> Contact Us
+      </a>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="login-container">
+      <div style="text-align:center; margin-bottom: 30px;">
+        <h1 style="font-size: 28px; color: var(--purpleDark); margin-bottom: 8px;">Welcome Back</h1>
+        <p style="color: var(--muted); font-size: 16px;">Log in to your Merchant Dashboard</p>
+      </div>
+
+      <div id="loginError" class="error-box"></div>
+
+      <form id="loginForm" onsubmit="handleLogin(event)">
+        <div class="form-row">
+          <label>Email Address</label>
+          <input type="email" id="email" placeholder="name@store.com" required>
+        </div>
+        <div class="form-row">
+          <label style="display:flex; justify-content:space-between;">
+            Password 
+            <a href="#" style="font-weight:normal; font-size:13px; color:var(--purple); text-decoration:none;">Forgot password?</a>
+          </label>
+          <input type="password" id="password" placeholder="Enter your password" required>
+        </div>
+        <button type="submit" id="submitBtn" class="btn btn-purple" style="width: 100%; font-size: 16px; padding: 16px;">
+          Log In
+        </button>
+      </form>
+
+      <div style="text-align:center; margin-top: 24px; font-size: 14px; color: var(--muted);">
+        Don't have an account? <a href="signup.html" style="color:var(--purple); font-weight:700; text-decoration:none;">Sign up here</a>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const BACKEND_URL = 'https://perkfinity-backend.vercel.app';
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const errorBox = document.getElementById('loginError');
+      const submitBtn = document.getElementById('submitBtn');
+
+      errorBox.style.display = 'none';
+      submitBtn.innerText = 'Logging in...';
+      submitBtn.disabled = true;
+      submitBtn.style.opacity = '0.7';
+
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/v1/merchants/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        
+        let data;
+        try {
+          data = await res.json();
+        } catch(err) {
+          throw new Error('Invalid JSON response from server');
+        }
+
+        if (res.ok && data.success) {
+          // Store token and merchant data in localStorage
+          localStorage.setItem('perkfinity_token', data.data.accessToken);
+          localStorage.setItem('perkfinity_merchant_id', data.data.merchant.id);
+          localStorage.setItem('perkfinity_business_name', data.data.merchant.business_name);
+          
+          window.location.href = 'dashboard.html';
+        } else {
+          throw new Error(data.message || 'Invalid email or password');
+        }
+      } catch (err) {
+        errorBox.innerText = err.message || "Something went wrong. Please try again.";
+        errorBox.style.display = 'block';
+        console.error('Login error:', err);
+      } finally {
+        submitBtn.innerText = 'Log In';
+        submitBtn.disabled = false;
+        submitBtn.style.opacity = '1';
+      }
+    }
+  </script>
+</body>
+</html>
