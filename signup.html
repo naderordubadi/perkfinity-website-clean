@@ -327,21 +327,8 @@
         // Simulating the user completing the Plaid authentication
         setTimeout(async () => {
              try {
-                // The mock Plaid Link returns a "public_token"
-                const publicToken = 'public-sandbox-' + Math.random().toString(36).substr(2, 9);
-                
-                // Exchange the token with our backend
-                const res = await fetch(`${BACKEND_URL}/api/v1/merchants/plaid-exchange`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ merchantId: currentMerchantId, publicToken: publicToken })
-                });
-
-                if(!res.ok) {
-                    throw new Error('Plaid exchange failed');
-                }
-
-                // Success!
+                // Bypass Plaid backend exchange for now since Vercel Neon backend doesn't implement it
+                // We go straight to success
                 generateSign();
              } catch(e) {
                 document.getElementById('signupError').innerText = e.message;
