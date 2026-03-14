@@ -45,8 +45,9 @@
             <div class="form-row">
               <label>Store Name *<input type="text" id="store_name" required></label>
             </div>
-            <div class="form-row">
+            <div class="form-row form-row-2">
               <label>Street Address *<input type="text" id="street_address" required></label>
+              <label>Suite / Unit #<input type="text" id="suite" placeholder="e.g. Suite 4B (optional)"></label>
             </div>
             <div class="form-row form-row-2">
               <label>City *<input type="text" id="city" required></label>
@@ -276,7 +277,7 @@
           contactName: document.getElementById('contact_name').value,
           email: document.getElementById('email').value,
           phone: document.getElementById('phone').value,
-          address: document.getElementById('street_address').value,
+          address: [document.getElementById('street_address').value, document.getElementById('suite').value].filter(Boolean).join(', '),
           city: document.getElementById('city').value,
           zip: document.getElementById('zip').value,
           website: document.getElementById('website').value,
