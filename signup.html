@@ -170,10 +170,20 @@
             </div>
 
             <div class="form-row form-row-2">
-              <label>Password *<input type="password" id="password" required minlength="8"
-                  placeholder="Min 8 characters"></label>
-              <label>Confirm Password *<input type="password" id="confirm_password" required minlength="8"
-                  placeholder="Re-enter password"></label>
+            <div class="form-row form-row-2">
+              <label>Password *
+                <div style="position:relative">
+                  <input type="password" id="password" required minlength="8" placeholder="Min 8 characters" style="padding-right:45px;width:100%;box-sizing:border-box;">
+                  <span onclick="togglePassword('password', this)" style="position:absolute;right:15px;top:50%;transform:translateY(-50%);cursor:pointer;opacity:0.6;font-size:18px;user-select:none;">👁️</span>
+                </div>
+              </label>
+              <label>Confirm Password *
+                <div style="position:relative">
+                  <input type="password" id="confirm_password" required minlength="8" placeholder="Re-enter password" style="padding-right:45px;width:100%;box-sizing:border-box;">
+                  <span onclick="togglePassword('confirm_password', this)" style="position:absolute;right:15px;top:50%;transform:translateY(-50%);cursor:pointer;opacity:0.6;font-size:18px;user-select:none;">👁️</span>
+                </div>
+              </label>
+            </div>
             </div>
             <p style="font-size:13px;color:var(--muted);margin-top:-10px;margin-bottom:20px;">Must contain at least 1
               uppercase, 1 lowercase, and 1 number.</p>
@@ -296,6 +306,17 @@
       let currentMerchantId = null;
       let currentPlaidToken = null;
       const BACKEND_URL = 'https://perkfinity-backend.vercel.app';
+
+      function togglePassword(inputId, icon) {
+        const input = document.getElementById(inputId);
+        if (input.type === 'password') {
+          input.type = 'text';
+          icon.innerText = '🙈';
+        } else {
+          input.type = 'password';
+          icon.innerText = '👁️';
+        }
+      }
 
       function printPoster() {
         const printContent = document.getElementById('printable-poster').outerHTML;
