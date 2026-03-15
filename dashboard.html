@@ -76,6 +76,7 @@
         <a href="#" onclick="switchTab('members')">Member List</a>
         <a href="#" onclick="switchTab('promotion')">Create a Promotion</a>
         <a href="#" onclick="switchTab('newsletter')">Create a Newsletter</a>
+        <a href="#" onclick="switchTab('profile')">Profile</a>
       </div>
     </div>
   </div>
@@ -125,6 +126,41 @@
       <p>Keep your community in the loop. Send out announcements, holiday hours, or a simple message to all of your most loyal members directly from the dashboard.</p>
       <button class="btn btn-purple" style="font-size: 15px; padding: 12px 24px;">Draft Newsletter</button>
     </div>
+
+    <!-- Profile Settings -->
+    <div id="tab-profile" style="display:none; background:white; border-radius:16px; padding:30px; box-shadow:0 4px 20px rgba(0,0,0,0.03);">
+      <h3 style="margin-top:0; color:var(--purpleDark);">Merchant Profile Settings</h3>
+      <p style="color:var(--muted); font-size:14px; margin-bottom:24px;">Update your login email (username) or change your password.</p>
+      
+      <div style="max-width:500px;">
+        <div style="margin-bottom:20px;">
+          <label style="display:block; margin-bottom:8px; font-weight:600; font-size:14px;">Email / Username</label>
+          <input type="email" id="profileEmail" placeholder="Enter new email" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; outline:none;">
+        </div>
+        
+        <div style="margin-bottom:20px;">
+          <label style="display:block; margin-bottom:8px; font-weight:600; font-size:14px;">New Password (Optional)</label>
+          <div style="position:relative">
+             <input type="password" id="profileNewPassword" placeholder="Leave blank to keep current password" minlength="8" style="width:100%; padding:12px; padding-right:45px; border:1px solid var(--border); border-radius:8px; outline:none; box-sizing:border-box;">
+             <span onclick="togglePassword('profileNewPassword', this)" style="position:absolute;right:15px;top:50%;transform:translateY(-50%);cursor:pointer;opacity:0.6;font-size:18px;user-select:none;">👁️</span>
+          </div>
+        </div>
+
+        <hr style="border:none; border-top:1px solid var(--border); margin:30px 0;">
+        
+        <div style="margin-bottom:20px;">
+          <label style="display:block; margin-bottom:8px; font-weight:600; font-size:14px; color:var(--purpleDark);">Current Password (Required to Save)</label>
+          <div style="position:relative">
+             <input type="password" id="profileCurrentPassword" placeholder="Enter current password to save changes" required style="width:100%; padding:12px; padding-right:45px; border:1px solid var(--border); border-radius:8px; outline:none; box-sizing:border-box;">
+             <span onclick="togglePassword('profileCurrentPassword', this)" style="position:absolute;right:15px;top:50%;transform:translateY(-50%);cursor:pointer;opacity:0.6;font-size:18px;user-select:none;">👁️</span>
+          </div>
+        </div>
+        
+        <div id="profileMessage" style="margin-bottom:15px; font-size:14px; display:none;"></div>
+        
+        <button id="btnSaveProfile" class="btn btn-purple" style="padding:12px 24px; font-size:15px; width:100%;" onclick="updateProfile()">Save Changes</button>
+      </div>
+    </div>
   </main>
 
   <script>
@@ -173,7 +209,7 @@
     }
 
     function switchTab(tabId) {
-      document.querySelectorAll('.empty-state, #tab-members').forEach(el => el.style.display = 'none');
+      document.querySelectorAll('.empty-state, #tab-members, #tab-profile').forEach(el => el.style.display = 'none');
       document.querySelectorAll('.nav-tabs a').forEach(el => el.classList.remove('active'));
       
       const target = document.getElementById('tab-' + tabId);
@@ -181,6 +217,78 @@
       event.target.classList.add('active');
 
       if (tabId === 'members') loadMembers();
+      if (tabId === 'profile') {
+        const uEmail = localStorage.getItem('perkfinity_email') || '';
+        document.getElementById('profileEmail').value = uEmail;
+        document.getElementById('profileMessage').style.display = 'none';
+        document.getElementById('profileCurrentPassword').value = '';
+        document.getElementById('profileNewPassword').value = '';
+      }
+    }
+
+    function togglePassword(inputId, icon) {
+      const input = document.getElementById(inputId);
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.innerText = '🙈';
+      } else {
+        input.type = 'password';
+        icon.innerText = '👁️';
+      }
+    }
+
+    async function updateProfile() {
+      const email = document.getElementById('profileEmail').value;
+      const current_password = document.getElementById('profileCurrentPassword').value;
+      const new_password = document.getElementById('profileNewPassword').value;
+      const msgLabel = document.getElementById('profileMessage');
+      const btn = document.getElementById('btnSaveProfile');
+      
+      msgLabel.style.display = 'block';
+      msgLabel.style.color = 'red';
+      
+      if (!current_password) {
+         msgLabel.innerText = "Current password is required to save changes.";
+         return;
+      }
+      if (new_password && new_password.length > 0 && new_password.length < 8) {
+         msgLabel.innerText = "New password must be at least 8 characters long.";
+         return;
+      }
+
+      btn.disabled = true;
+      btn.innerText = "Saving...";
+
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/v1/merchants/${merchantId}/profile`, {
+          method: 'PUT',
+          headers: { 
+             'Content-Type': 'application/json',
+             'Authorization': `Bearer ${apiToken}` 
+          },
+          body: JSON.stringify({ email, current_password, new_password })
+        });
+        const json = await res.json();
+        
+        if (!res.ok || !json.success) {
+           msgLabel.innerText = json.error || "An error occurred while saving.";
+        } else {
+           msgLabel.style.color = 'var(--greenDark)';
+           msgLabel.innerText = "Profile updated successfully!";
+           document.getElementById('profileCurrentPassword').value = '';
+           document.getElementById('profileNewPassword').value = '';
+           if (email) localStorage.setItem('perkfinity_email', email);
+           if (new_password) {
+              msgLabel.innerText = "Profile updated! Password changed, please log in again.";
+              setTimeout(() => { handleLogout(); }, 2000);
+           }
+        }
+      } catch (err) {
+         msgLabel.innerText = "Failed to connect to the server.";
+      } finally {
+         btn.disabled = false;
+         btn.innerText = "Save Changes";
+      }
     }
 
     async function loadMembers() {

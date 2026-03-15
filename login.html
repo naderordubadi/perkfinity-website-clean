@@ -133,6 +133,10 @@
           localStorage.setItem('perkfinity_token', data.data.accessToken);
           localStorage.setItem('perkfinity_merchant_id', data.data.merchantUser.merchant_id);
           localStorage.setItem('perkfinity_business_name', data.data.merchantUser.business_name);
+          localStorage.setItem('perkfinity_email', data.data.merchantUser.email);
+          if (data.data.merchantUser.logo_url) {
+            localStorage.setItem('perkfinity_logo_url', data.data.merchantUser.logo_url);
+          }
           
           window.location.href = 'dashboard.html';
         } else {

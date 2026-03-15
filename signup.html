@@ -147,8 +147,7 @@
 
             </div>
             <div style="display:flex;gap:15px">
-              <button class="btn" style="background:#eee;color:#333;flex:1;padding:15px" onclick="nextStep(1)">←
-                Back</button>
+              <button class="btn" style="background:#e2e8f0;color:#334155;flex:1;padding:15px;font-weight:600;border:1px solid #cbd5e1;" onclick="nextStep(1)">← Go Back</button>
               <button class="btn btn-purple" id="btnStep2" style="flex:2;padding:15px" onclick="nextStep(3)">Continue
                 →</button>
             </div>
@@ -188,8 +187,7 @@
             <div id="step3Error" style="color:red;margin-bottom:12px;display:none;"></div>
 
             <div style="display:flex;gap:15px">
-              <button class="btn" style="background:#eee;color:#333;flex:1;padding:15px" onclick="nextStep(2)">←
-                Back</button>
+              <button class="btn" style="background:#e2e8f0;color:#334155;flex:1;padding:15px;font-weight:600;border:1px solid #cbd5e1;" onclick="nextStep(2)">← Go Back</button>
               <button class="btn btn-purple" id="btnStep3" style="flex:2;padding:15px" onclick="executeSignup()">Create
                 Account & Continue →</button>
             </div>
@@ -229,8 +227,7 @@
             </div>
 
             <div style="display:flex;gap:15px">
-              <button class="btn" style="background:#eee;color:#333;flex:1;padding:15px" onclick="nextStep(3)">←
-                Back</button>
+              <button class="btn" style="background:#e2e8f0;color:#334155;flex:1;padding:15px;font-weight:600;border:1px solid #cbd5e1;" onclick="nextStep(3)">← Go Back</button>
             </div>
             <div id="signupError" style="color: red; margin-top: 10px; display: none; text-align: center;"></div>
           </div>
@@ -257,6 +254,7 @@
             </div>
 
             <div style="display:flex;gap:15px">
+              <button class="btn" style="background:#e2e8f0;color:#334155;flex:1;padding:15px;font-weight:600;border:1px solid #cbd5e1;" onclick="nextStep(4)">← Go Back</button>
               <button class="btn btn-purple" id="btnFinish" style="flex:2;padding:15px" onclick="finishAndGenerate()">Finish & Generate Sign →</button>
             </div>
           </div>
@@ -526,6 +524,11 @@
           currentMerchantId = data.data?.merchant?.id || data.merchantId;
           currentAccessToken = data.data?.accessToken;
           currentQrUrl = data.data?.qr_url || `https://perkfinity-app.vercel.app/qr/${data.data?.qr_public_code}`;
+
+          localStorage.setItem('perkfinity_token', currentAccessToken);
+          localStorage.setItem('perkfinity_merchant_id', currentMerchantId);
+          localStorage.setItem('perkfinity_business_name', payload.name);
+          localStorage.setItem('perkfinity_email', payload.email);
 
           // ALL tiers collect bank info — Trial won't be charged until 10 members
           currentPlaidToken = data.data?.plaid_link_token;
