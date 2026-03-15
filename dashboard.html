@@ -134,8 +134,33 @@
       
       <div style="max-width:500px;">
         <div style="margin-bottom:20px;">
+          <label style="display:block; margin-bottom:8px; font-weight:600; font-size:14px;">Store Name</label>
+          <input type="text" id="profileStoreName" placeholder="Enter store name" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; outline:none;">
+        </div>
+
+        <div style="margin-bottom:20px;">
           <label style="display:block; margin-bottom:8px; font-weight:600; font-size:14px;">Email / Username</label>
           <input type="email" id="profileEmail" placeholder="Enter new email" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; outline:none;">
+        </div>
+
+        <div style="margin-bottom:20px;">
+          <label style="display:block; margin-bottom:8px; font-weight:600; font-size:14px;">Street Address</label>
+          <input type="text" id="profileAddress" placeholder="Enter street address" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; outline:none;">
+        </div>
+
+        <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:15px;margin-bottom:20px;">
+          <div>
+            <label style="display:block; margin-bottom:8px; font-weight:600; font-size:14px;">City</label>
+            <input type="text" id="profileCity" placeholder="City" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; outline:none; box-sizing:border-box;">
+          </div>
+          <div>
+            <label style="display:block; margin-bottom:8px; font-weight:600; font-size:14px;">State</label>
+            <input type="text" id="profileState" placeholder="State" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; outline:none; box-sizing:border-box;">
+          </div>
+          <div>
+            <label style="display:block; margin-bottom:8px; font-weight:600; font-size:14px;">ZIP Code</label>
+            <input type="text" id="profileZip" placeholder="ZIP" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; outline:none; box-sizing:border-box;">
+          </div>
         </div>
         
         <div style="margin-bottom:20px;">
@@ -223,6 +248,22 @@
         document.getElementById('profileMessage').style.display = 'none';
         document.getElementById('profileCurrentPassword').value = '';
         document.getElementById('profileNewPassword').value = '';
+        
+        // Fetch current profile data to populate fields
+        fetch(`${BACKEND_URL}/api/v1/merchants/${merchantId}/profile`, {
+          headers: { 'Authorization': `Bearer ${apiToken}` }
+        })
+        .then(res => res.json())
+        .then(json => {
+           if (json.success && json.data) {
+             document.getElementById('profileStoreName').value = json.data.business_name || '';
+             document.getElementById('profileAddress').value = json.data.address || '';
+             document.getElementById('profileCity').value = json.data.city || '';
+             document.getElementById('profileState').value = json.data.state || '';
+             document.getElementById('profileZip').value = json.data.postal_code || '';
+           }
+        })
+        .catch(e => console.error("Failed to load profile data"));
       }
     }
 
@@ -239,6 +280,12 @@
 
     async function updateProfile() {
       const email = document.getElementById('profileEmail').value;
+      const business_name = document.getElementById('profileStoreName').value;
+      const address = document.getElementById('profileAddress').value;
+      const city = document.getElementById('profileCity').value;
+      const state = document.getElementById('profileState').value;
+      const zip = document.getElementById('profileZip').value;
+      
       const current_password = document.getElementById('profileCurrentPassword').value;
       const new_password = document.getElementById('profileNewPassword').value;
       const msgLabel = document.getElementById('profileMessage');
@@ -266,7 +313,7 @@
              'Content-Type': 'application/json',
              'Authorization': `Bearer ${apiToken}` 
           },
-          body: JSON.stringify({ email, current_password, new_password })
+          body: JSON.stringify({ email, current_password, new_password, business_name, address, city, state, zip })
         });
         const json = await res.json();
         
@@ -277,7 +324,20 @@
            msgLabel.innerText = "Profile updated successfully!";
            document.getElementById('profileCurrentPassword').value = '';
            document.getElementById('profileNewPassword').value = '';
+           
            if (email) localStorage.setItem('perkfinity_email', email);
+           if (json.new_business_name) {
+              localStorage.setItem('perkfinity_business_name', json.new_business_name);
+              // Update welcome title if changed
+              const logoUrl = localStorage.getItem('perkfinity_logo_url');
+              const h1 = document.getElementById('welcomeTitle');
+              if (logoUrl) {
+                 h1.innerHTML = `<img src="${logoUrl}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: contain; margin-right: 12px; border: 2px solid white;">Welcome back, ${json.new_business_name}`;
+              } else {
+                 h1.innerText = `Welcome back, ${json.new_business_name}`;
+              }
+           }
+           
            if (new_password) {
               msgLabel.innerText = "Profile updated! Password changed, please log in again.";
               setTimeout(() => { handleLogout(); }, 2000);
