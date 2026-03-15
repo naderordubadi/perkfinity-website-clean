@@ -133,22 +133,29 @@
       <p style="color:var(--muted); font-size:14px; margin-bottom:24px;">Update your login email (username) or change your password.</p>
       
       <div style="max-width:500px;">
+        <h4 style="margin:0 0 15px;color:var(--ink);border-bottom:1px solid var(--border);padding-bottom:10px;">Store Information</h4>
         <div style="margin-bottom:20px;">
           <label style="display:block; margin-bottom:8px; font-weight:600; font-size:14px;">Store Name</label>
           <input type="text" id="profileStoreName" placeholder="Enter store name" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; outline:none;">
         </div>
-
+        
         <div style="margin-bottom:20px;">
-          <label style="display:block; margin-bottom:8px; font-weight:600; font-size:14px;">Email / Username</label>
-          <input type="email" id="profileEmail" placeholder="Enter new email" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; outline:none;">
+          <label style="display:block; margin-bottom:8px; font-weight:600; font-size:14px;">Website (Optional)</label>
+          <input type="url" id="profileWebsite" placeholder="https://" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; outline:none;">
         </div>
 
-        <div style="margin-bottom:20px;">
-          <label style="display:block; margin-bottom:8px; font-weight:600; font-size:14px;">Street Address</label>
-          <input type="text" id="profileAddress" placeholder="Enter street address" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; outline:none;">
+        <div style="display:grid;grid-template-columns:2fr 1fr;gap:15px;margin-bottom:20px;">
+          <div>
+            <label style="display:block; margin-bottom:8px; font-weight:600; font-size:14px;">Street Address</label>
+            <input type="text" id="profileAddress" placeholder="Enter street address" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; outline:none; box-sizing:border-box;">
+          </div>
+          <div>
+            <label style="display:block; margin-bottom:8px; font-weight:600; font-size:14px;">Suite / Unit #</label>
+            <input type="text" id="profileSuite" placeholder="Optional" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; outline:none; box-sizing:border-box;">
+          </div>
         </div>
 
-        <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:15px;margin-bottom:20px;">
+        <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:15px;margin-bottom:30px;">
           <div>
             <label style="display:block; margin-bottom:8px; font-weight:600; font-size:14px;">City</label>
             <input type="text" id="profileCity" placeholder="City" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; outline:none; box-sizing:border-box;">
@@ -161,6 +168,23 @@
             <label style="display:block; margin-bottom:8px; font-weight:600; font-size:14px;">ZIP Code</label>
             <input type="text" id="profileZip" placeholder="ZIP" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; outline:none; box-sizing:border-box;">
           </div>
+        </div>
+
+        <h4 style="margin:0 0 15px;color:var(--ink);border-bottom:1px solid var(--border);padding-bottom:10px;">Account & Contact</h4>
+        
+        <div style="margin-bottom:20px;">
+          <label style="display:block; margin-bottom:8px; font-weight:600; font-size:14px;">Contact Name</label>
+          <input type="text" id="profileContactName" placeholder="Enter contact name" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; outline:none;">
+        </div>
+
+        <div style="margin-bottom:20px;">
+          <label style="display:block; margin-bottom:8px; font-weight:600; font-size:14px;">Phone Number</label>
+          <input type="tel" id="profilePhone" placeholder="555-555-5555" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; outline:none;">
+        </div>
+
+        <div style="margin-bottom:20px;">
+          <label style="display:block; margin-bottom:8px; font-weight:600; font-size:14px;">Email / Username</label>
+          <input type="email" id="profileEmail" placeholder="Enter new email" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; outline:none;">
         </div>
         
         <div style="margin-bottom:20px;">
@@ -257,10 +281,14 @@
         .then(json => {
            if (json.success && json.data) {
              document.getElementById('profileStoreName').value = json.data.business_name || '';
+             document.getElementById('profileWebsite').value = json.data.website || '';
              document.getElementById('profileAddress').value = json.data.address || '';
+             document.getElementById('profileSuite').value = json.data.suite || '';
              document.getElementById('profileCity').value = json.data.city || '';
              document.getElementById('profileState').value = json.data.state || '';
              document.getElementById('profileZip').value = json.data.postal_code || '';
+             document.getElementById('profileContactName').value = json.data.contact_name || '';
+             document.getElementById('profilePhone').value = json.data.phone || '';
            }
         })
         .catch(e => console.error("Failed to load profile data"));
@@ -281,10 +309,14 @@
     async function updateProfile() {
       const email = document.getElementById('profileEmail').value;
       const business_name = document.getElementById('profileStoreName').value;
+      const website = document.getElementById('profileWebsite').value;
       const address = document.getElementById('profileAddress').value;
+      const suite = document.getElementById('profileSuite').value;
       const city = document.getElementById('profileCity').value;
       const state = document.getElementById('profileState').value;
       const zip = document.getElementById('profileZip').value;
+      const contact_name = document.getElementById('profileContactName').value;
+      const phone = document.getElementById('profilePhone').value;
       
       const current_password = document.getElementById('profileCurrentPassword').value;
       const new_password = document.getElementById('profileNewPassword').value;
@@ -313,7 +345,7 @@
              'Content-Type': 'application/json',
              'Authorization': `Bearer ${apiToken}` 
           },
-          body: JSON.stringify({ email, current_password, new_password, business_name, address, city, state, zip })
+          body: JSON.stringify({ email, current_password, new_password, business_name, website, address, suite, city, state, zip, contact_name, phone })
         });
         const json = await res.json();
         
