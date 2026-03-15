@@ -73,6 +73,7 @@
       
       <div class="nav-tabs">
         <a href="#" class="active" onclick="switchTab('redemption')">Redemption History</a>
+        <a href="#" onclick="switchTab('members')">Member List</a>
         <a href="#" onclick="switchTab('promotion')">Create a Promotion</a>
         <a href="#" onclick="switchTab('newsletter')">Create a Newsletter</a>
       </div>
@@ -85,6 +86,30 @@
       <h3>No Redemptions Yet!</h3>
       <p>Once your customers start scanning your QR code, you'll see a complete history of all coupons claimed and redeemed right here in real-time.</p>
       <button class="btn btn-purple" style="font-size: 15px; padding: 12px 24px;">Print QR Sign Again</button>
+    </div>
+
+    <!-- Member List -->
+    <div id="tab-members" style="display:none; background:white; border-radius:16px; padding:30px; box-shadow:0 4px 20px rgba(0,0,0,0.03);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <h3 style="margin:0; color:var(--purpleDark);">Store Members</h3>
+        <button class="btn btn-purple" style="font-size: 14px; padding: 10px 20px;" onclick="loadMembers()">↻ Refresh</button>
+      </div>
+      <div style="overflow-x:auto;">
+        <table style="width:100%; border-collapse:collapse; text-align:left;">
+          <thead>
+            <tr style="border-bottom:2px solid var(--border); color:var(--muted); font-size:14px;">
+              <th style="padding:12px">Member ID</th>
+              <th style="padding:12px">City</th>
+              <th style="padding:12px">ZIP Code</th>
+              <th style="padding:12px">Total Promotions</th>
+              <th style="padding:12px">Promotion Status Details</th>
+            </tr>
+          </thead>
+          <tbody id="membersTableBody">
+            <tr><td colspan="5" style="padding:20px; text-align:center; color:var(--muted);">Loading members...</td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
 
     <!-- Create Promotion -->
@@ -104,16 +129,38 @@
 
   <script>
     // Authentication Check
+    const BACKEND_URL = 'https://perkfinity-backend.vercel.app';
+    let merchantId = null;
+    let apiToken = null;
+
     document.addEventListener('DOMContentLoaded', () => {
       const token = localStorage.getItem('perkfinity_token');
       if (!token) {
         window.location.href = 'login.html';
         return;
       }
+      apiToken = token;
+      merchantId = localStorage.getItem('perkfinity_merchant_id');
       
       const bName = localStorage.getItem('perkfinity_business_name');
       if (bName) {
         document.getElementById('welcomeTitle').innerText = `Welcome back, ${bName}`;
+      }
+      
+      const logoUrl = localStorage.getItem('perkfinity_logo_url');
+      if (logoUrl) {
+         const logoImg = document.createElement('img');
+         logoImg.src = logoUrl;
+         logoImg.style.width = '40px';
+         logoImg.style.height = '40px';
+         logoImg.style.borderRadius = '50%';
+         logoImg.style.objectFit = 'contain';
+         logoImg.style.marginRight = '12px';
+         logoImg.style.border = '2px solid white';
+         const h1 = document.getElementById('welcomeTitle');
+         h1.style.display = 'flex';
+         h1.style.alignItems = 'center';
+         h1.insertBefore(logoImg, h1.firstChild);
       }
     });
 
@@ -121,15 +168,58 @@
       localStorage.removeItem('perkfinity_token');
       localStorage.removeItem('perkfinity_merchant_id');
       localStorage.removeItem('perkfinity_business_name');
+      localStorage.removeItem('perkfinity_logo_url');
       window.location.href = 'login.html';
     }
 
     function switchTab(tabId) {
-      document.querySelectorAll('.empty-state').forEach(el => el.style.display = 'none');
+      document.querySelectorAll('.empty-state, #tab-members').forEach(el => el.style.display = 'none');
       document.querySelectorAll('.nav-tabs a').forEach(el => el.classList.remove('active'));
       
-      document.getElementById('tab-' + tabId).style.display = 'block';
+      const target = document.getElementById('tab-' + tabId);
+      if (target) target.style.display = 'block';
       event.target.classList.add('active');
+
+      if (tabId === 'members') loadMembers();
+    }
+
+    async function loadMembers() {
+      const tbody = document.getElementById('membersTableBody');
+      tbody.innerHTML = '<tr><td colspan="5" style="padding:20px; text-align:center; color:var(--muted);">Loading members...</td></tr>';
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/v1/merchants/${merchantId}/members`, {
+          headers: { 'Authorization': `Bearer ${apiToken}` }
+        });
+        const json = await res.json();
+        if (json.success && json.data.length > 0) {
+           tbody.innerHTML = json.data.map(m => {
+             const proms = m.promotions || [];
+             let statusHtml = '<span style="color:var(--muted);font-size:13px;">None</span>';
+             if (proms.length > 0) {
+                statusHtml = proms.map(p => {
+                   let badge = '<span style="background:var(--purpleLight);color:var(--purpleDark);padding:2px 6px;border-radius:4px;font-size:12px;font-weight:600;">Pending</span>';
+                   if (p.redeemed) badge = '<span style="background:rgba(107,193,122,0.2);color:var(--greenDark);padding:2px 6px;border-radius:4px;font-size:12px;font-weight:600;">Redeemed</span>';
+                   else if (new Date(p.expires_at) < new Date()) badge = '<span style="background:rgba(255,0,0,0.1);color:red;padding:2px 6px;border-radius:4px;font-size:12px;font-weight:600;">Expired</span>';
+                   return `<div style="margin-bottom:4px;font-size:13px;">${p.campaign_title || 'Promo'}: ${badge}</div>`;
+                }).join('');
+             }
+             
+             return `
+               <tr style="border-bottom:1px solid #f0f0f0;">
+                 <td style="padding:12px; font-weight:600; font-size:14px;">${m.user_id.substring(0,8)}...</td>
+                 <td style="padding:12px; font-size:14px;">${m.city || '-'}</td>
+                 <td style="padding:12px; font-size:14px;">${m.zip_code || '-'}</td>
+                 <td style="padding:12px; font-size:14px;">${proms.length}</td>
+                 <td style="padding:12px;">${statusHtml}</td>
+               </tr>
+             `;
+           }).join('');
+        } else {
+           tbody.innerHTML = '<tr><td colspan="5" style="padding:20px; text-align:center; color:var(--muted);">No members joined yet.</td></tr>';
+        }
+      } catch(e) {
+        tbody.innerHTML = `<tr><td colspan="5" style="padding:20px; text-align:center; color:red;">Connection error fetching members.</td></tr>`;
+      }
     }
   </script>
 </body>

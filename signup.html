@@ -170,7 +170,6 @@
             </div>
 
             <div class="form-row form-row-2">
-            <div class="form-row form-row-2">
               <label>Password *
                 <div style="position:relative">
                   <input type="password" id="password" required minlength="8" placeholder="Min 8 characters" style="padding-right:45px;width:100%;box-sizing:border-box;">
@@ -183,7 +182,6 @@
                   <span onclick="togglePassword('confirm_password', this)" style="position:absolute;right:15px;top:50%;transform:translateY(-50%);cursor:pointer;opacity:0.6;font-size:18px;user-select:none;">👁️</span>
                 </div>
               </label>
-            </div>
             </div>
             <p style="font-size:13px;color:var(--muted);margin-top:-10px;margin-bottom:20px;">Must contain at least 1
               uppercase, 1 lowercase, and 1 number.</p>
@@ -236,6 +234,32 @@
             </div>
             <div id="signupError" style="color: red; margin-top: 10px; display: none; text-align: center;"></div>
           </div>
+
+          <!-- STEP 5: Customize Storefront -->
+          <div id="step-5-logo" class="wizard-step" style="display:none;">
+            <h3 style="margin-top:0;margin-bottom:12px;color:var(--purpleDark)">Step 5: Customize Your Store</h3>
+            <p style="font-size:14px;color:var(--muted);margin-bottom:24px">Upload your store's logo. This will appear on your dashboard, consumer app, and your printable countertop QR sign. <span style="font-weight:600">(Optional)</span></p>
+
+            <div style="padding:40px 20px;border:1px dashed var(--purple);border-radius:16px;margin-bottom:30px;background:rgba(91,63,165,.03);text-align:center">
+              <input type="file" id="logoUpload" accept="image/png, image/jpeg, image/jpg, image/webp" style="display:none" onchange="previewLogo(event)">
+              
+              <div id="logoPreviewContainer" style="display:none; margin-bottom: 20px;">
+                <img id="logoPreviewBtn" src="" style="width: 120px; height: 120px; object-fit: contain; border-radius: 16px; border: 2px solid var(--purpleLight); margin: 0 auto; display: block; background: #fff;">
+                <p style="font-size: 13px; color: var(--purple); margin-top: 10px; cursor: pointer;" onclick="document.getElementById('logoUpload').click()">Change Logo</p>
+              </div>
+
+              <div id="logoUploadPrompt" style="display:block">
+                <div style="width:64px;height:64px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 15px;box-shadow:0 4px 10px rgba(0,0,0,0.05)">
+                  <span style="font-size:24px">🖼️</span>
+                </div>
+                <button class="btn" style="background:var(--purpleLight);color:var(--purpleDark);padding:10px 20px;font-size:14px;" onclick="document.getElementById('logoUpload').click()">Choose Image File</button>
+              </div>
+            </div>
+
+            <div style="display:flex;gap:15px">
+              <button class="btn btn-purple" id="btnFinish" style="flex:2;padding:15px" onclick="finishAndGenerate()">Finish & Generate Sign →</button>
+            </div>
+          </div>
         </div>
 
         <!-- STEP 4: PRINTABLE SUCCESS BANNER -->
@@ -284,7 +308,7 @@
               <!-- Simulated Logo Overlay for the printout -->
               <div
                 style="position:absolute;top:50%;left:50%;transform:translate(-50%, -50%);width:64px;height:64px;background:#fff;border-radius:16px;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 20px rgba(0,0,0,0.1)">
-                <img src="assets/Perkfinity-App-Icon.png" style="width:48px;height:48px">
+                <img id="printLogoImg" src="assets/Perkfinity-App-Icon.png" style="width:48px;height:48px;object-fit:contain">
               </div>
             </div>
 
@@ -304,7 +328,10 @@
     <script>
       let selectedTier = 'trial';
       let currentMerchantId = null;
+      let currentAccessToken = null;
       let currentPlaidToken = null;
+      let currentQrUrl = null;
+      let uploadedLogoBase64 = null;
       const BACKEND_URL = 'https://perkfinity-backend.vercel.app';
 
       function togglePassword(inputId, icon) {
@@ -497,6 +524,8 @@
 
           const data = await res.json();
           currentMerchantId = data.data?.merchant?.id || data.merchantId;
+          currentAccessToken = data.data?.accessToken;
+          currentQrUrl = data.data?.qr_url || `https://perkfinity-app.vercel.app/qr/${data.data?.qr_public_code}`;
 
           // ALL tiers collect bank info — Trial won't be charged until 10 members
           currentPlaidToken = data.data?.plaid_link_token;
@@ -523,17 +552,44 @@
 
         // Simulating the user completing the Plaid authentication
         setTimeout(async () => {
-          try {
-            // Bypass Plaid backend exchange for now since Vercel Neon backend doesn't implement it
-            // We go straight to success
-            generateSign();
-          } catch (e) {
-            document.getElementById('signupError').innerText = e.message;
-            document.getElementById('signupError').style.display = 'block';
-            btn.disabled = false;
-            btn.innerText = "🔗 Connect Bank with Plaid";
-          }
+          document.querySelectorAll('.wizard-step').forEach(el => el.style.display = 'none');
+          document.getElementById('step-5-logo').style.display = 'block';
         }, 1500);
+      }
+
+      function previewLogo(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          uploadedLogoBase64 = e.target.result;
+          document.getElementById('logoPreviewBtn').src = uploadedLogoBase64;
+          document.getElementById('logoPreviewContainer').style.display = 'block';
+          document.getElementById('logoUploadPrompt').style.display = 'none';
+          document.getElementById('printLogoImg').src = uploadedLogoBase64;
+        }
+        reader.readAsDataURL(file);
+      }
+
+      async function finishAndGenerate() {
+        const btn = document.getElementById('btnFinish');
+        btn.disabled = true;
+        btn.innerText = "Saving profile...";
+        
+        if (uploadedLogoBase64 && currentAccessToken) {
+          try {
+             await fetch(`${BACKEND_URL}/api/v1/merchants/${currentMerchantId}/logo`, {
+               method: 'POST',
+               headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${currentAccessToken}` },
+               body: JSON.stringify({ logo_url: uploadedLogoBase64 })
+             });
+          } catch(e) {
+             console.error("Failed to upload logo:", e);
+          }
+        }
+        
+        generateSign();
       }
 
       function generateSign() {
@@ -553,10 +609,10 @@
         // Notice we do NOT print address/phone on the final sign!
 
         // Generate the physical QR Code using client-side library
-        // Pointing to the generic deep-link download page for MVP
+        // Pointing to the actual dynamic merchant URL returned by the backend
         document.getElementById('qr-canvas-target').innerHTML = '';
         new QRCode(document.getElementById("qr-canvas-target"), {
-          text: "https://perkfinity.net/app",
+          text: currentQrUrl || "https://perkfinity-app.vercel.app",
           width: 260,
           height: 260,
           colorDark: "#1F2030",
