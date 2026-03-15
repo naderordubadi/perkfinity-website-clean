@@ -133,6 +133,13 @@
       <p style="color:var(--muted); font-size:14px; margin-bottom:24px;">Update your login email (username) or change your password.</p>
       
       <div style="max-width:500px;">
+        <div style="margin-bottom:30px; text-align:center;">
+           <img id="profileLogoPreview" src="" style="width: 100px; height: 100px; border-radius: 50%; object-fit: contain; border: 3px solid var(--purpleLight); display: none; margin: 0 auto 15px; background: white;">
+           <div id="profileLogoPlaceholder" style="width: 100px; height: 100px; border-radius: 50%; background: var(--purpleLight); color: var(--purpleDark); display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: bold; margin: 0 auto 15px;">?</div>
+           <input type="file" id="profileLogoUpload" accept="image/png, image/jpeg, image/jpg, image/webp" style="display:none" onchange="previewProfileLogo(event)">
+           <button class="btn" style="background:var(--purpleLight);color:var(--purpleDark);padding:8px 16px;font-size:13px;" onclick="document.getElementById('profileLogoUpload').click()">Replace Logo</button>
+        </div>
+
         <h4 style="margin:0 0 15px;color:var(--ink);border-bottom:1px solid var(--border);padding-bottom:10px;">Store Information</h4>
         <div style="margin-bottom:20px;">
           <label style="display:block; margin-bottom:8px; font-weight:600; font-size:14px;">Store Name</label>
@@ -272,6 +279,19 @@
         document.getElementById('profileMessage').style.display = 'none';
         document.getElementById('profileCurrentPassword').value = '';
         document.getElementById('profileNewPassword').value = '';
+        uploadedProfileLogoBase64 = null;
+        
+        const currentLogoUrl = localStorage.getItem('perkfinity_logo_url');
+        if (currentLogoUrl) {
+           document.getElementById('profileLogoPreview').src = currentLogoUrl;
+           document.getElementById('profileLogoPreview').style.display = 'block';
+           document.getElementById('profileLogoPlaceholder').style.display = 'none';
+        } else {
+           const businessName = localStorage.getItem('perkfinity_business_name') || '?';
+           document.getElementById('profileLogoPlaceholder').innerText = businessName.charAt(0).toUpperCase();
+           document.getElementById('profileLogoPreview').style.display = 'none';
+           document.getElementById('profileLogoPlaceholder').style.display = 'flex';
+        }
         
         // Fetch current profile data to populate fields
         fetch(`${BACKEND_URL}/api/v1/merchants/${merchantId}/profile`, {
@@ -304,6 +324,22 @@
         input.type = 'password';
         icon.innerText = '👁️';
       }
+    }
+
+    let uploadedProfileLogoBase64 = null;
+
+    function previewProfileLogo(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        uploadedProfileLogoBase64 = e.target.result;
+        document.getElementById('profileLogoPreview').src = uploadedProfileLogoBase64;
+        document.getElementById('profileLogoPreview').style.display = 'block';
+        document.getElementById('profileLogoPlaceholder').style.display = 'none';
+      }
+      reader.readAsDataURL(file);
     }
 
     async function updateProfile() {
@@ -360,14 +396,31 @@
            if (email) localStorage.setItem('perkfinity_email', email);
            if (json.new_business_name) {
               localStorage.setItem('perkfinity_business_name', json.new_business_name);
-              // Update welcome title if changed
-              const logoUrl = localStorage.getItem('perkfinity_logo_url');
-              const h1 = document.getElementById('welcomeTitle');
-              if (logoUrl) {
-                 h1.innerHTML = `<img src="${logoUrl}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: contain; margin-right: 12px; border: 2px solid white;">Welcome back, ${json.new_business_name}`;
-              } else {
-                 h1.innerText = `Welcome back, ${json.new_business_name}`;
-              }
+           }
+           
+           // Upload logo if one was selected
+           if (uploadedProfileLogoBase64) {
+             try {
+                const logoRes = await fetch(`${BACKEND_URL}/api/v1/merchants/${merchantId}/logo`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiToken}` },
+                  body: JSON.stringify({ logo_url: uploadedProfileLogoBase64 })
+                });
+                const logoJson = await logoRes.json();
+                if (logoJson.success && logoJson.data && logoJson.data.logo_url) {
+                   localStorage.setItem('perkfinity_logo_url', logoJson.data.logo_url);
+                }
+             } catch(e) { console.error("Logo upload failed", e); }
+           }
+
+           // Update welcome title
+           const bNameFinal = localStorage.getItem('perkfinity_business_name') || '?';
+           const logoUrlFinal = localStorage.getItem('perkfinity_logo_url');
+           const h1 = document.getElementById('welcomeTitle');
+           if (logoUrlFinal) {
+              h1.innerHTML = `<img src="${logoUrlFinal}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: contain; margin-right: 12px; border: 2px solid white;">Welcome back, ${bNameFinal}`;
+           } else {
+              h1.innerText = `Welcome back, ${bNameFinal}`;
            }
            
            if (new_password) {
