@@ -86,7 +86,7 @@
     <div id="tab-redemption" class="empty-state">
       <h3>No Redemptions Yet!</h3>
       <p>Once your customers start scanning your QR code, you'll see a complete history of all coupons claimed and redeemed right here in real-time.</p>
-      <button class="btn btn-purple" style="font-size: 15px; padding: 12px 24px;">Print QR Sign Again</button>
+      <button class="btn btn-purple" style="font-size: 15px; padding: 12px 24px;" onclick="generateSignFromDashboard()">Print QR Sign Again</button>
     </div>
 
     <!-- Member List -->
@@ -217,8 +217,50 @@
         <button id="btnSaveProfile" class="btn btn-purple" style="padding:12px 24px; font-size:15px; width:100%;" onclick="updateProfile()">Save Changes</button>
       </div>
     </div>
+
+    <!-- Printable Sign Container (Hidden) -->
+    <div id="tab-print-sign" style="display:none;max-width:800px;margin:0 auto">
+      <div class="no-print" style="text-align:center;margin-bottom:30px;">
+        <h2 style="font-size:32px;margin:0 0 10px;color:var(--purpleDark)">Need Another Sign? 🖨️</h2>
+        <p style="font-size:18px;color:var(--muted)">We've generated your custom countertop display. Print this page and put it by your register.</p>
+        <button class="btn btn-green" onclick="printPoster()" style="margin-top:20px;font-size:18px;padding:15px 30px">🖨️ Print Countertop Sign</button>
+        <br><br>
+        <button class="btn" style="background:#e2e8f0;color:#334155;padding:10px 20px;font-weight:600;border:1px solid #cbd5e1;" onclick="switchTab('redemption')">← Back to Dashboard</button>
+      </div>
+
+      <!-- The actual printable poster -->
+      <div id="printable-poster" class="print-poster"
+        style="background:#fff;border-radius:30px;padding:60px;text-align:center;box-shadow:0 30px 60px rgba(0,0,0,0.3);border:8px solid var(--purple2);position:relative;overflow:hidden">
+        
+        <!-- Decorative BG elements -->
+        <div style="position:absolute;top:-100px;left:-100px;width:300px;height:300px;background:radial-gradient(var(--green),transparent);opacity:0.1;border-radius:50%"></div>
+
+        <h1 style="color:var(--purpleDark);font-size:48px;font-weight:900;margin:0 0 10px;letter-spacing:-1px;line-height:1.1">
+          Join Our Perks & Rewards Program!</h1>
+        <p style="font-size:24px;color:var(--muted);margin:0 0 40px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:10px">
+          Scan to download <img src="assets/Perkfinity-Logo.png" alt="Perkfinity" style="height:60px;"></p>
+
+        <div style="display:inline-block;padding:30px 60px;background:linear-gradient(135deg, var(--greenDark), var(--green));color:#fff;border-radius:24px;margin-bottom:50px;box-shadow:0 15px 30px rgba(107,193,122,0.4);transform:rotate(-2deg)">
+          <div style="font-size:18px;font-weight:800;text-transform:uppercase;letter-spacing:2px;opacity:0.9;margin-bottom:5px">
+            Unlock Instantly:</div>
+          <div id="poster-perk" style="font-size:38px;font-weight:900;line-height:1.2;letter-spacing:-1px">Loading...</div>
+        </div>
+
+        <div style="width:300px;height:300px;margin:0 auto 40px;padding:20px;background:#fff;border-radius:30px;box-shadow:0 20px 40px rgba(0,0,0,0.15);border:2px solid rgba(0,0,0,0.05);position:relative">
+          <div id="qr-canvas-target"></div>
+          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%, -50%);width:64px;height:64px;background:#fff;border-radius:16px;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 20px rgba(0,0,0,0.1)">
+            <img id="printLogoImg" src="assets/Perkfinity-App-Icon.png" style="width:48px;height:48px;object-fit:contain">
+          </div>
+        </div>
+
+        <div style="font-size:20px;color:var(--muted);font-weight:600;margin-bottom:15px">Powered by Perkfinity for:</div>
+        <div id="poster-store" style="font-size:36px;font-weight:900;color:var(--purpleDark);letter-spacing:-1px;border-top:2px dashed var(--border);padding-top:30px">
+          Store Name</div>
+      </div>
+    </div>
   </main>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script>
     // Authentication Check
     const BACKEND_URL = 'https://perkfinity-backend.vercel.app';
@@ -265,7 +307,7 @@
     }
 
     function switchTab(tabId) {
-      document.querySelectorAll('.empty-state, #tab-members, #tab-profile').forEach(el => el.style.display = 'none');
+      document.querySelectorAll('.empty-state, #tab-members, #tab-profile, #tab-print-sign').forEach(el => el.style.display = 'none');
       document.querySelectorAll('.nav-tabs a').forEach(el => el.classList.remove('active'));
       
       const target = document.getElementById('tab-' + tabId);
@@ -313,6 +355,93 @@
         })
         .catch(e => console.error("Failed to load profile data"));
       }
+    }
+    
+    function generateSignFromDashboard() {
+      // Switch tab visually to our new print view
+      document.querySelectorAll('.empty-state, #tab-members, #tab-profile, #tab-print-sign').forEach(el => el.style.display = 'none');
+      document.querySelectorAll('.nav-tabs a').forEach(el => el.classList.remove('active'));
+      document.getElementById('tab-print-sign').style.display = 'block';
+
+      // Use data fetched from localStorage and our recent API response
+      const token = localStorage.getItem('perkfinity_token');
+      // Fetch fresh profile data to get the QR URL and Perk
+      fetch(`${BACKEND_URL}/api/v1/merchants/${merchantId}/profile`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+      .then(res => res.json())
+      .then(json => {
+         if (json.success && json.data) {
+           const businessName = json.data.business_name || localStorage.getItem('perkfinity_business_name');
+           const perk = json.data.perk || '15% off purchase over $15';
+           const qrUrl = json.data.qr_url || 'https://perkfinity-app.vercel.app';
+           
+           document.getElementById('poster-store').innerText = businessName;
+           document.getElementById('poster-perk').innerText = perk;
+           
+           // Update Logo on Print Sign
+           const logoUrl = localStorage.getItem('perkfinity_logo_url');
+           if (logoUrl) {
+             document.getElementById('printLogoImg').src = logoUrl;
+           }
+
+           // Generate the physical QR Code
+           document.getElementById('qr-canvas-target').innerHTML = '';
+           new QRCode(document.getElementById("qr-canvas-target"), {
+             text: qrUrl,
+             width: 260,
+             height: 260,
+             colorDark: "#1F2030",
+             colorLight: "#ffffff",
+             correctLevel: QRCode.CorrectLevel.H
+           });
+           
+           window.scrollTo({ top: 0, behavior: 'smooth' });
+         } else {
+             alert('Failed to load merchant data for the sign.');
+         }
+      })
+      .catch(e => {
+         console.error('Failed to load merchant data', e);
+         alert('Failed to communicate with the server.');
+      });
+    }
+
+    function printPoster() {
+       const printContent = document.getElementById('printable-poster').outerHTML;
+       const printWindow = window.open('', '_blank', 'width=900,height=1200,scrollbars=yes');
+       printWindow.document.write(`
+         <html>
+           <head>
+             <title>Print Perkfinity Countertop Sign</title>
+             <link rel="stylesheet" href="styles.css"/>
+             <style>
+               body { margin: 0; padding: 40px; background: #f8f9fa; display: flex; justify-content: center; }
+               #printable-poster {
+                 position: relative !important;
+                 max-width: 800px;
+                 margin: 0 auto;
+               }
+               @media print {
+                 @page { margin: 0; }
+                 body { padding: 40px; background: white; }
+                 * {
+                   -webkit-print-color-adjust: exact !important;
+                   print-color-adjust: exact !important;
+                   box-shadow: none !important;
+                 }
+               }
+             </style>
+           </head>
+           <body>
+             ${printContent}
+             <script>
+               setTimeout(() => { window.print(); }, 500);
+             <\\/script>
+           </body>
+         </html>
+       `);
+       printWindow.document.close();
     }
 
     function togglePassword(inputId, icon) {
