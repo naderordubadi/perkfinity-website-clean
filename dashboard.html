@@ -103,7 +103,9 @@
               <th style="padding:12px">City</th>
               <th style="padding:12px">ZIP Code</th>
               <th style="padding:12px">Total Promotions</th>
-              <th style="padding:12px">Promotion Status Details</th>
+              <th style="padding:12px">Promotion</th>
+              <th style="padding:12px">Status</th>
+              <th style="padding:12px">Timestamp</th>
             </tr>
           </thead>
           <tbody id="membersTableBody">
@@ -574,48 +576,53 @@
         });
         const json = await res.json();
         if (json.success && json.data.length > 0) {
-           tbody.innerHTML = json.data.map(m => {
+           function formatTs(dateStr) {
+             if (!dateStr) return '-';
+             return new Date(dateStr).toLocaleString('en-US', { month:'short', day:'numeric', year:'numeric', hour:'numeric', minute:'2-digit', hour12:true });
+           }
+           const rows = [];
+           json.data.forEach(m => {
              const proms = m.promotions || [];
-             let statusHtml = '<span style="color:var(--muted);font-size:13px;">None</span>';
-             if (proms.length > 0) {
-                 function formatTs(dateStr) {
-                   if (!dateStr) return null;
-                   return new Date(dateStr).toLocaleString('en-US', { month:'short', day:'numeric', year:'numeric', hour:'numeric', minute:'2-digit', hour12:true });
-                 }
-                 statusHtml = proms.map(p => {
-                    let badgeBg = 'var(--purpleLight)';
-                    let badgeColor = 'var(--purpleDark)';
-                    if (p.status === 'Created') {
-                       badgeBg = 'rgba(0,0,0,0.05)';
-                       badgeColor = 'var(--muted)';
-                    } else if (p.status === 'Redeemed') {
-                       badgeBg = 'rgba(107,193,122,0.2)';
-                       badgeColor = 'var(--greenDark)';
-                    } else if (p.status === 'Expired') {
-                       badgeBg = 'rgba(255,0,0,0.1)';
-                       badgeColor = 'red';
-                    }
-                    let badge = `<span style="background:${badgeBg};color:${badgeColor};padding:2px 6px;border-radius:4px;font-size:12px;font-weight:600;">${p.status || 'Pending'}</span>`;
-                    let tsLine = '';
-                    if (p.status === 'Redeemed' && p.redeemed_at) {
-                      tsLine = `<div style="font-size:11px;color:var(--muted);margin-top:2px;">Redeemed: ${formatTs(p.redeemed_at)}</div>`;
-                    } else if (p.status === 'Expired' && p.expires_at) {
-                      tsLine = `<div style="font-size:11px;color:var(--muted);margin-top:2px;">Expired: ${formatTs(p.expires_at)}</div>`;
-                    }
-                    return `<div style="margin-bottom:6px;font-size:13px;">${p.campaign_title || 'Promo'}: ${badge}${tsLine}</div>`;
-                 }).join('');
-              }
-             
-             return `
-               <tr style="border-bottom:1px solid #f0f0f0;">
-                 <td style="padding:12px; font-weight:600; font-size:14px;">${m.user_id.substring(0,8)}...</td>
-                 <td style="padding:12px; font-size:14px;">${m.city || '-'}</td>
-                 <td style="padding:12px; font-size:14px;">${m.zip_code || '-'}</td>
-                 <td style="padding:12px; font-size:14px;">${proms.length}</td>
-                 <td style="padding:12px;">${statusHtml}</td>
-               </tr>
-             `;
-           }).join('');
+             const totalProms = proms.length;
+             if (proms.length === 0) {
+               rows.push(`
+                 <tr style="border-bottom:1px solid #f0f0f0;">
+                   <td style="padding:12px; font-weight:600; font-size:14px;">${m.user_id.substring(0,8)}...</td>
+                   <td style="padding:12px; font-size:14px;">${m.city || '-'}</td>
+                   <td style="padding:12px; font-size:14px;">${m.zip_code || '-'}</td>
+                   <td style="padding:12px; font-size:14px;">0</td>
+                   <td style="padding:12px; color:var(--muted); font-size:13px;">-</td>
+                   <td style="padding:12px; color:var(--muted); font-size:13px;">-</td>
+                   <td style="padding:12px; color:var(--muted); font-size:13px;">-</td>
+                 </tr>`);
+             } else {
+               proms.forEach((p, idx) => {
+                 let badgeBg = 'var(--purpleLight)', badgeColor = 'var(--purpleDark)';
+                 if (p.status === 'Created')  { badgeBg = 'rgba(0,0,0,0.05)'; badgeColor = 'var(--muted)'; }
+                 else if (p.status === 'Redeemed') { badgeBg = 'rgba(107,193,122,0.2)'; badgeColor = 'var(--greenDark)'; }
+                 else if (p.status === 'Expired')  { badgeBg = 'rgba(255,0,0,0.1)'; badgeColor = 'red'; }
+                 const badge = `<span style="background:${badgeBg};color:${badgeColor};padding:2px 8px;border-radius:4px;font-size:12px;font-weight:600;">${p.status || 'Pending'}</span>`;
+                 let ts = '-';
+                 if (p.status === 'Redeemed' && p.redeemed_at) ts = formatTs(p.redeemed_at);
+                 else if (p.status === 'Expired' && p.expires_at) ts = formatTs(p.expires_at);
+                 // Only show Member ID, City, ZIP, Total on the first promotion row for this member
+                 const memberCells = idx === 0
+                   ? `<td style="padding:12px; font-weight:600; font-size:14px;" rowspan="${totalProms}">${m.user_id.substring(0,8)}...</td>
+                      <td style="padding:12px; font-size:14px;" rowspan="${totalProms}">${m.city || '-'}</td>
+                      <td style="padding:12px; font-size:14px;" rowspan="${totalProms}">${m.zip_code || '-'}</td>
+                      <td style="padding:12px; font-size:14px;" rowspan="${totalProms}">${totalProms}</td>`
+                   : '';
+                 rows.push(`
+                   <tr style="border-bottom:1px solid #f0f0f0;">
+                     ${memberCells}
+                     <td style="padding:12px; font-size:13px;">${p.campaign_title || 'Promo'}</td>
+                     <td style="padding:12px;">${badge}</td>
+                     <td style="padding:12px; font-size:12px; color:var(--muted);">${ts}</td>
+                   </tr>`);
+               });
+             }
+           });
+           tbody.innerHTML = rows.join('');
         } else {
            tbody.innerHTML = '<tr><td colspan="5" style="padding:20px; text-align:center; color:var(--muted);">No members joined yet.</td></tr>';
         }
