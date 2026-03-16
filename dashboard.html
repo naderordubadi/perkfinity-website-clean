@@ -579,9 +579,19 @@
              let statusHtml = '<span style="color:var(--muted);font-size:13px;">None</span>';
              if (proms.length > 0) {
                 statusHtml = proms.map(p => {
-                   let badge = '<span style="background:var(--purpleLight);color:var(--purpleDark);padding:2px 6px;border-radius:4px;font-size:12px;font-weight:600;">Pending</span>';
-                   if (p.redeemed) badge = '<span style="background:rgba(107,193,122,0.2);color:var(--greenDark);padding:2px 6px;border-radius:4px;font-size:12px;font-weight:600;">Redeemed</span>';
-                   else if (new Date(p.expires_at) < new Date()) badge = '<span style="background:rgba(255,0,0,0.1);color:red;padding:2px 6px;border-radius:4px;font-size:12px;font-weight:600;">Expired</span>';
+                   let badgeBg = 'var(--purpleLight)';
+                   let badgeColor = 'var(--purpleDark)';
+                   if (p.status === 'Created') {
+                      badgeBg = 'rgba(0,0,0,0.05)';
+                      badgeColor = 'var(--muted)';
+                   } else if (p.status === 'Redeemed') {
+                      badgeBg = 'rgba(107,193,122,0.2)';
+                      badgeColor = 'var(--greenDark)';
+                   } else if (p.status === 'Expired') {
+                      badgeBg = 'rgba(255,0,0,0.1)';
+                      badgeColor = 'red';
+                   }
+                   let badge = `<span style="background:${badgeBg};color:${badgeColor};padding:2px 6px;border-radius:4px;font-size:12px;font-weight:600;">${p.status || 'Pending'}</span>`;
                    return `<div style="margin-bottom:4px;font-size:13px;">${p.campaign_title || 'Promo'}: ${badge}</div>`;
                 }).join('');
              }
