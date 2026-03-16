@@ -91,28 +91,59 @@
 
     <!-- Member List -->
     <div id="tab-members" style="display:none; background:white; border-radius:16px; padding:30px; box-shadow:0 4px 20px rgba(0,0,0,0.03);">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+      <!-- Header row: title + refresh -->
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
         <h3 style="margin:0; color:var(--purpleDark);">Store Members</h3>
-        <button class="btn btn-purple" style="font-size: 14px; padding: 10px 20px;" onclick="loadMembers()">↻ Refresh</button>
+        <button class="btn btn-purple" style="font-size:14px; padding:10px 20px;" onclick="loadMembers()">↻ Refresh</button>
       </div>
+
+      <!-- Filter bar -->
+      <div style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:16px; align-items:center;">
+        <input id="mf-member" type="text" placeholder="🔍 Member ID" oninput="applyMembersFilter()" style="padding:8px 12px; border:1px solid var(--border); border-radius:8px; font-size:13px; width:140px;">
+        <input id="mf-zip" type="text" placeholder="🔍 ZIP Code" oninput="applyMembersFilter()" style="padding:8px 12px; border:1px solid var(--border); border-radius:8px; font-size:13px; width:120px;">
+        <select id="mf-status" onchange="applyMembersFilter()" style="padding:8px 12px; border:1px solid var(--border); border-radius:8px; font-size:13px; color:#333;">
+          <option value="">All Statuses</option>
+          <option value="Redeemed">Redeemed</option>
+          <option value="Expired">Expired</option>
+          <option value="Pending">Pending</option>
+          <option value="Created">Created</option>
+        </select>
+        <select id="mf-time" onchange="applyMembersFilter()" style="padding:8px 12px; border:1px solid var(--border); border-radius:8px; font-size:13px; color:#333;">
+          <option value="">All Time</option>
+          <option value="today">Today</option>
+          <option value="yesterday">Yesterday</option>
+          <option value="7d">Last 7 Days</option>
+          <option value="30d">Last 30 Days</option>
+          <option value="90d">Last 90 Days</option>
+        </select>
+        <button onclick="applyMembersFilter()" class="btn" style="background:var(--purpleLight);color:var(--purpleDark);padding:8px 14px;font-size:13px;">Apply</button>
+        <button onclick="clearMembersFilter()" class="btn" style="background:#f1f5f9;color:#555;padding:8px 14px;font-size:13px;">Clear</button>
+        <div style="margin-left:auto; display:flex; gap:8px;">
+          <button onclick="exportMembers('csv')" class="btn" style="background:#0ea5e9;color:#fff;padding:8px 16px;font-size:13px;">⬇ CSV</button>
+          <button onclick="exportMembers('txt')" class="btn" style="background:#64748b;color:#fff;padding:8px 16px;font-size:13px;">⬇ TXT</button>
+        </div>
+      </div>
+
+      <!-- Table -->
       <div style="overflow-x:auto;">
         <table style="width:100%; border-collapse:collapse; text-align:left;">
           <thead>
             <tr style="border-bottom:2px solid var(--border); color:var(--muted); font-size:14px;">
-              <th style="padding:12px">Member ID</th>
-              <th style="padding:12px">City</th>
-              <th style="padding:12px">ZIP Code</th>
-              <th style="padding:12px">Total Promotions</th>
-              <th style="padding:12px">Promotion</th>
-              <th style="padding:12px">Status</th>
-              <th style="padding:12px">Timestamp</th>
+              <th style="padding:12px; cursor:pointer; user-select:none;" onclick="sortMembers('member_id')">Member ID <span id="sort-member_id"></span></th>
+              <th style="padding:12px; cursor:pointer; user-select:none;" onclick="sortMembers('city')">City <span id="sort-city"></span></th>
+              <th style="padding:12px; cursor:pointer; user-select:none;" onclick="sortMembers('zip_code')">ZIP Code <span id="sort-zip_code"></span></th>
+              <th style="padding:12px; cursor:pointer; user-select:none;" onclick="sortMembers('total')">Total <span id="sort-total"></span></th>
+              <th style="padding:12px; cursor:pointer; user-select:none;" onclick="sortMembers('campaign_title')">Promotion <span id="sort-campaign_title"></span></th>
+              <th style="padding:12px; cursor:pointer; user-select:none;" onclick="sortMembers('status')">Status <span id="sort-status"></span></th>
+              <th style="padding:12px; cursor:pointer; user-select:none;" onclick="sortMembers('ts')">Timestamp <span id="sort-ts"></span></th>
             </tr>
           </thead>
           <tbody id="membersTableBody">
-            <tr><td colspan="5" style="padding:20px; text-align:center; color:var(--muted);">Loading members...</td></tr>
+            <tr><td colspan="7" style="padding:20px; text-align:center; color:var(--muted);">Loading members...</td></tr>
           </tbody>
         </table>
       </div>
+      <div id="membersCount" style="margin-top:10px; font-size:12px; color:var(--muted);"></div>
     </div>
 
     <!-- Create Promotion -->
@@ -567,68 +598,171 @@
       }
     }
 
+    // ── Members table state ──────────────────────────────────────
+    let _membersRaw = [];       // flat rows: { member_id, city, zip_code, total, campaign_title, status, ts_raw, ts_display }
+    let _membersSort = { col: 'ts', dir: 'desc' };
+
+    function _fmtTs(dateStr) {
+      if (!dateStr) return null;
+      return new Date(dateStr).toLocaleString('en-US', { month:'short', day:'numeric', year:'numeric', hour:'numeric', minute:'2-digit', hour12:true });
+    }
+
     async function loadMembers() {
       const tbody = document.getElementById('membersTableBody');
-      tbody.innerHTML = '<tr><td colspan="5" style="padding:20px; text-align:center; color:var(--muted);">Loading members...</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="7" style="padding:20px; text-align:center; color:var(--muted);">Loading members...</td></tr>';
       try {
         const res = await fetch(`${BACKEND_URL}/api/v1/merchants/${merchantId}/members`, {
           headers: { 'Authorization': `Bearer ${apiToken}` }
         });
         const json = await res.json();
+        _membersRaw = [];
         if (json.success && json.data.length > 0) {
-           function formatTs(dateStr) {
-             if (!dateStr) return '-';
-             return new Date(dateStr).toLocaleString('en-US', { month:'short', day:'numeric', year:'numeric', hour:'numeric', minute:'2-digit', hour12:true });
-           }
-           const rows = [];
-           json.data.forEach(m => {
-             const proms = m.promotions || [];
-             const totalProms = proms.length;
-             if (proms.length === 0) {
-               rows.push(`
-                 <tr style="border-bottom:1px solid #f0f0f0;">
-                   <td style="padding:12px; font-weight:600; font-size:14px;">${m.user_id.substring(0,8)}...</td>
-                   <td style="padding:12px; font-size:14px;">${m.city || '-'}</td>
-                   <td style="padding:12px; font-size:14px;">${m.zip_code || '-'}</td>
-                   <td style="padding:12px; font-size:14px;">0</td>
-                   <td style="padding:12px; color:var(--muted); font-size:13px;">-</td>
-                   <td style="padding:12px; color:var(--muted); font-size:13px;">-</td>
-                   <td style="padding:12px; color:var(--muted); font-size:13px;">-</td>
-                 </tr>`);
-             } else {
-               proms.forEach((p, idx) => {
-                 let badgeBg = 'var(--purpleLight)', badgeColor = 'var(--purpleDark)';
-                 if (p.status === 'Created')  { badgeBg = 'rgba(0,0,0,0.05)'; badgeColor = 'var(--muted)'; }
-                 else if (p.status === 'Redeemed') { badgeBg = 'rgba(107,193,122,0.2)'; badgeColor = 'var(--greenDark)'; }
-                 else if (p.status === 'Expired')  { badgeBg = 'rgba(255,0,0,0.1)'; badgeColor = 'red'; }
-                 const badge = `<span style="background:${badgeBg};color:${badgeColor};padding:2px 8px;border-radius:4px;font-size:12px;font-weight:600;">${p.status || 'Pending'}</span>`;
-                 let ts = '-';
-                 if (p.status === 'Redeemed' && p.redeemed_at) ts = formatTs(p.redeemed_at);
-                 else if (p.status === 'Expired' && p.expires_at) ts = formatTs(p.expires_at);
-                 // Only show Member ID, City, ZIP, Total on the first promotion row for this member
-                 const memberCells = idx === 0
-                   ? `<td style="padding:12px; font-weight:600; font-size:14px;" rowspan="${totalProms}">${m.user_id.substring(0,8)}...</td>
-                      <td style="padding:12px; font-size:14px;" rowspan="${totalProms}">${m.city || '-'}</td>
-                      <td style="padding:12px; font-size:14px;" rowspan="${totalProms}">${m.zip_code || '-'}</td>
-                      <td style="padding:12px; font-size:14px;" rowspan="${totalProms}">${totalProms}</td>`
-                   : '';
-                 rows.push(`
-                   <tr style="border-bottom:1px solid #f0f0f0;">
-                     ${memberCells}
-                     <td style="padding:12px; font-size:13px;">${p.campaign_title || 'Promo'}</td>
-                     <td style="padding:12px;">${badge}</td>
-                     <td style="padding:12px; font-size:12px; color:var(--muted);">${ts}</td>
-                   </tr>`);
-               });
-             }
-           });
-           tbody.innerHTML = rows.join('');
+          json.data.forEach(m => {
+            const proms = m.promotions || [];
+            const total = proms.length;
+            if (proms.length === 0) {
+              _membersRaw.push({ member_id: m.user_id, city: m.city || '', zip_code: m.zip_code || '', total, campaign_title: '-', status: '-', ts_raw: null, ts_display: '-' });
+            } else {
+              proms.forEach(p => {
+                let ts_raw = null;
+                if (p.status === 'Redeemed' && p.redeemed_at) ts_raw = new Date(p.redeemed_at);
+                else if (p.status === 'Expired' && p.expires_at) ts_raw = new Date(p.expires_at);
+                _membersRaw.push({ member_id: m.user_id, city: m.city || '', zip_code: m.zip_code || '', total, campaign_title: p.campaign_title || 'Promo', status: p.status || 'Pending', ts_raw, ts_display: ts_raw ? _fmtTs(ts_raw.toISOString()) : '-' });
+              });
+            }
+          });
+          renderMembersTable(_membersRaw);
         } else {
-           tbody.innerHTML = '<tr><td colspan="5" style="padding:20px; text-align:center; color:var(--muted);">No members joined yet.</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="7" style="padding:20px; text-align:center; color:var(--muted);">No members joined yet.</td></tr>';
+          document.getElementById('membersCount').innerText = '';
         }
       } catch(e) {
-        tbody.innerHTML = `<tr><td colspan="5" style="padding:20px; text-align:center; color:red;">Connection error fetching members.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" style="padding:20px; text-align:center; color:red;">Connection error fetching members.</td></tr>`;
       }
+    }
+
+    function applyMembersFilter() {
+      const memberQ = (document.getElementById('mf-member').value || '').toLowerCase();
+      const zipQ    = (document.getElementById('mf-zip').value || '').toLowerCase();
+      const statusQ = document.getElementById('mf-status').value;
+      const timeQ   = document.getElementById('mf-time').value;
+      const now = new Date();
+      const startOf = (d) => { const r = new Date(d); r.setHours(0,0,0,0); return r; };
+      let filtered = _membersRaw.filter(r => {
+        if (memberQ && !r.member_id.toLowerCase().includes(memberQ)) return false;
+        if (zipQ && !r.zip_code.toLowerCase().includes(zipQ)) return false;
+        if (statusQ && r.status !== statusQ) return false;
+        if (timeQ && r.ts_raw) {
+          const d = r.ts_raw;
+          const todayStart = startOf(now);
+          const yestStart  = new Date(todayStart); yestStart.setDate(yestStart.getDate()-1);
+          if (timeQ === 'today')     { if (d < todayStart) return false; }
+          else if (timeQ === 'yesterday') { if (d < yestStart || d >= todayStart) return false; }
+          else if (timeQ === '7d')   { const t = new Date(now); t.setDate(t.getDate()-7); if (d < t) return false; }
+          else if (timeQ === '30d')  { const t = new Date(now); t.setDate(t.getDate()-30); if (d < t) return false; }
+          else if (timeQ === '90d')  { const t = new Date(now); t.setDate(t.getDate()-90); if (d < t) return false; }
+        } else if (timeQ && !r.ts_raw) return false;
+        return true;
+      });
+      renderMembersTable(filtered);
+    }
+
+    function clearMembersFilter() {
+      document.getElementById('mf-member').value = '';
+      document.getElementById('mf-zip').value = '';
+      document.getElementById('mf-status').value = '';
+      document.getElementById('mf-time').value = '';
+      renderMembersTable(_membersRaw);
+    }
+
+    function sortMembers(col) {
+      if (_membersSort.col === col) _membersSort.dir = _membersSort.dir === 'asc' ? 'desc' : 'asc';
+      else { _membersSort.col = col; _membersSort.dir = 'asc'; }
+      applyMembersFilter();
+    }
+
+    function renderMembersTable(rows) {
+      // Update sort indicators
+      ['member_id','city','zip_code','total','campaign_title','status','ts'].forEach(c => {
+        const el = document.getElementById('sort-' + c);
+        if (el) el.innerText = _membersSort.col === c ? (_membersSort.dir === 'asc' ? ' ▲' : ' ▼') : ' ⇅';
+      });
+      // Sort
+      const col = _membersSort.col, dir = _membersSort.dir === 'asc' ? 1 : -1;
+      const sorted = [...rows].sort((a, b) => {
+        let av = col === 'ts' ? (a.ts_raw ? a.ts_raw.getTime() : 0) : (a[col] || '');
+        let bv = col === 'ts' ? (b.ts_raw ? b.ts_raw.getTime() : 0) : (b[col] || '');
+        if (col === 'total') { av = +av; bv = +bv; }
+        return av < bv ? -dir : av > bv ? dir : 0;
+      });
+      const tbody = document.getElementById('membersTableBody');
+      if (sorted.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="padding:20px; text-align:center; color:var(--muted);">No results match your filters.</td></tr>';
+        document.getElementById('membersCount').innerText = '';
+        return;
+      }
+      tbody.innerHTML = sorted.map(r => {
+        let badgeBg = 'var(--purpleLight)', badgeColor = 'var(--purpleDark)';
+        if (r.status === 'Created')  { badgeBg = 'rgba(0,0,0,0.05)'; badgeColor = 'var(--muted)'; }
+        else if (r.status === 'Redeemed') { badgeBg = 'rgba(107,193,122,0.2)'; badgeColor = 'var(--greenDark)'; }
+        else if (r.status === 'Expired')  { badgeBg = 'rgba(255,0,0,0.1)'; badgeColor = 'red'; }
+        const badge = r.status !== '-' ? `<span style="background:${badgeBg};color:${badgeColor};padding:2px 8px;border-radius:4px;font-size:12px;font-weight:600;">${r.status}</span>` : '-';
+        return `<tr style="border-bottom:1px solid #f0f0f0;">
+          <td style="padding:12px; font-weight:600; font-size:13px;">${r.member_id.substring(0,8)}...</td>
+          <td style="padding:12px; font-size:13px;">${r.city || '-'}</td>
+          <td style="padding:12px; font-size:13px;">${r.zip_code || '-'}</td>
+          <td style="padding:12px; font-size:13px;">${r.total}</td>
+          <td style="padding:12px; font-size:13px;">${r.campaign_title}</td>
+          <td style="padding:12px;">${badge}</td>
+          <td style="padding:12px; font-size:12px; color:var(--muted);">${r.ts_display}</td>
+        </tr>`;
+      }).join('');
+      document.getElementById('membersCount').innerText = `Showing ${sorted.length} row${sorted.length !== 1 ? 's' : ''}`;
+    }
+
+    function exportMembers(format) {
+      // Collect currently filtered + sorted rows
+      const memberQ = (document.getElementById('mf-member').value || '').toLowerCase();
+      const zipQ    = (document.getElementById('mf-zip').value || '').toLowerCase();
+      const statusQ = document.getElementById('mf-status').value;
+      const timeQ   = document.getElementById('mf-time').value;
+      const now = new Date();
+      const startOf = (d) => { const r = new Date(d); r.setHours(0,0,0,0); return r; };
+      let rows = _membersRaw.filter(r => {
+        if (memberQ && !r.member_id.toLowerCase().includes(memberQ)) return false;
+        if (zipQ && !r.zip_code.toLowerCase().includes(zipQ)) return false;
+        if (statusQ && r.status !== statusQ) return false;
+        if (timeQ && r.ts_raw) {
+          const d = r.ts_raw;
+          const todayStart = startOf(now);
+          const yestStart  = new Date(todayStart); yestStart.setDate(yestStart.getDate()-1);
+          if (timeQ === 'today')     { if (d < todayStart) return false; }
+          else if (timeQ === 'yesterday') { if (d < yestStart || d >= todayStart) return false; }
+          else if (timeQ === '7d')   { const t = new Date(now); t.setDate(t.getDate()-7); if (d < t) return false; }
+          else if (timeQ === '30d')  { const t = new Date(now); t.setDate(t.getDate()-30); if (d < t) return false; }
+          else if (timeQ === '90d')  { const t = new Date(now); t.setDate(t.getDate()-90); if (d < t) return false; }
+        } else if (timeQ && !r.ts_raw) return false;
+        return true;
+      });
+      const headers = ['Member ID', 'City', 'ZIP Code', 'Total Promotions', 'Promotion', 'Status', 'Timestamp'];
+      const fields  = ['member_id', 'city', 'zip_code', 'total', 'campaign_title', 'status', 'ts_display'];
+      let content, mime, ext;
+      if (format === 'csv') {
+        const esc = v => `"${String(v).replace(/"/g,'""')}"`;
+        content = [headers.map(esc).join(','), ...rows.map(r => fields.map(f => esc(r[f])).join(','))].join('\n');
+        mime = 'text/csv'; ext = 'csv';
+      } else {
+        const colW = [12, 16, 10, 8, 24, 10, 28];
+        const pad = (s, w) => String(s).substring(0, w).padEnd(w);
+        const line = colW.map(w => '-'.repeat(w)).join('  ');
+        const hdr  = headers.map((h, i) => pad(h, colW[i])).join('  ');
+        content = [hdr, line, ...rows.map(r => fields.map((f, i) => pad(r[f], colW[i])).join('  '))].join('\n');
+        mime = 'text/plain'; ext = 'txt';
+      }
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([content], { type: mime }));
+      a.download = `perkfinity-members-${new Date().toISOString().slice(0,10)}.${ext}`;
+      a.click();
     }
   </script>
 </body>
