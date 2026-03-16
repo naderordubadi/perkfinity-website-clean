@@ -72,8 +72,7 @@
       <p>Manage your perks, view redemptions, and grow your community.</p>
       
       <div class="nav-tabs">
-        <a href="#" class="active" onclick="switchTab('redemption')">Redemption History</a>
-        <a href="#" onclick="switchTab('members')">Member List</a>
+        <a href="#" class="active" onclick="switchTab('members')">Member List</a>
         <a href="#" onclick="switchTab('promotion')">Create a Promotion</a>
         <a href="#" onclick="switchTab('newsletter')">Create a Newsletter</a>
         <a href="#" onclick="switchTab('profile')">Profile</a>
@@ -82,15 +81,9 @@
   </div>
 
   <main class="dashboard-content container">
-    <!-- Redemption History -->
-    <div id="tab-redemption" class="empty-state">
-      <h3>No Redemptions Yet!</h3>
-      <p>Once your customers start scanning your QR code, you'll see a complete history of all coupons claimed and redeemed right here in real-time.</p>
-      <button class="btn btn-purple" style="font-size: 15px; padding: 12px 24px;" onclick="generateSignFromDashboard()">Print QR Sign Again</button>
-    </div>
 
     <!-- Member List -->
-    <div id="tab-members" style="display:none; background:white; border-radius:16px; padding:30px; box-shadow:0 4px 20px rgba(0,0,0,0.03);">
+    <div id="tab-members" style="display:block; background:white; border-radius:16px; padding:30px; box-shadow:0 4px 20px rgba(0,0,0,0.03);">
       <!-- Header row: title + refresh -->
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
         <h3 style="margin:0; color:var(--purpleDark);">Store Members</h3>
@@ -162,7 +155,10 @@
 
     <!-- Profile Settings -->
     <div id="tab-profile" style="display:none; background:white; border-radius:16px; padding:30px; box-shadow:0 4px 20px rgba(0,0,0,0.03);">
-      <h3 style="margin-top:0; color:var(--purpleDark);">Merchant Profile Settings</h3>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+        <h3 style="margin:0; color:var(--purpleDark);">Merchant Profile Settings</h3>
+        <button class="btn btn-purple" style="font-size:13px; padding:9px 18px;" onclick="generateSignFromDashboard()">🖨️ Print QR Sign Again</button>
+      </div>
       <p style="color:var(--muted); font-size:14px; margin-bottom:24px;">Update your login email (username) or change your password.</p>
       
       <div style="max-width:500px;">
@@ -329,6 +325,9 @@
          h1.style.alignItems = 'center';
          h1.insertBefore(logoImg, h1.firstChild);
       }
+
+      // Member List is default tab — load data immediately
+      loadMembers();
     });
 
     function handleLogout() {
