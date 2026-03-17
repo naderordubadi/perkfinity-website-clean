@@ -926,6 +926,11 @@
           headers: { 'Authorization': `Bearer ${apiToken}` }
         });
         const json = await res.json();
+        if (!res.ok) {
+          tbody.innerHTML = `<tr><td colspan="8" style="padding:20px;text-align:center;color:red;">API Error ${res.status}: ${json.error || JSON.stringify(json)}</td></tr>`;
+          console.error('[History] API error:', res.status, json);
+          return;
+        }
         const rows = json.data || [];
         if (!rows.length) {
           tbody.innerHTML = '<tr><td colspan="8" style="padding:20px;text-align:center;color:var(--muted);">No campaigns yet.</td></tr>';
@@ -951,7 +956,8 @@
           </tr>`;
         }).join('');
       } catch(e) {
-        tbody.innerHTML = `<tr><td colspan="8" style="padding:20px;text-align:center;color:red;">Failed to load history.</td></tr>`;
+        console.error('[History] JS error:', e);
+        tbody.innerHTML = `<tr><td colspan="8" style="padding:20px;text-align:center;color:red;">Error: ${e.message}</td></tr>`;
       }
     }
 
