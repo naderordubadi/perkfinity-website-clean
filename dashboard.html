@@ -610,6 +610,17 @@
          h1.insertBefore(logoImg, h1.firstChild);
       }
 
+      // Silently fetch profile to cache address for promotion preview
+      fetch(`${BACKEND_URL}/api/v1/merchants/${localStorage.getItem('perkfinity_merchant_id')}/profile`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      }).then(r => r.json()).then(json => {
+        if (json.success && json.data) {
+          const d = json.data;
+          const parts = [d.address, d.suite, d.city, d.state, d.postal_code].filter(Boolean);
+          if (parts.length) localStorage.setItem('perkfinity_address', parts.join(', '));
+        }
+      }).catch(() => {});
+
       // Member List is default tab — load data immediately
       loadMembers();
     });
@@ -777,7 +788,13 @@
       if (logoUrl) { logoEl.src = logoUrl; logoEl.style.display = 'inline-block'; } else { logoEl.style.display = 'none'; }
 
       // SMS preview (use full address for member clarity)
-      const smsLines = [`[${storeName}] ${headline}${condLine ? ' — ' + condLine : ''}.`, expiryStr ? expiryStr + '.' : '', storeAddr ? `Visit us: ${storeAddr}` : '', 'When in store, scan the Perkfinity QR code before you order.', 'Reply STOP to opt out'];
+      const smsLines = [
+        `[${storeName}] ${headline}${condLine ? ' \u2014 ' + condLine : ''}.`,
+        expiryStr ? expiryStr + '.' : '',
+        'When in store, scan the Perkfinity QR code before you order.',
+        storeAddr ? `Visit us at: ${storeName}, ${storeAddr}` : `Visit us at: ${storeName}`,
+        'Reply STOP to opt out'
+      ];
       document.getElementById('promo-sms-body').innerHTML = smsLines.filter(Boolean).join('<br>');
 
       // Summary
