@@ -144,7 +144,7 @@
     <div id="tab-promotion" style="display:none; background:white; border-radius:16px; padding:30px; box-shadow:0 4px 20px rgba(0,0,0,0.03);">
 
       <!-- Step Progress Bar -->
-      <div style="margin-bottom:28px;">
+      <div id="promo-wizard-header" style="margin-bottom:28px;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
           <h3 style="margin:0; color:var(--purpleDark);">Create a New Promotion</h3>
           <span id="promo-step-label" style="font-size:13px; color:var(--muted); font-weight:600;">Step 1 of 6</span>
@@ -915,6 +915,7 @@
       document.getElementById('promo-subtab-history').style.color = isNew ? 'var(--muted)' : 'var(--purple)';
       document.getElementById('promo-subtab-history').style.borderBottomColor = isNew ? 'transparent' : 'var(--purple)';
       document.getElementById('promo-subtab-history').style.fontWeight = isNew ? '600' : '700';
+      document.getElementById('promo-wizard-header').style.display = isNew ? 'block' : 'none';
       if (!isNew) loadPromoHistory();
     }
 
