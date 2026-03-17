@@ -162,7 +162,14 @@
         </div>
       </div>
 
-      <!-- STEP 1: Promotion Type -->
+      <!-- Sub-tabs: Start New / Campaign History -->
+      <div style="display:flex; gap:0; border-bottom:2px solid var(--border); margin-bottom:28px;">
+        <button id="promo-subtab-new" onclick="switchPromoSubTab('new')" style="padding:10px 24px; border:none; background:none; font-weight:700; font-size:14px; color:var(--purple); border-bottom:3px solid var(--purple); cursor:pointer;">Start New</button>
+        <button id="promo-subtab-history" onclick="switchPromoSubTab('history')" style="padding:10px 24px; border:none; background:none; font-weight:600; font-size:14px; color:var(--muted); border-bottom:3px solid transparent; cursor:pointer;">Campaign History</button>
+      </div>
+
+      <!-- Sub-tab: Start New (wizard) -->
+      <div id="promo-subtab-new-content">
       <div id="promo-s1" class="promo-step">
         <p style="color:var(--muted); font-size:14px; margin-bottom:20px;">What type of promotion would you like to offer?</p>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:24px;">
@@ -426,7 +433,34 @@
           <button class="btn" style="background:#f1f5f9;color:var(--purpleDark);padding:11px 22px;" onclick="promoReset()">Start Over</button>
           <button id="promoBtnSend" class="btn btn-green" style="padding:11px 28px; font-weight:700;" onclick="sendPromotion()">🚀 Send Promotion</button>
         </div>
-      </div>
+      </div><!-- /promo-subtab-new-content -->
+
+      <!-- Sub-tab: Campaign History -->
+      <div id="promo-subtab-history-content" style="display:none;">
+        <div style="margin-bottom:16px; display:flex; justify-content:space-between; align-items:center;">
+          <p style="margin:0; color:var(--muted); font-size:14px;">All promotions you've created for your members.</p>
+          <button class="btn btn-purple" style="font-size:13px; padding:9px 18px;" onclick="loadPromoHistory()">↻ Refresh</button>
+        </div>
+        <div style="overflow-x:auto;">
+          <table style="width:100%; border-collapse:collapse; text-align:left; font-size:13px;">
+            <thead>
+              <tr style="border-bottom:2px solid var(--border); color:var(--muted);">
+                <th style="padding:10px;">Title</th>
+                <th style="padding:10px;">Type</th>
+                <th style="padding:10px;">Audience</th>
+                <th style="padding:10px;">Delivery</th>
+                <th style="padding:10px;">Members</th>
+                <th style="padding:10px;">Created</th>
+                <th style="padding:10px;">Expires</th>
+                <th style="padding:10px;">Status</th>
+              </tr>
+            </thead>
+            <tbody id="promoHistoryBody">
+              <tr><td colspan="8" style="padding:20px; text-align:center; color:var(--muted);">Loading history...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div><!-- /promo-subtab-history-content -->
 
     </div><!-- /tab-promotion -->
 
@@ -869,8 +903,57 @@
       window.location.href = 'login.html';
     }
 
+    function switchPromoSubTab(tab) {
+      const isNew = tab === 'new';
+      document.getElementById('promo-subtab-new-content').style.display = isNew ? 'block' : 'none';
+      document.getElementById('promo-subtab-history-content').style.display = isNew ? 'none' : 'block';
+      document.getElementById('promo-subtab-new').style.color = isNew ? 'var(--purple)' : 'var(--muted)';
+      document.getElementById('promo-subtab-new').style.borderBottomColor = isNew ? 'var(--purple)' : 'transparent';
+      document.getElementById('promo-subtab-new').style.fontWeight = isNew ? '700' : '600';
+      document.getElementById('promo-subtab-history').style.color = isNew ? 'var(--muted)' : 'var(--purple)';
+      document.getElementById('promo-subtab-history').style.borderBottomColor = isNew ? 'transparent' : 'var(--purple)';
+      document.getElementById('promo-subtab-history').style.fontWeight = isNew ? '600' : '700';
+      if (!isNew) loadPromoHistory();
+    }
+
+    async function loadPromoHistory() {
+      const tbody = document.getElementById('promoHistoryBody');
+      tbody.innerHTML = '<tr><td colspan="8" style="padding:20px;text-align:center;color:var(--muted);">Loading...</td></tr>';
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/v1/merchants/${merchantId}/promotions/history`, {
+          headers: { 'Authorization': `Bearer ${apiToken}` }
+        });
+        const json = await res.json();
+        const rows = json.data || [];
+        if (!rows.length) {
+          tbody.innerHTML = '<tr><td colspan="8" style="padding:20px;text-align:center;color:var(--muted);">No campaigns yet.</td></tr>';
+          return;
+        }
+        const audienceLabels = { all:'All Members', redeemed_30:'Redeemed (30d)', expired_30:'Expired (30d)', never_redeemed:'Never Redeemed', redeemed_90:'Redeemed (90d)' };
+        const typeLabels = { percent:'% Off', dollar:'$ Off', bogo:'Buy X Get Y', freeitem:'Free Item', loyalty:'Loyalty Reward', flash:'Flash Sale' };
+        tbody.innerHTML = rows.map(r => {
+          const m = r.metadata || {};
+          const created = r.created_at ? new Date(r.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '-';
+          const expires = r.end_at ? new Date(r.end_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '-';
+          const statusColor = r.status === 'active' ? 'var(--green)' : '#999';
+          return `<tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:11px 10px; font-weight:600;">${r.title || '-'}</td>
+            <td style="padding:11px 10px;">${typeLabels[m.type] || m.type || '-'}</td>
+            <td style="padding:11px 10px;">${audienceLabels[m.audience] || m.audience || '-'}</td>
+            <td style="padding:11px 10px;">${m.delivery || '-'}</td>
+            <td style="padding:11px 10px; font-weight:700; color:var(--purple);">${m.assigned_count ?? '-'}</td>
+            <td style="padding:11px 10px;">${created}</td>
+            <td style="padding:11px 10px;">${expires}</td>
+            <td style="padding:11px 10px;"><span style="color:${statusColor};font-weight:700;">${r.status || '-'}</span></td>
+          </tr>`;
+        }).join('');
+      } catch(e) {
+        tbody.innerHTML = `<tr><td colspan="8" style="padding:20px;text-align:center;color:red;">Failed to load history.</td></tr>`;
+      }
+    }
+
     function switchTab(tabId) {
-      document.querySelectorAll('.empty-state, #tab-members, #tab-profile, #tab-print-sign').forEach(el => el.style.display = 'none');
+      document.querySelectorAll('.empty-state, #tab-members, #tab-profile, #tab-print-sign, #tab-promotion, #tab-newsletter').forEach(el => el.style.display = 'none');
       document.querySelectorAll('.nav-tabs a').forEach(el => el.classList.remove('active'));
       
       const target = document.getElementById('tab-' + tabId);
