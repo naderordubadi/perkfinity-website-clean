@@ -384,7 +384,7 @@
                   <div id="promo-email-cond-line" style="font-size:13px; color:#666; margin-top:6px;"></div>
                 </div>
               </div>
-              <p style="font-size:14px; color:#555; text-align:center; margin:0 0 16px;">Show this offer at the register to redeem your perk.</p>
+              <p style="font-size:14px; color:#555; text-align:center; margin:0 0 16px;">When you are in the store, scan the Perkfinity QR code before you order to activate your perk.</p>
               <div style="text-align:center; margin-bottom:16px;">
                 <span id="promo-email-expiry-line" style="font-size:12px; color:#999; background:#f8f8f8; padding:6px 14px; border-radius:20px; display:inline-block;"></span>
               </div>
@@ -776,9 +776,8 @@
       const logoEl = document.getElementById('promo-email-store-logo');
       if (logoUrl) { logoEl.src = logoUrl; logoEl.style.display = 'inline-block'; } else { logoEl.style.display = 'none'; }
 
-      // SMS preview
-      const shortAddr = storeAddr ? storeAddr.split(',')[0] : storeName;
-      const smsLines = [`[${storeName}] ${headline}${condLine ? ' — ' + condLine : ''}.`, expiryStr ? expiryStr + '.' : '', `Visit us: ${shortAddr}`, 'Reply STOP to opt out | Perkfinity Rewards'];
+      // SMS preview (use full address for member clarity)
+      const smsLines = [`[${storeName}] ${headline}${condLine ? ' — ' + condLine : ''}.`, expiryStr ? expiryStr + '.' : '', storeAddr ? `Visit us: ${storeAddr}` : '', 'When in store, scan the Perkfinity QR code before you order.', 'Reply STOP to opt out'];
       document.getElementById('promo-sms-body').innerHTML = smsLines.filter(Boolean).join('<br>');
 
       // Summary
@@ -898,6 +897,9 @@
              document.getElementById('profileZip').value = json.data.postal_code || '';
              document.getElementById('profileContactName').value = json.data.contact_name || '';
              document.getElementById('profilePhone').value = json.data.phone || '';
+             // Store full address in localStorage so promotion preview can display it
+             const addrParts = [json.data.address, json.data.suite, json.data.city, json.data.state, json.data.postal_code].filter(Boolean);
+             if (addrParts.length) localStorage.setItem('perkfinity_address', addrParts.join(', '));
            }
         })
         .catch(e => console.error("Failed to load profile data"));
