@@ -140,11 +140,295 @@
     </div>
 
     <!-- Create Promotion -->
-    <div id="tab-promotion" class="empty-state" style="display:none;">
-      <h3>Create a New Promotion</h3>
-      <p>Launch targeted campaigns (like 20% off for the next 48 hours) to re-engage your members and drive foot traffic when things get slow.</p>
-      <button class="btn btn-green" style="font-size: 15px; padding: 12px 24px;">New Promotion</button>
-    </div>
+    <!-- Create Promotion Wizard -->
+    <div id="tab-promotion" style="display:none; background:white; border-radius:16px; padding:30px; box-shadow:0 4px 20px rgba(0,0,0,0.03);">
+
+      <!-- Step Progress Bar -->
+      <div style="margin-bottom:28px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <h3 style="margin:0; color:var(--purpleDark);">Create a New Promotion</h3>
+          <span id="promo-step-label" style="font-size:13px; color:var(--muted); font-weight:600;">Step 1 of 6</span>
+        </div>
+        <div style="height:6px; background:#f0f0f0; border-radius:10px; overflow:hidden;">
+          <div id="promo-progress-bar" style="height:100%; width:16.6%; background:linear-gradient(90deg,var(--purple),var(--green)); border-radius:10px; transition:width 0.4s;"></div>
+        </div>
+        <div style="display:flex; justify-content:space-between; margin-top:8px;">
+          <span id="ps1" style="font-size:11px; font-weight:700; color:var(--purple);">Type</span>
+          <span id="ps2" style="font-size:11px; color:var(--muted);">Details</span>
+          <span id="ps3" style="font-size:11px; color:var(--muted);">Condition</span>
+          <span id="ps4" style="font-size:11px; color:var(--muted);">Delivery</span>
+          <span id="ps5" style="font-size:11px; color:var(--muted);">Audience</span>
+          <span id="ps6" style="font-size:11px; color:var(--muted);">Preview</span>
+        </div>
+      </div>
+
+      <!-- STEP 1: Promotion Type -->
+      <div id="promo-s1" class="promo-step">
+        <p style="color:var(--muted); font-size:14px; margin-bottom:20px;">What type of promotion would you like to offer?</p>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:24px;">
+          <div class="promo-type-card" onclick="selectPromoType(this,'percent')" style="border:2px solid var(--border); border-radius:14px; padding:20px; cursor:pointer; text-align:center; transition:all 0.2s;">
+            <div style="font-size:32px; margin-bottom:8px;">%</div>
+            <div style="font-weight:700; font-size:15px; color:var(--ink); margin-bottom:4px;">Percentage Off</div>
+            <div style="font-size:12px; color:var(--muted);">e.g. 20% off your entire purchase</div>
+          </div>
+          <div class="promo-type-card" onclick="selectPromoType(this,'dollar')" style="border:2px solid var(--border); border-radius:14px; padding:20px; cursor:pointer; text-align:center; transition:all 0.2s;">
+            <div style="font-size:32px; margin-bottom:8px;">$</div>
+            <div style="font-weight:700; font-size:15px; color:var(--ink); margin-bottom:4px;">Dollar Off</div>
+            <div style="font-size:12px; color:var(--muted);">e.g. $5 off your next visit</div>
+          </div>
+          <div class="promo-type-card" onclick="selectPromoType(this,'bogo')" style="border:2px solid var(--border); border-radius:14px; padding:20px; cursor:pointer; text-align:center; transition:all 0.2s;">
+            <div style="font-size:32px; margin-bottom:8px;">&#128260;</div>
+            <div style="font-weight:700; font-size:15px; color:var(--ink); margin-bottom:4px;">Buy One Get One</div>
+            <div style="font-size:12px; color:var(--muted);">e.g. Buy 2, get 1 free</div>
+          </div>
+          <div class="promo-type-card" onclick="selectPromoType(this,'freeitem')" style="border:2px solid var(--border); border-radius:14px; padding:20px; cursor:pointer; text-align:center; transition:all 0.2s;">
+            <div style="font-size:32px; margin-bottom:8px;">&#127873;</div>
+            <div style="font-weight:700; font-size:15px; color:var(--ink); margin-bottom:4px;">Free Item</div>
+            <div style="font-size:12px; color:var(--muted);">e.g. Free drink with any purchase</div>
+          </div>
+          <div class="promo-type-card" onclick="selectPromoType(this,'loyalty')" style="border:2px solid var(--border); border-radius:14px; padding:20px; cursor:pointer; text-align:center; transition:all 0.2s;">
+            <div style="font-size:32px; margin-bottom:8px;">&#11088;</div>
+            <div style="font-weight:700; font-size:15px; color:var(--ink); margin-bottom:4px;">Loyalty Reward</div>
+            <div style="font-size:12px; color:var(--muted);">e.g. Thank-you gift for loyal members</div>
+          </div>
+          <div class="promo-type-card" onclick="selectPromoType(this,'flash')" style="border:2px solid var(--border); border-radius:14px; padding:20px; cursor:pointer; text-align:center; transition:all 0.2s;">
+            <div style="font-size:32px; margin-bottom:8px;">&#9889;</div>
+            <div style="font-weight:700; font-size:15px; color:var(--ink); margin-bottom:4px;">Flash Sale</div>
+            <div style="font-size:12px; color:var(--muted);">e.g. Today only - limited time deal</div>
+          </div>
+        </div>
+        <div id="promoTypeErr" style="color:red;font-size:13px;display:none;margin-bottom:10px;">Please select a promotion type.</div>
+        <div style="display:flex; justify-content:flex-end;">
+          <button class="btn btn-purple" style="padding:11px 28px;" onclick="promoNext(2)">Next: Details &#8594;</button>
+        </div>
+      </div>
+
+      <!-- STEP 2: Details -->
+      <div id="promo-s2" class="promo-step" style="display:none;">
+        <p style="color:var(--muted); font-size:14px; margin-bottom:20px;">Set the details of your offer.</p>
+        <div id="promo-detail-percent" style="display:none; margin-bottom:16px;">
+          <label style="display:block; font-weight:600; font-size:14px; margin-bottom:8px;">Discount Percentage *</label>
+          <div style="display:flex; align-items:center; gap:12px;">
+            <input type="number" id="promo-pct" min="1" max="100" placeholder="e.g. 20" style="width:120px; padding:10px 14px; border:1.5px solid var(--border); border-radius:10px; font-size:16px; font-weight:700; outline:none;">
+            <span style="font-size:22px; font-weight:800; color:var(--purple);">%</span>
+            <span style="font-size:13px; color:var(--muted);">off</span>
+          </div>
+        </div>
+        <div id="promo-detail-dollar" style="display:none; margin-bottom:16px;">
+          <label style="display:block; font-weight:600; font-size:14px; margin-bottom:8px;">Dollar Amount Off *</label>
+          <div style="display:flex; align-items:center; gap:12px;">
+            <span style="font-size:22px; font-weight:800; color:var(--green);">$</span>
+            <input type="number" id="promo-dollar" min="1" placeholder="e.g. 5" style="width:120px; padding:10px 14px; border:1.5px solid var(--border); border-radius:10px; font-size:16px; font-weight:700; outline:none;">
+            <span style="font-size:13px; color:var(--muted);">off your purchase</span>
+          </div>
+        </div>
+        <div id="promo-detail-bogo" style="display:none; margin-bottom:16px;">
+          <label style="display:block; font-weight:600; font-size:14px; margin-bottom:8px;">BOGO Details *</label>
+          <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+            <span style="font-size:14px; color:var(--muted);">Buy</span>
+            <input type="number" id="promo-bogo-buy" min="1" value="2" style="width:70px; padding:10px; border:1.5px solid var(--border); border-radius:10px; font-size:15px; font-weight:700; outline:none; text-align:center;">
+            <span style="font-size:14px; color:var(--muted);">items, get</span>
+            <input type="number" id="promo-bogo-get" min="1" value="1" style="width:70px; padding:10px; border:1.5px solid var(--border); border-radius:10px; font-size:15px; font-weight:700; outline:none; text-align:center;">
+            <span style="font-size:14px; color:var(--muted);">free</span>
+          </div>
+          <div style="margin-top:12px;">
+            <label style="display:block; font-weight:600; font-size:14px; margin-bottom:6px;">Item description (optional)</label>
+            <input type="text" id="promo-bogo-item" placeholder="e.g. any coffee drink" style="width:100%; padding:10px 14px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; outline:none; box-sizing:border-box;">
+          </div>
+        </div>
+        <div id="promo-detail-freeitem" style="display:none; margin-bottom:16px;">
+          <label style="display:block; font-weight:600; font-size:14px; margin-bottom:8px;">Free Item Description *</label>
+          <input type="text" id="promo-free-item" placeholder="e.g. free cookie, free drink" style="width:100%; padding:10px 14px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; outline:none; box-sizing:border-box; margin-bottom:12px;">
+          <label style="display:block; font-weight:600; font-size:14px; margin-bottom:8px;">With purchase over (optional)</label>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span style="font-size:18px; color:var(--green);">$</span>
+            <input type="number" id="promo-free-min" min="0" placeholder="e.g. 10 (leave blank = no min)" style="width:200px; padding:10px 14px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; outline:none;">
+          </div>
+        </div>
+        <div id="promo-detail-custom" style="display:none; margin-bottom:16px;">
+          <label style="display:block; font-weight:600; font-size:14px; margin-bottom:8px;">Offer Description *</label>
+          <input type="text" id="promo-custom-desc" placeholder="e.g. Exclusive 25% off — just for our loyal members" style="width:100%; padding:10px 14px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; outline:none; box-sizing:border-box;">
+        </div>
+        <div style="margin-bottom:16px; margin-top:8px;">
+          <label style="display:block; font-weight:600; font-size:14px; margin-bottom:8px;">Offer Expires On *</label>
+          <input type="date" id="promo-expiry" style="padding:10px 14px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; outline:none; color:var(--ink);">
+        </div>
+        <div id="promoDetailErr" style="color:red;font-size:13px;display:none;margin-bottom:10px;">Please fill in all required fields.</div>
+        <div style="display:flex; gap:12px; justify-content:flex-end;">
+          <button class="btn" style="background:#f1f5f9;color:#555;padding:11px 22px;" onclick="promoNext(1)">&#8592; Back</button>
+          <button class="btn btn-purple" style="padding:11px 28px;" onclick="promoNext(3)">Next: Condition &#8594;</button>
+        </div>
+      </div>
+
+      <!-- STEP 3: Condition -->
+      <div id="promo-s3" class="promo-step" style="display:none;">
+        <p style="color:var(--muted); font-size:14px; margin-bottom:20px;">What does the member need to do to qualify?</p>
+        <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:24px;">
+          <div class="promo-cond-card" onclick="selectPromoCond(this,'none')" style="border:2px solid var(--border); border-radius:12px; padding:16px 20px; cursor:pointer; display:flex; align-items:center; gap:14px; transition:all 0.2s;">
+            <span style="font-size:22px;">&#128483;</span>
+            <div><div style="font-weight:700; font-size:14px;">No Minimum</div><div style="font-size:12px;color:var(--muted);">Available on any purchase</div></div>
+          </div>
+          <div class="promo-cond-card" onclick="selectPromoCond(this,'min_spend')" style="border:2px solid var(--border); border-radius:12px; padding:16px 20px; cursor:pointer; transition:all 0.2s;">
+            <div style="display:flex; align-items:center; gap:14px;">
+              <span style="font-size:22px;">&#128181;</span>
+              <div style="flex:1;">
+                <div style="font-weight:700; font-size:14px;">Minimum Spend</div>
+                <div style="font-size:12px;color:var(--muted);">Purchase over a dollar amount</div>
+              </div>
+            </div>
+            <div id="promo-cond-spend-wrap" style="display:none; margin-top:10px; margin-left:36px; display:flex; align-items:center; gap:8px;">
+              <span style="font-weight:700; color:var(--green);">$</span>
+              <input type="number" id="promo-cond-spend" min="1" placeholder="e.g. 15" onclick="event.stopPropagation()" style="width:100px; padding:8px 12px; border:1.5px solid var(--border); border-radius:8px; font-size:14px; outline:none;">
+              <span style="font-size:13px; color:var(--muted);">minimum</span>
+            </div>
+          </div>
+          <div class="promo-cond-card" onclick="selectPromoCond(this,'min_items')" style="border:2px solid var(--border); border-radius:12px; padding:16px 20px; cursor:pointer; transition:all 0.2s;">
+            <div style="display:flex; align-items:center; gap:14px;">
+              <span style="font-size:22px;">&#128722;</span>
+              <div style="flex:1;">
+                <div style="font-weight:700; font-size:14px;">Minimum Items</div>
+                <div style="font-size:12px;color:var(--muted);">Buy at least X items</div>
+              </div>
+            </div>
+            <div id="promo-cond-items-wrap" style="display:none; margin-top:10px; margin-left:36px; display:flex; align-items:center; gap:8px;">
+              <input type="number" id="promo-cond-items" min="1" placeholder="e.g. 2" onclick="event.stopPropagation()" style="width:80px; padding:8px 12px; border:1.5px solid var(--border); border-radius:8px; font-size:14px; outline:none;">
+              <span style="font-size:13px; color:var(--muted);">or more items</span>
+            </div>
+          </div>
+          <div class="promo-cond-card" onclick="selectPromoCond(this,'first_visit')" style="border:2px solid var(--border); border-radius:12px; padding:16px 20px; cursor:pointer; display:flex; align-items:center; gap:14px; transition:all 0.2s;">
+            <span style="font-size:22px;">&#127775;</span>
+            <div><div style="font-weight:700; font-size:14px;">First Visit Only</div><div style="font-size:12px;color:var(--muted);">Welcome new members on their first redemption</div></div>
+          </div>
+        </div>
+        <div id="promoCondErr" style="color:red;font-size:13px;display:none;margin-bottom:10px;">Please select a condition.</div>
+        <div style="display:flex; gap:12px; justify-content:flex-end;">
+          <button class="btn" style="background:#f1f5f9;color:#555;padding:11px 22px;" onclick="promoNext(2)">&#8592; Back</button>
+          <button class="btn btn-purple" style="padding:11px 28px;" onclick="promoNext(4)">Next: Delivery &#8594;</button>
+        </div>
+      </div>
+
+      <!-- STEP 4: Delivery -->
+      <div id="promo-s4" class="promo-step" style="display:none;">
+        <p style="color:var(--muted); font-size:14px; margin-bottom:20px;">How should we deliver this promotion?</p>
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; margin-bottom:24px;">
+          <div class="promo-delivery-card" onclick="selectPromoDelivery(this,'email')" style="border:2px solid var(--border); border-radius:14px; padding:22px 14px; cursor:pointer; text-align:center; transition:all 0.2s;">
+            <div style="font-size:32px; margin-bottom:10px;">&#128231;</div>
+            <div style="font-weight:700; font-size:14px; color:var(--ink);">Email</div>
+            <div style="font-size:11px; color:var(--muted); margin-top:4px;">Rich layout with logo and address</div>
+          </div>
+          <div class="promo-delivery-card" onclick="selectPromoDelivery(this,'sms')" style="border:2px solid var(--border); border-radius:14px; padding:22px 14px; cursor:pointer; text-align:center; transition:all 0.2s;">
+            <div style="font-size:32px; margin-bottom:10px;">&#128172;</div>
+            <div style="font-weight:700; font-size:14px; color:var(--ink);">SMS Text</div>
+            <div style="font-size:11px; color:var(--muted); margin-top:4px;">Short and direct</div>
+          </div>
+          <div class="promo-delivery-card" onclick="selectPromoDelivery(this,'both')" style="border:2px solid var(--border); border-radius:14px; padding:22px 14px; cursor:pointer; text-align:center; transition:all 0.2s;">
+            <div style="font-size:32px; margin-bottom:10px;">&#128276;</div>
+            <div style="font-weight:700; font-size:14px; color:var(--ink);">Email + SMS</div>
+            <div style="font-size:11px; color:var(--muted); margin-top:4px;">Maximum reach</div>
+          </div>
+        </div>
+        <div id="promoDeliveryErr" style="color:red;font-size:13px;display:none;margin-bottom:10px;">Please select a delivery method.</div>
+        <div style="display:flex; gap:12px; justify-content:flex-end;">
+          <button class="btn" style="background:#f1f5f9;color:#555;padding:11px 22px;" onclick="promoNext(3)">&#8592; Back</button>
+          <button class="btn btn-purple" style="padding:11px 28px;" onclick="promoNext(5)">Next: Audience &#8594;</button>
+        </div>
+      </div>
+
+      <!-- STEP 5: Audience -->
+      <div id="promo-s5" class="promo-step" style="display:none;">
+        <p style="color:var(--muted); font-size:14px; margin-bottom:20px;">Who should receive this promotion?</p>
+        <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:24px;">
+          <div class="promo-aud-card" onclick="selectPromoAud(this,'all')" style="border:2px solid var(--border); border-radius:12px; padding:14px 18px; cursor:pointer; display:flex; align-items:center; gap:14px; transition:all 0.2s;">
+            <span style="font-size:20px;">&#128101;</span><div><div style="font-weight:700; font-size:14px;">All Members</div><div style="font-size:12px;color:var(--muted);">Everyone who joined your store</div></div>
+          </div>
+          <div class="promo-aud-card" onclick="selectPromoAud(this,'redeemed_30')" style="border:2px solid var(--border); border-radius:12px; padding:14px 18px; cursor:pointer; display:flex; align-items:center; gap:14px; transition:all 0.2s;">
+            <span style="font-size:20px;">&#9989;</span><div><div style="font-weight:700; font-size:14px;">Redeemed — Last 30 Days</div><div style="font-size:12px;color:var(--muted);">Your most active recent customers</div></div>
+          </div>
+          <div class="promo-aud-card" onclick="selectPromoAud(this,'expired_30')" style="border:2px solid var(--border); border-radius:12px; padding:14px 18px; cursor:pointer; display:flex; align-items:center; gap:14px; transition:all 0.2s;">
+            <span style="font-size:20px;">&#9200;</span><div><div style="font-weight:700; font-size:14px;">Expired (Did Not Redeem) — Last 30 Days</div><div style="font-size:12px;color:var(--muted);">Win back members who let their perk expire</div></div>
+          </div>
+          <div class="promo-aud-card" onclick="selectPromoAud(this,'never_redeemed')" style="border:2px solid var(--border); border-radius:12px; padding:14px 18px; cursor:pointer; display:flex; align-items:center; gap:14px; transition:all 0.2s;">
+            <span style="font-size:20px;">&#128164;</span><div><div style="font-weight:700; font-size:14px;">Never Redeemed</div><div style="font-size:12px;color:var(--muted);">Signed up but never used a perk</div></div>
+          </div>
+          <div class="promo-aud-card" onclick="selectPromoAud(this,'redeemed_90')" style="border:2px solid var(--border); border-radius:12px; padding:14px 18px; cursor:pointer; display:flex; align-items:center; gap:14px; transition:all 0.2s;">
+            <span style="font-size:20px;">&#128197;</span><div><div style="font-weight:700; font-size:14px;">Redeemed — Last 90 Days</div><div style="font-size:12px;color:var(--muted);">Loyal members from the past quarter</div></div>
+          </div>
+        </div>
+        <div id="promoAudErr" style="color:red;font-size:13px;display:none;margin-bottom:10px;">Please select an audience.</div>
+        <div style="display:flex; gap:12px; justify-content:flex-end;">
+          <button class="btn" style="background:#f1f5f9;color:#555;padding:11px 22px;" onclick="promoNext(4)">&#8592; Back</button>
+          <button class="btn btn-purple" style="padding:11px 28px;" onclick="promoNext(6)">Preview &#8594;</button>
+        </div>
+      </div>
+
+      <!-- STEP 6: Preview & Send -->
+      <div id="promo-s6" class="promo-step" style="display:none;">
+        <p style="color:var(--muted); font-size:14px; margin-bottom:20px;">Review your promotion before sending.</p>
+
+        <!-- Email Preview -->
+        <div id="promo-email-preview-wrap">
+          <h4 style="margin:0 0 10px; color:var(--purpleDark); font-size:14px;">&#128231; Email Preview</h4>
+          <div style="border:1.5px solid var(--border); border-radius:14px; overflow:hidden; margin-bottom:20px; max-width:520px;">
+            <div style="background:linear-gradient(135deg,#5B3FA5,#6BC17A); padding:24px; text-align:center;">
+              <div style="display:flex; align-items:center; justify-content:center; gap:12px; margin-bottom:8px;">
+                <img id="promo-email-store-logo" src="" style="width:44px;height:44px;border-radius:50%;object-fit:contain;background:#fff;display:none;border:2px solid rgba(255,255,255,0.8);">
+                <img src="assets/Perkfinity-Logo.png" alt="Perkfinity" style="height:28px; opacity:0.95;">
+              </div>
+              <div id="promo-email-store-name" style="color:#fff; font-size:18px; font-weight:800;"></div>
+            </div>
+            <div style="padding:24px; background:#fff;">
+              <div style="text-align:center; margin-bottom:20px;">
+                <div style="display:inline-block; background:linear-gradient(135deg,rgba(91,63,165,0.08),rgba(107,193,122,0.08)); border:1.5px solid rgba(91,63,165,0.15); border-radius:12px; padding:18px 28px;">
+                  <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1.5px; color:#5B3FA5; margin-bottom:6px;">Exclusive Offer For You</div>
+                  <div id="promo-email-headline" style="font-size:22px; font-weight:900; color:#1a1a2e;"></div>
+                  <div id="promo-email-cond-line" style="font-size:13px; color:#666; margin-top:6px;"></div>
+                </div>
+              </div>
+              <p style="font-size:14px; color:#555; text-align:center; margin:0 0 16px;">Show this offer at the register to redeem your perk.</p>
+              <div style="text-align:center; margin-bottom:16px;">
+                <span id="promo-email-expiry-line" style="font-size:12px; color:#999; background:#f8f8f8; padding:6px 14px; border-radius:20px; display:inline-block;"></span>
+              </div>
+              <hr style="border:none; border-top:1px solid #f0f0f0; margin:16px 0;">
+              <div id="promo-email-address" style="font-size:12px; color:#888; text-align:center; line-height:1.6;"></div>
+              <div style="text-align:center; margin-top:12px; font-size:11px; color:#bbb;">Powered by <strong style="color:#5B3FA5;">Perkfinity</strong></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SMS Preview -->
+        <div id="promo-sms-preview-wrap">
+          <h4 style="margin:0 0 10px; color:var(--purpleDark); font-size:14px;">&#128172; SMS Preview</h4>
+          <div style="max-width:340px; margin-bottom:20px;">
+            <div style="background:#f0f0f0; border-radius:18px 18px 18px 4px; padding:14px 18px; font-size:13px; color:#1a1a1a; line-height:1.55;">
+              <div id="promo-sms-body"></div>
+              <div style="font-size:10px; color:#aaa; text-align:right; margin-top:6px;">Perkfinity Rewards</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Summary -->
+        <div style="background:#f8f7ff; border:1.5px solid rgba(91,63,165,0.15); border-radius:12px; padding:16px 20px; margin-bottom:20px; font-size:13px;">
+          <div style="font-weight:700; margin-bottom:10px; font-size:14px; color:var(--purpleDark);">&#128203; Promotion Summary</div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px 20px; color:var(--muted);">
+            <div>Type: <strong id="sum-type" style="color:var(--ink);"></strong></div>
+            <div>Delivery: <strong id="sum-delivery" style="color:var(--ink);"></strong></div>
+            <div>Audience: <strong id="sum-audience" style="color:var(--ink);"></strong></div>
+            <div>Expires: <strong id="sum-expiry" style="color:var(--ink);"></strong></div>
+          </div>
+        </div>
+
+        <div id="promoSendErr" style="color:red;font-size:13px;display:none;margin-bottom:10px;"></div>
+        <div id="promoSendSuccess" style="display:none; background:rgba(107,193,122,0.12); border:1.5px solid rgba(107,193,122,0.4); border-radius:12px; padding:16px 20px; margin-bottom:16px; font-size:14px; color:#1a6b2b;">
+          &#10003; <strong>Promotion saved!</strong> Your promotion has been queued. Members will be reached via your selected channel.
+        </div>
+        <div style="display:flex; gap:12px; justify-content:flex-end; flex-wrap:wrap;">
+          <button class="btn" style="background:#f1f5f9;color:#555;padding:11px 22px;" onclick="promoNext(5)">&#8592; Back</button>
+          <button class="btn" style="background:#f1f5f9;color:var(--purpleDark);padding:11px 22px;" onclick="promoReset()">Start Over</button>
+          <button id="promoBtnSend" class="btn btn-green" style="padding:11px 28px; font-weight:700;" onclick="sendPromotion()">&#128640; Send Promotion</button>
+        </div>
+      </div>
+
+    </div><!-- /tab-promotion -->
 
     <!-- Create Newsletter -->
     <div id="tab-newsletter" class="empty-state" style="display:none;">
@@ -330,7 +614,238 @@
       loadMembers();
     });
 
+    // ── Promotion Wizard ─────────────────────────────────────────
+    let _promoType = null, _promoCond = null, _promoDelivery = null, _promoAud = null;
+
+    const _promoSteps = ['ps1','ps2','ps3','ps4','ps5','ps6'];
+    const _promoPercents = [16.6, 33.3, 50, 66.6, 83.3, 100];
+
+    function promoNext(step) {
+      // Validate current before moving forward
+      const cur = getCurrentPromoStep();
+      if (step > cur) {
+        if (cur === 1 && !_promoType) { showErr('promoTypeErr'); return; }
+        if (cur === 2 && !validatePromoDetails()) return;
+        if (cur === 3 && !_promoCond) { showErr('promoCondErr'); return; }
+        if (cur === 4 && !_promoDelivery) { showErr('promoDeliveryErr'); return; }
+        if (cur === 5 && !_promoAud) { showErr('promoAudErr'); return; }
+      }
+      hideAllPromoErrs();
+      document.querySelectorAll('.promo-step').forEach(el => el.style.display = 'none');
+      document.getElementById('promo-s' + step).style.display = 'block';
+      document.getElementById('promo-step-label').innerText = `Step ${step} of 6`;
+      document.getElementById('promo-progress-bar').style.width = _promoPercents[step-1] + '%';
+      _promoSteps.forEach((id, i) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.style.color = i < step ? 'var(--purple)' : 'var(--muted)';
+        el.style.fontWeight = i === step - 1 ? '700' : '400';
+      });
+      if (step === 6) buildPromoPreview();
+    }
+
+    function getCurrentPromoStep() {
+      for (let i = 1; i <= 6; i++) {
+        const el = document.getElementById('promo-s' + i);
+        if (el && el.style.display !== 'none') return i;
+      }
+      return 1;
+    }
+
+    function showErr(id) {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'block';
+    }
+
+    function hideAllPromoErrs() {
+      ['promoTypeErr','promoDetailErr','promoCondErr','promoDeliveryErr','promoAudErr'].forEach(id => {
+        const el = document.getElementById(id); if (el) el.style.display = 'none';
+      });
+    }
+
+    function selectPromoType(el, type) {
+      _promoType = type;
+      document.querySelectorAll('.promo-type-card').forEach(c => {
+        c.style.border = '2px solid var(--border)';
+        c.style.background = 'transparent';
+      });
+      el.style.border = '2px solid var(--purple)';
+      el.style.background = 'rgba(91,63,165,0.05)';
+      // Show correct detail fields on step 2
+      ['percent','dollar','bogo','freeitem','custom'].forEach(t => {
+        const wrap = document.getElementById('promo-detail-' + t);
+        if (wrap) wrap.style.display = 'none';
+      });
+      const map = { percent:'percent', dollar:'dollar', bogo:'bogo', freeitem:'freeitem', loyalty:'custom', flash:'custom' };
+      const show = document.getElementById('promo-detail-' + map[type]);
+      if (show) show.style.display = 'block';
+      // Set default expiry to +30 days
+      const exp = document.getElementById('promo-expiry');
+      if (exp && !exp.value) {
+        const d = new Date(); d.setDate(d.getDate() + 30);
+        exp.value = d.toISOString().slice(0,10);
+      }
+    }
+
+    function validatePromoDetails() {
+      const err = document.getElementById('promoDetailErr');
+      const expiry = document.getElementById('promo-expiry').value;
+      if (!expiry) { err.style.display = 'block'; return false; }
+      if (_promoType === 'percent' && !document.getElementById('promo-pct').value) { err.style.display = 'block'; return false; }
+      if (_promoType === 'dollar' && !document.getElementById('promo-dollar').value) { err.style.display = 'block'; return false; }
+      if (_promoType === 'freeitem' && !document.getElementById('promo-free-item').value.trim()) { err.style.display = 'block'; return false; }
+      if ((_promoType === 'loyalty' || _promoType === 'flash') && !document.getElementById('promo-custom-desc').value.trim()) { err.style.display = 'block'; return false; }
+      return true;
+    }
+
+    function selectPromoCond(el, cond) {
+      _promoCond = cond;
+      document.querySelectorAll('.promo-cond-card').forEach(c => {
+        c.style.border = '2px solid var(--border)';
+        c.style.background = 'transparent';
+      });
+      el.style.border = '2px solid var(--purple)';
+      el.style.background = 'rgba(91,63,165,0.05)';
+      // Show sub-fields
+      const spendWrap = document.getElementById('promo-cond-spend-wrap');
+      const itemsWrap = document.getElementById('promo-cond-items-wrap');
+      if (spendWrap) spendWrap.style.display = cond === 'min_spend' ? 'flex' : 'none';
+      if (itemsWrap) itemsWrap.style.display = cond === 'min_items' ? 'flex' : 'none';
+    }
+
+    function selectPromoDelivery(el, method) {
+      _promoDelivery = method;
+      document.querySelectorAll('.promo-delivery-card').forEach(c => {
+        c.style.border = '2px solid var(--border)';
+        c.style.background = 'transparent';
+      });
+      el.style.border = '2px solid var(--purple)';
+      el.style.background = 'rgba(91,63,165,0.05)';
+    }
+
+    function selectPromoAud(el, aud) {
+      _promoAud = aud;
+      document.querySelectorAll('.promo-aud-card').forEach(c => {
+        c.style.border = '2px solid var(--border)';
+        c.style.background = 'transparent';
+      });
+      el.style.border = '2px solid var(--purple)';
+      el.style.background = 'rgba(91,63,165,0.05)';
+    }
+
+    function buildPromoHeadline() {
+      if (_promoType === 'percent') return `${document.getElementById('promo-pct').value || '?'}% Off`;
+      if (_promoType === 'dollar') return `$${document.getElementById('promo-dollar').value || '?'} Off`;
+      if (_promoType === 'bogo') {
+        const buy = document.getElementById('promo-bogo-buy').value || '2';
+        const get = document.getElementById('promo-bogo-get').value || '1';
+        const item = document.getElementById('promo-bogo-item').value;
+        return `Buy ${buy} Get ${get} Free${item ? ' — ' + item : ''}`;
+      }
+      if (_promoType === 'freeitem') return 'Free ' + (document.getElementById('promo-free-item').value || 'Item');
+      return document.getElementById('promo-custom-desc').value || 'Special Offer';
+    }
+
+    function buildPromoCondLine() {
+      if (_promoCond === 'none') return '';
+      if (_promoCond === 'min_spend') { const v = document.getElementById('promo-cond-spend').value; return v ? `With purchase of $${v} or more` : ''; }
+      if (_promoCond === 'min_items') { const v = document.getElementById('promo-cond-items').value; return v ? `When you buy ${v} or more items` : ''; }
+      if (_promoCond === 'first_visit') return 'First visit only';
+      return '';
+    }
+
+    function buildPromoPreview() {
+      const storeName = localStorage.getItem('perkfinity_business_name') || 'Your Store';
+      const storeAddr = localStorage.getItem('perkfinity_address') || '';
+      const logoUrl   = localStorage.getItem('perkfinity_logo_url') || '';
+      const expiry    = document.getElementById('promo-expiry').value;
+      const headline  = buildPromoHeadline();
+      const condLine  = buildPromoCondLine();
+      const expiryStr = expiry ? `Offer expires: ${new Date(expiry + 'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}` : '';
+
+      // Show/hide email/sms previews based on delivery
+      document.getElementById('promo-email-preview-wrap').style.display = (_promoDelivery === 'sms') ? 'none' : 'block';
+      document.getElementById('promo-sms-preview-wrap').style.display  = (_promoDelivery === 'email') ? 'none' : 'block';
+
+      // Email preview fields
+      document.getElementById('promo-email-store-name').innerText = storeName;
+      document.getElementById('promo-email-headline').innerText = headline;
+      document.getElementById('promo-email-cond-line').innerText = condLine;
+      document.getElementById('promo-email-expiry-line').innerText = expiryStr;
+      document.getElementById('promo-email-address').innerHTML = storeAddr ? storeName + '<br>' + storeAddr : storeName;
+      const logoEl = document.getElementById('promo-email-store-logo');
+      if (logoUrl) { logoEl.src = logoUrl; logoEl.style.display = 'inline-block'; } else { logoEl.style.display = 'none'; }
+
+      // SMS preview
+      const shortAddr = storeAddr ? storeAddr.split(',')[0] : storeName;
+      const smsLines = [`[${storeName}] ${headline}${condLine ? ' — ' + condLine : ''}.`, expiryStr ? expiryStr + '.' : '', `Visit us: ${shortAddr}`, 'Reply STOP to opt out | Perkfinity Rewards'];
+      document.getElementById('promo-sms-body').innerHTML = smsLines.filter(Boolean).join('<br>');
+
+      // Summary
+      const typeLabels = {percent:'Percentage Off', dollar:'Dollar Off', bogo:'Buy One Get One', freeitem:'Free Item', loyalty:'Loyalty Reward', flash:'Flash Sale'};
+      const audLabels  = {all:'All Members', redeemed_30:'Redeemed (30d)', expired_30:'Expired (30d)', never_redeemed:'Never Redeemed', redeemed_90:'Redeemed (90d)'};
+      const delLabels  = {email:'Email', sms:'SMS Text', both:'Email + SMS'};
+      document.getElementById('sum-type').innerText = typeLabels[_promoType] || '';
+      document.getElementById('sum-delivery').innerText = delLabels[_promoDelivery] || '';
+      document.getElementById('sum-audience').innerText = audLabels[_promoAud] || '';
+      document.getElementById('sum-expiry').innerText = expiryStr || 'Not set';
+    }
+
+    async function sendPromotion() {
+      const btn = document.getElementById('promoBtnSend');
+      const err = document.getElementById('promoSendErr');
+      const success = document.getElementById('promoSendSuccess');
+      err.style.display = 'none';
+      success.style.display = 'none';
+      btn.disabled = true;
+      btn.innerText = 'Saving...';
+
+      const headline  = buildPromoHeadline();
+      const condLine  = buildPromoCondLine();
+      const expiry    = document.getElementById('promo-expiry').value;
+
+      const payload = {
+        type: _promoType,
+        title: headline,
+        condition: _promoCond,
+        condition_detail: condLine,
+        delivery: _promoDelivery,
+        audience: _promoAud,
+        expires_at: expiry ? new Date(expiry + 'T23:59:59').toISOString() : null,
+      };
+
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/v1/merchants/${merchantId}/promotions`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiToken}` },
+          body: JSON.stringify(payload)
+        });
+        const json = await res.json();
+        if (!res.ok) throw new Error(json.error || 'Failed to save promotion');
+        success.style.display = 'block';
+        btn.innerText = '&#128640; Sent!';
+      } catch(e) {
+        err.innerText = e.message;
+        err.style.display = 'block';
+        btn.disabled = false;
+        btn.innerText = '&#128640; Send Promotion';
+      }
+    }
+
+    function promoReset() {
+      _promoType = null; _promoCond = null; _promoDelivery = null; _promoAud = null;
+      ['promo-pct','promo-dollar','promo-bogo-buy','promo-bogo-get','promo-bogo-item','promo-free-item','promo-free-min','promo-custom-desc','promo-expiry','promo-cond-spend','promo-cond-items'].forEach(id => {
+        const el = document.getElementById(id); if (el) el.value = el.type === 'number' && (id.includes('bogo')) ? (id.includes('buy') ? '2' : '1') : '';
+      });
+      document.getElementById('promoSendSuccess').style.display = 'none';
+      document.getElementById('promoBtnSend').disabled = false;
+      document.getElementById('promoBtnSend').innerText = '&#128640; Send Promotion';
+      promoNext(1);
+    }
+    // ── End Promotion Wizard ──────────────────────────────────────
+
     function handleLogout() {
+
       localStorage.removeItem('perkfinity_token');
       localStorage.removeItem('perkfinity_merchant_id');
       localStorage.removeItem('perkfinity_business_name');
