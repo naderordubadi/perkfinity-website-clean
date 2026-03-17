@@ -424,7 +424,7 @@
         <div style="display:flex; gap:12px; justify-content:flex-end; flex-wrap:wrap;">
           <button class="btn" style="background:#f1f5f9;color:#555;padding:11px 22px;" onclick="promoNext(5)">&#8592; Back</button>
           <button class="btn" style="background:#f1f5f9;color:var(--purpleDark);padding:11px 22px;" onclick="promoReset()">Start Over</button>
-          <button id="promoBtnSend" class="btn btn-green" style="padding:11px 28px; font-weight:700;" onclick="sendPromotion()">&#128640; Send Promotion</button>
+          <button id="promoBtnSend" class="btn btn-green" style="padding:11px 28px; font-weight:700;" onclick="sendPromotion()">🚀 Send Promotion</button>
         </div>
       </div>
 
@@ -839,12 +839,12 @@
         const json = await res.json();
         if (!res.ok) throw new Error(json.error || 'Failed to save promotion');
         success.style.display = 'block';
-        btn.innerText = '&#128640; Sent!';
+        btn.innerText = '🚀 Sent!';
       } catch(e) {
         err.innerText = e.message;
         err.style.display = 'block';
         btn.disabled = false;
-        btn.innerText = '&#128640; Send Promotion';
+        btn.innerText = '🚀 Send Promotion';
       }
     }
 
@@ -855,7 +855,7 @@
       });
       document.getElementById('promoSendSuccess').style.display = 'none';
       document.getElementById('promoBtnSend').disabled = false;
-      document.getElementById('promoBtnSend').innerText = '&#128640; Send Promotion';
+      document.getElementById('promoBtnSend').innerText = '🚀 Send Promotion';
       promoNext(1);
     }
     // ── End Promotion Wizard ──────────────────────────────────────
