@@ -439,9 +439,13 @@
 
       <!-- Sub-tab: Campaign History -->
       <div id="promo-subtab-history-content" style="display:none;">
-        <div style="margin-bottom:16px; display:flex; justify-content:space-between; align-items:center;">
+        <div style="margin-bottom:16px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
           <p style="margin:0; color:var(--muted); font-size:14px;">All promotions you've created for your members.</p>
-          <button class="btn btn-purple" style="font-size:13px; padding:9px 18px;" onclick="loadPromoHistory()">↻ Refresh</button>
+          <div style="display:flex; gap:8px;">
+            <button class="btn" style="background:#0ea5e9;color:#fff;font-size:13px;padding:9px 16px;" onclick="exportHistory('csv')">⬇ CSV</button>
+            <button class="btn" style="background:#64748b;color:#fff;font-size:13px;padding:9px 16px;" onclick="exportHistory('txt')">⬇ TXT</button>
+            <button class="btn btn-purple" style="font-size:13px; padding:9px 18px;" onclick="loadPromoHistory()">↻ Refresh</button>
+          </div>
         </div>
         <div style="overflow-x:auto;">
           <table style="width:100%; border-collapse:collapse; text-align:left; font-size:13px;">
@@ -451,14 +455,16 @@
                 <th style="padding:10px;">Type</th>
                 <th style="padding:10px;">Audience</th>
                 <th style="padding:10px;">Delivery</th>
-                <th style="padding:10px;">Members</th>
+                <th style="padding:10px;">Assigned</th>
+                <th style="padding:10px;">Redeemed</th>
+                <th style="padding:10px;">Rate</th>
                 <th style="padding:10px;">Created</th>
                 <th style="padding:10px;">Expires</th>
                 <th style="padding:10px;">Status</th>
               </tr>
             </thead>
             <tbody id="promoHistoryBody">
-              <tr><td colspan="8" style="padding:20px; text-align:center; color:var(--muted);">Loading history...</td></tr>
+              <tr><td colspan="10" style="padding:20px; text-align:center; color:var(--muted);">Loading history...</td></tr>
             </tbody>
           </table>
         </div>
@@ -933,6 +939,7 @@
           return;
         }
         const rows = json.data || [];
+        _historyCache = rows;
         if (!rows.length) {
           tbody.innerHTML = '<tr><td colspan="8" style="padding:20px;text-align:center;color:var(--muted);">No campaigns yet.</td></tr>';
           return;
@@ -942,6 +949,10 @@
         tbody.innerHTML = rows.map(r => {
         const raw = r.metadata;
           const m = raw ? (typeof raw === 'string' ? JSON.parse(raw) : raw) : {};
+          const assigned = parseInt(m.assigned_count ?? 0);
+          const redeemed = parseInt(r.redeemed_count ?? 0);
+          const rate = assigned > 0 ? ((redeemed / assigned) * 100).toFixed(1) : '—';
+          const rateColor = assigned === 0 ? '#999' : (redeemed/assigned >= 0.5 ? 'var(--green)' : redeemed/assigned >= 0.2 ? '#f59e0b' : '#ef4444');
           const created = r.created_at ? new Date(r.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '-';
           const expires = r.end_at ? new Date(r.end_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '-';
           const statusColor = r.status === 'active' ? 'var(--green)' : '#999';
@@ -950,7 +961,9 @@
             <td style="padding:11px 10px;">${typeLabels[m.type] || m.type || '-'}</td>
             <td style="padding:11px 10px;">${audienceLabels[m.audience] || m.audience || '-'}</td>
             <td style="padding:11px 10px;">${m.delivery || '-'}</td>
-            <td style="padding:11px 10px; font-weight:700; color:var(--purple);">${m.assigned_count ?? '-'}</td>
+            <td style="padding:11px 10px; font-weight:700; color:var(--purple);">${assigned || '-'}</td>
+            <td style="padding:11px 10px; font-weight:700;">${redeemed}</td>
+            <td style="padding:11px 10px;"><span style="background:${rateColor}22;color:${rateColor};padding:3px 8px;border-radius:20px;font-weight:700;font-size:12px;">${rate === '—' ? '—' : rate + '%'}</span></td>
             <td style="padding:11px 10px;">${created}</td>
             <td style="padding:11px 10px;">${expires}</td>
             <td style="padding:11px 10px;"><span style="color:${statusColor};font-weight:700;">${r.status || '-'}</span></td>
@@ -958,8 +971,45 @@
         }).join('');
       } catch(e) {
         console.error('[History] JS error:', e);
-        tbody.innerHTML = `<tr><td colspan="8" style="padding:20px;text-align:center;color:red;">Error: ${e.message}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="10" style="padding:20px;text-align:center;color:red;">Error: ${e.message}</td></tr>`;
       }
+    }
+
+    let _historyCache = [];
+
+    function exportHistory(fmt) {
+      const rows = _historyCache;
+      if (!rows || !rows.length) { alert('No history data to export. Refresh first.'); return; }
+      const audienceLabels = { all:'All Members', redeemed_30:'Redeemed (30d)', expired_30:'Expired (30d)', never_redeemed:'Never Redeemed', redeemed_90:'Redeemed (90d)' };
+      const typeLabels = { percent:'% Off', dollar:'$ Off', bogo:'Buy X Get Y', freeitem:'Free Item', loyalty:'Loyalty Reward', flash:'Flash Sale' };
+      const headers = ['Title','Type','Audience','Delivery','Assigned','Redeemed','Rate','Created','Expires','Status'];
+      const dataRows = rows.map(r => {
+        const raw = r.metadata;
+        const m = raw ? (typeof raw === 'string' ? JSON.parse(raw) : raw) : {};
+        const assigned = parseInt(m.assigned_count ?? 0);
+        const redeemed = parseInt(r.redeemed_count ?? 0);
+        const rate = assigned > 0 ? ((redeemed/assigned)*100).toFixed(1)+'%' : '—';
+        const created = r.created_at ? new Date(r.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '-';
+        const expires = r.end_at ? new Date(r.end_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '-';
+        return [r.title||'',typeLabels[m.type]||m.type||'',audienceLabels[m.audience]||m.audience||'',m.delivery||'',assigned,redeemed,rate,created,expires,r.status||''];
+      });
+      let content, type, ext;
+      if (fmt === 'csv') {
+        const escape = v => `"${String(v).replace(/"/g,'""')}"`;
+        content = [headers.map(escape).join(','), ...dataRows.map(r => r.map(escape).join(','))].join('\n');
+        type = 'text/csv'; ext = 'csv';
+      } else {
+        const col = (v, w) => String(v).padEnd(w);
+        const widths = [30,12,18,10,9,9,8,13,13,8];
+        const line = headers.map((h,i) => col(h,widths[i])).join('  ');
+        const sep = widths.map(w => '-'.repeat(w)).join('  ');
+        content = [line, sep, ...dataRows.map(r => r.map((v,i) => col(v,widths[i])).join('  '))].join('\n');
+        type = 'text/plain'; ext = 'txt';
+      }
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([content], { type }));
+      a.download = `campaign-history.${ext}`;
+      a.click();
     }
 
     function switchTab(tabId) {
