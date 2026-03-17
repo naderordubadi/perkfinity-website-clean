@@ -406,10 +406,11 @@
           const sEmail = document.getElementById('email').value;
           const sAddress = document.getElementById('street_address').value;
           const sPhone = document.getElementById('phone').value;
+          const sCity = document.getElementById('city').value;
           const sState = document.getElementById('state').value;
           const sZip = document.getElementById('zip').value;
 
-          if (!sName || !sContact || !sEmail || !sAddress || !sPhone || !sState || !sZip) {
+          if (!sName || !sContact || !sEmail || !sAddress || !sPhone || !sCity || !sState || !sZip) {
             document.getElementById('step1Error').innerText = "Please fill in all required fields to continue.";
             document.getElementById('step1Error').style.display = 'block';
             return;
