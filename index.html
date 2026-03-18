@@ -79,6 +79,33 @@
       </div>
     </section>
 
+    <!-- ===== ZIP CODE SEARCH ===== -->
+    <section style="background:#fff; padding:56px 0; border-bottom:1px solid #f0eeff;">
+      <div class="container" style="text-align:center;">
+        <div style="display:inline-block; background:linear-gradient(135deg,rgba(91,63,165,0.08),rgba(107,193,122,0.08)); border:1.5px solid rgba(91,63,165,0.15); border-radius:20px; padding:40px 48px; max-width:600px; width:100%;">
+          <div style="font-size:36px; margin-bottom:12px;">📍</div>
+          <h2 style="margin:0 0 8px; font-size:clamp(20px,4vw,28px); color:#1a1a2e; font-weight:800;">Find Perks Around You!</h2>
+          <p style="color:#666; font-size:15px; margin:0 0 24px;">See which stores and businesses near you are offering exclusive perks &amp; rewards.</p>
+          <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+            <input type="text" id="homeZipInput" placeholder="Enter ZIP Code" maxlength="5" inputmode="numeric"
+              style="flex:1; min-width:150px; max-width:220px; padding:14px 20px; border:1.5px solid rgba(91,63,165,0.3); border-radius:14px; font-size:17px; font-weight:700; outline:none; letter-spacing:2px; text-align:center; transition:border-color 0.2s;"
+              onfocus="this.style.borderColor='#5B3FA5'" onblur="this.style.borderColor='rgba(91,63,165,0.3)'"
+              onkeydown="if(event.key==='Enter') searchPerks()">
+            <button onclick="searchPerks()" class="btn btn-purple" style="padding:14px 28px; font-size:16px; border-radius:14px;">
+              Search Perks →
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+    <script>
+      function searchPerks() {
+        const zip = document.getElementById('homeZipInput').value.trim();
+        if (!/^\d{5}$/.test(zip)) { alert('Please enter a valid 5-digit ZIP code.'); return; }
+        window.location.href = 'merchants-search.html?zip=' + zip;
+      }
+    </script>
+
     <!-- ===== ENTRY POINTS ===== -->
     <section class="info-section bg-white" style="padding-top:40px">
       <div class="container">

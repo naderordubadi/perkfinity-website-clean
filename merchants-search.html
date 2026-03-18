@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Perkfinity — Find Perks Near You</title>
+  <meta name="description" content="Discover stores and businesses near you offering exclusive perks and rewards through Perkfinity."/>
+  <link rel="icon" href="assets/Perkfinity-App-Icon.png"/>
+  <link rel="stylesheet" href="styles.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: #f6f5ff; margin: 0; }
+
+    /* ── Search Bar ── */
+    .search-hero {
+      background: linear-gradient(135deg, #5B3FA5 0%, #4a2d96 60%, #3a1d86 100%);
+      padding: 48px 0 36px;
+      text-align: center;
+      position: relative;
+    }
+    .search-hero h1 {
+      color: #fff; font-size: clamp(22px,4vw,36px); font-weight: 800;
+      margin: 0 0 8px; letter-spacing: -0.5px;
+    }
+    .search-hero p { color: rgba(255,255,255,0.78); font-size: 16px; margin: 0 0 28px; }
+    .search-bar {
+      display: flex; gap: 10px; justify-content: center;
+      flex-wrap: wrap; max-width: 520px; margin: 0 auto;
+    }
+    .search-bar input {
+      flex: 1; min-width: 160px; padding: 14px 20px;
+      border: none; border-radius: 14px; font-size: 17px; font-weight: 700;
+      outline: none; letter-spacing: 2px; text-align: center;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.18);
+    }
+    .search-bar button {
+      padding: 14px 28px; background: #6BC17A; color: #fff;
+      border: none; border-radius: 14px; font-size: 16px; font-weight: 700;
+      cursor: pointer; transition: background 0.2s, transform 0.15s;
+      box-shadow: 0 4px 16px rgba(107,193,122,0.35);
+    }
+    .search-bar button:hover { background: #5aad6a; transform: translateY(-2px); }
+
+    /* ── Results ── */
+    .results-section { padding: 48px 0 80px; }
+    .results-label {
+      font-size: 14px; font-weight: 700; color: #5B3FA5;
+      text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px;
+    }
+    .results-heading {
+      font-size: clamp(20px, 3.5vw, 30px); font-weight: 800; margin: 0 0 32px;
+      color: #1a1a2e;
+    }
+    .results-heading span { color: #5B3FA5; }
+
+    /* ── Merchant Grid ── */
+    .merchant-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 24px;
+    }
+    .merchant-card {
+      background: #fff; border-radius: 20px;
+      box-shadow: 0 4px 24px rgba(91,63,165,0.10);
+      overflow: hidden; transition: transform 0.25s, box-shadow 0.25s;
+      display: flex; flex-direction: column;
+      border: 1.5px solid rgba(91,63,165,0.08);
+    }
+    .merchant-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 12px 40px rgba(91,63,165,0.18);
+    }
+    .merchant-card-top {
+      background: linear-gradient(135deg, #5B3FA5 0%, #6BC17A 100%);
+      padding: 28px 24px 20px; display: flex; align-items: center; gap: 16px;
+    }
+    .merchant-logo {
+      width: 64px; height: 64px; border-radius: 50%;
+      object-fit: cover; border: 3px solid rgba(255,255,255,0.85);
+      background: #fff; flex-shrink: 0;
+    }
+    .merchant-logo-placeholder {
+      width: 64px; height: 64px; border-radius: 50%;
+      background: rgba(255,255,255,0.25); border: 3px solid rgba(255,255,255,0.5);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px; flex-shrink: 0;
+    }
+    .merchant-name {
+      color: #fff; font-size: 18px; font-weight: 800; line-height: 1.3;
+    }
+
+    .merchant-card-body { padding: 20px 22px; flex: 1; display: flex; flex-direction: column; gap: 12px; }
+
+    .merchant-address {
+      display: flex; gap: 10px; align-items: flex-start;
+      font-size: 13px; color: #555; line-height: 1.55;
+    }
+    .merchant-address svg { flex-shrink: 0; margin-top: 2px; }
+
+    .merchant-perk {
+      background: linear-gradient(135deg, rgba(91,63,165,0.07), rgba(107,193,122,0.07));
+      border: 1.5px solid rgba(91,63,165,0.15);
+      border-radius: 12px; padding: 12px 16px;
+      font-size: 13px; display: flex; align-items: center; gap: 10px;
+    }
+    .perk-label {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 1px; color: #5B3FA5; margin-bottom: 3px;
+    }
+    .perk-value { font-weight: 700; color: #1a1a2e; font-size: 14px; }
+
+    .merchant-card-footer { padding: 0 22px 20px; }
+    .btn-scan {
+      display: block; width: 100%; padding: 13px;
+      background: linear-gradient(90deg, #5B3FA5, #6BC17A);
+      color: #fff; text-align: center; border-radius: 12px;
+      font-weight: 700; font-size: 14px; text-decoration: none;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+    .btn-scan:hover { opacity: 0.9; transform: translateY(-1px); }
+
+    /* ── Empty / Loading States ── */
+    .state-box {
+      text-align: center; padding: 64px 32px;
+      color: #888; font-size: 16px;
+    }
+    .state-box .state-icon { font-size: 52px; margin-bottom: 16px; }
+    .state-box h3 { font-size: 22px; color: #333; margin: 0 0 8px; }
+
+    @media (max-width: 600px) {
+      .merchant-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="container header-inner">
+      <a class="brand" href="index.html" aria-label="Perkfinity home">
+        <img src="assets/Perkfinity-Logo.png" alt="Perkfinity logo">
+      </a>
+      <nav class="nav" aria-label="Primary navigation">
+        <a href="members.html">For Members</a>
+        <a href="merchants.html">For Merchants</a>
+        <a href="login.html">Merchant Login</a>
+        <a href="signup.html">Merchant Sign Up</a>
+        <a href="how-it-works.html">How it Works</a>
+      </nav>
+      <a class="btn btn-green" href="mailto:hello@perkfinity.net" aria-label="Contact Us">
+        <span aria-hidden="true" style="display:inline-grid;place-items:center;width:20px;height:20px;border-radius:7px;background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.22);">✉</span>
+        Contact Us
+      </a>
+    </div>
+  </header>
+
+  <!-- Search Hero -->
+  <section class="search-hero">
+    <div class="container">
+      <h1>🗺️ Find Perks Near You</h1>
+      <p>Stores and businesses in your area offering exclusive perks &amp; rewards</p>
+      <div class="search-bar">
+        <input type="text" id="zipInput" placeholder="Enter ZIP Code" maxlength="5" inputmode="numeric" pattern="\d{5}"/>
+        <button onclick="doSearch()">Search →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Results -->
+  <section class="results-section">
+    <div class="container">
+      <div id="resultsHeader" style="display:none;">
+        <div class="results-label">Perkfinity Partners</div>
+        <h2 class="results-heading" id="resultsHeading"></h2>
+      </div>
+      <div id="resultsGrid" class="merchant-grid"></div>
+      <div id="resultsState" class="state-box" style="display:none;"></div>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="row">
+        <a href="mailto:hello@perkfinity.net" style="text-decoration:none;color:inherit">✉ <strong>hello@perkfinity.net</strong></a>
+        <span class="sep">|</span>
+        <span>🌐 <strong>www.perkfinity.net</strong></span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const BACKEND_URL = 'https://perkfinity-backend.vercel.app';
+
+    function setStateBox(icon, heading, sub) {
+      const box = document.getElementById('resultsState');
+      box.style.display = 'block';
+      box.innerHTML = `<div class="state-icon">${icon}</div><h3>${heading}</h3><p>${sub}</p>`;
+    }
+
+    function renderCard(m) {
+      const logo = m.logo_url
+        ? `<img class="merchant-logo" src="${m.logo_url}" alt="${m.business_name} logo" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="merchant-logo-placeholder" style="display:none;">🏪</div>`
+        : `<div class="merchant-logo-placeholder">🏪</div>`;
+
+      const addr = [m.address, m.city, m.state, m.postal_code].filter(Boolean).join(', ');
+
+      const perkSection = m.welcome_perk
+        ? `<div class="merchant-perk">
+            <div style="font-size:22px;">🎁</div>
+            <div>
+              <div class="perk-label">Welcome Perk</div>
+              <div class="perk-value">${m.welcome_perk}</div>
+            </div>
+           </div>`
+        : '';
+
+      const scanBtn = m.public_code
+        ? `<div class="merchant-card-footer">
+            <a class="btn-scan" href="https://perkfinity-app.vercel.app/qr/${m.public_code}">
+              📱 Scan &amp; Activate Perk →
+            </a>
+           </div>`
+        : '';
+
+      return `
+        <div class="merchant-card">
+          <div class="merchant-card-top">
+            ${logo}
+            <div class="merchant-name">${m.business_name}</div>
+          </div>
+          <div class="merchant-card-body">
+            ${addr ? `<div class="merchant-address">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke="#5B3FA5" stroke-width="2" fill="none"/><circle cx="12" cy="9" r="2.5" fill="#6BC17A"/></svg>
+              <span>${addr}</span>
+            </div>` : ''}
+            ${perkSection}
+          </div>
+          ${scanBtn}
+        </div>`;
+    }
+
+    async function doSearch() {
+      const zip = document.getElementById('zipInput').value.trim();
+      if (!/^\d{5}$/.test(zip)) {
+        alert('Please enter a valid 5-digit ZIP code.');
+        return;
+      }
+
+      // Update URL so search is shareable/bookmarkable
+      history.replaceState(null, '', `?zip=${zip}`);
+
+      const grid     = document.getElementById('resultsGrid');
+      const header   = document.getElementById('resultsHeader');
+      const heading  = document.getElementById('resultsHeading');
+      const stateBox = document.getElementById('resultsState');
+
+      grid.innerHTML = '';
+      stateBox.style.display = 'none';
+      header.style.display = 'none';
+      setStateBox('⏳', 'Searching...', 'Finding perks in your area');
+
+      try {
+        const res  = await fetch(`${BACKEND_URL}/api/v1/merchants/search?zip=${zip}`);
+        const json = await res.json();
+
+        stateBox.style.display = 'none';
+
+        if (!res.ok || !json.success) {
+          setStateBox('⚠️', 'Something went wrong', json.error || 'Please try again.');
+          return;
+        }
+
+        const merchants = json.data || [];
+        header.style.display = 'block';
+
+        if (merchants.length === 0) {
+          heading.innerHTML = `No results for <span>${zip}</span>`;
+          setStateBox('🔍', 'No businesses found', 'We're growing! Check back soon or try a nearby ZIP code.');
+          return;
+        }
+
+        heading.innerHTML = `<span>${merchants.length} Business${merchants.length !== 1 ? 'es' : ''}</span> in ${zip} offering perks`;
+        grid.innerHTML = merchants.map(renderCard).join('');
+      } catch (e) {
+        setStateBox('❌', 'Connection Error', 'Could not reach the server. Please check your connection and try again.');
+      }
+    }
+
+    // Auto-search if zip is in the URL
+    window.addEventListener('DOMContentLoaded', () => {
+      const params = new URLSearchParams(window.location.search);
+      const zip = params.get('zip');
+      if (zip) {
+        document.getElementById('zipInput').value = zip;
+        doSearch();
+      }
+    });
+
+    // Allow Enter key to trigger search
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && document.activeElement.id === 'zipInput') doSearch();
+    });
+  </script>
+</body>
+</html>
