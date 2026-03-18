@@ -274,7 +274,7 @@
 
         if (merchants.length === 0) {
           heading.innerHTML = `No results for <span>${zip}</span>`;
-          setStateBox('🔍', 'No businesses found', 'We're growing! Check back soon or try a nearby ZIP code.');
+          setStateBox('🔍', 'No businesses found', "We're growing! Check back soon or try a nearby ZIP code.");
           return;
         }
 
@@ -293,6 +293,13 @@
       const zip = params.get('zip');
       if (zip) {
         document.getElementById('zipInput').value = zip;
+        // Make the hero section compact so it looks like a direct results page
+        const hero = document.querySelector('.search-hero');
+        if (hero) {
+          hero.style.padding = '24px 0 20px';
+          const p = hero.querySelector('p');
+          if (p) p.style.display = 'none';
+        }
         doSearch();
       }
     })();
