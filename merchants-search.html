@@ -285,15 +285,17 @@
       }
     }
 
-    // Auto-search if zip is in the URL
-    window.addEventListener('DOMContentLoaded', () => {
+    // Auto-search if zip is in the URL.
+    // NOTE: This script runs at the bottom of <body>, so DOMContentLoaded has already fired.
+    // We call the function directly — all DOM elements are already available.
+    (function () {
       const params = new URLSearchParams(window.location.search);
       const zip = params.get('zip');
       if (zip) {
         document.getElementById('zipInput').value = zip;
         doSearch();
       }
-    });
+    })();
 
     // Allow Enter key to trigger search
     document.addEventListener('keydown', e => {
