@@ -74,7 +74,7 @@
       <div class="nav-tabs">
         <a href="#" class="active" onclick="switchTab('members')">Member List</a>
         <a href="#" onclick="switchTab('promotion')">Create a Promotion</a>
-        <a href="#" onclick="switchTab('newsletter')">Create a Newsletter</a>
+
         <a href="#" onclick="switchTab('profile')">Profile</a>
       </div>
     </div>
@@ -203,6 +203,11 @@
             <div style="font-weight:700; font-size:15px; color:var(--ink); margin-bottom:4px;">Flash Sale</div>
             <div style="font-size:12px; color:var(--muted);">e.g. Today only - limited time deal</div>
           </div>
+          <div class="promo-type-card" onclick="selectPromoType(this,'announcement')" style="border:2px solid var(--border); border-radius:14px; padding:20px; cursor:pointer; text-align:center; transition:all 0.2s; grid-column:1 / -1;">
+            <div style="font-size:32px; margin-bottom:8px;">&#128226;</div>
+            <div style="font-weight:700; font-size:15px; color:var(--ink); margin-bottom:4px;">Announcement</div>
+            <div style="font-size:12px; color:var(--muted);">e.g. New hours, event news, location update — no perk required</div>
+          </div>
         </div>
         <div id="promoTypeErr" style="color:red;font-size:13px;display:none;margin-bottom:10px;">Please select a promotion type.</div>
         <div style="display:flex; justify-content:flex-end;">
@@ -256,8 +261,14 @@
           <label style="display:block; font-weight:600; font-size:14px; margin-bottom:8px;">Offer Description *</label>
           <input type="text" id="promo-custom-desc" placeholder="e.g. Exclusive 25% off — just for our loyal members" style="width:100%; padding:10px 14px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; outline:none; box-sizing:border-box;">
         </div>
+        <div id="promo-detail-announcement" style="display:none; margin-bottom:16px;">
+          <label style="display:block; font-weight:600; font-size:14px; margin-bottom:8px;">Announcement Subject *</label>
+          <input type="text" id="promo-announce-subject" placeholder="e.g. We're now open on Sundays!" style="width:100%; padding:10px 14px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; outline:none; box-sizing:border-box; margin-bottom:14px;">
+          <label style="display:block; font-weight:600; font-size:14px; margin-bottom:8px;">Message Body *</label>
+          <textarea id="promo-announce-body" rows="4" placeholder="Write your announcement here. Keep it short and friendly." style="width:100%; padding:10px 14px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; outline:none; box-sizing:border-box; resize:vertical; font-family:inherit;"></textarea>
+        </div>
         <div style="margin-bottom:16px; margin-top:8px;">
-          <label style="display:block; font-weight:600; font-size:14px; margin-bottom:8px;">Offer Expires On *</label>
+          <label id="promo-expiry-label" style="display:block; font-weight:600; font-size:14px; margin-bottom:8px;">Offer Expires On *</label>
           <input type="date" id="promo-expiry" style="padding:10px 14px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; outline:none; color:var(--ink);">
         </div>
         <div id="promoDetailErr" style="color:red;font-size:13px;display:none;margin-bottom:10px;">Please fill in all required fields.</div>
@@ -386,12 +397,12 @@
             <div style="padding:24px; background:#fff;">
               <div style="text-align:center; margin-bottom:20px;">
                 <div style="display:inline-block; background:linear-gradient(135deg,rgba(91,63,165,0.08),rgba(107,193,122,0.08)); border:1.5px solid rgba(91,63,165,0.15); border-radius:12px; padding:18px 28px;">
-                  <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1.5px; color:#5B3FA5; margin-bottom:6px;">Exclusive Offer For You</div>
+                  <div id="promo-email-offer-label" style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1.5px; color:#5B3FA5; margin-bottom:6px;">Exclusive Offer For You</div>
                   <div id="promo-email-headline" style="font-size:22px; font-weight:900; color:#1a1a2e;"></div>
                   <div id="promo-email-cond-line" style="font-size:13px; color:#666; margin-top:6px;"></div>
                 </div>
               </div>
-              <p style="font-size:14px; color:#555; text-align:center; margin:0 0 16px;">When you are in the store, scan the Perkfinity QR code before you order to activate your perk.</p>
+              <p id="promo-email-qr-line" style="font-size:14px; color:#555; text-align:center; margin:0 0 16px;">When you are in the store, scan the Perkfinity QR code before you order to activate your perk.</p>
               <div style="text-align:center; margin-bottom:16px;">
                 <span id="promo-email-expiry-line" style="font-size:12px; color:#999; background:#f8f8f8; padding:6px 14px; border-radius:20px; display:inline-block;"></span>
               </div>
@@ -472,12 +483,7 @@
 
     </div><!-- /tab-promotion -->
 
-    <!-- Create Newsletter -->
-    <div id="tab-newsletter" class="empty-state" style="display:none;">
-      <h3>Create a Newsletter</h3>
-      <p>Keep your community in the loop. Send out announcements, holiday hours, or a simple message to all of your most loyal members directly from the dashboard.</p>
-      <button class="btn btn-purple" style="font-size: 15px; padding: 12px 24px;">Draft Newsletter</button>
-    </div>
+
 
     <!-- Profile Settings -->
     <div id="tab-profile" style="display:none; background:white; border-radius:16px; padding:30px; box-shadow:0 4px 20px rgba(0,0,0,0.03);">
@@ -676,6 +682,11 @@
     function promoNext(step) {
       // Validate current before moving forward
       const cur = getCurrentPromoStep();
+      // Announcements have no condition (Step 3) — skip it in both directions
+      if (_promoType === 'announcement' && step === 3) {
+        if (step > cur) { _promoCond = 'none'; step = 4; } // forward: 2→4
+        else { step = 2; }                                  // backward: 4→2
+      }
       if (step > cur) {
         if (cur === 1 && !_promoType) { showErr('promoTypeErr'); return; }
         if (cur === 2 && !validatePromoDetails()) return;
@@ -725,24 +736,35 @@
       el.style.border = '2px solid var(--purple)';
       el.style.background = 'rgba(91,63,165,0.05)';
       // Show correct detail fields on step 2
-      ['percent','dollar','bogo','freeitem','custom'].forEach(t => {
+      ['percent','dollar','bogo','freeitem','custom','announcement'].forEach(t => {
         const wrap = document.getElementById('promo-detail-' + t);
         if (wrap) wrap.style.display = 'none';
       });
-      const map = { percent:'percent', dollar:'dollar', bogo:'bogo', freeitem:'freeitem', loyalty:'custom', flash:'custom' };
+      const map = { percent:'percent', dollar:'dollar', bogo:'bogo', freeitem:'freeitem', loyalty:'custom', flash:'custom', announcement:'announcement' };
       const show = document.getElementById('promo-detail-' + map[type]);
       if (show) show.style.display = 'block';
-      // Set default expiry to +30 days
+      // Announcement: expiry optional; perk types: required
+      const expiryLabel = document.getElementById('promo-expiry-label');
+      if (expiryLabel) expiryLabel.innerText = type === 'announcement' ? 'Expires On (optional)' : 'Offer Expires On *';
+      // Set default expiry to +30 days for perk types; leave blank for announcements
       const exp = document.getElementById('promo-expiry');
-      if (exp && !exp.value) {
-        const d = new Date(); d.setDate(d.getDate() + 30);
-        exp.value = d.toISOString().slice(0,10);
+      if (exp) {
+        if (type === 'announcement') { exp.value = ''; }
+        else if (!exp.value) {
+          const d = new Date(); d.setDate(d.getDate() + 30);
+          exp.value = d.toISOString().slice(0,10);
+        }
       }
     }
 
     function validatePromoDetails() {
       const err = document.getElementById('promoDetailErr');
       const expiry = document.getElementById('promo-expiry').value;
+      if (_promoType === 'announcement') {
+        if (!document.getElementById('promo-announce-subject').value.trim()) { err.style.display = 'block'; return false; }
+        if (!document.getElementById('promo-announce-body').value.trim()) { err.style.display = 'block'; return false; }
+        return true; // expiry optional for announcements
+      }
       if (!expiry) { err.style.display = 'block'; return false; }
       if (_promoType === 'percent' && !document.getElementById('promo-pct').value) { err.style.display = 'block'; return false; }
       if (_promoType === 'dollar' && !document.getElementById('promo-dollar').value) { err.style.display = 'block'; return false; }
@@ -796,6 +818,7 @@
         return `Buy ${buy} Get ${get} Free${item ? ' — ' + item : ''}`;
       }
       if (_promoType === 'freeitem') return 'Free ' + (document.getElementById('promo-free-item').value || 'Item');
+      if (_promoType === 'announcement') return document.getElementById('promo-announce-subject').value || 'Announcement';
       return document.getElementById('promo-custom-desc').value || 'Special Offer';
     }
 
@@ -820,33 +843,56 @@
       document.getElementById('promo-email-preview-wrap').style.display = (_promoDelivery === 'sms') ? 'none' : 'block';
       document.getElementById('promo-sms-preview-wrap').style.display  = (_promoDelivery === 'email') ? 'none' : 'block';
 
-      // Email preview fields
+      // Common email fields
       document.getElementById('promo-email-store-name').innerText = storeName;
-      document.getElementById('promo-email-headline').innerText = headline;
-      document.getElementById('promo-email-cond-line').innerText = condLine;
-      document.getElementById('promo-email-expiry-line').innerText = expiryStr;
-      document.getElementById('promo-email-address').innerHTML = storeAddr ? storeName + '<br>' + storeAddr : storeName;
       const logoEl = document.getElementById('promo-email-store-logo');
       if (logoUrl) { logoEl.src = logoUrl; logoEl.style.display = 'inline-block'; } else { logoEl.style.display = 'none'; }
+      document.getElementById('promo-email-address').innerHTML = storeAddr ? storeName + '<br>' + storeAddr : storeName;
 
-      // SMS preview (use full address for member clarity)
-      const smsLines = [
-        `[${storeName}] ${headline}${condLine ? ' \u2014 ' + condLine : ''}.`,
-        expiryStr ? expiryStr + '.' : '',
-        'When in store, scan the Perkfinity QR code before you order.',
-        storeAddr ? `Visit us at: ${storeName}, ${storeAddr}` : `Visit us at: ${storeName}`,
-        'Reply STOP to opt out'
-      ];
-      document.getElementById('promo-sms-body').innerHTML = smsLines.filter(Boolean).join('<br>');
+      if (_promoType === 'announcement') {
+        // Announcement email: show subject + full message body, no perk box label
+        const msg = document.getElementById('promo-announce-body').value || '';
+        document.getElementById('promo-email-offer-label').innerText = '\uD83D\uDCE2 Store Announcement';
+        document.getElementById('promo-email-headline').innerText = headline;
+        document.getElementById('promo-email-cond-line').innerText = '';
+        document.getElementById('promo-email-expiry-line').innerText = '';
+        const qrEl = document.getElementById('promo-email-qr-line');
+        if (qrEl) qrEl.innerHTML = `<em style="color:#333;">${msg}</em>`;
+        // Announcement SMS
+        const smsLines = [
+          `[${storeName}] \uD83D\uDCE2 ${headline}`,
+          msg,
+          storeAddr ? `Visit us at: ${storeName}, ${storeAddr}` : `Visit us at: ${storeName}`,
+          'Reply STOP to opt out'
+        ];
+        document.getElementById('promo-sms-body').innerHTML = smsLines.filter(Boolean).join('<br>');
+      } else {
+        // Standard perk email
+        document.getElementById('promo-email-offer-label').innerText = 'Exclusive Offer For You';
+        document.getElementById('promo-email-headline').innerText = headline;
+        document.getElementById('promo-email-cond-line').innerText = condLine;
+        document.getElementById('promo-email-expiry-line').innerText = expiryStr;
+        const qrEl = document.getElementById('promo-email-qr-line');
+        if (qrEl) qrEl.innerHTML = 'When you are in the store, scan the Perkfinity QR code before you order to activate your perk.';
+        // Standard SMS
+        const smsLines = [
+          `[${storeName}] ${headline}${condLine ? ' \u2014 ' + condLine : ''}.`,
+          expiryStr ? expiryStr + '.' : '',
+          'When in store, scan the Perkfinity QR code before you order.',
+          storeAddr ? `Visit us at: ${storeName}, ${storeAddr}` : `Visit us at: ${storeName}`,
+          'Reply STOP to opt out'
+        ];
+        document.getElementById('promo-sms-body').innerHTML = smsLines.filter(Boolean).join('<br>');
+      }
 
       // Summary
-      const typeLabels = {percent:'Percentage Off', dollar:'Dollar Off', bogo:'Buy One Get One', freeitem:'Free Item', loyalty:'Loyalty Reward', flash:'Flash Sale'};
+      const typeLabels = {percent:'Percentage Off', dollar:'Dollar Off', bogo:'Buy One Get One', freeitem:'Free Item', loyalty:'Loyalty Reward', flash:'Flash Sale', announcement:'Announcement'};
       const audLabels  = {all:'All Members', redeemed_30:'Redeemed (30d)', expired_30:'Expired (30d)', never_redeemed:'Never Redeemed', redeemed_90:'Redeemed (90d)'};
       const delLabels  = {email:'Email', sms:'SMS Text', both:'Email + SMS'};
       document.getElementById('sum-type').innerText = typeLabels[_promoType] || '';
       document.getElementById('sum-delivery').innerText = delLabels[_promoDelivery] || '';
       document.getElementById('sum-audience').innerText = audLabels[_promoAud] || '';
-      document.getElementById('sum-expiry').innerText = expiryStr || 'Not set';
+      document.getElementById('sum-expiry').innerText = _promoType === 'announcement' ? (expiryStr || 'No expiry') : (expiryStr || 'Not set');
     }
 
     async function sendPromotion() {
@@ -866,7 +912,9 @@
         type: _promoType,
         title: headline,
         condition: _promoCond,
-        condition_detail: condLine,
+        condition_detail: _promoType === 'announcement'
+          ? (document.getElementById('promo-announce-body').value || '')
+          : condLine,
         delivery: _promoDelivery,
         audience: _promoAud,
         expires_at: expiry ? new Date(expiry + 'T23:59:59').toISOString() : null,
@@ -892,7 +940,7 @@
 
     function promoReset() {
       _promoType = null; _promoCond = null; _promoDelivery = null; _promoAud = null;
-      ['promo-pct','promo-dollar','promo-bogo-buy','promo-bogo-get','promo-bogo-item','promo-free-item','promo-free-min','promo-custom-desc','promo-expiry','promo-cond-spend','promo-cond-items'].forEach(id => {
+      ['promo-pct','promo-dollar','promo-bogo-buy','promo-bogo-get','promo-bogo-item','promo-free-item','promo-free-min','promo-custom-desc','promo-expiry','promo-cond-spend','promo-cond-items','promo-announce-subject','promo-announce-body'].forEach(id => {
         const el = document.getElementById(id); if (el) el.value = el.type === 'number' && (id.includes('bogo')) ? (id.includes('buy') ? '2' : '1') : '';
       });
       document.getElementById('promoSendSuccess').style.display = 'none';
@@ -1013,7 +1061,7 @@
     }
 
     function switchTab(tabId) {
-      document.querySelectorAll('.empty-state, #tab-members, #tab-profile, #tab-print-sign, #tab-promotion, #tab-newsletter').forEach(el => el.style.display = 'none');
+      document.querySelectorAll('.empty-state, #tab-members, #tab-profile, #tab-print-sign, #tab-promotion').forEach(el => el.style.display = 'none');
       document.querySelectorAll('.nav-tabs a').forEach(el => el.classList.remove('active'));
       
       const target = document.getElementById('tab-' + tabId);
