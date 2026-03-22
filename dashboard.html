@@ -96,6 +96,7 @@
         <input id="mf-zip" type="text" placeholder="🔍 ZIP Code" oninput="applyMembersFilter()" style="padding:8px 12px; border:1px solid var(--border); border-radius:8px; font-size:13px; width:120px;">
         <select id="mf-status" onchange="applyMembersFilter()" style="padding:8px 12px; border:1px solid var(--border); border-radius:8px; font-size:13px; color:#333;">
           <option value="">All Statuses</option>
+          <option value="Pending">Pending</option>
           <option value="Redeemed">Redeemed</option>
           <option value="Expired">Expired</option>
           <option value="Created">Created</option>
@@ -1430,6 +1431,7 @@
         if (r.status === 'Created')  { badgeBg = 'rgba(0,0,0,0.05)'; badgeColor = 'var(--muted)'; }
         else if (r.status === 'Redeemed') { badgeBg = 'rgba(107,193,122,0.2)'; badgeColor = 'var(--greenDark)'; }
         else if (r.status === 'Expired')  { badgeBg = 'rgba(255,0,0,0.1)'; badgeColor = 'red'; }
+        else if (r.status === 'Pending')  { badgeBg = 'rgba(251,191,36,0.15)'; badgeColor = '#D97706'; }
         const badge = r.status !== '-' ? `<span style="background:${badgeBg};color:${badgeColor};padding:2px 8px;border-radius:4px;font-size:12px;font-weight:600;">${r.status}</span>` : '-';
         return `<tr style="border-bottom:1px solid #f0f0f0;">
           <td style="padding:12px; font-weight:600; font-size:13px;">${r.member_id.substring(0,8)}...</td>
