@@ -136,6 +136,8 @@
           localStorage.setItem('perkfinity_email', data.data.merchantUser.email);
           if (data.data.merchantUser.logo_url) {
             localStorage.setItem('perkfinity_logo_url', data.data.merchantUser.logo_url);
+          } else {
+            localStorage.removeItem('perkfinity_logo_url');
           }
           
           window.location.href = 'dashboard.html';
