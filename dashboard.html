@@ -1076,8 +1076,7 @@
            document.getElementById('profileLogoPreview').style.display = 'block';
            document.getElementById('profileLogoPlaceholder').style.display = 'none';
         } else {
-           const businessName = localStorage.getItem('perkfinity_business_name') || '?';
-           document.getElementById('profileLogoPlaceholder').innerText = businessName.charAt(0).toUpperCase();
+           document.getElementById('profileLogoPlaceholder').innerHTML = '<span style="font-size:14px;color:var(--muted);text-align:center;">No logo<br>uploaded</span>';
            document.getElementById('profileLogoPreview').style.display = 'none';
            document.getElementById('profileLogoPlaceholder').style.display = 'flex';
         }
@@ -1101,18 +1100,19 @@
              // Store full address in localStorage so promotion preview can display it
              const addrParts = [json.data.address, json.data.suite, json.data.city, json.data.state, json.data.postal_code].filter(Boolean);
              if (addrParts.length) localStorage.setItem('perkfinity_address', addrParts.join(', '));
-             // Sync logo from server (single source of truth)
-             if (json.data.logo_url) {
-               localStorage.setItem('perkfinity_logo_url', json.data.logo_url);
-               document.getElementById('profileLogoPreview').src = json.data.logo_url;
-               document.getElementById('profileLogoPreview').style.display = 'block';
-               document.getElementById('profileLogoPlaceholder').style.display = 'none';
-             } else {
-               localStorage.removeItem('perkfinity_logo_url');
-               const biz = json.data.business_name || localStorage.getItem('perkfinity_business_name') || '?';
-               document.getElementById('profileLogoPlaceholder').innerText = biz.charAt(0).toUpperCase();
-               document.getElementById('profileLogoPreview').style.display = 'none';
-               document.getElementById('profileLogoPlaceholder').style.display = 'flex';
+             // Sync logo from server — but DON'T overwrite if user has a pending upload
+             if (!uploadedProfileLogoBase64) {
+               if (json.data.logo_url) {
+                 localStorage.setItem('perkfinity_logo_url', json.data.logo_url);
+                 document.getElementById('profileLogoPreview').src = json.data.logo_url;
+                 document.getElementById('profileLogoPreview').style.display = 'block';
+                 document.getElementById('profileLogoPlaceholder').style.display = 'none';
+               } else {
+                 localStorage.removeItem('perkfinity_logo_url');
+                 document.getElementById('profileLogoPlaceholder').innerHTML = '<span style="font-size:14px;color:var(--muted);text-align:center;">No logo<br>uploaded</span>';
+                 document.getElementById('profileLogoPreview').style.display = 'none';
+                 document.getElementById('profileLogoPlaceholder').style.display = 'flex';
+               }
              }
            }
         })
@@ -1227,18 +1227,52 @@
 
     let uploadedProfileLogoBase64 = null;
 
-    function previewProfileLogo(event) {
+    // Compress image to max 200x200px, JPEG quality 0.7 — keeps base64 under ~30KB
+    function compressImage(file, maxSize, quality) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = function() {
+          const canvas = document.createElement('canvas');
+          let w = img.width, h = img.height;
+          if (w > maxSize || h > maxSize) {
+            if (w > h) { h = Math.round(h * maxSize / w); w = maxSize; }
+            else { w = Math.round(w * maxSize / h); h = maxSize; }
+          }
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          // White background for transparency
+          ctx.fillStyle = '#FFFFFF';
+          ctx.fillRect(0, 0, w, h);
+          ctx.drawImage(img, 0, 0, w, h);
+          resolve(canvas.toDataURL('image/jpeg', quality));
+        };
+        img.onerror = reject;
+        img.src = URL.createObjectURL(file);
+      });
+    }
+
+    async function previewProfileLogo(event) {
       const file = event.target.files[0];
       if (!file) return;
 
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        uploadedProfileLogoBase64 = e.target.result;
+      try {
+        uploadedProfileLogoBase64 = await compressImage(file, 200, 0.7);
         document.getElementById('profileLogoPreview').src = uploadedProfileLogoBase64;
         document.getElementById('profileLogoPreview').style.display = 'block';
         document.getElementById('profileLogoPlaceholder').style.display = 'none';
+      } catch(e) {
+        console.error('Failed to compress image:', e);
+        // Fallback to raw FileReader
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+          uploadedProfileLogoBase64 = ev.target.result;
+          document.getElementById('profileLogoPreview').src = uploadedProfileLogoBase64;
+          document.getElementById('profileLogoPreview').style.display = 'block';
+          document.getElementById('profileLogoPlaceholder').style.display = 'none';
+        };
+        reader.readAsDataURL(file);
       }
-      reader.readAsDataURL(file);
     }
 
     async function updateProfile() {
@@ -1299,17 +1333,26 @@
            
            // Upload logo if one was selected
            if (uploadedProfileLogoBase64) {
-             try {
-                const logoRes = await fetch(`${BACKEND_URL}/api/v1/merchants/${merchantId}/logo`, {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiToken}` },
-                  body: JSON.stringify({ logo_url: uploadedProfileLogoBase64 })
-                });
-                const logoJson = await logoRes.json();
-                if (logoJson.success && logoJson.data && logoJson.data.logo_url) {
-                   localStorage.setItem('perkfinity_logo_url', logoJson.data.logo_url);
-                }
-             } catch(e) { console.error("Logo upload failed", e); }
+              try {
+                 const logoRes = await fetch(`${BACKEND_URL}/api/v1/merchants/${merchantId}/logo`, {
+                   method: 'POST',
+                   headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiToken}` },
+                   body: JSON.stringify({ logo_url: uploadedProfileLogoBase64 })
+                 });
+                 const logoJson = await logoRes.json();
+                 if (logoRes.ok && logoJson.success && logoJson.data && logoJson.data.logo_url) {
+                    localStorage.setItem('perkfinity_logo_url', logoJson.data.logo_url);
+                    uploadedProfileLogoBase64 = null; // Clear so profile reload doesn't re-upload
+                 } else {
+                    console.error('Logo upload response error:', logoJson);
+                    msgLabel.style.color = 'orange';
+                    msgLabel.innerText = 'Profile saved, but logo upload failed: ' + (logoJson.error || 'Unknown error');
+                 }
+              } catch(e) {
+                console.error('Logo upload failed:', e);
+                msgLabel.style.color = 'orange';
+                msgLabel.innerText = 'Profile saved, but logo upload failed. The image may be too large.';
+              }
            }
 
            // Update welcome title
