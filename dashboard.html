@@ -731,6 +731,9 @@
       // Set default expiry to +30 days for perk types; leave blank for announcements
       const exp = document.getElementById('promo-expiry');
       if (exp) {
+        // Prevent past dates
+        const today = new Date().toISOString().slice(0,10);
+        exp.min = today;
         if (type === 'announcement') { exp.value = ''; }
         else if (!exp.value) {
           const d = new Date(); d.setDate(d.getDate() + 30);
@@ -748,6 +751,9 @@
         return true; // expiry optional for announcements
       }
       if (!expiry) { err.style.display = 'block'; return false; }
+      // Validate expiry is not in the past
+      const today = new Date().toISOString().slice(0,10);
+      if (expiry < today) { err.innerText = 'Expiry date cannot be in the past.'; err.style.display = 'block'; return false; }
       if (_promoType === 'percent' && !document.getElementById('promo-pct').value) { err.style.display = 'block'; return false; }
       if (_promoType === 'dollar' && !document.getElementById('promo-dollar').value) { err.style.display = 'block'; return false; }
       if (_promoType === 'freeitem' && !document.getElementById('promo-free-item').value.trim()) { err.style.display = 'block'; return false; }
