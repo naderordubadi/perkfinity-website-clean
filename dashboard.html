@@ -329,21 +329,11 @@
       <!-- STEP 4: Delivery -->
       <div id="promo-s4" class="promo-step" style="display:none;">
         <p style="color:var(--muted); font-size:14px; margin-bottom:20px;">How should we deliver this promotion?</p>
-        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; margin-bottom:24px;">
-          <div class="promo-delivery-card" onclick="selectPromoDelivery(this,'email')" style="border:2px solid var(--border); border-radius:14px; padding:22px 14px; cursor:pointer; text-align:center; transition:all 0.2s;">
+        <div style="display:grid; grid-template-columns:1fr; max-width:280px; gap:14px; margin-bottom:24px;">
+          <div class="promo-delivery-card" onclick="selectPromoDelivery(this,'email')" style="border:2px solid var(--purpleDark); border-radius:14px; padding:22px 14px; cursor:pointer; text-align:center; transition:all 0.2s; background:rgba(91,63,165,0.06);">
             <div style="font-size:32px; margin-bottom:10px;">&#128231;</div>
             <div style="font-weight:700; font-size:14px; color:var(--ink);">Email</div>
             <div style="font-size:11px; color:var(--muted); margin-top:4px;">Rich layout with logo and address</div>
-          </div>
-          <div class="promo-delivery-card" onclick="selectPromoDelivery(this,'sms')" style="border:2px solid var(--border); border-radius:14px; padding:22px 14px; cursor:pointer; text-align:center; transition:all 0.2s;">
-            <div style="font-size:32px; margin-bottom:10px;">&#128172;</div>
-            <div style="font-weight:700; font-size:14px; color:var(--ink);">SMS Text</div>
-            <div style="font-size:11px; color:var(--muted); margin-top:4px;">Short and direct</div>
-          </div>
-          <div class="promo-delivery-card" onclick="selectPromoDelivery(this,'both')" style="border:2px solid var(--border); border-radius:14px; padding:22px 14px; cursor:pointer; text-align:center; transition:all 0.2s;">
-            <div style="font-size:32px; margin-bottom:10px;">&#128276;</div>
-            <div style="font-weight:700; font-size:14px; color:var(--ink);">Email + SMS</div>
-            <div style="font-size:11px; color:var(--muted); margin-top:4px;">Maximum reach</div>
           </div>
         </div>
         <div id="promoDeliveryErr" style="color:red;font-size:13px;display:none;margin-bottom:10px;">Please select a delivery method.</div>
@@ -414,16 +404,7 @@
           </div>
         </div>
 
-        <!-- SMS Preview -->
-        <div id="promo-sms-preview-wrap">
-          <h4 style="margin:0 0 10px; color:var(--purpleDark); font-size:14px;">&#128172; SMS Preview</h4>
-          <div style="max-width:340px; margin-bottom:20px;">
-            <div style="background:#f0f0f0; border-radius:18px 18px 18px 4px; padding:14px 18px; font-size:13px; color:#1a1a1a; line-height:1.55;">
-              <div id="promo-sms-body"></div>
-              <div style="font-size:10px; color:#aaa; text-align:right; margin-top:6px;">Perkfinity Rewards</div>
-            </div>
-          </div>
-        </div>
+
 
         <!-- Summary -->
         <div style="background:#f8f7ff; border:1.5px solid rgba(91,63,165,0.15); border-radius:12px; padding:16px 20px; margin-bottom:20px; font-size:13px;">
@@ -840,9 +821,8 @@
       const condLine  = buildPromoCondLine();
       const expiryStr = expiry ? `Offer expires: ${new Date(expiry + 'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}` : '';
 
-      // Show/hide email/sms previews based on delivery
-      document.getElementById('promo-email-preview-wrap').style.display = (_promoDelivery === 'sms') ? 'none' : 'block';
-      document.getElementById('promo-sms-preview-wrap').style.display  = (_promoDelivery === 'email') ? 'none' : 'block';
+      // Always show email preview (SMS removed)
+      document.getElementById('promo-email-preview-wrap').style.display = 'block';
 
       // Common email fields
       document.getElementById('promo-email-store-name').innerText = storeName;
@@ -859,14 +839,6 @@
         document.getElementById('promo-email-expiry-line').innerText = '';
         const qrEl = document.getElementById('promo-email-qr-line');
         if (qrEl) qrEl.innerHTML = `<em style="color:#333;">${msg}</em>`;
-        // Announcement SMS
-        const smsLines = [
-          `[${storeName}] \uD83D\uDCE2 ${headline}`,
-          msg,
-          storeAddr ? `Visit us at: ${storeName}, ${storeAddr}` : `Visit us at: ${storeName}`,
-          'Reply STOP to opt out'
-        ];
-        document.getElementById('promo-sms-body').innerHTML = smsLines.filter(Boolean).join('<br>');
       } else {
         // Standard perk email
         document.getElementById('promo-email-offer-label').innerText = 'Exclusive Offer For You';
@@ -875,21 +847,12 @@
         document.getElementById('promo-email-expiry-line').innerText = expiryStr;
         const qrEl = document.getElementById('promo-email-qr-line');
         if (qrEl) qrEl.innerHTML = 'When you are in the store, scan the Perkfinity QR code before you order to activate your perk.';
-        // Standard SMS
-        const smsLines = [
-          `[${storeName}] ${headline}${condLine ? ' \u2014 ' + condLine : ''}.`,
-          expiryStr ? expiryStr + '.' : '',
-          'When in store, scan the Perkfinity QR code before you order.',
-          storeAddr ? `Visit us at: ${storeName}, ${storeAddr}` : `Visit us at: ${storeName}`,
-          'Reply STOP to opt out'
-        ];
-        document.getElementById('promo-sms-body').innerHTML = smsLines.filter(Boolean).join('<br>');
       }
 
       // Summary
       const typeLabels = {percent:'Percentage Off', dollar:'Dollar Off', bogo:'Buy One Get One', freeitem:'Free Item', loyalty:'Loyalty Reward', flash:'Flash Sale', announcement:'Announcement'};
       const audLabels  = {all:'All Members', redeemed_30:'Redeemed (30d)', expired_30:'Expired (30d)', never_redeemed:'Never Redeemed', redeemed_90:'Redeemed (90d)'};
-      const delLabels  = {email:'Email', sms:'SMS Text', both:'Email + SMS'};
+      const delLabels  = {email:'Email'};
       document.getElementById('sum-type').innerText = typeLabels[_promoType] || '';
       document.getElementById('sum-delivery').innerText = delLabels[_promoDelivery] || '';
       document.getElementById('sum-audience').innerText = audLabels[_promoAud] || '';
