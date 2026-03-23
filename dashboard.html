@@ -898,6 +898,8 @@
         });
         const json = await res.json();
         if (!res.ok) throw new Error(json.error || 'Failed to save promotion');
+        const msg = json.data?.message || 'Promotion sent!';
+        success.innerText = '✅ ' + msg;
         success.style.display = 'block';
         btn.innerText = '🚀 Sent!';
       } catch(e) {
