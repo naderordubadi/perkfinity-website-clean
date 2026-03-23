@@ -640,7 +640,7 @@
          h1.insertBefore(logoImg, h1.firstChild);
       }
 
-      // Silently fetch profile to cache address for promotion preview
+      // Silently fetch profile to cache address AND logo for promotion preview
       fetch(`${BACKEND_URL}/api/v1/merchants/${localStorage.getItem('perkfinity_merchant_id')}/profile`, {
         headers: { 'Authorization': `Bearer ${token}` }
       }).then(r => r.json()).then(json => {
@@ -648,6 +648,27 @@
           const d = json.data;
           const parts = [d.address, d.suite, d.city, d.state, d.postal_code].filter(Boolean);
           if (parts.length) localStorage.setItem('perkfinity_address', parts.join(', '));
+          // Sync logo from server — this is the single source of truth
+          if (d.logo_url) {
+            localStorage.setItem('perkfinity_logo_url', d.logo_url);
+          } else {
+            localStorage.removeItem('perkfinity_logo_url');
+          }
+          // Update welcome header logo after sync
+          const h1 = document.getElementById('welcomeTitle');
+          const existingImg = h1.querySelector('img');
+          if (d.logo_url && !existingImg) {
+            const logoImg = document.createElement('img');
+            logoImg.src = d.logo_url;
+            logoImg.style.cssText = 'width:40px;height:40px;border-radius:50%;object-fit:contain;margin-right:12px;border:2px solid white;';
+            h1.style.display = 'flex';
+            h1.style.alignItems = 'center';
+            h1.insertBefore(logoImg, h1.firstChild);
+          } else if (d.logo_url && existingImg) {
+            existingImg.src = d.logo_url;
+          } else if (!d.logo_url && existingImg) {
+            existingImg.remove();
+          }
         }
       }).catch(() => {});
 
@@ -1080,6 +1101,19 @@
              // Store full address in localStorage so promotion preview can display it
              const addrParts = [json.data.address, json.data.suite, json.data.city, json.data.state, json.data.postal_code].filter(Boolean);
              if (addrParts.length) localStorage.setItem('perkfinity_address', addrParts.join(', '));
+             // Sync logo from server (single source of truth)
+             if (json.data.logo_url) {
+               localStorage.setItem('perkfinity_logo_url', json.data.logo_url);
+               document.getElementById('profileLogoPreview').src = json.data.logo_url;
+               document.getElementById('profileLogoPreview').style.display = 'block';
+               document.getElementById('profileLogoPlaceholder').style.display = 'none';
+             } else {
+               localStorage.removeItem('perkfinity_logo_url');
+               const biz = json.data.business_name || localStorage.getItem('perkfinity_business_name') || '?';
+               document.getElementById('profileLogoPlaceholder').innerText = biz.charAt(0).toUpperCase();
+               document.getElementById('profileLogoPreview').style.display = 'none';
+               document.getElementById('profileLogoPlaceholder').style.display = 'flex';
+             }
            }
         })
         .catch(e => console.error("Failed to load profile data"));
@@ -1108,10 +1142,17 @@
            document.getElementById('poster-store').innerText = businessName;
            document.getElementById('poster-perk').innerText = perk;
            
-           // Update Logo on Print Sign
-           const logoUrl = localStorage.getItem('perkfinity_logo_url');
-           if (logoUrl) {
-             document.getElementById('printLogoImg').src = logoUrl;
+           // Update Logo on Print Sign — use server logo_url from profile response
+           const serverLogo = json.data.logo_url || localStorage.getItem('perkfinity_logo_url');
+           const printLogoEl = document.getElementById('printLogoImg');
+           if (serverLogo) {
+             printLogoEl.src = serverLogo;
+           } else {
+             // No logo: show store initial instead of Perkfinity icon
+             const initial = (businessName || '?').charAt(0).toUpperCase();
+             printLogoEl.style.display = 'none';
+             const container = printLogoEl.parentElement;
+             container.innerHTML = `<div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#5b3fa5,#7c5cbf);color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;">${initial}</div>`;
            }
 
            // Generate the physical QR Code
