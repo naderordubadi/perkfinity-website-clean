@@ -1298,6 +1298,7 @@
       
       if (!current_password) {
          msgLabel.innerText = "Current password is required to save changes.";
+         msgLabel.scrollIntoView({ behavior: 'smooth', block: 'center' });
          return;
       }
       if (new_password && new_password.length > 0 && new_password.length < 8) {
