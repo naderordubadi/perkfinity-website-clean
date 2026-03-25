@@ -2,7 +2,7 @@
   "headers": [
     { "source": "/(.*)", "headers": [{ "key": "Cache-Control", "value": "no-store" }] }
   ],
-  "rewrites": [
-    { "source": "/beta-test", "destination": "/beta-test/part1.html" }
+  "redirects": [
+    { "source": "/beta-test", "destination": "/beta-test/part1.html", "permanent": false }
   ]
 }
