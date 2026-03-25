@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="robots" content="noindex, nofollow"/>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Perkfinity — Part 3: Campaign Creation (Print)</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Inter',sans-serif; font-size:13px; line-height:1.6; color:#111; background:#fff; }
+    .container { max-width:780px; margin:0 auto; padding:24px 28px 48px; }
+    .print-bar { display:flex; justify-content:space-between; align-items:center; padding:12px 0 18px; border-bottom:2px solid #1E7A2E; margin-bottom:20px; }
+    .print-bar h2 { font-size:15px; color:#1E7A2E; font-weight:700; }
+    .print-btn { background:#1E7A2E; color:#fff; border:none; padding:8px 20px; border-radius:8px; font-size:13px; font-weight:700; cursor:pointer; }
+    .print-btn:hover { background:#38A169; }
+    .guide-header { border-left:5px solid #1E7A2E; padding:10px 16px; margin-bottom:18px; }
+    .guide-header .part-label { font-size:11px; font-weight:700; color:#1E7A2E; letter-spacing:1px; text-transform:uppercase; }
+    .guide-header h1 { font-size:22px; font-weight:900; color:#1F2030; margin:2px 0 4px; }
+    .guide-header .subtitle { font-size:12px; color:#555; }
+    .info-box { border:1.5px solid #1E7A2E; border-radius:8px; padding:10px 14px; margin:12px 0; background:#fff; }
+    .info-box h3 { font-size:13px; font-weight:700; color:#1E7A2E; margin-bottom:4px; }
+    .info-box ul { padding-left:18px; }
+    .info-box li { margin:2px 0; }
+    .warn { border-left:4px solid #E53E3E; background:#fff; padding:8px 12px; margin:10px 0; border-radius:0 6px 6px 0; font-size:12px; }
+    .tip  { border-left:4px solid #1E7A2E; background:#fff; padding:8px 12px; margin:10px 0; border-radius:0 6px 6px 0; font-size:12px; }
+    .phase { font-size:12px; font-weight:800; color:#1E7A2E; text-transform:uppercase; letter-spacing:.5px; margin:20px 0 6px; border-bottom:1.5px solid #1E7A2E; padding-bottom:3px; }
+    .step { margin:10px 0; padding:10px 14px; border:1px solid #ddd; border-radius:6px; }
+    .step-header { display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+    .step-num { background:#1E7A2E; color:#fff; border-radius:50%; width:22px; height:22px; font-size:11px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .step-title { font-size:13px; font-weight:700; color:#1F2030; }
+    ul, ol { padding-left:20px; }
+    li { margin:2px 0; }
+    .fl { background:#E8F5E9; color:#1E7A2E; padding:1px 6px; border-radius:4px; font-size:11px; font-weight:600; }
+    .fl-blue { background:#EDE9F6; color:#3A2870; padding:1px 6px; border-radius:4px; font-size:11px; font-weight:600; }
+    .chk-head { font-size:12px; font-weight:800; color:#1F2030; text-transform:uppercase; letter-spacing:.5px; margin:24px 0 6px; border-bottom:1.5px solid #ccc; padding-bottom:3px; }
+    table { width:100%; border-collapse:collapse; font-size:12px; margin-top:6px; }
+    th { background:#1E7A2E; color:#fff; padding:8px 10px; text-align:left; font-weight:700; }
+    th:first-child { border-radius:6px 0 0 0; }
+    th:last-child  { border-radius:0 6px 0 0; }
+    td { padding:7px 10px; border-bottom:1px solid #e5e7eb; vertical-align:top; }
+    tr:last-child td { border-bottom:none; }
+    tr:nth-child(even) td { background:#fafafa; }
+    td:nth-child(4) { white-space:nowrap; }
+    .footer { text-align:center; margin-top:32px; padding-top:16px; border-top:1px solid #ddd; font-size:11px; color:#6B7280; }
+    @media print {
+      @page { margin:0.55in; size:letter; }
+      body { background:#fff !important; }
+      .print-bar { display:none !important; }
+      .step, .info-box { break-inside:avoid; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <div class="print-bar">
+    <h2>📣 Part 3: Campaign Creation — Printer-Friendly Guide</h2>
+    <button class="print-btn" onclick="window.print()">🖨️ Print This Guide</button>
+  </div>
+
+  <div class="guide-header">
+    <div class="part-label">Part 3 · Merchant Dashboard &amp; Campaigns · Beta Test Guide</div>
+    <h1>Campaign Creation Guide</h1>
+    <div class="subtitle">Requires completing Part 1 (Merchant Sign-Up) and Part 2 (Member Sign-Up) first</div>
+  </div>
+
+  <div class="info-box">
+    <h3>👋 Welcome back, Tester!</h3>
+    <ul>
+      <li>⚠️ <strong>Complete Part 1 and Part 2 before starting this guide.</strong></li>
+      <li>Use your <strong>merchant account from Part 1</strong> and <strong>consumer account from Part 2</strong></li>
+      <li>Estimated time: <strong>5–8 minutes</strong></li>
+      <li>Screenshot the Campaign Creation process and share with us!</li>
+      <li>Report bugs to <strong>hello@perkfinity.net</strong></li>
+    </ul>
+  </div>
+
+  <div class="phase">Phase A — Dashboard Login &amp; Profile</div>
+
+  <div class="step">
+    <div class="step-header"><div class="step-num">A1</div><div class="step-title">Log into the Merchant Dashboard</div></div>
+    <ol>
+      <li>Go to <strong>perkfinity.net/login.html</strong></li>
+      <li>Enter your merchant email and password (from Part 1)</li>
+      <li>Click <span class="fl">Log In</span></li>
+    </ol>
+  </div>
+
+  <div class="step">
+    <div class="step-header"><div class="step-num">A2</div><div class="step-title">Update Profile &amp; Replace Logo</div></div>
+    <ol>
+      <li>Navigate to the <span class="fl-blue">Profile</span> tab</li>
+      <li>Update a few fields (e.g. Website, Suite, Phone)</li>
+      <li>Click <strong>Replace Logo</strong> → select a new image file (PNG/JPG)</li>
+      <li>Scroll down, enter your <strong>Current Password</strong>, click <span class="fl">Save Changes</span></li>
+    </ol>
+    <div class="warn"><strong>⚠️ Verify:</strong> New logo should immediately update in the top header and persist after page refresh.</div>
+  </div>
+
+  <div class="phase">Phase B — Campaign Creation</div>
+
+  <div class="step">
+    <div class="step-header"><div class="step-num">B1</div><div class="step-title">Create Campaign 1 — Percentage Off (All Members)</div></div>
+    <p>Navigate to <span class="fl-blue">Create a Promotion</span> tab and complete the 6-step wizard:</p>
+    <ol>
+      <li><strong>Type:</strong> <span class="fl">Percentage Off</span></li>
+      <li><strong>Details:</strong> Enter discount % (e.g. 20%). Expiration: 3–4 days out</li>
+      <li><strong>Condition:</strong> <span class="fl">No Minimum</span></li>
+      <li><strong>Delivery:</strong> Email</li>
+      <li><strong>Audience:</strong> <span class="fl">All Members</span></li>
+      <li><strong>Preview &amp; Send:</strong> Verify logo &amp; offer → click <strong>🚀 Send Promotion</strong></li>
+    </ol>
+  </div>
+
+  <div class="step">
+    <div class="step-header"><div class="step-num">B2</div><div class="step-title">Create Campaign 2 — Dollar Off (Last 30 Days)</div></div>
+    <p>Click <span class="fl">Start Over</span>, then:</p>
+    <ol>
+      <li><strong>Type:</strong> <span class="fl">Dollar Off</span></li>
+      <li><strong>Details:</strong> $5 Off, expiration a couple days out</li>
+      <li><strong>Condition:</strong> <span class="fl">Minimum Spend</span> → enter amount (e.g. 20)</li>
+      <li><strong>Delivery:</strong> Email &nbsp; <strong>Audience:</strong> <span class="fl">Redeemed — Last 30 Days</span></li>
+      <li>Review → <strong>🚀 Send Promotion</strong></li>
+    </ol>
+  </div>
+
+  <div class="step">
+    <div class="step-header"><div class="step-num">B3</div><div class="step-title">Create Campaign 3 — BOGO</div></div>
+    <p>Click <span class="fl">Start Over</span>, then:</p>
+    <ol>
+      <li><strong>Type:</strong> <span class="fl">Buy One Get One</span></li>
+      <li><strong>Details:</strong> Fill in Buy/Get details &amp; item description. Set a future expiry</li>
+      <li><strong>Condition:</strong> <span class="fl">No Minimum</span> &nbsp; <strong>Delivery:</strong> Email</li>
+      <li><strong>Audience:</strong> <span class="fl">All Members</span> → <strong>🚀 Send Promotion</strong></li>
+    </ol>
+  </div>
+
+  <div class="step">
+    <div class="step-header"><div class="step-num">B4</div><div class="step-title">Dispatch an Announcement</div></div>
+    <ol>
+      <li><strong>Type:</strong> <span class="fl">Announcement</span></li>
+      <li><strong>Details:</strong> Subject (e.g. "We are open late Fridays!") + Message Body. Leave expiration blank</li>
+      <li><strong>Delivery:</strong> Email &nbsp; <strong>Audience:</strong> <span class="fl">All Members</span> → <strong>🚀 Send Promotion</strong></li>
+    </ol>
+  </div>
+
+  <div class="phase">Phase C — Verification &amp; History</div>
+
+  <div class="step">
+    <div class="step-header"><div class="step-num">C1</div><div class="step-title">Verify Campaign History</div></div>
+    <ol>
+      <li>Under <strong>Create a Promotion</strong>, switch to <span class="fl-blue">Campaign History</span> sub-tab</li>
+      <li>Verify all 4 entries (3 promotions + 1 announcement) appear</li>
+      <li>Check Type, Audience, and Expiry dates match what you entered</li>
+    </ol>
+  </div>
+
+  <div class="step">
+    <div class="step-header"><div class="step-num">C2</div><div class="step-title">Verify Member List Status</div></div>
+    <ol>
+      <li>Switch to <span class="fl-blue">Member List</span> tab at the top of the dashboard</li>
+      <li>Filter by "Status" — you should see entries with status <strong>"Created"</strong> or <strong>"Announcement"</strong></li>
+    </ol>
+    <div class="tip"><strong>📸 Please Record:</strong> Screenshots of Campaign History and Member List are very helpful!</div>
+  </div>
+
+  <div class="chk-head">📋 Test Summary Checklist</div>
+  <table>
+    <thead><tr><th>Phase</th><th>Step</th><th>Expected Result</th><th>Pass / Fail</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td><strong>A</strong></td><td>Dashboard Login</td><td>Login successful, routes to dashboard</td><td>☐ Pass &nbsp; ☐ Fail</td><td></td></tr>
+      <tr><td><strong>A</strong></td><td>Update Profile</td><td>New logo appears and data saves correctly</td><td>☐ Pass &nbsp; ☐ Fail</td><td></td></tr>
+      <tr><td><strong>B</strong></td><td>Campaign 1: All Members</td><td>Percentage Off campaign sends successfully</td><td>☐ Pass &nbsp; ☐ Fail</td><td></td></tr>
+      <tr><td><strong>B</strong></td><td>Campaign 2: Last 30 Days</td><td>Dollar Off (targeted) sends successfully</td><td>☐ Pass &nbsp; ☐ Fail</td><td></td></tr>
+      <tr><td><strong>B</strong></td><td>Campaign 3: BOGO</td><td>BOGO campaign sends successfully</td><td>☐ Pass &nbsp; ☐ Fail</td><td></td></tr>
+      <tr><td><strong>B</strong></td><td>Announcement</td><td>Broadcast announcement sends successfully</td><td>☐ Pass &nbsp; ☐ Fail</td><td></td></tr>
+      <tr><td><strong>C</strong></td><td>Campaign History Tab</td><td>All 4 records visible with accurate data</td><td>☐ Pass &nbsp; ☐ Fail</td><td></td></tr>
+      <tr><td><strong>C</strong></td><td>Member List Tab</td><td>Rows show Status "Created" or "Announcement"</td><td>☐ Pass &nbsp; ☐ Fail</td><td></td></tr>
+    </tbody>
+  </table>
+
+  <div class="footer">
+    <p>Questions or bugs? <strong>hello@perkfinity.net</strong> &nbsp;|&nbsp; © 2026 Perkfinity</p>
+  </div>
+
+</div>
+</body>
+</html>

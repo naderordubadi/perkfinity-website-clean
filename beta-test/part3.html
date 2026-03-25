@@ -1,0 +1,522 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="robots" content="noindex, nofollow"/>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Perkfinity — Part 3: Campaign Creation</title>
+  <link rel="icon" href="../assets/Perkfinity-App-Icon.png"/>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --purple:      #5B3FA5;
+      --purpleDark:  #3A2870;
+      --purpleLight: #EDE9F6;
+      --green:       #6BC17A;
+      --greenDark:   #1E7A2E;
+      --greenLight:  #E8F5E9;
+      --orange:      #F5A623;
+      --orangeLight: #FFF3E0;
+      --red:         #E53E3E;
+      --redLight:    #FFF5F5;
+      --ink:         #1F2030;
+      --muted:       #6B7280;
+      --border:      #E2E8F0;
+      --bg:          #F8F7FF;
+      --card:        #FFFFFF;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.7;
+      font-size: 16px;
+    }
+
+    .container {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 40px 30px 60px;
+    }
+
+    /* ── Hero Header ─── */
+    .hero {
+      background: linear-gradient(135deg, #1E7A2E 0%, #38A169 60%, #48BB78 100%);
+      border-radius: 24px;
+      padding: 50px 40px 44px;
+      text-align: center;
+      margin-bottom: 36px;
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
+    }
+    .hero img.logo {
+      display: block;
+      margin: 0 auto 20px;
+      height: 72px;
+      position: relative;
+      filter: drop-shadow(0 4px 16px rgba(0,0,0,0.25));
+    }
+    .hero h1 {
+      font-size: 34px;
+      font-weight: 900;
+      margin-bottom: 10px;
+      position: relative;
+      letter-spacing: -0.5px;
+    }
+    .hero .badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.2);
+      border: 1px solid rgba(255,255,255,0.35);
+      border-radius: 100px;
+      padding: 6px 18px;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      margin-bottom: 18px;
+      position: relative;
+    }
+    .hero .subtitle {
+      font-size: 17px;
+      opacity: 0.9;
+      font-weight: 400;
+      max-width: 540px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    /* ── Info & Alert Boxes ─── */
+    .info-box {
+      background: var(--purpleLight);
+      border: 1px solid rgba(91,63,165,0.2);
+      border-radius: 16px;
+      padding: 24px 28px;
+      margin-bottom: 28px;
+      font-size: 15px;
+      line-height: 1.8;
+    }
+    .info-box h3 { color: var(--purpleDark); font-size: 17px; margin-bottom: 10px; font-weight: 700; }
+    .info-box ul { margin-left: 20px; }
+    .info-box li { margin-bottom: 6px; }
+
+    .warning-box {
+      background: var(--orangeLight);
+      border: 1px solid rgba(245,166,35,0.3);
+      border-left: 4px solid var(--orange);
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 20px;
+      font-size: 15px;
+    }
+    .warning-box strong { color: #B45309; }
+    
+    .tip-box {
+      background: var(--greenLight);
+      border: 1px solid rgba(107,193,122,0.35);
+      border-left: 4px solid var(--green);
+      border-radius: 12px;
+      padding: 14px 18px;
+      margin: 14px 0;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+    .tip-box strong { color: var(--greenDark); }
+
+    /* ── Phase Headers ─── */
+    .phase-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin: 48px 0 18px;
+      padding-bottom: 14px;
+      border-bottom: 2px solid var(--border);
+    }
+    .phase-icon {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, var(--purple), var(--purpleDark));
+      color: white;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(91,63,165,0.35);
+    }
+    .phase-header h2 { font-size: 24px; font-weight: 800; color: var(--purpleDark); }
+    .phase-header p { font-size: 14px; color: var(--muted); margin-top: 2px; }
+
+    /* ── Steps ─── */
+    .step {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 26px 30px;
+      margin-bottom: 20px;
+    }
+    .step-header { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+    .step-number {
+      width: 38px; height: 38px;
+      background: #1E7A2E;
+      color: white; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 16px; flex-shrink: 0;
+    }
+    .step-title { font-size: 20px; font-weight: 700; color: var(--ink); }
+    .step p { font-size: 15px; margin-bottom: 10px; color: #374151; }
+    .step ul, .step ol { margin-left: 22px; margin-bottom: 14px; }
+    .step li { font-size: 15px; margin-bottom: 8px; color: #374151; }
+
+    .fl {
+      display: inline-block;
+      background: var(--purpleLight);
+      color: var(--purpleDark);
+      font-weight: 700;
+      padding: 2px 10px;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    
+    .fl-blue {
+      display: inline-block;
+      background: #e0f2fe;
+      color: #0369a1;
+      font-weight: 700;
+      padding: 2px 10px;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    /* ── Table ─── */
+    .summary-table { width: 100%; border-collapse: collapse; font-size: 14px; margin: 16px 0; }
+    .summary-table th { background: #1E7A2E; color: white; padding: 12px 16px; text-align: left; font-weight: 700; }
+    .summary-table th:first-child { border-radius: 10px 0 0 0; }
+    .summary-table th:last-child { border-radius: 0 10px 0 0; }
+    .summary-table th:nth-child(4), .summary-table td:nth-child(4) { white-space: nowrap; }
+    .summary-table td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: #374151; vertical-align: top; }
+    .summary-table tr:last-child td { border-bottom: none; }
+    .summary-table tr:nth-child(even) td { background: #f8fafc; }
+
+    /* ── Footer ─── */
+    .footer { text-align: center; margin-top: 60px; padding-top: 32px; border-top: 1px solid var(--border); color: var(--muted); font-size: 14px; }
+    .footer img { height: 36px; margin-bottom: 12px; opacity: 0.6; }
+
+    @media print {
+      @page { margin: 0.6in; }
+      body { background: white !important; font-size: 14px; }
+      .container { padding: 0; max-width: 100%; }
+      .hero { background: #1E7A2E !important; border-radius: 12px !important; padding: 30px !important; }
+      .step { break-inside: avoid; }
+      .phase-header { break-after: avoid; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- ═══════════════════════ HERO ═══════════════════════ -->
+  <div class="hero">
+    <img src="../assets/Perkfinity-Logo.png" alt="Perkfinity" class="logo">
+    <div class="badge">📣 Part 3 · Merchant Dashboard & Campaigns · Beta Test Guide</div>
+    <h1>Campaign Creation Guide</h1>
+    <p class="subtitle">Test the merchant dashboard profile settings, create active promotions, test audience targeting, and dispatch broadcast announcements.</p>
+  </div>
+
+  <!-- ═══════════════════════ WELCOME ═══════════════════════ -->
+  <div class="info-box">
+    <h3>👋 Welcome back, Tester!</h3>
+    <p>This guide covers <strong>Part 3: Campaign Creation</strong>. You will use the <strong>Merchant Dashboard</strong> to setup campaigns and configure your storefront.</p>
+    <ul>
+      <li>⚠️ <strong>Please complete <a href="Perkfinity_Tester_Guide.html">Part 1: Merchant Sign-Up</a> and <a href="ConsumerApp_Tester_Guide.html">Part 2: Member Sign-Up</a> before starting this guide.</strong></li>
+      <li>Use the <strong>merchant account you created in Part 1</strong> and the <strong>consumer account from Part 2</strong>.</li>
+      <li>This test takes approximately <strong>5–8 minutes</strong>.</li>
+      <li><strong>Required:</strong> Please take screenshots or a screen recording of the Campaign Creation process and share it with us!</li>
+      <li>Report any UI issues or bugs to <strong>hello@perkfinity.net</strong>.</li>
+    </ul>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       PHASE G: Dashboard Login & Profile Info
+  ═══════════════════════════════════════════════════════════════ -->
+  <div class="phase-header" style="background:linear-gradient(135deg, #1E7A2E, #38A169); border-radius:16px; padding:18px 24px; color:white; border:none; margin:8px 0 28px;">
+    <div class="phase-icon" style="background:rgba(255,255,255,0.2); box-shadow:none;">📣</div>
+    <div>
+      <h2 style="color:white; font-size:20px;">Part 3: Campaign Creation</h2>
+      <p style="color:rgba(255,255,255,0.85);">Build and dispatch promotions using the Merchant Dashboard</p>
+    </div>
+  </div>
+
+  <div class="phase-header" style="margin:48px 0 18px;">
+    <div class="phase-icon" style="background:linear-gradient(135deg, #1E7A2E, #38A169);">🔒</div>
+    <div>
+      <h2 style="color:#1E7A2E; font-size:24px; font-weight:800;">Phase A: Dashboard Login &amp; Profile</h2>
+      <p style="color:var(--muted); font-size:14px;">Log in and verify profile updates.</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-header">
+      <div class="step-number">A1</div>
+      <div class="step-title">Log into the Merchant Dashboard</div>
+    </div>
+    <ol>
+      <li>Go to <a href="https://perkfinity.net/login.html" target="_blank" style="color:#1E7A2E; font-weight:600;">perkfinity.net/login.html</a> on your computer.</li>
+      <li>Enter your merchant email and password (the one you set up in Part 1).</li>
+      <li>Click <span class="fl">Log In</span>.</li>
+    </ol>
+  </div>
+
+  <div class="step">
+    <div class="step-header">
+      <div class="step-number">A2</div>
+      <div class="step-title">Update Profile &amp; Replace Logo</div>
+    </div>
+    <ol>
+      <li>Navigate to the <span class="fl-blue">Profile</span> tab at the top.</li>
+      <li>Update a few fields (e.g. Website, Suite / Unit #, Phone Number).</li>
+      <li>Click the <strong>Replace Logo</strong> button. Select a new image file from your computer (PNG/JPG).</li>
+      <li>Scroll down, enter your <strong>Current Password</strong>, and click <span class="fl">Save Changes</span>.</li>
+    </ol>
+    <div class="warning-box">
+      <strong>⚠️ Check:</strong> 
+      After saving, verify that the new logo immediately updates in the top header and stays persistent if you refresh the page.
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════
+       PHASE H: Campaign & Promotion Creation
+  ═══════════════════════════════════════════════════════════════ -->
+  <div class="phase-header" style="margin:48px 0 18px;">
+    <div class="phase-icon" style="background:linear-gradient(135deg, #1E7A2E, #38A169);">📣</div>
+    <div>
+      <h2 style="color:#1E7A2E; font-size:24px; font-weight:800;">Phase B: Campaign Creation</h2>
+      <p style="color:var(--muted); font-size:14px;">Build and dispatch 3 promotions and 1 announcement.</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-header">
+      <div class="step-number">B1</div>
+      <div class="step-title">Create Campaign 1 (All Members)</div>
+    </div>
+    <p>Navigate to the <span class="fl-blue">Create a Promotion</span> tab, and complete the 6-step wizard:</p>
+    <ol>
+      <li><strong>Type:</strong> Select <span class="fl">Percentage Off</span>.</li>
+      <li><strong>Details:</strong> Enter a discount percentage (e.g., 20%). Set expiration to <strong>3–4 days in the future</strong>.</li>
+      <li><strong>Condition:</strong> Select <span class="fl">No Minimum</span>.</li>
+      <li><strong>Delivery:</strong> Select Email.</li>
+      <li><strong>Audience:</strong> Select <span class="fl">All Members</span>.</li>
+      <li><strong>Preview &amp; Send:</strong> Review the generated email preview on the right, ensure the logo and offer look correct, then click <strong>🚀 Send Promotion</strong>.</li>
+    </ol>
+  </div>
+
+  <div class="step">
+    <div class="step-header">
+      <div class="step-number">B2</div>
+      <div class="step-title">Create Campaign 2 (Targeted Audience)</div>
+    </div>
+    <p>Click <span class="fl">Start Over</span> to build the next campaign.</p>
+    <ol>
+      <li><strong>Type:</strong> Select <span class="fl">Dollar Off</span>.</li>
+      <li><strong>Details:</strong> Enter $5 Off. Set expiration to <strong>a couple days out</strong>.</li>
+      <li><strong>Condition:</strong> Select <span class="fl">Minimum Spend</span> and enter an amount (e.g., 20).</li>
+      <li><strong>Delivery:</strong> Select Email.</li>
+      <li><strong>Audience:</strong> Select <span class="fl">Redeemed — Last 30 Days</span>.</li>
+      <li>Review and <strong>🚀 Send Promotion</strong>.</li>
+    </ol>
+  </div>
+  
+  <div class="step">
+    <div class="step-header">
+      <div class="step-number">B3</div>
+      <div class="step-title">Create Campaign 3 (BOGO)</div>
+    </div>
+    <p>Click <span class="fl">Start Over</span> one more time.</p>
+    <ol>
+      <li><strong>Type:</strong> Select <span class="fl">Buy One Get One</span>.</li>
+      <li><strong>Details:</strong> Fill in the Buy/Get details and item description. Select a future expiry.</li>
+      <li><strong>Condition:</strong> Select <span class="fl">No Minimum</span>.</li>
+      <li><strong>Delivery:</strong> Select Email.</li>
+      <li><strong>Audience:</strong> Select <span class="fl">All Members</span> and hit <strong>🚀 Send Promotion</strong>.</li>
+    </ol>
+  </div>
+
+  <div class="step">
+    <div class="step-header">
+      <div class="step-number">B4</div>
+      <div class="step-title">Dispatch an Announcement</div>
+    </div>
+    <p>Announcements don't require redemption—they're just broadcast messages to the member list.</p>
+    <ol>
+      <li><strong>Type:</strong> Select <span class="fl">Announcement</span>.</li>
+      <li><strong>Details:</strong> Add a Subject (e.g., "We are open late Fridays!") and a Message Body. Leave expiration blank.</li>
+      <li><strong>Delivery:</strong> Select Email.</li>
+      <li><strong>Audience:</strong> Select <span class="fl">All Members</span> and <strong>🚀 Send Promotion</strong>.</li>
+    </ol>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       PHASE I: Verification & Analytics
+  ═══════════════════════════════════════════════════════════════ -->
+  <div class="phase-header" style="margin:48px 0 18px;">
+    <div class="phase-icon" style="background:linear-gradient(135deg, #1E7A2E, #38A169);">📊</div>
+    <div>
+      <h2 style="color:#1E7A2E; font-size:24px; font-weight:800;">Phase C: Verification &amp; History</h2>
+      <p style="color:var(--muted); font-size:14px;">Ensure the campaigns saved properly to the backend lists.</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-header">
+      <div class="step-number">C1</div>
+      <div class="step-title">Verify Campaign History</div>
+    </div>
+    <ol>
+      <li>Under the <strong>Create a Promotion</strong> tab, switch to the <span class="fl-blue">Campaign History</span> sub-tab.</li>
+      <li>Verify that all 4 entries (3 promotions + 1 announcement) appear in the table.</li>
+      <li>Check that the Type, Audience, and Expires dates match exactly what you inputted.</li>
+    </ol>
+  </div>
+
+  <div class="step">
+    <div class="step-header">
+      <div class="step-number">C2</div>
+      <div class="step-title">Verify Member List Status</div>
+    </div>
+    <ol>
+      <li>Switch to the main <span class="fl-blue">Member List</span> tab at the top of the dashboard.</li>
+      <li>This table logs member activity. Filter by "Status" using the dropdowns.</li>
+      <li>You should see entries corresponding to your new campaigns with the status <strong>"Created"</strong> or <strong>"Announcement"</strong>.</li>
+    </ol>
+    <div class="tip-box">
+      <strong>📸 Please Record:</strong> Taking screenshots of both the Campaign History and the Member List tab (showing the new rows) is extremely helpful for verifying the backend data ingestion!
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════
+       SUMMARY TABLE
+  ═══════════════════════════════════════════════════════════════ -->
+  <div class="phase-header" style="margin-top:52px; background:none; border:none; padding:0; margin-bottom:12px;">
+    <div class="phase-icon" style="background:#1E7A2E;">☑️</div>
+    <div>
+      <h2 style="color:var(--ink);">Test Summary Checklist</h2>
+      <p style="color:var(--muted); margin:0;">Use this table to record your results for Phase A, B, and C</p>
+    </div>
+  </div>
+
+  <table class="summary-table">
+    <thead>
+      <tr>
+        <th>Phase</th>
+        <th>Step</th>
+        <th>Expected Result</th>
+        <th>Pass / Fail</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>A</strong></td>
+        <td>Dashboard Login</td>
+        <td>Login successful, routes to dashboard</td>
+        <td>☐ Pass&nbsp;&nbsp;☐ Fail</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><strong>A</strong></td>
+        <td>Update Profile</td>
+        <td>New logo appears and data saves correctly</td>
+        <td>☐ Pass&nbsp;&nbsp;☐ Fail</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><strong>B</strong></td>
+        <td>Campaign 1: All Members</td>
+        <td>Percents Off campaign saves successfully</td>
+        <td>☐ Pass&nbsp;&nbsp;☐ Fail</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><strong>B</strong></td>
+        <td>Campaign 2: Last 30 Days</td>
+        <td>Dollar Off (Targeted audience) saves successfully</td>
+        <td>☐ Pass&nbsp;&nbsp;☐ Fail</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><strong>B</strong></td>
+        <td>Campaign 3: BOGO</td>
+        <td>BOGO campaign saves successfully</td>
+        <td>☐ Pass&nbsp;&nbsp;☐ Fail</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><strong>B</strong></td>
+        <td>Announcement</td>
+        <td>Broadcast announcement saves successfully</td>
+        <td>☐ Pass&nbsp;&nbsp;☐ Fail</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><strong>C</strong></td>
+        <td>Campaign History Tab</td>
+        <td>All 4 records clearly visible with accurate data</td>
+        <td>☐ Pass&nbsp;&nbsp;☐ Fail</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><strong>C</strong></td>
+        <td>Member List Tab</td>
+        <td>Rows show Status "Created" or "Announcement"</td>
+        <td>☐ Pass&nbsp;&nbsp;☐ Fail</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div style="margin:28px 0 0; background:#1E7A2E; border-radius:14px; padding:18px 24px; display:flex; align-items:center; justify-content:space-between; gap:16px;">
+    <div>
+      <p style="color:#fff; font-weight:700; font-size:15px; margin:0;">🖨️ Need a printable version?</p>
+      <p style="color:rgba(255,255,255,0.8); font-size:13px; margin:4px 0 0;">Open the printer-friendly guide — clean white background, compact layout, no ink waste.</p>
+    </div>
+    <a href="part3-print.html" style="background:#fff; color:#1E7A2E; font-weight:800; font-size:13px; padding:10px 20px; border-radius:8px; text-decoration:none; white-space:nowrap;">Open Print Version →</a>
+  </div>
+
+  <!-- ─── Footer ─── -->
+  <div class="footer">
+    <img src="../assets/Perkfinity-Logo.png" alt="Perkfinity">
+    <p>Questions or bugs? Contact <a href="mailto:hello@perkfinity.net" style="color:#1E7A2E; text-decoration:none; font-weight:600;">hello@perkfinity.net</a></p>
+    <p style="margin-top:6px; font-size:13px;">© 2026 Perkfinity. All rights reserved.</p>
+
+  </div>
+
+  <!-- ═══ PART NAVIGATOR ═══ -->
+  <div style="background:#3A2870;border-radius:16px;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin:32px 0 0;">
+    <a href="part2.html" style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.15);color:#fff;padding:8px 16px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:700;">← Part 2: Member Sign-Up</a>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+      <div style="display:flex;gap:8px;"><div style="width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,0.35);"></div><div style="width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,0.35);"></div><div style="width:10px;height:10px;border-radius:50%;background:#fff;"></div><div style="width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,0.35);"></div></div>
+      <span style="color:rgba(255,255,255,0.85);font-size:12px;font-weight:600;letter-spacing:.3px;">Part 3 of 4</span>
+    </div>
+    <a href="part4.html" style="display:inline-flex;align-items:center;gap:6px;background:#fff;color:#3A2870;padding:8px 16px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:700;">Part 4: Returning Member →</a>
+  </div>
+
+
+
+</div>
+</body>
+</html>

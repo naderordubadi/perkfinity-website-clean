@@ -1,0 +1,1094 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="robots" content="noindex, nofollow"/>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Perkfinity — Consumer App Tester Guide</title>
+  <link rel="icon" href="../assets/Perkfinity-App-Icon.png"/>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --purple:      #5B3FA5;
+      --purpleDark:  #3A2870;
+      --purpleLight: #EDE9F6;
+      --green:       #6BC17A;
+      --greenDark:   #1E7A2E;
+      --greenLight:  #E8F5E9;
+      --orange:      #F5A623;
+      --orangeLight: #FFF3E0;
+      --red:         #E53E3E;
+      --redLight:    #FFF5F5;
+      --ink:         #1F2030;
+      --muted:       #6B7280;
+      --border:      #E2E8F0;
+      --bg:          #F8F7FF;
+      --card:        #FFFFFF;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.7;
+      font-size: 16px;
+    }
+
+    .container {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 40px 30px 60px;
+    }
+
+    /* ── Hero Header ─── */
+    .hero {
+      background: linear-gradient(135deg, var(--purpleDark) 0%, var(--purple) 60%, #7B5ABF 100%);
+      border-radius: 24px;
+      padding: 50px 40px 44px;
+      text-align: center;
+      margin-bottom: 36px;
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
+    }
+    .hero img.logo {
+      display: block;
+      margin: 0 auto 20px;
+      height: 72px;
+      position: relative;
+      filter: drop-shadow(0 4px 16px rgba(0,0,0,0.25));
+    }
+    .hero h1 {
+      font-size: 34px;
+      font-weight: 900;
+      margin-bottom: 10px;
+      position: relative;
+      letter-spacing: -0.5px;
+    }
+    .hero .badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 100px;
+      padding: 6px 18px;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      margin-bottom: 18px;
+      position: relative;
+    }
+    .hero .subtitle {
+      font-size: 17px;
+      opacity: 0.85;
+      font-weight: 400;
+      max-width: 520px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    /* ── Info & Alert Boxes ─── */
+    .info-box {
+      background: var(--purpleLight);
+      border: 1px solid rgba(91,63,165,0.2);
+      border-radius: 16px;
+      padding: 24px 28px;
+      margin-bottom: 28px;
+      font-size: 15px;
+      line-height: 1.8;
+    }
+    .info-box h3 { color: var(--purpleDark); font-size: 17px; margin-bottom: 10px; font-weight: 700; }
+    .info-box ul { margin-left: 20px; }
+    .info-box li { margin-bottom: 6px; }
+
+    .warning-box {
+      background: var(--orangeLight);
+      border: 1px solid rgba(245,166,35,0.3);
+      border-left: 4px solid var(--orange);
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 20px;
+      font-size: 15px;
+    }
+    .warning-box strong { color: #B45309; }
+
+    .danger-box {
+      background: var(--redLight);
+      border: 1px solid rgba(229,62,62,0.2);
+      border-left: 4px solid var(--red);
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 20px;
+      font-size: 15px;
+    }
+    .danger-box strong { color: var(--red); }
+
+    .tip-box {
+      background: var(--greenLight);
+      border: 1px solid rgba(107,193,122,0.35);
+      border-left: 4px solid var(--green);
+      border-radius: 12px;
+      padding: 14px 18px;
+      margin: 14px 0;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+    .tip-box strong { color: var(--greenDark); }
+
+    /* ── Phase Headers ─── */
+    .phase-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin: 48px 0 18px;
+      padding-bottom: 14px;
+      border-bottom: 2px solid var(--purpleLight);
+    }
+    .phase-icon {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, var(--purple), var(--purpleDark));
+      color: white;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(91,63,165,0.35);
+    }
+    .phase-header h2 {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--purpleDark);
+    }
+    .phase-header p {
+      font-size: 14px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    /* ── Steps ─── */
+    .step {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 26px 30px;
+      margin-bottom: 20px;
+      transition: box-shadow 0.2s;
+    }
+    .step:hover { box-shadow: 0 4px 20px rgba(91,63,165,0.08); }
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+    .step-number {
+      width: 38px;
+      height: 38px;
+      background: var(--purple);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    .step-title {
+      font-size: 19px;
+      font-weight: 700;
+      color: var(--purpleDark);
+    }
+    .step p { font-size: 15px; margin-bottom: 10px; color: #374151; }
+    .step ul, .step ol { margin-left: 22px; margin-bottom: 12px; }
+    .step li { font-size: 15px; margin-bottom: 8px; color: #374151; }
+
+    /* ── Field label badge ─── */
+    .fl {
+      display: inline-block;
+      background: var(--purpleLight);
+      padding: 2px 10px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--purpleDark);
+    }
+
+    /* ── Screen mockup ─── */
+    .screen-row {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin: 16px 0;
+    }
+    .screen-card {
+      flex: 1;
+      min-width: 180px;
+      background: #0F0F1A;
+      border-radius: 20px;
+      overflow: hidden;
+      border: 3px solid #2A2840;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+    }
+    .screen-card .screen-bar {
+      background: #1A193A;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .screen-bar .dot { width: 8px; height: 8px; border-radius: 50%; }
+    .screen-bar .dot.red   { background: #FF5F56; }
+    .screen-bar .dot.amber { background: #FEBC2E; }
+    .screen-bar .dot.green { background: #27C93F; }
+    .screen-card .screen-body {
+      padding: 18px 16px 22px;
+      min-height: 180px;
+      color: white;
+    }
+    .screen-label {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    /* ── Checklist ─── */
+    .checklist {
+      background: #FAFAFA;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px 28px;
+      margin: 20px 0;
+    }
+    .checklist h4 {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--purpleDark);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .checklist ul { list-style: none; margin: 0; padding: 0; }
+    .checklist li {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 9px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 15px;
+      color: #374151;
+    }
+    .checklist li:last-child { border-bottom: none; }
+    .checklist .cb {
+      width: 22px;
+      height: 22px;
+      border: 2px solid var(--border);
+      border-radius: 6px;
+      flex-shrink: 0;
+      margin-top: 2px;
+      background: white;
+    }
+
+    /* ── Flow Diagram ─── */
+    .flow-strip {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0;
+      margin: 20px 0 8px;
+    }
+    .flow-node {
+      background: var(--purple);
+      color: white;
+      border-radius: 10px;
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .flow-arrow {
+      font-size: 18px;
+      color: var(--muted);
+      padding: 0 6px;
+    }
+
+    /* ── Timer Box ─── */
+    .timer-box {
+      background: linear-gradient(135deg, #1A1A2E, #16213E);
+      border-radius: 16px;
+      padding: 24px;
+      color: white;
+      text-align: center;
+      margin: 16px 0;
+    }
+    .timer-box .timer-digits {
+      font-size: 52px;
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
+      color: #FFE066;
+      letter-spacing: 4px;
+      display: block;
+      margin: 8px 0;
+    }
+    .timer-box .timer-label { font-size: 13px; opacity: 0.6; text-transform: uppercase; letter-spacing: 1px; }
+    .timer-box .timer-note  { font-size: 14px; opacity: 0.8; margin-top: 8px; }
+
+    /* ── Code block ─── */
+    .code-display {
+      background: #1A1A2E;
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      margin: 16px 0;
+      color: white;
+    }
+    .code-display .code-val {
+      font-size: 36px;
+      font-weight: 900;
+      letter-spacing: 6px;
+      color: #FFE066;
+      display: block;
+      margin: 8px 0;
+      font-variant-numeric: tabular-nums;
+    }
+    .code-display .code-label { font-size: 12px; opacity: 0.55; text-transform: uppercase; letter-spacing: 1px; }
+
+    /* ── Table ─── */
+    .summary-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      margin: 16px 0;
+    }
+    .summary-table th {
+      background: var(--purpleDark);
+      color: white;
+      padding: 12px 16px;
+      text-align: left;
+      font-weight: 700;
+    }
+    .summary-table th:first-child { border-radius: 10px 0 0 0; }
+    .summary-table th:last-child  { border-radius: 0 10px 0 0; }
+    .summary-table th:nth-child(4), .summary-table td:nth-child(4) {
+      white-space: nowrap;
+    }
+    .summary-table td {
+      padding: 11px 16px;
+      border-bottom: 1px solid var(--border);
+      color: #374151;
+      vertical-align: top;
+    }
+    .summary-table tr:last-child td { border-bottom: none; }
+    .summary-table tr:nth-child(even) td { background: #FAFBFF; }
+    .summary-table .pass { color: var(--greenDark); font-weight: 700; }
+    .summary-table .warn { color: #B45309; font-weight: 700; }
+
+    /* ── Success Banner ─── */
+    .success-banner {
+      background: linear-gradient(135deg, var(--greenDark), #2D9F43);
+      border-radius: 16px;
+      padding: 28px 30px;
+      color: white;
+      margin: 20px 0;
+      text-align: center;
+    }
+    .success-banner h3 { font-size: 22px; font-weight: 800; margin-bottom: 8px; }
+    .success-banner p  { font-size: 15px; opacity: 0.9; }
+
+    /* ── Nav Reference ─── */
+    .nav-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin: 16px 0;
+    }
+    .nav-item {
+      background: var(--purpleLight);
+      border-radius: 12px;
+      padding: 16px 10px;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--purpleDark);
+    }
+    .nav-item .nav-emoji { font-size: 28px; display: block; margin-bottom: 6px; }
+
+    /* ── Footer ─── */
+    .footer {
+      text-align: center;
+      margin-top: 60px;
+      padding: 30px 0 10px;
+      border-top: 2px solid var(--border);
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .footer img { height: 40px; margin-bottom: 12px; display: block; margin-left: auto; margin-right: auto; }
+
+    /* ── Print ─── */
+    @media print {
+      @page { margin: 0.6in; }
+      body { background: white !important; font-size: 14px; }
+      .container { padding: 0; max-width: 100%; }
+      .hero { background: var(--purpleDark) !important; border-radius: 12px !important; padding: 30px !important; }
+      .step { break-inside: avoid; }
+      .phase-header { break-after: avoid; }
+      .screen-row, .timer-box, .code-display { display: none !important; }
+      .no-print { display: none !important; }
+      .tip-box, .warning-box, .danger-box { border-left-width: 3px !important; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- ═══════════════════════ HERO ═══════════════════════ -->
+  <div class="hero">
+    <img src="../assets/Perkfinity-Logo.png" alt="Perkfinity" class="logo">
+    <div class="badge">📱 Part 2 · Member Sign-Up · Beta Test Guide</div>
+    <h1>Member Experience Tester Guide</h1>
+    <p class="subtitle">Step-by-step walkthrough for testing the Perkfinity consumer (member) app — from first scan to your first redeemed perk.</p>
+  </div>
+
+  <!-- ═══════════════════════ WELCOME ═══════════════════════ -->
+  <div class="info-box">
+    <h3>👋 Welcome, Tester!</h3>
+    <p>This guide walks you through the <strong>Member (Consumer) experience</strong> — the app that everyday shoppers use to discover perks and redeem discounts at local merchants.</p>
+    <ul>
+      <li>You will scan a merchant QR code, download the Perkfinity app, sign up, and redeem your first perk</li>
+      <li>The test takes approximately <strong>5–10 minutes</strong> end-to-end</li>
+      <li>Use an <strong>iPhone</strong> with <strong>iOS 16+</strong> and a working Apple ID</li>
+      <li>Report any issues at <strong>hello@perkfinity.net</strong></li>
+    </ul>
+  </div>
+
+  <div class="warning-box">
+    <strong>⚠️ Prerequisites:</strong> Before starting this guide, ensure you have a <strong>merchant QR code</strong> available — either printed from the Merchant Sign-Up flow or displayed on a screen. If you don't have one, complete the <em>Merchant Tester Guide (Part 1)</em> first, or ask your test coordinator for a QR code.
+  </div>
+
+  <div class="phase-header" style="background:linear-gradient(135deg,#1E7A2E,#38A169); border-radius:16px; padding:18px 24px; color:white; border:none; margin:8px 0 28px;">
+    <div class="phase-icon" style="background:rgba(255,255,255,0.2); box-shadow:none;">📱</div>
+    <div>
+      <h2 style="color:white; font-size:20px;">Part 2: Member Sign-Up</h2>
+      <p style="color:rgba(255,255,255,0.85);">Test the full consumer app experience — from first scan to first redeemed perk</p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ FLOW OVERVIEW ═══════════════════════ -->
+  <div style="margin: 32px 0 24px;">
+    <h3 style="font-size:17px; font-weight:700; color:var(--purpleDark); margin-bottom:12px;">🗺 Full Test Flow at a Glance</h3>
+    <div class="flow-strip">
+      <div class="flow-node">📷 Scan QR</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node">🛩 TestFlight</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node">📲 Install App</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node">🔑 Sign Up</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node">👤 Profile</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node">🔔 Permissions</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node">🏠 Home Screen</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node">🎁 Activate Perk</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node">✅ Redeem</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       PHASE A: DISCOVER & INSTALL
+  ═══════════════════════════════════════════════════════════════ -->
+  <div class="phase-header">
+    <div class="phase-icon">📷</div>
+    <div>
+      <h2>Phase A: Discover &amp; Install</h2>
+      <p>Scanning the QR code, auto-redirecting to TestFlight, downloading, and opening the app</p>
+    </div>
+  </div>
+
+  <!-- What to watch for -->
+  <div class="step" style="border:2px solid var(--purple); background:rgba(91,63,165,0.03);">
+    <div class="step-header">
+      <div class="step-number" style="background:var(--purple);">🎯</div>
+      <div class="step-title">What to Watch For</div>
+    </div>
+    <div class="checklist" style="margin:0;">
+      <ul>
+        <li><div class="cb"></div><strong>QR → TestFlight Redirect:</strong> Does scanning the QR code with the native camera app automatically open TestFlight (via a brief Safari hop)? This is the key thing to confirm.</li>
+        <li><div class="cb"></div><strong>Invitation in TestFlight:</strong> If the tester has a pending invitation, does it appear inside TestFlight ready to accept?</li>
+        <li><div class="cb"></div><strong>Invitation Email Fallback:</strong> If no invitation appears in TestFlight, can the tester find and use the invitation link from their email?</li>
+        <li><div class="cb"></div><strong>App Installation:</strong> Does the app install without errors after accepting the invitation?</li>
+        <li><div class="cb"></div><strong>Onboarding Slides on Launch:</strong> After opening the app for the first time, do the 3 onboarding slides appear immediately (not the home screen)?</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-header">
+      <div class="step-number">A1</div>
+      <div class="step-title">Scan the Merchant QR Code</div>
+    </div>
+    <p>Open your iPhone's built-in <strong>Camera app</strong> and point it at the merchant's QR code (printed sign or screen). No third-party scanner needed.</p>
+    <ul>
+      <li>A yellow notification banner appears at the <strong>bottom</strong> of the screen — tap it</li>
+      <li><strong>Safari opens briefly</strong> and immediately redirects — you do not need to interact with it</li>
+      <li>The phone is automatically handed off to <strong>TestFlight</strong></li>
+    </ul>
+    <div class="tip-box">
+      <strong>💡 Tip:</strong> Keep the QR code well-lit and centered in frame. Detection usually takes 1–2 seconds. The Safari → TestFlight redirect is automatic and fast.
+    </div>
+    <div class="warning-box" style="margin-top:4px;">
+      <strong>⚠️ What we're verifying:</strong> That scanning with the regular iOS Camera app correctly triggers the TestFlight redirect. If it does not open TestFlight, note this as a bug.
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-header">
+      <div class="step-number">A2</div>
+      <div class="step-title">Accept Invitation &amp; Install in TestFlight</div>
+    </div>
+    <p>Once TestFlight opens, one of two scenarios will apply:</p>
+    <ol>
+      <li>
+        <strong>Invitation is already in TestFlight</strong> — If you were previously invited, the Perkfinity beta will appear in your TestFlight app list. Tap <span class="fl">Install</span>.
+      </li>
+      <li>
+        <strong>No invitation visible</strong> — Go to your email inbox and find the <strong>TestFlight invitation email</strong> from Perkfinity (<em>sent to you by the test coordinator</em>). Tap the <strong>"View in TestFlight"</strong> link in that email, then tap <span class="fl">Accept</span> → <span class="fl">Install</span>.
+      </li>
+    </ol>
+    <div class="tip-box">
+      <strong>💡 Don't have TestFlight?</strong> If TestFlight isn't installed on your phone, the App Store will open first — download TestFlight (free), then return to your invitation email link to install Perkfinity.
+    </div>
+    <div class="tip-box">
+      <strong>💡 TestFlight Note:</strong> You may briefly see <em>"This beta isn't accepting any new testers."</em> — this is a cosmetic TestFlight quirk. The installation proceeds normally; tap past it.
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-header">
+      <div class="step-number">A3</div>
+      <div class="step-title">Open the App — Confirm Home Screen</div>
+    </div>
+    <p>After installation completes, tap <span class="fl">Open</span> in TestFlight (or open Perkfinity from your home screen).</p>
+    <p><strong>Expected result:</strong> The app opens to the <strong>general Home screen</strong>. You should see participating merchants and the Available Perks section — but <strong>no merchant-specific pending offer banner</strong>, since you are not signed up / logged in yet.</p>
+    <div class="tip-box">
+      <strong>💡 Note:</strong> If a pending offer <em>does</em> appear at this point, note it — that would mean the QR session was unexpectedly preserved into the install. For the purposes of this test, proceed normally either way.
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════
+       PHASE B: ONBOARDING
+  ═══════════════════════════════════════════════════════════════ -->
+  <div class="phase-header">
+    <div class="phase-icon">🔑</div>
+    <div>
+      <h2>Phase B: Account Creation &amp; Onboarding</h2>
+      <p>Camera permissions, sign-up, profile, and final permissions</p>
+    </div>
+  </div>
+
+  <div class="step" style="border:2px solid var(--purple); background:rgba(91,63,165,0.03);">
+    <div class="step-header">
+      <div class="step-number" style="background:var(--purple);">🎯</div>
+      <div class="step-title">What to Watch For</div>
+    </div>
+    <div class="checklist" style="margin:0;">
+      <ul>
+        <li><div class="cb"></div><strong>Camera Permission:</strong> Does the permission dialog appear with correct wording? Does Allow/Cancel work as expected?</li>
+        <li><div class="cb"></div><strong>Sign-Up Options:</strong> Are all three sign-up methods visible (Apple, Google, Email)?</li>
+        <li><div class="cb"></div><strong>Form Validation:</strong> Do password requirements check in real time (✓ green checks appear as criteria are met)?</li>
+        <li><div class="cb"></div><strong>Error States:</strong> If you submit an incomplete form, does a clear error appear?</li>
+        <li><div class="cb"></div><strong>Profile Fields:</strong> Do Name, Phone, City, and ZIP fields accept input correctly?</li>
+        <li><div class="cb"></div><strong>Location Setting:</strong> In the Permissions screen, is the <strong>Enable Location checkbox pre-checked</strong>? Can it be unchecked and re-checked? (Keep it enabled for testing.)</li>
+        <li><div class="cb"></div><strong>Push Notifications Setting:</strong> Is the <strong>Allow Notifications checkbox pre-checked</strong>? Can it be unchecked and re-checked? (Keep it enabled for testing.)</li>
+        <li><div class="cb"></div><strong>Post-Permissions destination:</strong> After tapping Continue on the Permissions screen, does the app go directly to the <strong>Scan screen</strong>?</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-header">
+      <div class="step-number">B1</div>
+      <div class="step-title">Camera Access Permission</div>
+    </div>
+    <p>The first screen after launch is a <strong>camera permission request</strong>:</p>
+    <ul>
+      <li><strong>Title:</strong> "Camera Access Needed"</li>
+      <li><strong>Description:</strong> <em>"Perkfinity needs your camera to scan QR codes and unlock discounts at local merchant stores."</em></li>
+      <li>Tap <span class="fl">Allow Camera Access</span> — this is required to scan QR codes in-store later</li>
+    </ul>
+    <div class="tip-box">
+      <strong>💡 iOS will show its own native camera permission dialog</strong> after you tap Allow. Tap <strong>"Allow"</strong> there too.
+    </div>
+  </div>
+
+
+  <div class="step">
+    <div class="step-header">
+      <div class="step-number">B2</div>
+      <div class="step-title">Scan the QR Code to Reach Sign-Up</div>
+    </div>
+    <p>After granting camera access, the live QR scanner opens:</p>
+    <ul>
+      <li>Corner bracket frame with a <strong>purple animated scanning line</strong></li>
+      <li>Text: <em>"Align QR Code — Position the merchant QR code within the frame to reveal your reward."</em></li>
+    </ul>
+    <p><strong>Point your camera at the merchant QR code again.</strong> This scan takes you directly to the sign-up page.</p>
+    <div class="tip-box">
+      <strong>💡 Tip:</strong> Use the same QR code from Phase A (the printed sign or screen). Hold steady — the scanner will detect it automatically.
+    </div>
+  </div>
+
+
+  <div class="step">
+    <div class="step-header">
+      <div class="step-number">B3</div>
+      <div class="step-title">Choose Sign-Up Method</div>
+    </div>
+    <p>A sign-in options screen prompts you to create an account or log in. Three options are available:</p>
+    <ul>
+      <li>🍎 <strong>Sign in with Apple</strong></li>
+      <li>🔵 <strong>Sign in with Google</strong></li>
+      <li>📧 <strong>Sign Up with Email</strong> (recommended for this test)</li>
+    </ul>
+    <p>At the bottom: <em>"Already registered? Log in"</em> — use this if you already have a Perkfinity account.</p>
+    <div class="tip-box">
+      <strong>💡 For this test, tap <span class="fl">Sign Up with Email</span></strong> to test the full registration flow. You can test Apple/Google sign-in in a separate pass.
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-header">
+      <div class="step-number">B4</div>
+      <div class="step-title">Create Your Account — Email &amp; Password</div>
+    </div>
+    <p>Fill in the registration form:</p>
+    <ul>
+      <li><span class="fl">Email Address *</span> — Use a real, working email address <em>(e.g. your+test@gmail.com)</em></li>
+      <li><span class="fl">Password *</span> — Must meet all four requirements shown with live checkmarks:</li>
+    </ul>
+    <table class="summary-table" style="margin-top:0;">
+      <thead><tr><th>Requirement</th><th>Example</th></tr></thead>
+      <tbody>
+        <tr><td>✅ At least 8 characters</td><td rowspan="4" style="vertical-align:middle; font-family:monospace; font-size:18px; font-weight:700; color:var(--purple);">TestPass1</td></tr>
+        <tr><td>✅ One uppercase letter</td></tr>
+        <tr><td>✅ One lowercase letter</td></tr>
+        <tr><td>✅ One number</td></tr>
+      </tbody>
+    </table>
+    <div class="warning-box">
+      <strong>📝 Write down your credentials.</strong> You'll need your email + password to log back in later.
+    </div>
+    <p>Tap <span class="fl">Create Account →</span> when all checkmarks are green.</p>
+  </div>
+
+  <div class="step">
+    <div class="step-header">
+      <div class="step-number">B5</div>
+      <div class="step-title">Complete Your Profile</div>
+    </div>
+    <p>After account creation, you'll be taken to a profile setup screen. Fill in:</p>
+    <ul>
+      <li><span class="fl">Full Name *</span></li>
+      <li><span class="fl">Phone Number *</span> — auto-formatted as you type (e.g. <code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;">714-555-1234</code>)</li>
+      <li><span class="fl">City *</span></li>
+      <li><span class="fl">ZIP Code *</span></li>
+    </ul>
+    <div class="tip-box">
+      <strong>💡 Tip:</strong> Use a real city and ZIP code. This is used to match you with nearby merchants in the Home screen.
+    </div>
+    <p>Tap <span class="fl">Continue →</span> when all fields are filled.</p>
+  </div>
+
+  <div class="step">
+    <div class="step-header">
+      <div class="step-number">B6</div>
+      <div class="step-title">Location &amp; Notification Permissions</div>
+    </div>
+    <p>Both permissions appear on the <strong>same screen</strong> with two pre-checked checkboxes:</p>
+    <ul>
+      <li>☑ <strong>"Enable Location"</strong> — allows Perkfinity to find merchants near you</li>
+      <li>☑ <strong>"Allow Notifications"</strong> — lets Perkfinity notify you of new perks and redemption confirmations</li>
+    </ul>
+    <p>Tap <span class="fl">Continue →</span> (below the Push Notifications checkbox) to proceed.</p>
+    <div class="tip-box">
+      <strong>💡 Note:</strong> You can uncheck either permission — but for the purposes of this test, please <strong>leave both checkboxes checked</strong> so we can verify the full experience.
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-header">
+      <div class="step-number">B7</div>
+      <div class="step-title">App Tour Slides</div>
+    </div>
+    <p>Three introductory onboarding slides walk you through Perkfinity's value propositions. Tap <span class="fl">Continue →</span> on each slide to advance:</p>
+    <ol>
+      <li>🔒 <strong>"Privacy-First"</strong> — Your data is encrypted and never shared with merchants</li>
+      <li>⚡ <strong>"Redeem Instantly"</strong> — Show QR code or code to cashier to redeem in seconds</li>
+      <li>🏪 <strong>"One App, Many Stores"</strong> — Perks at a growing network of local merchants</li>
+    </ol>
+    <p>Tap <span class="fl">Get Started →</span> on the last slide to land on the Home screen (you're already signed in).</p>
+    <div class="tip-box">
+      <strong>💡 Tip:</strong> You can also tap <strong>Skip</strong> in the top-right corner to go directly to the Home screen.
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════
+       PHASE C: HOME SCREEN & DISCOVERY
+  ═══════════════════════════════════════════════════════════════ -->
+  <div class="phase-header">
+    <div class="phase-icon">🏠</div>
+    <div>
+      <h2>Phase C: Home Screen &amp; Discovery</h2>
+      <p>Exploring the home tab, merchants, and your pending perk</p>
+    </div>
+  </div>
+
+  <div class="step" style="border:2px solid var(--purple); background:rgba(91,63,165,0.03);">
+    <div class="step-header">
+      <div class="step-number" style="background:var(--purple);">🎯</div>
+      <div class="step-title">What to Watch For</div>
+    </div>
+    <div class="checklist" style="margin:0;">
+      <ul>
+        <li><div class="cb"></div><strong>Sign Out button:</strong> Does the Sign Out button appear in the top-right corner? Tapping it should log you out and return to the sign-in screen.</li>
+        <li><div class="cb"></div><strong>Hero banner:</strong> Is the "Ready to Save at Local Shops?" card visible? Does tapping <strong>Get Started →</strong> launch the 3 onboarding slides?</li>
+        <li><div class="cb"></div><strong>Gold "Available Offers" banner:</strong> Is it visible in the Available Perks section with the correct offer count (e.g. "1 Available")? Does tapping it open the Offers page?</li>
+        <li><div class="cb"></div><strong>Offers page — single offer:</strong> Does it show merchant name, offer title, terms, expiration date, and "Activate This Offer" button?</li>
+        <li><div class="cb"></div><strong>Offers page — multiple offers:</strong> If more than one offer exists, are ← Prev / Next → buttons and dot indicators visible and working?</li>
+        <li><div class="cb"></div><strong>Expiration color:</strong> Is the expiration date color-coded correctly (white = plenty of time, yellow = ending soon, red = within 3 days)?</li>
+        <li><div class="cb"></div><strong>Participating Merchants:</strong> Is the most recently scanned merchant showing on the far left? Do other merchant cards appear to the right?</li>
+        <li><div class="cb"></div><strong>Bottom Navigation:</strong> Are all 4 tabs (🏠 Home, 📷 Scan, 🕐 History, 👤 Profile) visible and tappable?</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="step">
+    <div class="step-header">
+      <div class="step-number">C1</div>
+      <div class="step-title">Explore the Home Screen</div>
+    </div>
+    <p>The Home screen has several distinct areas — from top to bottom:</p>
+    <ul>
+      <li>
+        <strong>Top bar:</strong> Perkfinity logo (left) + <span class="fl">Sign Out</span> button (right). Tapping Sign Out logs you out and returns you to the sign-in screen.
+      </li>
+      <li>
+        <strong>Hero banner</strong> (large dark card, center): Displays perk badges (<em>15% off, 20% off, 10% off</em>) and the headline <em>"Ready to Save at Local Shops?"</em> with a green <strong>Get Started →</strong> button. Tapping Get Started takes you back through the onboarding slides.
+      </li>
+      <li>
+        <strong>Available Perks</strong> (below hero): Shows a count label on the right (e.g. <strong>"1 Available"</strong>) reflecting how many offers this user has. Beneath it is a <strong>gold banner card</strong> — e.g. <em>"Buy One Get One Free — Tap to activate your pending offer!"</em> with an arrow →. Tap this card to view and activate the offer.
+      </li>
+      <li>
+        <strong>Participating Merchants Around You:</strong> A horizontal row of merchant cards. The <strong>most recently scanned merchant appears on the far left</strong>. Scroll right to see others.
+      </li>
+    </ul>
+    <p style="font-size:14px; font-weight:600; color:var(--purpleDark); margin-top:14px;">Bottom Navigation Bar</p>
+    <div class="nav-grid">
+      <div class="nav-item"><span class="nav-emoji">🏠</span>Home</div>
+      <div class="nav-item"><span class="nav-emoji">📷</span>Scan</div>
+      <div class="nav-item"><span class="nav-emoji">🕐</span>History</div>
+      <div class="nav-item"><span class="nav-emoji">👤</span>Profile</div>
+    </div>
+    <p style="font-size:14px; color:var(--muted);">The bottom bar matches what's shown in the app: a house icon (Home), QR grid icon (Scan), clock/history icon (History), and person icon (Profile). Tap each tab and verify it navigates correctly.</p>
+  </div>
+
+
+  <div class="step">
+    <div class="step-header">
+      <div class="step-number">C2</div>
+      <div class="step-title">View Your Available Offers</div>
+    </div>
+    <p>The <strong>only way to reach the Offers page</strong> is by tapping the <strong>gold "Available Offers" banner</strong> in the Available Perks section on the Home screen. There is no tap on individual perk cards.</p>
+    <p>Once on the Offers page you will see:</p>
+    <ul>
+      <li>Merchant name, logo, and location</li>
+      <li>The offer title (e.g. <em>"Buy One Get One Free"</em>) and any terms</li>
+      <li><strong>Expiration date</strong> for each offer — color-coded: white (plenty of time), yellow (ending soon), red (expiring within 3 days)</li>
+      <li>If you have <strong>more than one offer</strong>, use the <strong>← Prev</strong> and <strong>Next →</strong> buttons (and the dot indicators) to browse between them</li>
+      <li>A prominent <strong>"Activate This Offer"</strong> button for each offer</li>
+      <li>A note: <em>"Valid for 5 minutes once activated"</em></li>
+    </ul>
+    <div class="danger-box">
+      <strong>⚠️ Do not tap "Activate This Offer" until you are in front of a cashier</strong> (or your test partner acting as cashier). The 5-minute countdown starts immediately and cannot be paused.
+    </div>
+  </div>
+
+
+
+  <!-- ═══════════════════════════════════════════════════════════
+       PHASE D: ACTIVATION & REDEMPTION
+  ═══════════════════════════════════════════════════════════════ -->
+  <div class="phase-header">
+    <div class="phase-icon">⚡</div>
+    <div>
+      <h2>Phase D: Activate &amp; Redeem the Perk</h2>
+      <p>The moment of truth — the 5-minute redemption window</p>
+    </div>
+  </div>
+
+  <div class="step" style="border:2px solid var(--purple); background:rgba(91,63,165,0.03);">
+    <div class="step-header">
+      <div class="step-number" style="background:var(--purple);">🎯</div>
+      <div class="step-title">What to Watch For</div>
+    </div>
+    <div class="checklist" style="margin:0;">
+      <ul>
+        <li><div class="cb"></div><strong>Countdown Timer:</strong> Does the 5:00 countdown begin immediately upon activation? Does it count down accurately in real time?</li>
+        <li><div class="cb"></div><strong>QR Code Display:</strong> Is a scannable QR code shown on the redemption screen?</li>
+        <li><div class="cb"></div><strong>6-Digit Code:</strong> Is a fallback static code displayed (format: <code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;">XXX-XXX</code>)?</li>
+        <li><div class="cb"></div><strong>Cashier Button:</strong> Is the "Cashier: Mark as Redeemed" button visible and functional?</li>
+        <li><div class="cb"></div><strong>Success Screen:</strong> After marking as redeemed, does a "Successfully Redeemed!" message appear?</li>
+        <li><div class="cb"></div><strong>Timer Expiry:</strong> If the 5-minute window expires, does the offer gracefully expire with a clear message?</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-header">
+      <div class="step-number">D1</div>
+      <div class="step-title">Activate and View the Redemption Screen</div>
+    </div>
+    <p>Tap <span class="fl">Activate This Offer</span>. The <strong>Redemption Screen</strong> immediately appears showing:</p>
+    <ul>
+      <li>A <strong>QR code</strong> with the <strong>merchant's logo in the center</strong> (the logo uploaded to their dashboard)</li>
+      <li>A <strong>6-digit code</strong> below the QR (e.g. <code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;">690-649</code>) — unique to each activation</li>
+      <li>The <strong>campaign details</strong> — offer name and merchant name</li>
+      <li>A <strong>5-minute countdown timer</strong> showing time remaining</li>
+    </ul>
+    <div class="danger-box">
+      <strong>⚠️ The 5-minute countdown starts immediately and cannot be paused.</strong> The offer expires when the timer hits 0:00.
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-header">
+      <div class="step-number">D2</div>
+      <div class="step-title">Mark as Redeemed &amp; Confirm</div>
+    </div>
+    <p>At the bottom of the Redemption Screen, tap the green button:</p>
+    <p style="text-align:center; margin:16px 0;">
+      <span style="background:#38A169; color:white; font-weight:700; padding:12px 28px; border-radius:12px; font-size:16px; display:inline-block;">Cashier: Mark as Redeemed</span>
+    </p>
+    <p>After tapping, a brief loading indicator appears, then the success confirmation is shown:</p>
+    <p style="text-align:center; margin:16px 0;">
+      <span style="background:#38A169; color:white; font-weight:700; padding:12px 28px; border-radius:12px; font-size:16px; display:inline-block;">✅ Successfully Redeemed!</span>
+    </p>
+    <p>The app stays on this screen — there is <strong>no automatic redirect</strong>. You can tap any tab in the bottom navigation to continue, or close the app.</p>
+    <div class="danger-box">
+      <strong>⚠️ This button must be tapped before the timer hits 0:00.</strong> Once expired, the offer can no longer be redeemed.
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════
+       PHASE E: VERIFICATION & HISTORY
+  ═══════════════════════════════════════════════════════════════ -->
+  <div class="phase-header">
+    <div class="phase-icon">📋</div>
+    <div>
+      <h2>Phase E: Verify History &amp; Profile</h2>
+      <p>Confirming the redemption is logged and your account is correct</p>
+    </div>
+  </div>
+
+  <div class="step" style="border:2px solid var(--purple); background:rgba(91,63,165,0.03);">
+    <div class="step-header">
+      <div class="step-number" style="background:var(--purple);">🎯</div>
+      <div class="step-title">What to Watch For</div>
+    </div>
+    <div class="checklist" style="margin:0;">
+      <ul>
+        <li><div class="cb"></div><strong>History Entry:</strong> Does the History tab show your redeemed perk with the correct merchant name, offer, and timestamp?</li>
+        <li><div class="cb"></div><strong>Profile Tab:</strong> Is your name, phone, city, and ZIP correct? Can you update a field directly and tap Continue → Permissions → Finish Setup to save?</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-header">
+      <div class="step-number">E1</div>
+      <div class="step-title">Check the History Tab</div>
+    </div>
+    <p>Tap the <strong>History</strong> tab in the bottom navigation bar. You should see:</p>
+    <ul>
+      <li>Your redeemed perk listed as an entry (e.g. <em>"Buy One Get One Free — Safebox Savings"</em>)</li>
+      <li>The precise <strong>redemption timestamp</strong> (date and time)</li>
+      <li>Status marked as <strong>Redeemed</strong></li>
+    </ul>
+    <div class="tip-box">
+      <strong>💡 Cross-check:</strong> If you have access to the Merchant Dashboard, confirm the same redemption appears there under the member's record.
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-header">
+      <div class="step-number">E2</div>
+      <div class="step-title">Review Your Profile Tab</div>
+    </div>
+    <p>Tap the <strong>Profile</strong> tab and verify:</p>
+    <ul>
+      <li>Your <strong>name</strong>, <strong>phone</strong>, <strong>city</strong>, and <strong>ZIP</strong> are correct (no email field on this screen)</li>
+      <li>Fields are directly editable — update any value, tap <strong>Continue</strong> → walks through <strong>Permissions</strong> → tap <strong>Finish Setup</strong> to save</li>
+    </ul>
+    <div class="tip-box">
+      <strong>💡 Note:</strong> Sign Out is on the <strong>Home screen</strong> (top-right corner), not on the Profile tab.
+    </div>
+  </div>
+
+
+  <!-- Part 4 is a separate guide: ReturningMember_Tester_Guide.html -->
+  <div class="tip-box" style="margin-top:8px;">
+    <strong>💡 Part 4: Returning Member</strong> is a separate test guide (<em>ReturningMember_Tester_Guide.html</em>). Run it as a follow-up session after completing this guide.
+  </div>
+
+
+
+
+  <!-- ═══════════════════════════════════════════════════════════
+       SUMMARY TABLE
+  ═══════════════════════════════════════════════════════════════ -->
+  <div class="phase-header" style="margin-top:52px;">
+    <div class="phase-icon">📊</div>
+    <div>
+      <h2>Test Summary Checklist</h2>
+      <p>Use this table to record your results for each phase</p>
+    </div>
+  </div>
+
+  <table class="summary-table">
+    <thead>
+      <tr>
+        <th>Phase</th>
+        <th>Step</th>
+        <th>Expected Result</th>
+        <th>Pass / Fail</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>A</strong></td>
+        <td>QR Scan → Browser Opens</td>
+        <td>Landing page loads with pending offer banner</td>
+        <td>☐ Pass&nbsp;&nbsp;☐ Fail</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><strong>A</strong></td>
+        <td>TestFlight Install</td>
+        <td>App installs and opens successfully</td>
+        <td>☐ Pass&nbsp;&nbsp;☐ Fail</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><strong>B</strong></td>
+        <td>Camera Permission</td>
+        <td>Dialog appears; Allow works correctly</td>
+        <td>☐ Pass&nbsp;&nbsp;☐ Fail</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><strong>B</strong></td>
+        <td>Email Sign-Up</td>
+        <td>Account created; password checker works in real-time</td>
+        <td>☐ Pass&nbsp;&nbsp;☐ Fail</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><strong>B</strong></td>
+        <td>Profile Completion</td>
+        <td>Name, Phone, City, ZIP saved correctly</td>
+        <td>☐ Pass&nbsp;&nbsp;☐ Fail</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><strong>B</strong></td>
+        <td>Location &amp; Push Settings</td>
+        <td>In-app checkboxes pre-checked; Continue saves settings</td>
+        <td>☐ Pass&nbsp;&nbsp;☐ Fail</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><strong>B</strong></td>
+        <td>Onboarding Slides</td>
+        <td>3 slides appear first on launch; Get Started routes to auth</td>
+        <td>☐ Pass&nbsp;&nbsp;☐ Fail</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div style="margin:28px 0 0; background:#3A2870; border-radius:14px; padding:18px 24px; display:flex; align-items:center; justify-content:space-between; gap:16px;">
+    <div>
+      <p style="color:#fff; font-weight:700; font-size:15px; margin:0;">🖨️ Need a printable version?</p>
+      <p style="color:rgba(255,255,255,0.8); font-size:13px; margin:4px 0 0;">Open the printer-friendly guide — clean white background, compact layout, no ink waste.</p>
+    </div>
+    <a href="part2-print.html" style="background:#fff; color:#3A2870; font-weight:800; font-size:13px; padding:10px 20px; border-radius:8px; text-decoration:none; white-space:nowrap;">Open Print Version →</a>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════
+       KNOWN NOTES
+  ═══════════════════════════════════════════════════════════════ -->
+  <div style="margin-top:36px;">
+    <h3 style="font-size:18px; font-weight:800; color:var(--purpleDark); margin-bottom:16px;">📌 Known Beta Notes</h3>
+    <div class="warning-box">
+      <strong>TestFlight "Not Accepting Testers" Message:</strong> You may briefly see this error in TestFlight. It is a known UI glitch — the app still installs. Tap past it.
+    </div>
+    <div class="warning-box">
+      <strong>5-Minute Redemption Window:</strong> This is intentional to prevent offline misuse. Once the timer expires the QR code and fallback code both become invalid. Do not activate an offer unless ready to test the full flow immediately.
+    </div>
+    <div class="tip-box">
+      <strong>💡 Multiple Merchants:</strong> You will see other merchants on the Home screen (e.g. "Mission Viejo Bakery", "Ryan O's HQ"). This is an intentional feature to encourage users to discover and visit other participating locations nearby. The merchant you just scanned will always appear first in the list.
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════ FOOTER ═══════════════════════ -->
+  <div class="footer">
+    <img src="../assets/Perkfinity-Logo.png" alt="Perkfinity">
+    <p>Questions or bugs? Contact <a href="mailto:hello@perkfinity.net" style="color:var(--purple); text-decoration:none; font-weight:600;">hello@perkfinity.net</a></p>
+    <p style="margin-top:6px; font-size:13px;">© 2026 Perkfinity. All rights reserved.</p>
+
+  </div>
+
+  <!-- ═══ PART NAVIGATOR ═══ -->
+  <div style="background:#3A2870;border-radius:16px;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin:32px 0 0;">
+    <a href="part1.html" style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.15);color:#fff;padding:8px 16px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:700;">← Part 1: Merchant Sign-Up</a>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+      <div style="display:flex;gap:8px;"><div style="width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,0.35);"></div><div style="width:10px;height:10px;border-radius:50%;background:#fff;"></div><div style="width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,0.35);"></div><div style="width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,0.35);"></div></div>
+      <span style="color:rgba(255,255,255,0.85);font-size:12px;font-weight:600;letter-spacing:.3px;">Part 2 of 4</span>
+    </div>
+    <a href="part3.html" style="display:inline-flex;align-items:center;gap:6px;background:#fff;color:#3A2870;padding:8px 16px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:700;">Part 3: Campaign Creation →</a>
+  </div>
+
+
+
+</div>
+</body>
+</html>

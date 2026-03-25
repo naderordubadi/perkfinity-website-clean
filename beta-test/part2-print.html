@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="robots" content="noindex, nofollow"/>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Perkfinity — Part 2: Member Sign-Up (Print)</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Inter',sans-serif; font-size:13px; line-height:1.6; color:#111; background:#fff; }
+    .container { max-width:780px; margin:0 auto; padding:24px 28px 48px; }
+    .print-bar { display:flex; justify-content:space-between; align-items:center; padding:12px 0 18px; border-bottom:2px solid #3A2870; margin-bottom:20px; }
+    .print-bar h2 { font-size:15px; color:#3A2870; font-weight:700; }
+    .print-btn { background:#3A2870; color:#fff; border:none; padding:8px 20px; border-radius:8px; font-size:13px; font-weight:700; cursor:pointer; }
+    .print-btn:hover { background:#5B3FA5; }
+    .guide-header { border-left:5px solid #3A2870; padding:10px 16px; margin-bottom:18px; }
+    .guide-header .part-label { font-size:11px; font-weight:700; color:#5B3FA5; letter-spacing:1px; text-transform:uppercase; }
+    .guide-header h1 { font-size:22px; font-weight:900; color:#1F2030; margin:2px 0 4px; }
+    .guide-header .subtitle { font-size:12px; color:#555; }
+    .info-box { border:1.5px solid #5B3FA5; border-radius:8px; padding:10px 14px; margin:12px 0; background:#fff; }
+    .info-box h3 { font-size:13px; font-weight:700; color:#3A2870; margin-bottom:4px; }
+    .info-box ul { padding-left:18px; }
+    .info-box li { margin:2px 0; }
+    .warn { border-left:4px solid #E53E3E; background:#fff; padding:8px 12px; margin:10px 0; border-radius:0 6px 6px 0; font-size:12px; }
+    .tip  { border-left:4px solid #1E7A2E; background:#fff; padding:8px 12px; margin:10px 0; border-radius:0 6px 6px 0; font-size:12px; }
+    .phase { font-size:12px; font-weight:800; color:#3A2870; text-transform:uppercase; letter-spacing:.5px; margin:20px 0 6px; border-bottom:1.5px solid #3A2870; padding-bottom:3px; }
+    .step { margin:10px 0; padding:10px 14px; border:1px solid #ddd; border-radius:6px; }
+    .step-header { display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+    .step-num { background:#3A2870; color:#fff; border-radius:50%; width:22px; height:22px; font-size:11px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .step-title { font-size:13px; font-weight:700; color:#1F2030; }
+    ul, ol { padding-left:20px; }
+    li { margin:2px 0; }
+    .fl { background:#EDE9F6; color:#3A2870; padding:1px 6px; border-radius:4px; font-size:11px; font-weight:600; }
+    .chk-head { font-size:12px; font-weight:800; color:#1F2030; text-transform:uppercase; letter-spacing:.5px; margin:24px 0 6px; border-bottom:1.5px solid #ccc; padding-bottom:3px; }
+    table { width:100%; border-collapse:collapse; font-size:12px; margin-top:6px; }
+    th { background:#3A2870; color:#fff; padding:8px 10px; text-align:left; font-weight:700; }
+    th:first-child { border-radius:6px 0 0 0; }
+    th:last-child  { border-radius:0 6px 0 0; }
+    td { padding:7px 10px; border-bottom:1px solid #e5e7eb; vertical-align:top; }
+    tr:last-child td { border-bottom:none; }
+    tr:nth-child(even) td { background:#fafafa; }
+    td:nth-child(4) { white-space:nowrap; }
+    .footer { text-align:center; margin-top:32px; padding-top:16px; border-top:1px solid #ddd; font-size:11px; color:#6B7280; }
+    @media print {
+      @page { margin:0.55in; size:letter; }
+      body { background:#fff !important; }
+      .print-bar { display:none !important; }
+      .step, .info-box { break-inside:avoid; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <div class="print-bar">
+    <h2>📱 Part 2: Member Sign-Up — Printer-Friendly Guide</h2>
+    <button class="print-btn" onclick="window.print()">🖨️ Print This Guide</button>
+  </div>
+
+  <div class="guide-header">
+    <div class="part-label">Part 2 · Member (Consumer) Sign-Up · Beta Test Guide</div>
+    <h1>Consumer App Tester Guide</h1>
+    <div class="subtitle">Requires completing Part 1 (Merchant Sign-Up) first — you need the QR code from that guide</div>
+  </div>
+
+  <div class="info-box">
+    <h3>👋 Welcome back, Tester!</h3>
+    <ul>
+      <li>⚠️ <strong>Complete Part 1 before starting this guide.</strong> You need the QR code from Part 1.</li>
+      <li>Use your <strong>iPhone with TestFlight</strong> installed</li>
+      <li>Estimated time: <strong>5–8 minutes</strong></li>
+      <li>Report bugs to <strong>hello@perkfinity.net</strong></li>
+    </ul>
+  </div>
+  <div class="warn"><strong>⚠️ Important:</strong> Do NOT tap "Activate This Offer" until you are ready to test the full redemption — the 5-minute timer starts immediately and cannot be paused.</div>
+
+  <div class="phase">Phase A — Install the App</div>
+
+  <div class="step">
+    <div class="step-header"><div class="step-num">A1</div><div class="step-title">Scan the QR Code (Browser Redirect)</div></div>
+    <p>Open your iPhone camera and scan the QR code from your Part 1 countertop sign. The browser opens a Perkfinity landing page with the pending offer banner.</p>
+  </div>
+  <div class="step">
+    <div class="step-header"><div class="step-num">A2</div><div class="step-title">Install via TestFlight</div></div>
+    <ol>
+      <li>Tap the <span class="fl">Download on TestFlight</span> banner</li>
+      <li>If TestFlight is not installed, tap <strong>Install TestFlight</strong> → install from App Store → return to browser → tap the banner again</li>
+      <li>In TestFlight, tap <strong>Install</strong> → <strong>Open</strong></li>
+    </ol>
+    <div class="tip"><strong>💡</strong> You may briefly see "This beta isn't accepting new testers" — this is a cosmetic TestFlight quirk. The app still installs.</div>
+  </div>
+  <div class="step">
+    <div class="step-header"><div class="step-num">A3</div><div class="step-title">Open the App — Confirm Home Screen</div></div>
+    <p>Tap <span class="fl">Open</span> in TestFlight. The app opens to the general Home screen (no pending offer yet — you're not signed in).</p>
+  </div>
+
+  <div class="phase">Phase B — Account Creation &amp; Onboarding</div>
+
+  <div class="step">
+    <div class="step-header"><div class="step-num">B1</div><div class="step-title">Camera Access Permission</div></div>
+    <p>First screen: camera permission dialog. Tap <span class="fl">Allow Camera Access</span>. Then tap <strong>Allow</strong> on the iOS native dialog too.</p>
+  </div>
+  <div class="step">
+    <div class="step-header"><div class="step-num">B2</div><div class="step-title">Scan the QR Code in App</div></div>
+    <p>The QR scanner opens. Point your camera at the same merchant QR code from Part 1. Hold steady — the scanner detects it automatically and takes you to sign-up.</p>
+  </div>
+  <div class="step">
+    <div class="step-header"><div class="step-num">B3</div><div class="step-title">Choose Sign-Up Method</div></div>
+    <p>Tap <span class="fl">Sign Up with Email</span> (recommended for this test). Three options are available: Apple, Google, and Email.</p>
+  </div>
+  <div class="step">
+    <div class="step-header"><div class="step-num">B4</div><div class="step-title">Create Account — Email &amp; Password</div></div>
+    <ul>
+      <li><strong>Email</strong> — real working address (e.g. your+test@gmail.com)</li>
+      <li><strong>Password</strong> — min 8 chars, 1 uppercase, 1 lowercase, 1 number (e.g. TestPass1)</li>
+    </ul>
+    <div class="warn"><strong>📝 Write down your credentials</strong> — you'll need them to log back in for Part 4.</div>
+    <p>Tap <span class="fl">Create Account →</span> when all checkmarks are green.</p>
+  </div>
+  <div class="step">
+    <div class="step-header"><div class="step-num">B5</div><div class="step-title">Complete Your Profile</div></div>
+    <p>Fill in: <strong>Full Name</strong>, <strong>Phone</strong> (auto-formatted), <strong>City</strong>, <strong>ZIP Code</strong> (use real values for location matching). Tap <span class="fl">Continue →</span>.</p>
+  </div>
+  <div class="step">
+    <div class="step-header"><div class="step-num">B6</div><div class="step-title">Location &amp; Notification Permissions</div></div>
+    <p>Two pre-checked boxes: <strong>Enable Location</strong> and <strong>Allow Notifications</strong>. Leave both checked for testing. Tap <span class="fl">Continue →</span>.</p>
+  </div>
+  <div class="step">
+    <div class="step-header"><div class="step-num">B7</div><div class="step-title">App Tour Slides</div></div>
+    <p>Three onboarding slides (Privacy-First, Redeem Instantly, One App Many Stores). Tap <span class="fl">Continue →</span> on each, then <span class="fl">Get Started →</span> (or tap <strong>Skip</strong> top-right).</p>
+  </div>
+
+  <div class="phase">Phase C — Home Screen &amp; Discovery</div>
+
+  <div class="step">
+    <div class="step-header"><div class="step-num">C1</div><div class="step-title">Explore the Home Screen</div></div>
+    <ul>
+      <li><strong>Top bar:</strong> Perkfinity logo + Sign Out button (top-right)</li>
+      <li><strong>Available Perks:</strong> Gold banner card with pending offer — tap to view offers</li>
+      <li><strong>Participating Merchants:</strong> Horizontal scroll — your scanned merchant appears first</li>
+      <li><strong>Bottom Nav:</strong> 🏠 Home · 📷 Scan · 🕐 History · 👤 Profile</li>
+    </ul>
+  </div>
+  <div class="step">
+    <div class="step-header"><div class="step-num">C2</div><div class="step-title">View Your Available Offers</div></div>
+    <p>Tap the gold <strong>Available Offers</strong> banner to open the Offers page. You'll see: merchant name, offer title, expiry date (white/yellow/red), and the <strong>Activate This Offer</strong> button.</p>
+    <div class="warn"><strong>⚠️ Do not tap Activate</strong> until you're ready to test the full redemption now.</div>
+  </div>
+
+  <div class="phase">Phase D — Activate &amp; Redeem</div>
+
+  <div class="step">
+    <div class="step-header"><div class="step-num">D1</div><div class="step-title">Activate the Offer</div></div>
+    <p>Tap <span class="fl">Activate This Offer</span>. The Redemption Screen shows:</p>
+    <ul>
+      <li>QR code with merchant logo in center</li>
+      <li>6-digit fallback code (e.g. 690-649)</li>
+      <li>5-minute countdown timer</li>
+    </ul>
+    <div class="warn"><strong>⚠️ Timer starts immediately and cannot be paused.</strong></div>
+  </div>
+  <div class="step">
+    <div class="step-header"><div class="step-num">D2</div><div class="step-title">Mark as Redeemed</div></div>
+    <p>Tap the green <strong>Cashier: Mark as Redeemed</strong> button. A <strong>"✅ Successfully Redeemed!"</strong> confirmation appears. Tap any bottom tab to continue.</p>
+    <div class="warn"><strong>⚠️ Must be tapped before the timer hits 0:00.</strong></div>
+  </div>
+
+  <div class="phase">Phase E — Verify History &amp; Profile</div>
+
+  <div class="step">
+    <div class="step-header"><div class="step-num">E1</div><div class="step-title">Check History Tab</div></div>
+    <p>Tap <strong>History</strong> tab → confirm the redeemed offer appears with merchant name, offer title, redemption timestamp, and status <strong>Redeemed</strong>.</p>
+  </div>
+  <div class="step">
+    <div class="step-header"><div class="step-num">E2</div><div class="step-title">Review Profile Tab</div></div>
+    <p>Tap <strong>Profile</strong> tab → verify Name, Phone, City, ZIP are correct. Fields are editable — update any value, tap <strong>Continue → Permissions → Finish Setup</strong> to save.</p>
+    <div class="tip"><strong>💡</strong> Sign Out is on the Home screen (top-right), not the Profile tab.</div>
+  </div>
+
+  <div class="chk-head">📋 Test Summary Checklist</div>
+  <table>
+    <thead><tr><th>Phase</th><th>Step</th><th>Expected Result</th><th>Pass / Fail</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td><strong>A</strong></td><td>QR Scan → Browser Opens</td><td>Landing page loads with pending offer banner</td><td>☐ Pass &nbsp; ☐ Fail</td><td></td></tr>
+      <tr><td><strong>A</strong></td><td>TestFlight Install</td><td>App installs and opens successfully</td><td>☐ Pass &nbsp; ☐ Fail</td><td></td></tr>
+      <tr><td><strong>B</strong></td><td>Camera Permission</td><td>Dialog appears; Allow works correctly</td><td>☐ Pass &nbsp; ☐ Fail</td><td></td></tr>
+      <tr><td><strong>B</strong></td><td>Email Sign-Up</td><td>Account created; password checker works in real-time</td><td>☐ Pass &nbsp; ☐ Fail</td><td></td></tr>
+      <tr><td><strong>B</strong></td><td>Profile Completion</td><td>Name, Phone, City, ZIP saved correctly</td><td>☐ Pass &nbsp; ☐ Fail</td><td></td></tr>
+      <tr><td><strong>B</strong></td><td>Location &amp; Push Settings</td><td>In-app checkboxes pre-checked; Continue saves settings</td><td>☐ Pass &nbsp; ☐ Fail</td><td></td></tr>
+      <tr><td><strong>B</strong></td><td>Onboarding Slides</td><td>3 slides appear; Get Started routes to Home</td><td>☐ Pass &nbsp; ☐ Fail</td><td></td></tr>
+      <tr><td><strong>C</strong></td><td>Home Screen</td><td>Pending offer banner visible; merchant cards load</td><td>☐ Pass &nbsp; ☐ Fail</td><td></td></tr>
+      <tr><td><strong>D</strong></td><td>Activate Offer</td><td>5-min countdown starts; QR + 6-digit code shown</td><td>☐ Pass &nbsp; ☐ Fail</td><td></td></tr>
+      <tr><td><strong>D</strong></td><td>Mark as Redeemed</td><td>"✅ Successfully Redeemed!" confirmation appears</td><td>☐ Pass &nbsp; ☐ Fail</td><td></td></tr>
+      <tr><td><strong>E</strong></td><td>History Tab</td><td>Redeemed perk listed with timestamp and status</td><td>☐ Pass &nbsp; ☐ Fail</td><td></td></tr>
+      <tr><td><strong>E</strong></td><td>Profile Tab</td><td>Name, phone, city, ZIP correct and editable</td><td>☐ Pass &nbsp; ☐ Fail</td><td></td></tr>
+    </tbody>
+  </table>
+
+  <div class="footer">
+    <p>Questions? <strong>hello@perkfinity.net</strong> &nbsp;|&nbsp; © 2026 Perkfinity</p>
+  </div>
+
+</div>
+</body>
+</html>

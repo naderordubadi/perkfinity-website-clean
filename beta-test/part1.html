@@ -1,0 +1,616 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="robots" content="noindex, nofollow"/>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Perkfinity — Beta Tester Guide</title>
+  <link rel="icon" href="../assets/Perkfinity-App-Icon.png"/>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      --purple: #5B3FA5;
+      --purpleDark: #3A2870;
+      --purpleLight: #EDE9F6;
+      --green: #6BC17A;
+      --greenDark: #1E7A2E;
+      --greenLight: #E8F5E9;
+      --orange: #F5A623;
+      --orangeLight: #FFF3E0;
+      --ink: #1F2030;
+      --muted: #6B7280;
+      --border: #E2E8F0;
+      --bg: #FFFFFF;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.7;
+      font-size: 16px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px 30px;
+    }
+
+    /* ── Hero Header (green) ─── */
+    .hero {
+      background: linear-gradient(135deg, #1E7A2E 0%, #38A169 60%, #48BB78 100%);
+      border-radius: 24px;
+      padding: 50px 40px 44px;
+      text-align: center;
+      margin-bottom: 36px;
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
+    }
+    .hero img.logo {
+      display: block;
+      margin: 0 auto 20px;
+      height: 72px;
+      position: relative;
+      filter: drop-shadow(0 4px 16px rgba(0,0,0,0.2));
+    }
+    .hero h1 {
+      font-size: 34px;
+      font-weight: 900;
+      margin-bottom: 10px;
+      position: relative;
+      letter-spacing: -0.5px;
+    }
+    .hero .badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 100px;
+      padding: 6px 18px;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      margin-bottom: 18px;
+      position: relative;
+    }
+    .hero .subtitle {
+      font-size: 17px;
+      opacity: 0.85;
+      font-weight: 400;
+      max-width: 520px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    /* ── Guide Header (kept for print) ─── */
+    .guide-header {
+      text-align: center;
+      padding: 50px 30px 40px;
+      border-bottom: 3px solid var(--purple);
+      margin-bottom: 40px;
+    }
+    .guide-header img.logo {
+      height: 80px;
+      margin-bottom: 20px;
+    }
+    .guide-header h1 {
+      font-size: 32px;
+      font-weight: 900;
+      color: var(--purpleDark);
+      margin-bottom: 8px;
+    }
+    .guide-header .subtitle {
+      font-size: 18px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    /* ── Info Box ─── */
+    .info-box {
+      background: var(--purpleLight);
+      border: 1px solid rgba(91,63,165,0.2);
+      border-radius: 14px;
+      padding: 24px 28px;
+      margin-bottom: 36px;
+      font-size: 15px;
+      line-height: 1.8;
+    }
+    .info-box h3 {
+      color: var(--purpleDark);
+      font-size: 17px;
+      margin-bottom: 10px;
+    }
+    .info-box ul { margin-left: 20px; }
+    .info-box li { margin-bottom: 6px; }
+
+    /* ── Warning Box ─── */
+    .warning-box {
+      background: var(--orangeLight);
+      border: 1px solid rgba(245,166,35,0.3);
+      border-radius: 14px;
+      padding: 20px 24px;
+      margin-bottom: 30px;
+      font-size: 15px;
+    }
+    .warning-box strong { color: #E65100; }
+
+    /* ── Section Headers ─── */
+    .section-title {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--purpleDark);
+      margin: 50px 0 12px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--purpleLight);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .section-title .icon {
+      width: 42px;
+      height: 42px;
+      background: var(--purple);
+      color: white;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    /* ── Steps ─── */
+    .step {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px 28px;
+      margin-bottom: 24px;
+    }
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+    .step-number {
+      width: 36px;
+      height: 36px;
+      background: var(--purple);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    .step-title {
+      font-size: 19px;
+      font-weight: 700;
+      color: var(--purpleDark);
+    }
+    .step p {
+      font-size: 15px;
+      margin-bottom: 10px;
+      color: #374151;
+    }
+    .step ul, .step ol {
+      margin-left: 22px;
+      margin-bottom: 12px;
+    }
+    .step li {
+      font-size: 15px;
+      margin-bottom: 8px;
+      color: #374151;
+    }
+    .step .field-label {
+      display: inline-block;
+      background: var(--purpleLight);
+      padding: 2px 10px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--purpleDark);
+    }
+
+    /* ── Tip Box ─── */
+    .tip-box {
+      background: var(--greenLight);
+      border: 1px solid rgba(107,193,122,0.3);
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin: 14px 0;
+      font-size: 14px;
+    }
+    .tip-box strong { color: var(--greenDark); }
+
+    /* ── Screenshot placeholder ─── */
+    .screenshot-area {
+      border: 2px dashed var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      margin: 16px 0;
+    }
+    .screenshot-area img {
+      width: 100%;
+      display: block;
+    }
+
+    /* ── Summary Table ─── */
+    .summary-table { width: 100%; border-collapse: collapse; font-size: 14px; margin: 16px 0; }
+    .summary-table th { background: var(--purpleDark); color: white; padding: 12px 16px; text-align: left; font-weight: 700; }
+    .summary-table th:first-child { border-radius: 10px 0 0 0; }
+    .summary-table th:last-child { border-radius: 0 10px 0 0; }
+    .summary-table th:nth-child(4), .summary-table td:nth-child(4) { white-space: nowrap; }
+    .summary-table td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: #374151; vertical-align: top; }
+    .summary-table tr:last-child td { border-bottom: none; }
+    .summary-table tr:nth-child(even) td { background: #FAFBFF; }
+
+    /* ── Print Styles ─── */
+    @media print {
+      @page { margin: 0.6in; }
+      body { background: white !important; font-size: 14px; }
+      .container { padding: 0; max-width: 100%; }
+      .guide-header { padding: 30px 0 20px; }
+      .step { break-inside: avoid; background: white !important; }
+      .screenshot-area { display: none; } /* Hide screenshots in print */
+      .section-title { break-after: avoid; }
+      .no-print { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- ═══════════════════════════════════════════ HERO ═══════════════════════════════════════════ -->
+  <div class="hero">
+    <img src="../assets/Perkfinity-Logo.png" alt="Perkfinity" class="logo">
+    <div class="badge">🏪 Part 1 · Merchant Sign-Up · Beta Test Guide</div>
+    <h1>Merchant Sign-Up Tester Guide</h1>
+    <p class="subtitle">Step-by-step instructions for registering a test merchant and generating your QR code sign.</p>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ INFO BOX ═══════════════════════════════════════════ -->
+  <div class="info-box">
+    <h3>👋 Welcome, Tester!</h3>
+    <p>This guide covers <strong>Part 1: Merchant Sign-Up</strong> — registering a test merchant on the Perkfinity website, the same experience a real store owner would go through.</p>
+    <ul>
+      <li>You will sign up as a <strong>Merchant</strong> (store/business owner) and generate a QR code sign</li>
+      <li>The QR code you generate will be used in <strong>Part 2: Member Sign-Up</strong></li>
+      <li>Please report any issues or confusing steps to <strong>hello@perkfinity.net</strong></li>
+    </ul>
+  </div>
+
+  <div class="warning-box">
+    <strong>⚠️ Important:</strong> You will need a <strong>working email address</strong> to complete the Merchant sign-up. Perkfinity sends account confirmations and dashboard access instructions to this email. Use an email you can check during this test.
+  </div>
+
+  <div class="phase-header" style="background:linear-gradient(135deg,#3A2870,#5B3FA5); border-radius:16px; padding:18px 24px; color:white; border:none; margin:8px 0 28px;">
+    <div class="phase-icon" style="background:rgba(255,255,255,0.2); box-shadow:none;">🏪</div>
+    <div>
+      <h2 style="color:white; font-size:20px;">Part 1: Merchant Sign-Up</h2>
+      <p style="color:rgba(255,255,255,0.85);">Register a test merchant and generate your QR code sign — the same experience a real store owner goes through</p>
+    </div>
+  </div>
+
+  <div class="step" style="border: 2px solid var(--purple); background: rgba(91,63,165,0.03);">
+    <div class="step-header">
+      <div class="step-number" style="background:var(--purple);">🎯</div>
+      <div class="step-title">What to Watch For in This Section</div>
+    </div>
+    <p>As you go through the Merchant Sign-Up, please pay attention to these items and note any issues:</p>
+    <ul>
+      <li>☐ <strong>Website Design</strong> — Does the website look professional and trustworthy? Any general comments on colors, layout, or readability?</li>
+      <li>☐ <strong>Form Validation</strong> — Do error messages appear when you try to skip required fields?</li>
+      <li>☐ <strong>Sign-Up Flow</strong> — Are the steps clear and easy to follow? Anything confusing?</li>
+      <li>☐ <strong>Logo Upload</strong> — Does your uploaded logo appear in the center of the QR code on the sign?</li>
+      <li>☐ <strong>QR Sign</strong> — Does the countertop sign display your store name and selected perk correctly?</li>
+      <li>☐ <strong>Dashboard Access</strong> — Can you log in to the Merchant Dashboard using the credentials you created?</li>
+      <li>☐ <strong>Dashboard Profile</strong> — Does your logo and store info appear correctly on the Profile tab?</li>
+    </ul>
+    <p style="font-size:14px; color:var(--muted); margin-top:10px;">📧 Please email any feedback, bugs, or suggestions to <strong>hello@perkfinity.net</strong></p>
+  </div>
+
+  <!-- Pre-step: Go to website -->
+  <div class="step">
+    <div class="step-header">
+      <div class="step-number" style="background:var(--green);">→</div>
+      <div class="step-title">Getting Started</div>
+    </div>
+    <p>Open your web browser and go to <strong><a href="https://perkfinity.net" target="_blank" style="color:var(--purple);">perkfinity.net</a></strong></p>
+    <p>From the top navigation bar, click on <span class="field-label">Merchant Sign Up</span></p>
+    <p>This will take you to the Merchant Form page where you'll complete 5 steps to set up your test store.</p>
+  </div>
+
+  <!-- STEP 1 -->
+  <div class="step">
+    <div class="step-header">
+      <div class="step-number">1</div>
+      <div class="step-title">Step 1: Store/Business Details</div>
+    </div>
+    <p>Fill in the following information about your test store:</p>
+    <ul>
+      <li><span class="field-label">Store/Business Name *</span> — Enter any test name (e.g. "My Test Bakery")</li>
+      <li><span class="field-label">Street Address *</span> — Use any real or test address</li>
+      <li><span class="field-label">Suite / Unit #</span> — Optional</li>
+      <li><span class="field-label">City *</span> — <strong>Use a real city (needed for the search test later)</strong></li>
+      <li><span class="field-label">State *</span> — Select from dropdown</li>
+      <li><span class="field-label">ZIP Code *</span> — <strong>Must be a real, valid 5-digit ZIP code (e.g. 92692). This is required for the merchant search test later.</strong></li>
+      <li><span class="field-label">Contact Name *</span> — Your name</li>
+      <li><span class="field-label">Phone Number *</span> — Format: xxx-xxx-xxxx (auto-formatted as you type)</li>
+      <li><span class="field-label">Email Address *</span> — <strong>Use a real, working email!</strong> This will be your merchant login username</li>
+      <li><span class="field-label">Website</span> — Optional</li>
+    </ul>
+
+    <div class="tip-box">
+      <strong>💡 Initial Sign-Up Perk:</strong> At the bottom of this step, you'll choose your <strong>New Member Perk</strong>. This is the welcome offer that will appear on your countertop QR sign. The default is "15% off purchase over $15" — you can keep this or select another option from the dropdown.
+    </div>
+
+    <p>Click <span class="field-label">Continue to Tier Selection →</span> to proceed.</p>
+
+    <div class="screenshot-area no-print">
+      <img src="tester-guide-assets/step1_top.png" alt="Step 1: Store Details (top)">
+    </div>
+    <div class="screenshot-area no-print">
+      <img src="tester-guide-assets/step1_bottom.png" alt="Step 1: Store Details (bottom)">
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="step">
+    <div class="step-header">
+      <div class="step-number">2</div>
+      <div class="step-title">Step 2: Choose Your Plan</div>
+    </div>
+    <p>Select one of two subscription tiers:</p>
+    <ul>
+      <li>
+        <span class="field-label">Trial Mode</span> (selected by default) — <strong>Free</strong>
+        <br>No payment required until you hit 10 active members. Perfect for testing.
+      </li>
+      <li>
+        <span class="field-label">Tier 1</span> — <strong>$15.99/month</strong>
+        <br>Unlimited digital coupons & weekly newsletter inclusions.
+      </li>
+    </ul>
+
+    <div class="tip-box">
+      <strong>💡 For Testing:</strong> Select <strong>Trial Mode</strong>. You won't be charged anything. The Trial plan automatically converts to Tier 1 when you reach 10 active members.
+    </div>
+
+    <p>Click <span class="field-label">Continue →</span> to proceed.</p>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="step">
+    <div class="step-header">
+      <div class="step-number">3</div>
+      <div class="step-title">Step 3: Create Your Account</div>
+    </div>
+    <p>Your email from Step 1 is automatically used as your <strong>username</strong>. You'll see it displayed at the top of this step.</p>
+    <p>Set your login password:</p>
+    <ul>
+      <li><span class="field-label">Password *</span> — Minimum 8 characters</li>
+      <li><span class="field-label">Confirm Password *</span> — Must match</li>
+    </ul>
+
+    <div class="tip-box" style="margin:14px 0 10px;">
+      <strong>💡 Password Requirements:</strong> Must contain at least 1 uppercase letter, 1 lowercase letter, and 1 number. For example: <code style="background:#f1f5f9;padding:3px 8px;border-radius:5px;">TestPass1</code>
+    </div>
+
+    <div class="warning-box" style="margin:0 0 14px;">
+      <strong>📝 Write Down Your Credentials!</strong> Save your <strong>email (username)</strong> and <strong>password</strong> somewhere safe. You will need them to log in to the Merchant Dashboard later in this test.
+    </div>
+
+    <p>Click <span class="field-label">Create Account & Continue →</span> to proceed. The system will create your merchant account and you'll see a confirmation.</p>
+  </div>
+
+  <!-- STEP 4 -->
+  <div class="step">
+    <div class="step-header">
+      <div class="step-number">4</div>
+      <div class="step-title">Step 4: Connect Bank Account</div>
+    </div>
+    <p>This step collects payment information via <strong>Plaid</strong> (a secure bank connection service).</p>
+
+    <div class="tip-box">
+      <strong>💡 For Testing:</strong> This is currently a <strong>sandbox/simulated</strong> Plaid connection. No real bank account will be connected or charged. Simply click the <span class="field-label">🔗 Connect Bank with Plaid</span> button and wait for the simulated connection to complete.
+    </div>
+
+    <p>If you selected <strong>Trial Mode</strong> in Step 2, you'll see a green notice explaining that you won't be billed until reaching 10 active members.</p>
+    <p>After the Plaid simulation completes, you'll automatically advance to Step 5.</p>
+  </div>
+
+  <!-- STEP 5 -->
+  <div class="step">
+    <div class="step-header">
+      <div class="step-number">5</div>
+      <div class="step-title">Step 5: Customize Your Store/Business</div>
+    </div>
+    <p>Upload your store or business logo (optional). This logo will appear on:</p>
+    <ul>
+      <li>Your Merchant Dashboard</li>
+      <li>The consumer app when members view your store</li>
+      <li>Your printable countertop QR sign (center of QR code)</li>
+    </ul>
+
+    <p>Click <span class="field-label">Choose Image File</span> to select an image (PNG, JPEG, or WebP). You can also change it after selecting by clicking <strong>Change Logo</strong>.</p>
+
+    <div class="warning-box" style="margin:14px 0;">
+      <strong>⚠️ For Testing:</strong> Please <strong>upload any image</strong> as your store logo — even a photo from your camera roll. This is important because we need to verify the logo appears correctly on the dashboard, in the QR sign, and in the consumer app.
+    </div>
+
+    <p>Click <span class="field-label">Finish & Generate Sign →</span> to complete the sign-up.</p>
+  </div>
+
+  <!-- SUCCESS -->
+  <div class="step" style="border-color:var(--green); border-width:2px;">
+    <div class="step-header">
+      <div class="step-number" style="background:var(--green);">✓</div>
+      <div class="step-title" style="color:var(--greenDark);">Sign-Up Complete — Your QR Sign is Ready!</div>
+    </div>
+    <p>🎉 <strong>Congratulations!</strong> You've successfully set up your test merchant account.</p>
+    <p>You should now see your <strong>custom countertop display</strong> with:</p>
+    <ul>
+      <li>The headline "Join Our Perks & Rewards Program!"</li>
+      <li>Your selected perk (e.g. "15% off purchase over $15")</li>
+      <li>A <strong>QR code</strong> that links directly to your store's membership page</li>
+      <li>Your store name at the bottom</li>
+    </ul>
+    <p>Click the <span class="field-label">🖨️ Print Countertop Sign</span> button to print this sign — in a real scenario, the merchant would place this by their register.</p>
+
+    <div class="warning-box" style="margin:14px 0;">
+      <strong>⚠️ Save This Page!</strong> Click <strong>🖨️ Print Countertop Sign</strong> and <strong>Save as PDF</strong> (or print it). You will need the <strong>QR code on this page</strong> for the next part of the test — scanning it with your phone to test the Member (consumer) experience.
+    </div>
+
+    <div class="tip-box">
+      <strong>📱 Next Step:</strong> Use your phone's camera to <strong>scan the QR code</strong> on this sign. This will take you to Part 2 of testing: the <strong>Member (Consumer) Experience</strong>, where you'll download the app, sign up as a customer, and activate the perk.
+    </div>
+  </div>
+
+  <!-- Merchant Dashboard note -->
+  <div class="step" style="background: var(--purpleLight);">
+    <div class="step-header">
+      <div class="step-number" style="background:var(--purpleDark);">📊</div>
+      <div class="step-title">Merchant Dashboard</div>
+    </div>
+    <p>You can access your Merchant Dashboard at any time by going to <strong><a href="https://perkfinity.net/login.html" style="color:var(--purple);">perkfinity.net</a></strong> and clicking <span class="field-label">Merchant Login</span> in the top navigation.</p>
+    <p>Log in using the <strong>email and password</strong> you set in Step 3.</p>
+    <p>From the Dashboard you can:</p>
+    <ul>
+      <li>View your <strong>Member List</strong> (members who scanned your QR code)</li>
+      <li>Update your <strong>Profile</strong> (logo, address, password)</li>
+      <li><strong>Reprint your QR Sign</strong> from the Profile tab</li>
+      <li>Send <strong>Promotional Emails</strong> to your members</li>
+    </ul>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       SUMMARY TABLE
+  ═══════════════════════════════════════════════════════════════ -->
+  <div class="phase-header" style="margin-top:52px;">
+    <div class="phase-icon">📊</div>
+    <div>
+      <h2>Test Summary Checklist</h2>
+      <p>Use this table to record your results for each phase</p>
+    </div>
+  </div>
+
+  <table class="summary-table">
+    <thead>
+      <tr>
+        <th>Phase</th>
+        <th>Step</th>
+        <th>Expected Result</th>
+        <th>Pass / Fail</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>A</strong></td>
+        <td>Merchant Sign-Up Form</td>
+        <td>All fields accepted; form submits without errors</td>
+        <td>☐ Pass&nbsp;&nbsp;☐ Fail</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><strong>A</strong></td>
+        <td>Tier Selection</td>
+        <td>Correct tier selected; pricing shown accurately</td>
+        <td>☐ Pass&nbsp;&nbsp;☐ Fail</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><strong>A</strong></td>
+        <td>Welcome Perk Setup</td>
+        <td>Perk type selected and discount value entered</td>
+        <td>☐ Pass&nbsp;&nbsp;☐ Fail</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><strong>A</strong></td>
+        <td>Store Location</td>
+        <td>Address fields saved and displayed correctly</td>
+        <td>☐ Pass&nbsp;&nbsp;☐ Fail</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><strong>A</strong></td>
+        <td>QR Code Generated</td>
+        <td>Countertop sign shows QR code and store details</td>
+        <td>☐ Pass&nbsp;&nbsp;☐ Fail</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><strong>A</strong></td>
+        <td>QR Code Scan</td>
+        <td>Scanning QR opens the Perkfinity landing page</td>
+        <td>☐ Pass&nbsp;&nbsp;☐ Fail</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><strong>B</strong></td>
+        <td>Merchant Dashboard Login</td>
+        <td>Login succeeds; dashboard loads correctly</td>
+        <td>☐ Pass&nbsp;&nbsp;☐ Fail</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><strong>B</strong></td>
+        <td>Member List</td>
+        <td>Member list visible in the dashboard</td>
+        <td>☐ Pass&nbsp;&nbsp;☐ Fail</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div style="margin:28px 0 0; background:#3A2870; border-radius:14px; padding:18px 24px; display:flex; align-items:center; justify-content:space-between; gap:16px;">
+    <div>
+      <p style="color:#fff; font-weight:700; font-size:15px; margin:0;">🖨️ Need a printable version?</p>
+      <p style="color:rgba(255,255,255,0.8); font-size:13px; margin:4px 0 0;">Open the printer-friendly guide — clean white background, compact layout, no ink waste.</p>
+    </div>
+    <a href="part1-print.html" style="background:#fff; color:#3A2870; font-weight:800; font-size:13px; padding:10px 20px; border-radius:8px; text-decoration:none; white-space:nowrap;">Open Print Version →</a>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ FOOTER ═══════════════════════════════════════════ -->
+  <div style="text-align:center; margin-top:50px; padding:30px 0; border-top:2px solid var(--border); color:var(--muted); font-size:14px;">
+    <img src="../assets/Perkfinity-Logo.png" alt="Perkfinity" style="height:40px; margin-bottom:12px; display:block; margin-left:auto; margin-right:auto;">
+    <p>Questions? Contact <a href="mailto:hello@perkfinity.net" style="color:var(--purple); text-decoration:none; font-weight:600;">hello@perkfinity.net</a></p>
+    <p style="margin-top:6px; font-size:13px;">© 2026 Perkfinity. All rights reserved.</p>
+
+  </div>
+
+  <!-- ═══ PART NAVIGATOR ═══ -->
+  <div style="background:#3A2870;border-radius:16px;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin:32px 0 0;">
+    <span></span>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+      <div style="display:flex;gap:8px;"><div style="width:10px;height:10px;border-radius:50%;background:#fff;"></div><div style="width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,0.35);"></div><div style="width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,0.35);"></div><div style="width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,0.35);"></div></div>
+      <span style="color:rgba(255,255,255,0.85);font-size:12px;font-weight:600;letter-spacing:.3px;">Part 1 of 4</span>
+    </div>
+    <a href="part2.html" style="display:inline-flex;align-items:center;gap:6px;background:#fff;color:#3A2870;padding:8px 16px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:700;">Part 2: Member Sign-Up →</a>
+  </div>
+
+
+
+</div>
+
+</body>
+</html>
+</CodeContent>
+<parameter name="Description">Rebuilt tester guide from scratch for the Merchant section — Perkfinity logo branding, info box, Step 1-5 matching signup flow exactly, white print background, larger fonts, screenshots for web version.

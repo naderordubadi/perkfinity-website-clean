@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="robots" content="noindex, nofollow"/>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Perkfinity — Part 4: Returning Member (Print)</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Inter',sans-serif; font-size:13px; line-height:1.6; color:#111; background:#fff; }
+    .container { max-width:780px; margin:0 auto; padding:24px 28px 48px; }
+    .print-bar { display:flex; justify-content:space-between; align-items:center; padding:12px 0 18px; border-bottom:2px solid #3A2870; margin-bottom:20px; }
+    .print-bar h2 { font-size:15px; color:#3A2870; font-weight:700; }
+    .print-btn { background:#3A2870; color:#fff; border:none; padding:8px 20px; border-radius:8px; font-size:13px; font-weight:700; cursor:pointer; }
+    .print-btn:hover { background:#5B3FA5; }
+    .guide-header { border-left:5px solid #3A2870; padding:10px 16px; margin-bottom:18px; }
+    .guide-header .part-label { font-size:11px; font-weight:700; color:#5B3FA5; letter-spacing:1px; text-transform:uppercase; }
+    .guide-header h1 { font-size:22px; font-weight:900; color:#1F2030; margin:2px 0 4px; }
+    .guide-header .subtitle { font-size:12px; color:#555; }
+    .info-box { border:1.5px solid #5B3FA5; border-radius:8px; padding:10px 14px; margin:12px 0; background:#fff; }
+    .info-box h3 { font-size:13px; font-weight:700; color:#3A2870; margin-bottom:4px; }
+    .info-box ul { padding-left:18px; }
+    .info-box li { margin:2px 0; }
+    .warn { border-left:4px solid #E53E3E; background:#fff; padding:8px 12px; margin:10px 0; border-radius:0 6px 6px 0; font-size:12px; }
+    .tip  { border-left:4px solid #1E7A2E; background:#fff; padding:8px 12px; margin:10px 0; border-radius:0 6px 6px 0; font-size:12px; }
+    .phase { font-size:12px; font-weight:800; color:#3A2870; text-transform:uppercase; letter-spacing:.5px; margin:20px 0 6px; border-bottom:1.5px solid #3A2870; padding-bottom:3px; }
+    .step { margin:10px 0; padding:10px 14px; border:1px solid #ddd; border-radius:6px; }
+    .step-header { display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+    .step-num { background:#3A2870; color:#fff; border-radius:50%; width:22px; height:22px; font-size:11px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .step-title { font-size:13px; font-weight:700; color:#1F2030; }
+    ul, ol { padding-left:20px; }
+    li { margin:2px 0; }
+    .fl { background:#EDE9F6; color:#3A2870; padding:1px 6px; border-radius:4px; font-size:11px; font-weight:600; }
+    .chk-head { font-size:12px; font-weight:800; color:#1F2030; text-transform:uppercase; letter-spacing:.5px; margin:24px 0 6px; border-bottom:1.5px solid #ccc; padding-bottom:3px; }
+    table { width:100%; border-collapse:collapse; font-size:12px; margin-top:6px; }
+    th { background:#3A2870; color:#fff; padding:8px 10px; text-align:left; font-weight:700; }
+    th:first-child { border-radius:6px 0 0 0; }
+    th:last-child  { border-radius:0 6px 0 0; }
+    td { padding:7px 10px; border-bottom:1px solid #e5e7eb; vertical-align:top; }
+    tr:last-child td { border-bottom:none; }
+    tr:nth-child(even) td { background:#fafafa; }
+    td:nth-child(4) { white-space:nowrap; }
+    .footer { text-align:center; margin-top:32px; padding-top:16px; border-top:1px solid #ddd; font-size:11px; color:#6B7280; }
+    @media print {
+      @page { margin:0.55in; size:letter; }
+      body { background:#fff !important; }
+      .print-bar { display:none !important; }
+      .step, .info-box { break-inside:avoid; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <div class="print-bar">
+    <h2>🔄 Part 4: Returning Member — Printer-Friendly Guide</h2>
+    <button class="print-btn" onclick="window.print()">🖨️ Print This Guide</button>
+  </div>
+
+  <div class="guide-header">
+    <div class="part-label">Part 4 · Returning Member · Beta Test Guide</div>
+    <h1>Returning Member Tester Guide</h1>
+    <div class="subtitle">Requires completing Parts 1, 2, and 3 first — run as a separate session</div>
+  </div>
+
+  <div class="info-box">
+    <h3>👋 Welcome back, Tester!</h3>
+    <ul>
+      <li>⚠️ <strong>Complete Parts 1, 2, and 3 before starting this guide.</strong></li>
+      <li>You need an existing consumer account (Part 2) and an active campaign (Part 3)</li>
+      <li>Estimated time: <strong>3–5 minutes</strong></li>
+      <li>Report issues to <strong>hello@perkfinity.net</strong></li>
+    </ul>
+  </div>
+  <div class="warn"><strong>⚠️ Prerequisites:</strong> Have the app installed via TestFlight. Sign out of the app before starting.</div>
+
+  <div class="phase">Phase A — Returning Member Flow</div>
+
+  <div class="step">
+    <div class="step-header"><div class="step-num">A1</div><div class="step-title">Scan the Merchant QR Code &amp; Log In</div></div>
+    <p>Tests whether the app preserves a pending offer when the user logs in after scanning:</p>
+    <ol>
+      <li>Sign out — <strong>Sign Out</strong> button is on the Home screen (top-right)</li>
+      <li>Scan the <strong>same merchant QR code from Part 1</strong> with your iPhone camera</li>
+      <li>On the onboarding slides, tap <strong>Skip</strong> or progress to the auth screen</li>
+      <li>Tap <strong>"Log In"</strong> and enter your email and password</li>
+      <li>Tap <span class="fl">Log In</span></li>
+    </ol>
+    <div class="tip"><strong>💡 Expected:</strong> After logging in, the Home screen immediately shows the pending offer banner.</div>
+  </div>
+
+  <div class="step">
+    <div class="step-header"><div class="step-num">A2</div><div class="step-title">Loading &amp; Offer Detection</div></div>
+    <p>After tapping Log In, watch for:</p>
+    <ul>
+      <li>Log In button changes to <strong>"Please wait…"</strong> (loading feedback)</li>
+      <li>Home screen loads with the pending offer in <strong>Available Perks</strong></li>
+    </ul>
+    <div class="warn"><strong>⚠️ Check:</strong> Pending offer from QR scan appears in Available Perks — confirming QR context was preserved through log-in.</div>
+  </div>
+
+  <div class="step">
+    <div class="step-header"><div class="step-num">A3</div><div class="step-title">Offer Expiration &amp; Status Sync</div></div>
+    <ol>
+      <li><strong>Note how many offers are listed</strong> in Available Perks before proceeding</li>
+      <li>Tap your pending offer to open the details view</li>
+      <li>Tap <span class="fl">Activate Offer</span></li>
+      <li>The <strong>5-minute countdown</strong> begins — let it run out entirely (don't tap Done)</li>
+      <li>Once expired, <strong>check the app first:</strong>
+        <ul>
+          <li>Tap <strong>History</strong> tab → confirm offer shows as <em>Expired</em></li>
+          <li>Return to <strong>Home screen</strong> → confirm available offer count went down by 1</li>
+        </ul>
+      </li>
+      <li>Open <strong>Merchant Dashboard</strong> on computer → navigate to <strong>Member List</strong> → confirm status shows <em>Expired</em></li>
+    </ol>
+  </div>
+
+  <div class="step">
+    <div class="step-header"><div class="step-num">A4</div><div class="step-title">Cancellation &amp; Status Reversal</div></div>
+    <ol>
+      <li>Get to a pending offer:
+        <ul>
+          <li><strong>If logged in</strong> — go to Home screen; pending offers are already listed</li>
+          <li><strong>If not logged in</strong> — scan the merchant QR code and log in</li>
+        </ul>
+      </li>
+      <li>Tap the offer → tap <span class="fl">Activate Offer</span> to start the timer</li>
+      <li>After a couple of seconds, tap <strong>Done</strong> or <strong>Cancel</strong></li>
+    </ol>
+    <div class="warn"><strong>⚠️ Check:</strong> Offer should revert to Available Perks — ensuring accidental activations can be undone.</div>
+  </div>
+
+  <div class="step">
+    <div class="step-header"><div class="step-num">A5</div><div class="step-title">Background Interruption</div></div>
+    <ol>
+      <li>Get to a pending offer:
+        <ul>
+          <li><strong>If logged in</strong> — go to Home screen; pending offers are already listed</li>
+          <li><strong>If not logged in</strong> — scan the merchant QR code and log in</li>
+        </ul>
+      </li>
+      <li>Tap the offer → tap <span class="fl">Activate Offer</span> to start the timer</li>
+      <li>While the timer is counting down, tap the <strong>Profile</strong> tab or navigate away</li>
+      <li>Return to the Home screen</li>
+    </ol>
+    <div class="tip"><strong>💡 Expected:</strong> App safely catches the interruption and reverts the offer to "Pending" state.</div>
+  </div>
+
+  <div class="chk-head">📋 Test Summary Checklist</div>
+  <table>
+    <thead><tr><th>Phase</th><th>Step</th><th>Expected Result</th><th>Pass / Fail</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td><strong>A1</strong></td><td>QR Scan → Log In</td><td>Existing user recognized; log-in prompt with QR context preserved</td><td>☐ Pass &nbsp; ☐ Fail</td><td></td></tr>
+      <tr><td><strong>A2</strong></td><td>Offer Available After Login</td><td>Pending offer appears on Home screen after logging in</td><td>☐ Pass &nbsp; ☐ Fail</td><td></td></tr>
+      <tr><td><strong>A2</strong></td><td>Activate Offer</td><td>5-minute countdown timer starts; redemption code displays</td><td>☐ Pass &nbsp; ☐ Fail</td><td></td></tr>
+      <tr><td><strong>A3</strong></td><td>Offer Expiration</td><td>History tab: Expired; Home count drops by 1; Member List: Expired</td><td>☐ Pass &nbsp; ☐ Fail</td><td></td></tr>
+      <tr><td><strong>A4</strong></td><td>Cancellation &amp; Reversal</td><td>Offer reverts to Available Perks after cancel</td><td>☐ Pass &nbsp; ☐ Fail</td><td></td></tr>
+      <tr><td><strong>A5</strong></td><td>Background Interruption</td><td>Offer reverts to Pending after navigating away mid-timer</td><td>☐ Pass &nbsp; ☐ Fail</td><td></td></tr>
+    </tbody>
+  </table>
+
+  <div class="footer">
+    <p>Questions or bugs? <strong>hello@perkfinity.net</strong> &nbsp;|&nbsp; © 2026 Perkfinity</p>
+  </div>
+
+</div>
+</body>
+</html>
