@@ -1456,6 +1456,7 @@
                 let ts_raw = null;
                 if (p.status === 'Redeemed' && p.redeemed_at) ts_raw = new Date(p.redeemed_at);
                 else if (p.status === 'Expired' && p.expires_at) ts_raw = new Date(p.expires_at);
+                else if (p.status === 'Created' && p.issued_at) ts_raw = new Date(p.issued_at);
                 _membersRaw.push({ member_id: m.user_id, city: m.city || '', zip_code: m.zip_code || '', total, campaign_title: p.campaign_title || 'Promo', status: p.status || 'Pending', ts_raw, ts_display: ts_raw ? _fmtTs(ts_raw.toISOString()) : '-' });
               });
             }
