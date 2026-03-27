@@ -329,12 +329,25 @@
       <!-- STEP 4: Delivery -->
       <div id="promo-s4" class="promo-step" style="display:none;">
         <p style="color:var(--muted); font-size:14px; margin-bottom:20px;">How should we deliver this promotion?</p>
-        <div style="display:grid; grid-template-columns:1fr; max-width:280px; gap:14px; margin-bottom:24px;">
-          <div class="promo-delivery-card" onclick="selectPromoDelivery(this,'email')" style="border:2px solid var(--purpleDark); border-radius:14px; padding:22px 14px; cursor:pointer; text-align:center; transition:all 0.2s; background:rgba(91,63,165,0.06);">
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; max-width:520px; gap:14px; margin-bottom:14px;">
+          <div class="promo-delivery-card" onclick="selectPromoDelivery(this,'email')" style="border:2px solid var(--border); border-radius:14px; padding:22px 14px; cursor:pointer; text-align:center; transition:all 0.2s;">
             <div style="font-size:32px; margin-bottom:10px;">&#128231;</div>
-            <div style="font-weight:700; font-size:14px; color:var(--ink);">Email</div>
-            <div style="font-size:11px; color:var(--muted); margin-top:4px;">Rich layout with logo and address</div>
+            <div style="font-weight:700; font-size:14px; color:var(--ink);">Email Only</div>
+            <div style="font-size:11px; color:var(--muted); margin-top:4px;">Rich layout with logo</div>
           </div>
+          <div class="promo-delivery-card" onclick="selectPromoDelivery(this,'push')" style="border:2px solid var(--border); border-radius:14px; padding:22px 14px; cursor:pointer; text-align:center; transition:all 0.2s;">
+            <div style="font-size:32px; margin-bottom:10px;">&#128276;</div>
+            <div style="font-weight:700; font-size:14px; color:var(--ink);">Push Only</div>
+            <div style="font-size:11px; color:var(--muted); margin-top:4px;">Lock screen notification</div>
+          </div>
+          <div class="promo-delivery-card" onclick="selectPromoDelivery(this,'both')" style="border:2px solid var(--border); border-radius:14px; padding:22px 14px; cursor:pointer; text-align:center; transition:all 0.2s;">
+            <div style="font-size:32px; margin-bottom:10px;">&#128231;&#128276;</div>
+            <div style="font-weight:700; font-size:14px; color:var(--ink);">Email + Push</div>
+            <div style="font-size:11px; color:var(--muted); margin-top:4px;">Maximum reach</div>
+          </div>
+        </div>
+        <div style="background:rgba(107,193,122,0.08); border:1px solid rgba(107,193,122,0.25); border-radius:10px; padding:10px 16px; margin-bottom:20px; max-width:520px;">
+          <p style="font-size:12px; color:#1a6b2b; margin:0;">&#128337; Notifications are batched into a <strong>daily digest</strong> and delivered at <strong>9:00 AM PST</strong> to avoid overwhelming your members.</p>
         </div>
         <div id="promoDeliveryErr" style="color:red;font-size:13px;display:none;margin-bottom:10px;">Please select a delivery method.</div>
         <div style="display:flex; gap:12px; justify-content:flex-end;">
@@ -406,6 +419,24 @@
           </div>
         </div>
 
+        <!-- Push Notification Preview -->
+        <div id="promo-push-preview-wrap" style="display:none;">
+          <h4 style="margin:0 0 10px; color:var(--purpleDark); font-size:14px;">&#128276; Push Notification Preview</h4>
+          <div style="max-width:360px; background:#f5f5f5; border-radius:20px; padding:16px; margin-bottom:20px; border:1.5px solid var(--border);">
+            <div style="display:flex; align-items:flex-start; gap:10px;">
+              <img src="assets/Perkfinity-Logo-Icon.png" onerror="this.src='assets/Perkfinity-Logo.png'" alt="Perkfinity" style="width:36px;height:36px;border-radius:8px;flex-shrink:0;background:#fff;padding:2px;">
+              <div style="flex:1;min-width:0;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:3px;">
+                  <span style="font-size:12px; font-weight:700; color:#1a1a2e;">PERKFINITY</span>
+                  <span style="font-size:11px; color:#999;">now</span>
+                </div>
+                <div id="promo-push-title" style="font-size:13px; font-weight:600; color:#1a1a2e; margin-bottom:2px;"></div>
+                <div id="promo-push-body" style="font-size:12px; color:#666; line-height:1.3;"></div>
+              </div>
+            </div>
+          </div>
+          <p style="font-size:11px; color:var(--muted); margin-top:-10px; margin-bottom:20px;">&#128337; Delivered as part of daily digest at 9:00 AM PST</p>
+        </div>
 
 
         <!-- Summary -->
@@ -851,8 +882,18 @@
       const condLine  = buildPromoCondLine();
       const expiryStr = expiry ? `Offer expires: ${new Date(expiry + 'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}` : '';
 
-      // Always show email preview (SMS removed)
-      document.getElementById('promo-email-preview-wrap').style.display = 'block';
+      // Show/hide previews based on delivery channel
+      const showEmail = _promoDelivery === 'email' || _promoDelivery === 'both';
+      const showPush = _promoDelivery === 'push' || _promoDelivery === 'both';
+      document.getElementById('promo-email-preview-wrap').style.display = showEmail ? 'block' : 'none';
+      document.getElementById('promo-push-preview-wrap').style.display = showPush ? 'block' : 'none';
+
+      // Populate push preview
+      if (showPush) {
+        const isAnnouncement = _promoType === 'announcement';
+        document.getElementById('promo-push-title').innerText = isAnnouncement ? `📢 ${headline} — ${storeName}` : `🎉 ${headline} — ${storeName}`;
+        document.getElementById('promo-push-body').innerText = condLine || headline;
+      }
 
       // Common email fields
       document.getElementById('promo-email-store-name').innerText = storeName;
@@ -882,7 +923,7 @@
       // Summary
       const typeLabels = {percent:'Percentage Off', dollar:'Dollar Off', bogo:'Buy One Get One', freeitem:'Free Item', loyalty:'Loyalty Reward', flash:'Flash Sale', announcement:'Announcement'};
       const audLabels  = {all:'All Members', redeemed_30:'Redeemed (30d)', expired_30:'Expired (30d)', never_redeemed:'Never Redeemed', redeemed_90:'Redeemed (90d)'};
-      const delLabels  = {email:'Email'};
+      const delLabels  = {email:'Email Only', push:'Push Only', both:'Email + Push'};
       document.getElementById('sum-type').innerText = typeLabels[_promoType] || '';
       document.getElementById('sum-delivery').innerText = delLabels[_promoDelivery] || '';
       document.getElementById('sum-audience').innerText = audLabels[_promoAud] || '';
@@ -910,6 +951,7 @@
           ? (document.getElementById('promo-announce-body').value || '')
           : condLine,
         delivery: _promoDelivery,
+        delivery_channel: _promoDelivery,
         audience: _promoAud,
         expires_at: expiry ? new Date(expiry + 'T23:59:59').toISOString() : null,
       };

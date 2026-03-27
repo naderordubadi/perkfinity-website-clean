@@ -69,7 +69,7 @@
         <div class="form-row">
           <label style="display:flex; justify-content:space-between;">
             Password 
-            <a href="#" style="font-weight:normal; font-size:13px; color:var(--purple); text-decoration:none;">Forgot password?</a>
+            <a href="#" onclick="handleForgotPassword(event)" style="font-weight:normal; font-size:13px; color:var(--purple); text-decoration:none;">Forgot password?</a>
           </label>
           <div style="position:relative">
             <input type="password" id="password" placeholder="Enter your password" required style="padding-right:45px;width:100%;box-sizing:border-box;">
@@ -98,6 +98,53 @@
       } else {
         input.type = 'password';
         icon.innerText = '👁️';
+      }
+    }
+
+    async function handleForgotPassword(e) {
+      e.preventDefault();
+      const email = document.getElementById('email').value.trim();
+      const errorBox = document.getElementById('loginError');
+
+      if (!email) {
+        errorBox.style.background = 'rgba(220,53,69,0.1)';
+        errorBox.style.color = '#dc3545';
+        errorBox.innerText = 'Please enter your email address first to reset your password.';
+        errorBox.style.display = 'block';
+        document.getElementById('email').focus();
+        return;
+      }
+
+      errorBox.style.display = 'none';
+      const submitBtn = document.getElementById('submitBtn');
+      const originalText = submitBtn.innerText;
+      submitBtn.innerText = 'Sending link...';
+      submitBtn.disabled = true;
+
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/v1/merchants/forgot-password`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+        
+        const data = await res.json();
+        if (res.ok && data.success) {
+          errorBox.style.background = 'rgba(40, 167, 69, 0.1)';
+          errorBox.style.color = '#28a745';
+          errorBox.innerText = data.message;
+          errorBox.style.display = 'block';
+        } else {
+          throw new Error(data.error || 'Failed to send reset link');
+        }
+      } catch (err) {
+        errorBox.style.background = 'rgba(220,53,69,0.1)';
+        errorBox.style.color = '#dc3545';
+        errorBox.innerText = err.message || "Something went wrong.";
+        errorBox.style.display = 'block';
+      } finally {
+        submitBtn.innerText = originalText;
+        submitBtn.disabled = false;
       }
     }
 
