@@ -115,6 +115,16 @@
         return;
       }
 
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        errorBox.style.background = 'rgba(220,53,69,0.1)';
+        errorBox.style.color = '#dc3545';
+        errorBox.innerText = 'Please enter a valid email address (e.g. name@example.com).';
+        errorBox.style.display = 'block';
+        document.getElementById('email').focus();
+        return;
+      }
+
       errorBox.style.display = 'none';
       const submitBtn = document.getElementById('submitBtn');
       const originalText = submitBtn.innerText;

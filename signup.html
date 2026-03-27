@@ -109,10 +109,31 @@
                 <label>New Member Perk *
                   <select id="member_perk"
                     style="border:1.5px solid var(--border);border-radius:12px;padding:12px 16px;background:#fff;color:var(--ink);font-size:15px;width:100%;outline:none;font-family:inherit;">
-                    <option value="15% OFF your next purchase">15% OFF your next purchase</option>
-                    <option value="15% off purchase over $15" selected>15% off purchase over $15</option>
-                    <option value="Free Drink with Purchase">Free Drink with Purchase</option>
-                    <option value="Buy One Get One Free">Buy One Get One Free</option>
+                    <optgroup label="Percentage Discounts">
+                      <option value="10% off your first purchase" selected>10% off your first purchase</option>
+                      <option value="5% off orders over $15">5% off orders over $15</option>
+                      <option value="10% off orders over $25">10% off orders over $25</option>
+                      <option value="15% off orders over $50">15% off orders over $50</option>
+                      <option value="20% off orders over $100">20% off orders over $100</option>
+                    </optgroup>
+                    <optgroup label="Dollar-Off Deals">
+                      <option value="$5 off any purchase over $15">$5 off any purchase over $15</option>
+                      <option value="$5 off any purchase over $25">$5 off any purchase over $25</option>
+                      <option value="$10 off any purchase over $30">$10 off any purchase over $30</option>
+                      <option value="$10 off any purchase over $50">$10 off any purchase over $50</option>
+                      <option value="$15 off any purchase over $50">$15 off any purchase over $50</option>
+                    </optgroup>
+                    <optgroup label="Free Items / BOGO">
+                      <option value="Free drink with any purchase">Free drink with any purchase</option>
+                      <option value="Free appetizer with any entrée">Free appetizer with any entrée</option>
+                      <option value="Buy one, get one free">Buy one, get one free</option>
+                      <option value="Free dessert with your meal">Free dessert with your meal</option>
+                    </optgroup>
+                    <optgroup label="Service-Based">
+                      <option value="Free consultation or first session">Free consultation or first session</option>
+                      <option value="Complimentary add-on service">Complimentary add-on service</option>
+                      <option value="Free upgrade on your first visit">Free upgrade on your first visit</option>
+                    </optgroup>
                   </select>
                 </label>
               </div>
