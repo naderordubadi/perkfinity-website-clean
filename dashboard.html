@@ -432,6 +432,7 @@
                 </div>
                 <div id="promo-push-title" style="font-size:13px; font-weight:600; color:#1a1a2e; margin-bottom:2px;"></div>
                 <div id="promo-push-body" style="font-size:12px; color:#666; line-height:1.3;"></div>
+                <div id="promo-push-address" style="font-size:11px; color:#aaa; margin-top:3px;"></div>
               </div>
             </div>
           </div>
@@ -893,6 +894,8 @@
         const isAnnouncement = _promoType === 'announcement';
         document.getElementById('promo-push-title').innerText = isAnnouncement ? `📢 ${headline} — ${storeName}` : `🎉 ${headline} — ${storeName}`;
         document.getElementById('promo-push-body').innerText = condLine || headline;
+        const pushAddr = localStorage.getItem('perkfinity_address') || '';
+        document.getElementById('promo-push-address').innerText = pushAddr ? '📍 ' + pushAddr : '';
       }
 
       // Common email fields
