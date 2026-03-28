@@ -1,0 +1,1023 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Perkfinity — Admin Dashboard</title>
+  <!-- Block search engines -->
+  <meta name="robots" content="noindex, nofollow"/>
+  <link rel="icon" href="../assets/Perkfinity-App-Icon.png"/>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #0F172A;
+      --bgCard: rgba(255,255,255,0.04);
+      --bgCardHover: rgba(255,255,255,0.07);
+      --border: rgba(255,255,255,0.08);
+      --borderLight: rgba(255,255,255,0.12);
+      --purple: #8B5CF6;
+      --purpleDark: #5B3FA5;
+      --green: #6BC17A;
+      --greenDark: #3B9A52;
+      --red: #EF4444;
+      --amber: #F59E0B;
+      --text: #fff;
+      --muted: rgba(255,255,255,0.5);
+      --mutedLight: rgba(255,255,255,0.35);
+      --radius: 14px;
+    }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:'Outfit',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+    a { color:var(--purple); text-decoration:none; }
+
+    /* Layout */
+    .admin-layout { display:flex; min-height:100vh; }
+    .sidebar {
+      width:250px; background:rgba(0,0,0,0.35); border-right:1px solid var(--border);
+      padding:24px 0; display:flex; flex-direction:column; position:fixed; top:0; bottom:0; z-index:100;
+    }
+    .sidebar-logo {
+      display:flex; align-items:center; gap:10px; padding:0 20px; margin-bottom:32px;
+    }
+    .sidebar-logo img { height:28px; border-radius:6px; }
+    .sidebar-logo span { font-size:16px; font-weight:800; background:linear-gradient(135deg,var(--purple),var(--green)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+    .sidebar-badge { font-size:10px; font-weight:700; background:rgba(139,92,246,0.2); color:var(--purple); padding:2px 8px; border-radius:6px; margin-left:4px; }
+
+    .nav-section { font-size:10px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--mutedLight); padding:0 20px; margin:20px 0 8px; }
+    .nav-item {
+      display:flex; align-items:center; gap:10px; padding:10px 20px; font-size:14px; font-weight:600;
+      color:var(--muted); cursor:pointer; transition:all 0.2s; border-left:3px solid transparent;
+    }
+    .nav-item:hover { background:rgba(255,255,255,0.04); color:#fff; }
+    .nav-item.active { background:rgba(139,92,246,0.1); color:var(--purple); border-left-color:var(--purple); }
+    .nav-item .icon { font-size:16px; width:20px; text-align:center; }
+
+    .main-content { flex:1; margin-left:250px; padding:28px 32px; }
+
+    /* Page Header */
+    .page-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; }
+    .page-title { font-size:22px; font-weight:800; }
+    .page-subtitle { font-size:13px; color:var(--muted); margin-top:2px; }
+
+    /* Stat Cards */
+    .stat-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:14px; margin-bottom:28px; }
+    .stat-card {
+      background:var(--bgCard); border:1px solid var(--border); border-radius:var(--radius);
+      padding:18px 20px; transition:all 0.2s;
+    }
+    .stat-card:hover { background:var(--bgCardHover); border-color:var(--borderLight); }
+    .stat-value { font-size:26px; font-weight:800; margin-bottom:2px; }
+    .stat-value.green { color:var(--green); }
+    .stat-value.purple { color:var(--purple); }
+    .stat-value.amber { color:var(--amber); }
+    .stat-value.red { color:var(--red); }
+    .stat-label { font-size:11px; color:var(--muted); font-weight:600; text-transform:uppercase; letter-spacing:0.5px; }
+    .stat-change { font-size:11px; color:var(--green); font-weight:600; margin-top:4px; }
+    .stat-change.negative { color:var(--red); }
+
+    /* Toolbar */
+    .toolbar {
+      display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:16px;
+      padding:12px 16px; background:var(--bgCard); border:1px solid var(--border); border-radius:var(--radius);
+    }
+    .toolbar-search {
+      flex:1; min-width:180px; padding:8px 14px; background:rgba(255,255,255,0.06);
+      border:1px solid var(--border); border-radius:10px; color:#fff; font-size:13px;
+      font-family:'Outfit',sans-serif; outline:none;
+    }
+    .toolbar-search:focus { border-color:var(--purple); }
+    .toolbar-search::placeholder { color:var(--mutedLight); }
+    .toolbar-select {
+      padding:8px 12px; background:rgba(255,255,255,0.06); border:1px solid var(--border);
+      border-radius:10px; color:#fff; font-size:13px; font-family:'Outfit',sans-serif;
+      outline:none; cursor:pointer;
+    }
+    .toolbar-select option { background:#1E293B; color:#fff; }
+    .toolbar-btn {
+      padding:8px 16px; border-radius:10px; border:1px solid var(--border);
+      background:rgba(255,255,255,0.06); color:#fff; font-size:13px; font-weight:600;
+      cursor:pointer; font-family:'Outfit',sans-serif; transition:all 0.2s; display:flex; align-items:center; gap:5px;
+    }
+    .toolbar-btn:hover { background:rgba(255,255,255,0.1); border-color:var(--borderLight); }
+    .toolbar-btn.primary { background:linear-gradient(135deg,var(--purple),#6D28D9); border-color:transparent; }
+    .toolbar-btn.primary:hover { opacity:0.9; }
+    .toolbar-btn.green { background:rgba(107,193,122,0.15); border-color:rgba(107,193,122,0.3); color:var(--green); }
+
+    /* Data Table */
+    .table-wrap {
+      background:var(--bgCard); border:1px solid var(--border); border-radius:var(--radius);
+      overflow:hidden;
+    }
+    .data-table { width:100%; border-collapse:collapse; }
+    .data-table th {
+      text-align:left; padding:12px 16px; font-size:11px; color:var(--muted);
+      border-bottom:1px solid var(--border); font-weight:700; text-transform:uppercase;
+      letter-spacing:0.5px; cursor:pointer; user-select:none; white-space:nowrap;
+    }
+    .data-table th:hover { color:#fff; }
+    .data-table th .sort-arrow { font-size:10px; margin-left:4px; opacity:0.5; }
+    .data-table th.sorted .sort-arrow { opacity:1; color:var(--purple); }
+    .data-table td {
+      padding:12px 16px; font-size:13px; border-bottom:1px solid var(--border);
+      white-space:nowrap; max-width:200px; overflow:hidden; text-overflow:ellipsis;
+    }
+    .data-table tr:hover td { background:rgba(255,255,255,0.02); }
+    .data-table tr:last-child td { border-bottom:none; }
+
+    /* Badges */
+    .badge {
+      display:inline-block; padding:3px 10px; border-radius:8px; font-size:11px; font-weight:700;
+    }
+    .badge.active { background:rgba(107,193,122,0.15); color:var(--green); }
+    .badge.inactive { background:rgba(239,68,68,0.15); color:var(--red); }
+    .badge.pending { background:rgba(245,158,11,0.15); color:var(--amber); }
+    .badge.free { background:rgba(255,255,255,0.08); color:var(--muted); }
+    .badge.tier1 { background:rgba(139,92,246,0.15); color:var(--purple); }
+
+    /* Section Cards */
+    .section-card {
+      background:var(--bgCard); border:1px solid var(--border); border-radius:var(--radius);
+      padding:24px; margin-bottom:24px;
+    }
+    .section-title { font-size:15px; font-weight:700; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
+
+    /* Tab Content */
+    .tab-content { display:none; }
+    .tab-content.active { display:block; }
+
+    /* Pagination */
+    .pagination {
+      display:flex; justify-content:space-between; align-items:center;
+      padding:12px 16px; border-top:1px solid var(--border);
+    }
+    .pagination-info { font-size:12px; color:var(--muted); }
+    .pagination-btns { display:flex; gap:6px; }
+    .page-btn {
+      padding:6px 12px; border-radius:8px; border:1px solid var(--border);
+      background:transparent; color:var(--muted); font-size:12px; font-weight:600;
+      cursor:pointer; font-family:'Outfit',sans-serif;
+    }
+    .page-btn:hover { background:rgba(255,255,255,0.06); color:#fff; }
+    .page-btn.active { background:rgba(139,92,246,0.15); color:var(--purple); border-color:rgba(139,92,246,0.3); }
+
+    /* Announcement Form */
+    .form-group { margin-bottom:14px; }
+    .form-label { font-size:12px; font-weight:600; color:var(--muted); margin-bottom:6px; display:block; }
+    .form-input, .form-textarea, .form-select-lg {
+      width:100%; padding:10px 14px; background:rgba(255,255,255,0.06); border:1px solid var(--border);
+      border-radius:10px; color:#fff; font-size:14px; font-family:'Outfit',sans-serif; outline:none;
+    }
+    .form-input:focus, .form-textarea:focus { border-color:var(--purple); }
+    .form-textarea { resize:vertical; min-height:120px; }
+
+    /* Loading */
+    .loading-spinner {
+      display:inline-block; width:16px; height:16px; border:2px solid rgba(255,255,255,0.2);
+      border-top-color:var(--purple); border-radius:50%; animation:spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    /* Toast */
+    .toast {
+      position:fixed; bottom:24px; right:24px; padding:12px 20px; border-radius:12px;
+      background:#1E293B; border:1px solid var(--border); font-size:13px; font-weight:600;
+      z-index:9999; transform:translateY(100px); opacity:0; transition:all 0.3s ease;
+    }
+    .toast.show { transform:translateY(0); opacity:1; }
+    .toast.success { border-color:rgba(107,193,122,0.3); color:var(--green); }
+
+    /* Chart placeholder */
+    .chart-placeholder {
+      height:200px; border-radius:12px; background:rgba(255,255,255,0.02);
+      border:1px dashed var(--border); display:flex; align-items:center; justify-content:center;
+      color:var(--mutedLight); font-size:13px;
+    }
+
+    /* Login Overlay */
+    .login-overlay {
+      position:fixed; inset:0; z-index:9999;
+      background:linear-gradient(160deg, #0F172A 0%, #1E1B4B 60%, #0F2318 100%);
+      display:flex; align-items:center; justify-content:center;
+      font-family:'Outfit',sans-serif;
+    }
+    .login-overlay.hidden { display:none; }
+    .login-box {
+      background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1);
+      border-radius:20px; padding:40px; width:100%; max-width:400px;
+      text-align:center;
+    }
+    .login-box img { height:36px; border-radius:8px; margin-bottom:8px; }
+    .login-box h1 {
+      font-size:22px; font-weight:800; color:#fff; margin:0 0 4px;
+      background:linear-gradient(135deg,var(--purple),var(--green));
+      -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+    }
+    .login-box h1 span { font-size:10px; font-weight:700; background:rgba(139,92,246,0.2); color:var(--purple); padding:2px 8px; border-radius:6px; margin-left:6px; -webkit-text-fill-color:var(--purple); }
+    .login-box p { font-size:13px; color:rgba(255,255,255,0.45); margin:0 0 28px; }
+    .login-field {
+      width:100%; padding:13px 16px; background:rgba(255,255,255,0.06);
+      border:1px solid rgba(255,255,255,0.1); border-radius:12px; color:#fff;
+      font-size:14px; font-family:'Outfit',sans-serif; outline:none;
+      margin-bottom:14px; box-sizing:border-box;
+    }
+    .login-field:focus { border-color:var(--purple); }
+    .login-field::placeholder { color:rgba(255,255,255,0.3); }
+    .login-btn {
+      width:100%; padding:14px; border:none; border-radius:12px;
+      background:linear-gradient(135deg,#8B5CF6,#6D28D9); color:#fff;
+      font-size:15px; font-weight:700; cursor:pointer; font-family:'Outfit',sans-serif;
+      box-shadow:0 8px 24px rgba(109,40,217,0.3); transition:opacity 0.2s;
+    }
+    .login-btn:hover { opacity:0.9; }
+    .login-error {
+      color:var(--red); font-size:13px; font-weight:600; margin-bottom:14px;
+      display:none;
+    }
+
+    /* Responsive */
+    @media (max-width:768px) {
+      .sidebar { display:none; }
+      .main-content { margin-left:0; padding:20px 16px; }
+      .stat-grid { grid-template-columns:repeat(2,1fr); }
+    }
+  </style>
+</head>
+<body>
+  <!-- Login Gate -->
+  <div class="login-overlay" id="loginOverlay">
+    <div class="login-box">
+      <img src="../assets/Perkfinity-App-Icon.png" alt="Perkfinity"/>
+      <h1>Perkfinity <span>ADMIN</span></h1>
+      <p>Sign in to access the admin dashboard</p>
+      <div class="login-error" id="loginError">Invalid email or password</div>
+      <input type="email" class="login-field" id="adminEmail" placeholder="Email address" autocomplete="email"/>
+      <input type="password" class="login-field" id="adminPassword" placeholder="Password" autocomplete="current-password"
+        onkeydown="if(event.key==='Enter') adminLogin()"/>
+      <button class="login-btn" onclick="adminLogin()">Sign In</button>
+    </div>
+  </div>
+
+  <div class="admin-layout" id="adminLayout" style="display:none;">
+    <!-- Sidebar -->
+    <nav class="sidebar">
+      <div class="sidebar-logo">
+        <img src="../assets/Perkfinity-App-Icon.png" alt="Perkfinity"/>
+        <span>Perkfinity</span>
+        <span class="sidebar-badge">ADMIN</span>
+      </div>
+
+      <div class="nav-section">Overview</div>
+      <div class="nav-item active" onclick="showTab('overview')">
+        <span class="icon">📊</span> Dashboard
+      </div>
+
+      <div class="nav-section">Data</div>
+      <div class="nav-item" onclick="showTab('merchants')">
+        <span class="icon">🏪</span> Merchants
+      </div>
+      <div class="nav-item" onclick="showTab('members')">
+        <span class="icon">👥</span> Members
+      </div>
+      <div class="nav-item" onclick="showTab('campaigns')">
+        <span class="icon">🎯</span> Campaigns
+      </div>
+
+      <div class="nav-section">Finance</div>
+      <div class="nav-item" onclick="showTab('billing')">
+        <span class="icon">💳</span> Billing & Revenue
+      </div>
+
+      <div class="nav-section">Communicate</div>
+      <div class="nav-item" onclick="showTab('announcements')">
+        <span class="icon">📢</span> Announcements
+      </div>
+
+      <div style="flex:1;"></div>
+      <div style="padding:16px 20px; font-size:11px; color:var(--mutedLight);">
+        Perkfinity Admin v1.0<br/>
+        <span id="admin-time"></span>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+
+      <!-- ═══════════════════════════════════════════════════════════ -->
+      <!-- OVERVIEW TAB                                               -->
+      <!-- ═══════════════════════════════════════════════════════════ -->
+      <div id="tab-overview" class="tab-content active">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Dashboard Overview</div>
+            <div class="page-subtitle">Real-time Perkfinity platform metrics</div>
+          </div>
+          <button class="toolbar-btn" onclick="loadAllData()">
+            <span class="loading-spinner" id="refresh-spinner" style="display:none;"></span>
+            🔄 Refresh All
+          </button>
+        </div>
+
+        <div class="stat-grid">
+          <div class="stat-card">
+            <div class="stat-value green" id="ov-merchants">—</div>
+            <div class="stat-label">Active Merchants</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value purple" id="ov-members">—</div>
+            <div class="stat-label">Total Members</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value amber" id="ov-campaigns">—</div>
+            <div class="stat-label">Active Campaigns</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value green" id="ov-mrr">$0</div>
+            <div class="stat-label">Monthly Revenue (MRR)</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value purple" id="ov-push">—</div>
+            <div class="stat-label">Push-Enabled Members</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value amber" id="ov-redemptions">—</div>
+            <div class="stat-label">Total Redemptions</div>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+          <div class="section-card">
+            <div class="section-title">📈 Member Growth (Last 12 Months)</div>
+            <div class="chart-placeholder" id="chart-members">Loading chart data...</div>
+          </div>
+          <div class="section-card">
+            <div class="section-title">🏪 Merchant Signups (Last 12 Months)</div>
+            <div class="chart-placeholder" id="chart-merchants">Loading chart data...</div>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="section-title">🏆 Top Merchants by Members</div>
+          <table class="data-table">
+            <thead><tr><th>Business</th><th>Members</th><th>Campaigns</th><th>Redeemed</th><th>Tier</th></tr></thead>
+            <tbody id="ov-top-merchants"><tr><td colspan="5" style="color:var(--muted);">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════════════════════════ -->
+      <!-- MERCHANTS TAB                                              -->
+      <!-- ═══════════════════════════════════════════════════════════ -->
+      <div id="tab-merchants" class="tab-content">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Merchants</div>
+            <div class="page-subtitle">All registered merchants on the platform</div>
+          </div>
+        </div>
+
+        <div class="toolbar">
+          <input type="text" class="toolbar-search" id="merchant-search" placeholder="Search by name, email, city..." oninput="filterTable('merchants')"/>
+          <select class="toolbar-select" id="merchant-filter-status" onchange="filterTable('merchants')">
+            <option value="">All Status</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+            <option value="pending">Pending</option>
+          </select>
+          <select class="toolbar-select" id="merchant-filter-tier" onchange="filterTable('merchants')">
+            <option value="">All Tiers</option>
+            <option value="free">Free</option>
+            <option value="tier1">Tier 1</option>
+          </select>
+          <div style="flex:1;"></div>
+          <button class="toolbar-btn green" onclick="exportData('merchants','csv')">📄 CSV</button>
+          <button class="toolbar-btn" onclick="exportData('merchants','txt')">📋 TXT</button>
+        </div>
+
+        <div class="table-wrap">
+          <table class="data-table" id="merchants-table">
+            <thead>
+              <tr>
+                <th onclick="sortTable('merchants','business_name')">Business <span class="sort-arrow">▲</span></th>
+                <th onclick="sortTable('merchants','contact_email')">Email <span class="sort-arrow">▲</span></th>
+                <th onclick="sortTable('merchants','city')">City <span class="sort-arrow">▲</span></th>
+                <th onclick="sortTable('merchants','tier')">Tier <span class="sort-arrow">▲</span></th>
+                <th onclick="sortTable('merchants','status')">Status <span class="sort-arrow">▲</span></th>
+                <th onclick="sortTable('merchants','member_count')">Members <span class="sort-arrow">▲</span></th>
+                <th onclick="sortTable('merchants','created_at')">Joined <span class="sort-arrow">▲</span></th>
+              </tr>
+            </thead>
+            <tbody id="merchants-tbody">
+              <tr><td colspan="7" style="color:var(--muted);text-align:center;padding:40px;">Loading merchants...</td></tr>
+            </tbody>
+          </table>
+          <div class="pagination" id="merchants-pagination"></div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════════════════════════ -->
+      <!-- MEMBERS TAB                                                -->
+      <!-- ═══════════════════════════════════════════════════════════ -->
+      <div id="tab-members" class="tab-content">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Members</div>
+            <div class="page-subtitle">All registered consumers on the platform</div>
+          </div>
+        </div>
+
+        <div class="toolbar">
+          <input type="text" class="toolbar-search" id="member-search" placeholder="Search by name, email, city..." oninput="filterTable('members')"/>
+          <select class="toolbar-select" id="member-filter-push" onchange="filterTable('members')">
+            <option value="">All Members</option>
+            <option value="push">Push Enabled</option>
+            <option value="nopush">No Push</option>
+          </select>
+          <select class="toolbar-select" id="member-filter-city" onchange="filterTable('members')">
+            <option value="">All Cities</option>
+          </select>
+          <div style="flex:1;"></div>
+          <button class="toolbar-btn green" onclick="exportData('members','csv')">📄 CSV</button>
+          <button class="toolbar-btn" onclick="exportData('members','txt')">📋 TXT</button>
+        </div>
+
+        <div class="table-wrap">
+          <table class="data-table" id="members-table">
+            <thead>
+              <tr>
+                <th onclick="sortTable('members','full_name')">Name <span class="sort-arrow">▲</span></th>
+                <th onclick="sortTable('members','email')">Email <span class="sort-arrow">▲</span></th>
+                <th onclick="sortTable('members','city')">City <span class="sort-arrow">▲</span></th>
+                <th onclick="sortTable('members','zip_code')">ZIP <span class="sort-arrow">▲</span></th>
+                <th onclick="sortTable('members','push_enabled')">Push <span class="sort-arrow">▲</span></th>
+                <th onclick="sortTable('members','merchant_count')">Merchants <span class="sort-arrow">▲</span></th>
+                <th onclick="sortTable('members','created_at')">Joined <span class="sort-arrow">▲</span></th>
+              </tr>
+            </thead>
+            <tbody id="members-tbody">
+              <tr><td colspan="7" style="color:var(--muted);text-align:center;padding:40px;">Loading members...</td></tr>
+            </tbody>
+          </table>
+          <div class="pagination" id="members-pagination"></div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════════════════════════ -->
+      <!-- CAMPAIGNS TAB                                              -->
+      <!-- ═══════════════════════════════════════════════════════════ -->
+      <div id="tab-campaigns" class="tab-content">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Campaigns</div>
+            <div class="page-subtitle">All merchant campaigns and promotions</div>
+          </div>
+        </div>
+
+        <div class="stat-grid">
+          <div class="stat-card">
+            <div class="stat-value green" id="camp-total">—</div>
+            <div class="stat-label">Total Campaigns</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value purple" id="camp-active">—</div>
+            <div class="stat-label">Active Now</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value amber" id="camp-redemptions">—</div>
+            <div class="stat-label">Total Redemptions</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value green" id="camp-rate">—%</div>
+            <div class="stat-label">Redemption Rate</div>
+          </div>
+        </div>
+
+        <div class="toolbar">
+          <input type="text" class="toolbar-search" id="campaign-search" placeholder="Search by title, merchant..." oninput="filterTable('campaigns')"/>
+          <select class="toolbar-select" id="campaign-filter-status" onchange="filterTable('campaigns')">
+            <option value="">All Status</option>
+            <option value="active">Active</option>
+            <option value="expired">Expired</option>
+            <option value="draft">Draft</option>
+          </select>
+          <div style="flex:1;"></div>
+          <button class="toolbar-btn green" onclick="exportData('campaigns','csv')">📄 CSV</button>
+          <button class="toolbar-btn" onclick="exportData('campaigns','txt')">📋 TXT</button>
+        </div>
+
+        <div class="table-wrap">
+          <table class="data-table" id="campaigns-table">
+            <thead>
+              <tr>
+                <th onclick="sortTable('campaigns','title')">Title <span class="sort-arrow">▲</span></th>
+                <th onclick="sortTable('campaigns','merchant_name')">Merchant <span class="sort-arrow">▲</span></th>
+                <th onclick="sortTable('campaigns','status')">Status <span class="sort-arrow">▲</span></th>
+                <th onclick="sortTable('campaigns','redemption_count')">Redeemed <span class="sort-arrow">▲</span></th>
+                <th onclick="sortTable('campaigns','created_at')">Created <span class="sort-arrow">▲</span></th>
+                <th onclick="sortTable('campaigns','end_at')">Expires <span class="sort-arrow">▲</span></th>
+              </tr>
+            </thead>
+            <tbody id="campaigns-tbody">
+              <tr><td colspan="6" style="color:var(--muted);text-align:center;padding:40px;">Loading campaigns...</td></tr>
+            </tbody>
+          </table>
+          <div class="pagination" id="campaigns-pagination"></div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════════════════════════ -->
+      <!-- BILLING TAB                                                -->
+      <!-- ═══════════════════════════════════════════════════════════ -->
+      <div id="tab-billing" class="tab-content">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Billing & Revenue</div>
+            <div class="page-subtitle">Financial reports for accounting</div>
+          </div>
+        </div>
+
+        <div class="stat-grid">
+          <div class="stat-card">
+            <div class="stat-value green" id="bill-mrr">$0</div>
+            <div class="stat-label">Monthly Recurring Revenue</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value purple" id="bill-paying">0</div>
+            <div class="stat-label">Paying Merchants</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value amber" id="bill-pending">0</div>
+            <div class="stat-label">Pending Upgrades</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value red" id="bill-failed">0</div>
+            <div class="stat-label">Failed Payments</div>
+          </div>
+        </div>
+
+        <div class="toolbar">
+          <select class="toolbar-select" id="billing-filter-period">
+            <option value="all">All Time</option>
+            <option value="30">Last 30 Days</option>
+            <option value="90">Last 90 Days</option>
+            <option value="365">Last 12 Months</option>
+          </select>
+          <select class="toolbar-select" id="billing-filter-status" onchange="filterTable('billing')">
+            <option value="">All Status</option>
+            <option value="paid">Paid</option>
+            <option value="pending">Pending</option>
+            <option value="failed">Failed</option>
+          </select>
+          <div style="flex:1;"></div>
+          <button class="toolbar-btn green" onclick="exportData('billing','csv')">📄 CSV</button>
+          <button class="toolbar-btn" onclick="exportData('billing','txt')">📋 TXT</button>
+        </div>
+
+        <div class="table-wrap">
+          <table class="data-table" id="billing-table">
+            <thead>
+              <tr>
+                <th>Merchant</th>
+                <th>Tier</th>
+                <th>Status</th>
+                <th>Amount</th>
+                <th>Period</th>
+                <th>Paid At</th>
+              </tr>
+            </thead>
+            <tbody id="billing-tbody">
+              <tr><td colspan="6" style="color:var(--muted);text-align:center;padding:40px;">
+                No billing data yet — billing starts when merchants upgrade to Tier 1
+              </td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════════════════════════ -->
+      <!-- ANNOUNCEMENTS TAB                                          -->
+      <!-- ═══════════════════════════════════════════════════════════ -->
+      <div id="tab-announcements" class="tab-content">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Announcements & Newsletter</div>
+            <div class="page-subtitle">Send communications to merchants and members</div>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="section-title">📧 Compose Announcement</div>
+          <div class="form-group">
+            <label class="form-label">Audience</label>
+            <select class="form-input" id="announce-audience" style="cursor:pointer;">
+              <option value="all_merchants">All Merchants</option>
+              <option value="tier1_merchants">Tier 1 Merchants Only</option>
+              <option value="all_members">All Members</option>
+              <option value="all">Everyone (Merchants + Members)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Subject Line</label>
+            <input type="text" class="form-input" id="announce-subject" placeholder="e.g. New Feature: Daily Digest Notifications"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Message Body <span style="color:var(--mutedLight);">(HTML supported)</span></label>
+            <textarea class="form-textarea" id="announce-body" placeholder="Write your announcement here..."></textarea>
+          </div>
+          <div style="display:flex; gap:10px; align-items:center;">
+            <button class="toolbar-btn primary" onclick="sendAnnouncement()" style="padding:12px 24px;">
+              📤 Send Announcement
+            </button>
+            <button class="toolbar-btn" onclick="previewAnnouncement()">
+              👁️ Preview
+            </button>
+            <div id="announce-status" style="font-size:13px; color:var(--muted);"></div>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="section-title">📋 Sent History</div>
+          <table class="data-table">
+            <thead><tr><th>Date</th><th>Subject</th><th>Audience</th><th>Recipients</th></tr></thead>
+            <tbody id="announce-history">
+              <tr><td colspan="4" style="color:var(--muted);">No announcements sent yet</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ═══════════════════════════════════════════════════════════════
+    // ADMIN DASHBOARD — CLIENT-SIDE LOGIC
+    // ═══════════════════════════════════════════════════════════════
+
+    // ── Admin Auth Gate ──────────────────────────────────────────
+    // Simple hash to avoid storing creds in plaintext in source
+    async function sha256(str) {
+      const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+      return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+    const ADMIN_EMAIL_HASH = '314e382604a13dfa8f5f9a2986ec663e1b6eab68e56f89d9995568fe66cee93f';
+    const ADMIN_PASS_HASH = '97b242f61072fa7b8d0b00e8b6b5455266a34c072a08218669f13847426522b9';
+
+    async function adminLogin() {
+      const email = document.getElementById('adminEmail').value.trim().toLowerCase();
+      const pass = document.getElementById('adminPassword').value;
+      const errEl = document.getElementById('loginError');
+
+      if (!email || !pass) {
+        errEl.textContent = 'Please enter your email and password';
+        errEl.style.display = 'block';
+        return;
+      }
+
+      const emailHash = await sha256(email);
+      const passHash = await sha256(pass);
+
+      if (emailHash === ADMIN_EMAIL_HASH && passHash === ADMIN_PASS_HASH) {
+        sessionStorage.setItem('perkfinity_admin_auth', 'true');
+        unlockDashboard();
+      } else {
+        errEl.textContent = 'Invalid email or password';
+        errEl.style.display = 'block';
+        document.getElementById('adminPassword').value = '';
+        document.getElementById('adminPassword').focus();
+      }
+    }
+
+    function unlockDashboard() {
+      document.getElementById('loginOverlay').classList.add('hidden');
+      document.getElementById('adminLayout').style.display = 'flex';
+      loadAllData();
+    }
+
+    // Check session on page load
+    if (sessionStorage.getItem('perkfinity_admin_auth') === 'true') {
+      unlockDashboard();
+    }
+
+    const API_BASE = 'https://perkfinity-backend.vercel.app/api/v1';
+
+    // Data stores
+    let allMerchants = [];
+    let allMembers = [];
+    let allCampaigns = [];
+    let allBilling = [];
+    let sortState = {};
+
+    // ── Tab Navigation ──────────────────────────────────────────
+    function showTab(name) {
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      document.getElementById('tab-' + name).classList.add('active');
+      event.target.closest('.nav-item').classList.add('active');
+    }
+
+    // ── Time Display ────────────────────────────────────────────
+    function updateTime() {
+      const now = new Date();
+      document.getElementById('admin-time').textContent = now.toLocaleString('en-US', {
+        month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true
+      });
+    }
+    setInterval(updateTime, 60000);
+    updateTime();
+
+    // ── Data Loading ────────────────────────────────────────────
+    async function adminFetch(endpoint) {
+      try {
+        const res = await fetch(API_BASE + endpoint);
+        return await res.json();
+      } catch (err) {
+        console.error('Admin fetch error:', err);
+        return { success: false, error: err.message };
+      }
+    }
+
+    async function loadAllData() {
+      document.getElementById('refresh-spinner').style.display = 'inline-block';
+
+      // Load merchants overview
+      const merchantRes = await adminFetch('/admin/merchants');
+      if (merchantRes.success) {
+        allMerchants = merchantRes.data.merchants || [];
+        const stats = merchantRes.data.stats || {};
+        document.getElementById('ov-merchants').textContent = stats.active || allMerchants.length;
+        renderTable('merchants');
+      }
+
+      // Load members overview
+      const memberRes = await adminFetch('/admin/members');
+      if (memberRes.success) {
+        allMembers = memberRes.data.members || [];
+        const stats = memberRes.data.stats || {};
+        document.getElementById('ov-members').textContent = stats.total || allMembers.length;
+        document.getElementById('ov-push').textContent = stats.push_enabled || '0';
+        renderTable('members');
+        // Populate city filter
+        const cities = [...new Set(allMembers.map(m => m.city).filter(Boolean))].sort();
+        const citySelect = document.getElementById('member-filter-city');
+        citySelect.innerHTML = '<option value="">All Cities</option>' + cities.map(c => `<option value="${c}">${c}</option>`).join('');
+      }
+
+      // Load campaigns
+      const campRes = await adminFetch('/admin/campaigns');
+      if (campRes.success) {
+        allCampaigns = campRes.data.campaigns || [];
+        const stats = campRes.data.stats || {};
+        document.getElementById('ov-campaigns').textContent = stats.active || '0';
+        document.getElementById('camp-total').textContent = stats.total || allCampaigns.length;
+        document.getElementById('camp-active').textContent = stats.active || '0';
+        document.getElementById('camp-redemptions').textContent = stats.redemptions || '0';
+        document.getElementById('camp-rate').textContent = (stats.redemption_rate || '0') + '%';
+        document.getElementById('ov-redemptions').textContent = stats.redemptions || '0';
+        renderTable('campaigns');
+      }
+
+      // Top merchants
+      if (merchantRes.success) {
+        const sorted = [...allMerchants].sort((a,b) => (b.member_count||0) - (a.member_count||0)).slice(0,5);
+        document.getElementById('ov-top-merchants').innerHTML = sorted.map(m => `
+          <tr>
+            <td>${m.business_name || '—'}</td>
+            <td>${m.member_count || 0}</td>
+            <td>${m.campaign_count || 0}</td>
+            <td>${m.redemption_count || 0}</td>
+            <td><span class="badge ${m.tier === 'tier1' ? 'tier1' : 'free'}">${m.tier === 'tier1' ? 'Tier 1' : 'Free'}</span></td>
+          </tr>
+        `).join('') || '<tr><td colspan="5" style="color:var(--muted);">No merchants yet</td></tr>';
+      }
+
+      // MRR placeholder
+      document.getElementById('ov-mrr').textContent = '$0';
+      document.getElementById('bill-mrr').textContent = '$0';
+
+      document.getElementById('refresh-spinner').style.display = 'none';
+      showToast('✅ Dashboard data refreshed');
+    }
+
+    // ── Table Rendering ─────────────────────────────────────────
+    function renderTable(type) {
+      let data, tbody;
+      switch(type) {
+        case 'merchants':
+          data = getFilteredData('merchants');
+          tbody = document.getElementById('merchants-tbody');
+          tbody.innerHTML = data.map(m => `
+            <tr>
+              <td><strong>${m.business_name || '—'}</strong></td>
+              <td>${m.contact_email || m.email || '—'}</td>
+              <td>${m.city || '—'}</td>
+              <td><span class="badge ${m.tier === 'tier1' ? 'tier1' : 'free'}">${m.tier === 'tier1' ? 'Tier 1' : 'Free'}</span></td>
+              <td><span class="badge ${m.status || 'active'}">${m.status || 'active'}</span></td>
+              <td>${m.member_count || 0}</td>
+              <td>${formatDate(m.created_at)}</td>
+            </tr>
+          `).join('') || emptyRow(7, 'No merchants found');
+          break;
+
+        case 'members':
+          data = getFilteredData('members');
+          tbody = document.getElementById('members-tbody');
+          tbody.innerHTML = data.map(m => `
+            <tr>
+              <td><strong>${m.full_name || '—'}</strong></td>
+              <td>${m.email || '—'}</td>
+              <td>${m.city || '—'}</td>
+              <td>${m.zip_code || '—'}</td>
+              <td>${m.push_token ? '<span class="badge active">Yes</span>' : '<span class="badge free">No</span>'}</td>
+              <td>${m.merchant_count || 0}</td>
+              <td>${formatDate(m.created_at)}</td>
+            </tr>
+          `).join('') || emptyRow(7, 'No members found');
+          break;
+
+        case 'campaigns':
+          data = getFilteredData('campaigns');
+          tbody = document.getElementById('campaigns-tbody');
+          tbody.innerHTML = data.map(c => `
+            <tr>
+              <td><strong>${c.title || '—'}</strong></td>
+              <td>${c.merchant_name || c.business_name || '—'}</td>
+              <td><span class="badge ${c.status === 'active' ? 'active' : c.status === 'expired' ? 'inactive' : 'pending'}">${c.status || '—'}</span></td>
+              <td>${c.redemption_count || 0}</td>
+              <td>${formatDate(c.created_at)}</td>
+              <td>${formatDate(c.end_at)}</td>
+            </tr>
+          `).join('') || emptyRow(6, 'No campaigns found');
+          break;
+      }
+    }
+
+    function emptyRow(cols, msg) {
+      return `<tr><td colspan="${cols}" style="color:var(--muted);text-align:center;padding:40px;">${msg}</td></tr>`;
+    }
+
+    // ── Filtering ───────────────────────────────────────────────
+    function getFilteredData(type) {
+      let data, search, filters = {};
+      switch(type) {
+        case 'merchants':
+          data = [...allMerchants];
+          search = document.getElementById('merchant-search').value.toLowerCase();
+          filters.status = document.getElementById('merchant-filter-status').value;
+          filters.tier = document.getElementById('merchant-filter-tier').value;
+          if (search) data = data.filter(m =>
+            (m.business_name||'').toLowerCase().includes(search) ||
+            (m.contact_email||m.email||'').toLowerCase().includes(search) ||
+            (m.city||'').toLowerCase().includes(search)
+          );
+          if (filters.status) data = data.filter(m => (m.status||'active') === filters.status);
+          if (filters.tier) data = data.filter(m => (m.tier||'free') === filters.tier);
+          break;
+
+        case 'members':
+          data = [...allMembers];
+          search = document.getElementById('member-search').value.toLowerCase();
+          const pushFilter = document.getElementById('member-filter-push').value;
+          const cityFilter = document.getElementById('member-filter-city').value;
+          if (search) data = data.filter(m =>
+            (m.full_name||'').toLowerCase().includes(search) ||
+            (m.email||'').toLowerCase().includes(search) ||
+            (m.city||'').toLowerCase().includes(search)
+          );
+          if (pushFilter === 'push') data = data.filter(m => m.push_token);
+          if (pushFilter === 'nopush') data = data.filter(m => !m.push_token);
+          if (cityFilter) data = data.filter(m => m.city === cityFilter);
+          break;
+
+        case 'campaigns':
+          data = [...allCampaigns];
+          search = document.getElementById('campaign-search').value.toLowerCase();
+          const campStatus = document.getElementById('campaign-filter-status').value;
+          if (search) data = data.filter(c =>
+            (c.title||'').toLowerCase().includes(search) ||
+            (c.merchant_name||c.business_name||'').toLowerCase().includes(search)
+          );
+          if (campStatus) data = data.filter(c => c.status === campStatus);
+          break;
+      }
+      return data;
+    }
+
+    function filterTable(type) {
+      renderTable(type);
+    }
+
+    // ── Sorting ─────────────────────────────────────────────────
+    function sortTable(type, field) {
+      const key = type + '_' + field;
+      const dir = sortState[key] === 'asc' ? 'desc' : 'asc';
+      sortState[key] = dir;
+
+      let data;
+      switch(type) {
+        case 'merchants': data = allMerchants; break;
+        case 'members': data = allMembers; break;
+        case 'campaigns': data = allCampaigns; break;
+        default: return;
+      }
+
+      data.sort((a, b) => {
+        let va = a[field] ?? '', vb = b[field] ?? '';
+        if (typeof va === 'number' || !isNaN(Number(va))) {
+          va = Number(va); vb = Number(vb);
+        } else {
+          va = String(va).toLowerCase(); vb = String(vb).toLowerCase();
+        }
+        if (va < vb) return dir === 'asc' ? -1 : 1;
+        if (va > vb) return dir === 'asc' ? 1 : -1;
+        return 0;
+      });
+
+      renderTable(type);
+    }
+
+    // ── Export ───────────────────────────────────────────────────
+    function exportData(type, format) {
+      const data = getFilteredData(type);
+      if (!data.length) return showToast('⚠️ No data to export');
+
+      const headers = Object.keys(data[0]);
+      let content;
+
+      if (format === 'csv') {
+        content = headers.join(',') + '\n' +
+          data.map(row => headers.map(h => `"${String(row[h]||'').replace(/"/g,'""')}"`).join(',')).join('\n');
+      } else {
+        content = headers.join('\t') + '\n' +
+          data.map(row => headers.map(h => String(row[h]||'')).join('\t')).join('\n');
+      }
+
+      const blob = new Blob([content], { type: format === 'csv' ? 'text/csv' : 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `perkfinity_${type}_${new Date().toISOString().slice(0,10)}.${format}`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast(`✅ Exported ${data.length} rows as ${format.toUpperCase()}`);
+    }
+
+    // ── Announcement ────────────────────────────────────────────
+    async function sendAnnouncement() {
+      const audience = document.getElementById('announce-audience').value;
+      const subject = document.getElementById('announce-subject').value;
+      const body = document.getElementById('announce-body').value;
+      if (!subject || !body) return showToast('⚠️ Subject and message are required');
+
+      document.getElementById('announce-status').innerHTML = '<span class="loading-spinner"></span> Sending...';
+
+      try {
+        const res = await fetch(API_BASE + '/admin/announcements', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ audience, subject, htmlContent: body })
+        });
+        const json = await res.json();
+        if (json.success) {
+          document.getElementById('announce-status').textContent = `✅ Sent to ${json.data?.total_recipients || 0} recipients`;
+          document.getElementById('announce-subject').value = '';
+          document.getElementById('announce-body').value = '';
+          showToast('✅ Announcement sent successfully');
+        } else {
+          document.getElementById('announce-status').textContent = '❌ ' + (json.error || 'Failed');
+        }
+      } catch (err) {
+        document.getElementById('announce-status').textContent = '❌ Network error';
+      }
+    }
+
+    function previewAnnouncement() {
+      const body = document.getElementById('announce-body').value;
+      if (!body) return showToast('⚠️ Write a message first');
+      const win = window.open('', '_blank');
+      win.document.write(`
+        <html><head><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+        <style>body{font-family:'Outfit',sans-serif;max-width:600px;margin:40px auto;padding:20px;}</style></head>
+        <body>${body}</body></html>
+      `);
+    }
+
+    // ── Helpers ──────────────────────────────────────────────────
+    function formatDate(d) {
+      if (!d) return '—';
+      return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = 'toast success show';
+      setTimeout(() => t.className = 'toast', 3000);
+    }
+
+    // ── Initial Load (handled by auth gate) ────────────────────
+  </script>
+</body>
+</html>

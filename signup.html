@@ -167,6 +167,23 @@
               </div>
 
             </div>
+
+            <div id="promoCodeSection" style="margin-bottom:20px;">
+              <label style="display:block;font-weight:700;color:var(--purpleDark);margin-bottom:8px;font-size:14px;">
+                Have a Promo Code? <span style="font-weight:400;color:var(--muted);font-size:13px;">(optional)</span>
+              </label>
+              <div style="display:flex;gap:10px;align-items:center;">
+                <input type="text" id="promo_code" placeholder="Enter promo code"
+                  style="flex:1;padding:12px 16px;border-radius:12px;border:1.5px solid var(--border);font-size:15px;outline:none;font-family:inherit;background:#fdfdfd;"
+                  oninput="this.value = this.value.toUpperCase()"/>
+                <div id="promoStatus" style="font-size:13px;font-weight:600;min-width:80px;"></div>
+              </div>
+              <p style="margin:6px 0 0;font-size:12px;color:var(--muted);">
+                Enter a promo code to extend your free trial member limit
+              </p>
+              <div id="promoError" style="color:#dc3545;font-size:13px;font-weight:600;margin-top:6px;display:none;"></div>
+            </div>
+
             <div style="display:flex;gap:15px">
               <button class="btn" style="background:#e2e8f0;color:#334155;flex:1;padding:15px;font-weight:600;border:1px solid #cbd5e1;" onclick="nextStep(1)">← Go Back</button>
               <button class="btn btn-purple" id="btnStep2" style="flex:2;padding:15px" onclick="nextStep(3)">Continue
@@ -479,6 +496,9 @@
         });
         element.style.border = '2px solid var(--purple)';
         element.style.background = 'rgba(91,63,165,.05)';
+        // Show promo code only for trial
+        const promoSection = document.getElementById('promoCodeSection');
+        if (promoSection) promoSection.style.display = tier === 'trial' ? 'block' : 'none';
       }
 
       async function executeSignup() {
@@ -524,6 +544,7 @@
           zip: document.getElementById('zip').value,
           website: document.getElementById('website').value,
           perk: document.getElementById('member_perk').value,
+          promo_code: document.getElementById('promo_code').value.trim(),
           tier: selectedTier,
           password: password
         };
