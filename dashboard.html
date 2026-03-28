@@ -1044,7 +1044,7 @@
           const rateColor = assigned === 0 ? '#999' : (redeemed/assigned >= 0.5 ? 'var(--green)' : redeemed/assigned >= 0.2 ? '#f59e0b' : '#ef4444');
           const created = r.created_at ? new Date(r.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '-';
           const expires = r.end_at ? new Date(r.end_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '-';
-          const statusColor = r.status === 'active' ? 'var(--green)' : '#999';
+          const statusColor = r.status === 'active' ? 'var(--green)' : r.status === 'expired' ? '#ef4444' : '#999';
           return `<tr style="border-bottom:1px solid var(--border);">
             <td style="padding:11px 10px; font-weight:600;">${r.title || '-'}</td>
             <td style="padding:11px 10px;">${typeLabels[m.type] || m.type || '-'}</td>
@@ -1055,7 +1055,7 @@
             <td style="padding:11px 10px;"><span style="background:${rateColor}22;color:${rateColor};padding:3px 8px;border-radius:20px;font-weight:700;font-size:12px;">${rate === '—' ? '—' : rate + '%'}</span></td>
             <td style="padding:11px 10px;">${created}</td>
             <td style="padding:11px 10px;">${expires}</td>
-            <td style="padding:11px 10px;"><span style="color:${statusColor};font-weight:700;">${r.status || '-'}</span></td>
+            <td style="padding:11px 10px;"><span style="color:${statusColor};font-weight:700;">${r.status ? r.status.charAt(0).toUpperCase() + r.status.slice(1) : '-'}</span></td>
           </tr>`;
         }).join('');
       } catch(e) {
