@@ -235,6 +235,15 @@
           <div id="step-4-bank" class="wizard-step" style="display:none;">
             <h3 style="margin-top:0;margin-bottom:12px;color:var(--purpleDark)">Step 4: Connect Bank Account</h3>
 
+            <!-- ⏰ Amber session notice -->
+            <div id="session-notice" style="padding:14px 18px;background:linear-gradient(135deg, #fef3c7, #fde68a);border:2px solid #f59e0b;border-radius:12px;margin-bottom:18px;font-size:14px;color:#92400e;display:flex;align-items:flex-start;gap:10px;">
+              <span style="font-size:20px;flex-shrink:0;margin-top:1px;">⏰</span>
+              <div>
+                <strong>Please complete this step to activate your account.</strong><br>
+                Your account has been created but won't be active until payment info is connected. If this step isn't completed within 15 minutes, you'll need to start the sign up process again.
+              </div>
+            </div>
+
             <!-- Trial tier notice -->
             <div id="trial-bank-notice"
               style="display:none;padding:14px 18px;background:rgba(107,193,122,.12);border:1px solid rgba(107,193,122,.4);border-radius:12px;margin-bottom:18px;font-size:14px;color:#1a6b2b">
@@ -264,10 +273,34 @@
               </button>
             </div>
 
+            <!-- 🛡️ Payment security banner -->
+            <div style="padding:16px 18px;background:linear-gradient(135deg, #fef3c7, #fde68a);border:2px solid #f59e0b;border-radius:12px;margin-bottom:18px;display:flex;align-items:flex-start;gap:12px;">
+              <span style="font-size:24px;flex-shrink:0;margin-top:2px;">🛡️</span>
+              <div>
+                <strong style="font-size:14px;color:#92400e;">Your payment information is completely safe</strong><br>
+                <span style="font-size:13px;color:#78350f;line-height:1.6;">Perkfinity <strong style="color:#92400e;">never sees, receives, or stores</strong> your card number or any sensitive payment data. Everything is handled directly by <strong style="color:#92400e;">Stripe</strong>, a PCI Level 1 certified payment processor trusted by millions of businesses worldwide.</span>
+              </div>
+            </div>
+
             <div style="display:flex;gap:15px">
               <button class="btn" style="background:#e2e8f0;color:#334155;flex:1;padding:15px;font-weight:600;border:1px solid #cbd5e1;" onclick="nextStep(3)">← Go Back</button>
             </div>
             <div id="signupError" style="color: red; margin-top: 10px; display: none; text-align: center;"></div>
+          </div>
+
+          <!-- SESSION EXPIRED OVERLAY -->
+          <div id="step-expired" class="wizard-step" style="display:none;">
+            <div style="text-align:center;padding:40px 20px;">
+              <div style="width:80px;height:80px;background:linear-gradient(135deg, #fef3c7, #fde68a);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;border:2px solid #f59e0b;">
+                <span style="font-size:36px;">⏳</span>
+              </div>
+              <h3 style="margin:0 0 12px;color:var(--ink);font-size:22px;font-weight:800;">Your session has expired.</h3>
+              <p style="font-size:15px;color:var(--muted);max-width:400px;margin:0 auto 8px;line-height:1.6;">No worries — your information was not saved for your security.</p>
+              <p style="font-size:15px;color:var(--muted);max-width:400px;margin:0 auto 28px;line-height:1.6;">Please start the signup process again.</p>
+              <button class="btn btn-purple" onclick="window.location.reload()" style="padding:15px 36px;font-size:16px;">
+                Start Over →
+              </button>
+            </div>
           </div>
 
           <!-- STEP 5: Customize Storefront -->
