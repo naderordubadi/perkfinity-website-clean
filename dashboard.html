@@ -2073,14 +2073,14 @@
           if (sceneEl.querySelector('.tier1-member-count')) {
             sceneEl.querySelector('.tier1-member-count').innerText = `Currently: ${d.member_count || 0} active members`;
           }
-          if (sceneEl.querySelector('.tier1-next-charge') && d.next_billing_date) {
-            sceneEl.querySelector('.tier1-next-charge').innerText = formatDt(d.next_billing_date);
+          if (sceneEl.querySelector('.tier1-next-charge')) {
+            sceneEl.querySelector('.tier1-next-charge').innerText = d.next_billing_date ? formatDt(d.next_billing_date) : 'N/A';
           }
-          if (sceneEl.querySelector('.tier1-next-billing') && d.next_billing_date) {
-            sceneEl.querySelector('.tier1-next-billing').innerText = formatDt(d.next_billing_date);
+          if (sceneEl.querySelector('.tier1-next-billing')) {
+            sceneEl.querySelector('.tier1-next-billing').innerText = d.next_billing_date ? formatDt(d.next_billing_date) : 'N/A';
           }
-          if (sceneEl.querySelector('.tier1-member-since') && d.created_at) {
-            sceneEl.querySelector('.tier1-member-since').innerText = formatDt(d.created_at);
+          if (sceneEl.querySelector('.tier1-member-since')) {
+            sceneEl.querySelector('.tier1-member-since').innerText = d.created_at ? formatDt(d.created_at) : 'Unknown';
           }
 
           // Wiring buttons
