@@ -688,7 +688,7 @@
           const data = await res.json();
           currentMerchantId = data.data?.merchant?.id || data.merchantId;
           currentAccessToken = data.data?.accessToken;
-          currentQrUrl = data.data?.qr_url || `https://perkfinity-app.vercel.app/qr/${data.data?.qr_public_code}`;
+          currentQrUrl = data.data?.qr_url || `https://app.perkfinity.net/qr/${data.data?.qr_public_code}`;
 
           localStorage.setItem('perkfinity_token', currentAccessToken);
           localStorage.setItem('perkfinity_merchant_id', currentMerchantId);
@@ -921,7 +921,7 @@
         // Pointing to the actual dynamic merchant URL returned by the backend
         document.getElementById('qr-canvas-target').innerHTML = '';
         new QRCode(document.getElementById("qr-canvas-target"), {
-          text: currentQrUrl || "https://perkfinity-app.vercel.app",
+          text: currentQrUrl || "https://app.perkfinity.net",
           width: 260,
           height: 260,
           colorDark: "#1F2030",

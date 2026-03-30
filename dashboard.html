@@ -2182,7 +2182,7 @@
          if (json.success && json.data) {
            const businessName = json.data.business_name || localStorage.getItem('perkfinity_business_name');
            const perk = json.data.perk || '15% off purchase over $15';
-           const qrUrl = json.data.qr_url || 'https://perkfinity-app.vercel.app';
+           const qrUrl = json.data.qr_url || 'https://app.perkfinity.net';
            
            document.getElementById('poster-store').innerText = businessName;
            document.getElementById('poster-perk').innerText = perk;
