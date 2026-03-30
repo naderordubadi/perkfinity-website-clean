@@ -761,6 +761,18 @@
         btn.disabled = true;
         btn.innerText = 'Saving card...';
 
+        // --- MOCK MODE FOR BETA TESTERS ---
+        // Change to false to re-enable real Stripe payments
+        const ENABLE_MOCK_PAYMENT = true;
+        if (ENABLE_MOCK_PAYMENT) {
+          setTimeout(() => {
+            document.querySelectorAll('.wizard-step').forEach(el => el.style.display = 'none');
+            document.getElementById('step-5-logo').style.display = 'block';
+          }, 1000); // Fake a 1 second network delay
+          return;
+        }
+        // ----------------------------------
+
         if (!stripeInstance || !stripeClientSecret) {
           errEl.textContent = 'Payment system not ready. Please wait a moment and try again.';
           errEl.style.display = 'block';
