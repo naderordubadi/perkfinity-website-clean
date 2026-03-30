@@ -980,7 +980,7 @@
       <div id="scene-tier1" class="scene" style="display:none">
         <div class="alert alert-success">
           <span class="icon">✅</span>
-          <div>Your <strong>Tier 1</strong> subscription is active. Next charge: <strong>April 27, 2026</strong> — $29.99.</div>
+          <div>Your <strong>Tier 1</strong> subscription is active. Next charge: <strong class="tier1-next-charge">April 27, 2026</strong> — $29.99.</div>
         </div>
         <div class="billing-section">
           <h3>Your Plan</h3>
@@ -999,7 +999,7 @@
             <div class="usage-widget" style="justify-content:center;text-align:center">
               <div style="font-size:42px;margin-bottom:4px">♾️</div>
               <div style="font-size:20px;font-weight:900;color:var(--purpleDark)">Unlimited Members</div>
-              <div style="font-size:14px;color:var(--muted);font-weight:600">Currently: 47 active members</div>
+              <div class="tier1-member-count" style="font-size:14px;color:var(--muted);font-weight:600">Currently: 47 active members</div>
             </div>
           </div>
         </div>
@@ -1010,11 +1010,11 @@
           </div>
           <div class="info-item">
             <div class="label">Next Billing Date</div>
-            <div class="value">Apr 27, 2026</div>
+            <div class="value tier1-next-billing">Apr 27, 2026</div>
           </div>
           <div class="info-item">
             <div class="label">Member Since</div>
-            <div class="value">Jan 27, 2026</div>
+            <div class="value tier1-member-since">Jan 27, 2026</div>
           </div>
         </div>
         <div class="billing-section">
@@ -2068,9 +2068,19 @@
           }
 
           // Info grids (for tier1)
-          const nextBillingVals = sceneEl.querySelectorAll('.value');
-          if (nextBillingVals.length >= 3 && d.next_billing_date) {
-            nextBillingVals[1].innerText = new Date(d.next_billing_date).toLocaleDateString();
+          const formatDt = (d_str) => new Date(d_str).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+          
+          if (sceneEl.querySelector('.tier1-member-count')) {
+            sceneEl.querySelector('.tier1-member-count').innerText = `Currently: ${d.member_count || 0} active members`;
+          }
+          if (sceneEl.querySelector('.tier1-next-charge') && d.next_billing_date) {
+            sceneEl.querySelector('.tier1-next-charge').innerText = formatDt(d.next_billing_date);
+          }
+          if (sceneEl.querySelector('.tier1-next-billing') && d.next_billing_date) {
+            sceneEl.querySelector('.tier1-next-billing').innerText = formatDt(d.next_billing_date);
+          }
+          if (sceneEl.querySelector('.tier1-member-since') && d.created_at) {
+            sceneEl.querySelector('.tier1-member-since').innerText = formatDt(d.created_at);
           }
 
           // Wiring buttons
