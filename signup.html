@@ -100,6 +100,32 @@
               <label>Website<input type="url" id="website" placeholder="https://"></label>
             </div>
 
+            <div class="form-row" style="margin-bottom:20px">
+              <label>POS System (optional)
+                <select id="pos_system" onchange="document.getElementById('pos_other_row').style.display = this.value === 'Other' ? 'block' : 'none'"
+                  style="border:1.5px solid var(--border);border-radius:12px;padding:12px 16px;background:#fff;color:var(--ink);font-size:15px;width:100%;outline:none;font-family:inherit;appearance:auto;">
+                  <option value="" selected>Select your POS system...</option>
+                  <option value="Square">Square</option>
+                  <option value="Clover">Clover</option>
+                  <option value="Toast">Toast</option>
+                  <option value="Lightspeed">Lightspeed</option>
+                  <option value="Shopify POS">Shopify POS</option>
+                  <option value="Revel">Revel</option>
+                  <option value="TouchBistro">TouchBistro</option>
+                  <option value="Aloha">Aloha</option>
+                  <option value="Micros (Oracle)">Micros (Oracle)</option>
+                  <option value="NCR">NCR</option>
+                  <option value="No POS System">No POS System</option>
+                  <option value="Other">Other</option>
+                </select>
+              </label>
+              <div id="pos_other_row" style="display:none;margin-top:10px">
+                <label>If Other, please specify:
+                  <input type="text" id="pos_other" placeholder="e.g. Custom in-house system">
+                </label>
+              </div>
+            </div>
+
             <div
               style="margin:30px 0 20px;padding:20px;background:rgba(107,193,122,.1);border:1px solid rgba(107,193,122,.3);border-radius:16px;">
               <h4 style="margin:0 0 10px;color:var(--greenDark)">Initial Sign-Up Perk</h4>
@@ -668,6 +694,9 @@
           zip: document.getElementById('zip').value,
           website: document.getElementById('website').value,
           perk: document.getElementById('member_perk').value,
+          pos_system: document.getElementById('pos_system').value === 'Other'
+            ? (document.getElementById('pos_other').value.trim() || 'Other')
+            : document.getElementById('pos_system').value,
           promo_code: document.getElementById('promo_code').value.trim(),
           tier: selectedTier,
           password: password
