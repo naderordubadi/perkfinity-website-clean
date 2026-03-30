@@ -51,6 +51,206 @@
     }
     .empty-state h3 { font-size: 24px; color: var(--purpleDark); margin-bottom: 12px; }
     .empty-state p { color: var(--muted); font-size: 16px; max-width: 500px; margin: 0 auto 24px; }
+  
+    /* Billing CSS */
+/* Buttons */
+    .btn{
+      display:inline-flex;align-items:center;justify-content:center;gap:8px;
+      border-radius:999px;padding:12px 22px;font-weight:800;border:1px solid transparent;
+      cursor:pointer;white-space:nowrap;font-family:inherit;font-size:14px;
+      transition:transform .15s ease, box-shadow .15s ease;
+    }
+    .btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(27,27,45,.15)}
+    .btn-green{background:linear-gradient(135deg,#6BC17A,#4fa860);color:#fff;box-shadow:var(--shadow2)}
+    .btn-purple{background:linear-gradient(135deg,var(--purple),rgba(139,106,230,.95));color:#fff;box-shadow:var(--shadow2)}
+    .btn-outline{background:white;color:var(--purple);border:2px solid rgba(91,63,165,.2)}
+    .btn-red-outline{background:white;color:var(--red);border:2px solid rgba(220,53,69,.2)}
+    .btn-sm{padding:8px 16px;font-size:13px}
+
+    /* Mock Banner */
+    .mock-banner{
+      background:linear-gradient(135deg,#ff6b35,#f72585);
+      color:white;text-align:center;padding:10px 20px;
+      font-size:13px;font-weight:700;letter-spacing:0.04em;
+    }
+    .mock-banner span{opacity:0.8;font-weight:500}
+
+    /* Billing Section */
+    .billing-section{
+      background:white;border-radius:16px;padding:30px;
+      box-shadow:0 4px 20px rgba(0,0,0,0.03);margin-bottom:24px;
+    }
+    .billing-section h3{
+      font-size:18px;font-weight:900;color:var(--purpleDark);margin-bottom:20px;
+    }
+
+    /* Plan Card */
+    .plan-card{
+      display:grid;grid-template-columns:1.4fr 0.6fr;gap:24px;
+      margin-bottom:24px;
+    }
+    .plan-details{display:flex;flex-direction:column;gap:14px}
+    .plan-badge{
+      display:inline-flex;align-items:center;gap:8px;
+      font-size:12px;font-weight:800;letter-spacing:0.06em;
+      text-transform:uppercase;padding:6px 14px;border-radius:999px;
+      width:fit-content;
+    }
+    .plan-badge.trial{background:rgba(107,193,122,.14);color:var(--greenDark);border:1px solid rgba(107,193,122,.3)}
+    .plan-badge.tier1{background:rgba(91,63,165,.08);color:var(--purple);border:1px solid rgba(91,63,165,.2)}
+    .plan-badge.blocked{background:rgba(220,53,69,.08);color:var(--red);border:1px solid rgba(220,53,69,.2)}
+    .plan-price{font-size:34px;font-weight:1000;color:var(--purpleDark);letter-spacing:-0.02em}
+    .plan-price span{font-size:15px;color:var(--muted);font-weight:700}
+    .plan-features{list-style:none;padding:0;display:flex;flex-direction:column;gap:8px}
+    .plan-features li{
+      font-size:14px;font-weight:600;display:flex;align-items:center;gap:10px;color:var(--ink);
+    }
+    .plan-features li::before{
+      content:"✓";width:22px;height:22px;border-radius:50%;
+      background:linear-gradient(135deg,#6BC17A,#4fa860);color:white;
+      display:flex;align-items:center;justify-content:center;
+      font-size:12px;font-weight:900;flex-shrink:0;
+    }
+
+    /* Usage Widget */
+    .usage-widget{
+      background:linear-gradient(135deg,rgba(91,63,165,.04),rgba(107,193,122,.04));
+      border:1.5px solid rgba(91,63,165,.12);border-radius:16px;padding:24px;
+      display:flex;flex-direction:column;gap:14px;justify-content:center;
+    }
+    .usage-count{font-size:34px;font-weight:1000;color:var(--purpleDark)}
+    .usage-count span{font-size:16px;color:var(--muted)}
+    .usage-bar{height:10px;background:rgba(91,63,165,.08);border-radius:8px;overflow:hidden}
+    .usage-fill{
+      height:100%;border-radius:8px;
+      background:linear-gradient(90deg,var(--purple),var(--green));
+      transition:width 0.6s ease;
+    }
+    .usage-fill.warning{background:linear-gradient(90deg,var(--orange),var(--red))}
+    .usage-note{font-size:12px;color:var(--muted);font-weight:600}
+
+    /* Info Grid */
+    .info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px}
+    .info-item{
+      background:#fafbfc;border:1px solid var(--border);border-radius:12px;padding:16px;
+    }
+    .info-item .label{
+      font-size:11px;color:var(--muted);font-weight:700;
+      text-transform:uppercase;letter-spacing:0.04em;margin-bottom:4px;
+    }
+    .info-item .value{font-size:17px;font-weight:900;color:var(--ink)}
+
+    /* Status Pills */
+    .status-pill{
+      display:inline-flex;align-items:center;gap:5px;
+      font-size:12px;font-weight:700;padding:4px 12px;border-radius:999px;
+    }
+    .status-pill.active{background:rgba(107,193,122,.14);color:var(--greenDark)}
+    .status-pill.trial-status{background:rgba(107,193,122,.14);color:var(--greenDark)}
+    .status-pill.failed{background:rgba(220,53,69,.14);color:var(--red)}
+    .status-pill.blocked{background:rgba(220,53,69,.14);color:var(--red)}
+
+    /* Alert Banners */
+    .alert{
+      padding:16px 20px;border-radius:14px;font-size:14px;
+      font-weight:600;margin-bottom:20px;display:flex;align-items:center;gap:12px;
+    }
+    .alert-success{background:rgba(107,193,122,.1);border:1.5px solid rgba(107,193,122,.3);color:#166534}
+    .alert-warning{background:rgba(245,158,11,.1);border:1.5px solid rgba(245,158,11,.3);color:#92400e}
+    .alert-danger{background:rgba(220,53,69,.08);border:1.5px solid rgba(220,53,69,.25);color:#991b1b}
+    .alert-info{background:rgba(91,63,165,.06);border:1.5px solid rgba(91,63,165,.15);color:var(--purpleDark)}
+    .alert .icon{font-size:20px;flex-shrink:0}
+
+    /* Action Links */
+    .action-link{
+      background:#fafbfc;border:1.5px solid var(--border);border-radius:14px;
+      padding:18px 22px;display:flex;align-items:center;justify-content:space-between;
+      gap:16px;cursor:pointer;transition:border-color 0.2s, box-shadow 0.2s;
+      margin-bottom:10px;
+    }
+    .action-link:hover{border-color:rgba(91,63,165,.3);box-shadow:0 4px 16px rgba(91,63,165,.08)}
+    .action-link .left{display:flex;align-items:center;gap:14px}
+    .action-link .icon-wrap{
+      width:42px;height:42px;border-radius:12px;
+      background:rgba(91,63,165,.08);display:flex;align-items:center;
+      justify-content:center;font-size:18px;
+    }
+    .action-link h4{font-size:14px;font-weight:800;color:var(--ink);margin-bottom:2px}
+    .action-link p{font-size:12px;color:var(--muted);font-weight:600;margin:0}
+    .action-link .arrow{font-size:16px;color:var(--purple);font-weight:900}
+
+    /* Invoice Table */
+    .invoice-table{width:100%;border-collapse:collapse;text-align:left}
+    .invoice-table thead{border-bottom:2px solid var(--border)}
+    .invoice-table th{
+      padding:12px 14px;font-size:11px;font-weight:800;color:var(--muted);
+      text-transform:uppercase;letter-spacing:0.04em;
+    }
+    .invoice-table td{
+      padding:14px;font-size:13px;font-weight:600;
+      border-bottom:1px solid rgba(230,230,240,.6);
+    }
+    .invoice-table tr:hover{background:rgba(91,63,165,.02)}
+
+    /* Scenario Picker */
+    .scenario-picker{
+      background:var(--ink);padding:10px 18px;border-radius:12px;
+      display:flex;align-items:center;gap:10px;margin-bottom:24px;flex-wrap:wrap;
+    }
+    .scenario-picker label{color:rgba(255,255,255,.7);font-size:12px;font-weight:700}
+    .scenario-picker select{
+      background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);
+      color:white;padding:7px 12px;border-radius:8px;font-size:12px;
+      font-weight:600;font-family:inherit;outline:none;cursor:pointer;
+    }
+    .scenario-picker select option{color:#1a1a2e}
+    .scenario-hint{margin-left:auto;color:rgba(255,255,255,.4);font-size:11px;font-weight:600}
+
+    /* Cancel Warning Box */
+    .cancel-warning{
+      background:rgba(220,53,69,.04);border:1.5px solid rgba(220,53,69,.2);
+      border-radius:14px;padding:20px;margin-top:12px;
+    }
+    .cancel-warning h4{color:var(--red);font-size:14px;font-weight:800;margin-bottom:8px}
+    .cancel-warning ul{list-style:none;padding:0;margin:0 0 14px 0}
+    .cancel-warning ul li{
+      font-size:13px;color:#991b1b;font-weight:600;padding:3px 0;
+      display:flex;align-items:center;gap:8px;
+    }
+    .cancel-warning ul li::before{content:"✕";color:var(--red);font-weight:900;font-size:11px}
+
+    /* Blocked Overlay */
+    .blocked-overlay{
+      position:relative;border-radius:16px;overflow:hidden;
+    }
+    .blocked-overlay::after{
+      content:"🔒 Account Suspended — Reactivate in Billing tab";
+      position:absolute;top:0;left:0;right:0;bottom:0;
+      background:rgba(31,32,48,0.88);backdrop-filter:blur(4px);
+      display:flex;align-items:center;justify-content:center;
+      font-size:16px;font-weight:800;color:white;
+      text-align:center;padding:20px;
+    }
+
+    /* No-charge Note */
+    .no-charge-note{
+      background:rgba(107,193,122,.08);border:1.5px solid rgba(107,193,122,.25);
+      border-radius:10px;padding:12px 16px;font-size:13px;font-weight:700;
+      color:#166534;display:flex;align-items:center;gap:8px;margin-top:10px;
+    }
+
+    /* Footer */
+    .site-footer{padding:24px 0 30px;background:#fff;border-top:1px solid var(--border);color:rgba(31,32,48,.60);font-weight:950}
+    .site-footer .row{display:flex;align-items:center;justify-content:center;gap:18px;flex-wrap:wrap}
+    .sep{opacity:.35}
+
+    @media(max-width:768px){
+      .plan-card{grid-template-columns:1fr}
+      .info-grid{grid-template-columns:1fr}
+      .nav-tabs{overflow-x:auto;gap:4px}
+      .nav-tabs a{padding:12px 16px;font-size:14px}
+    }
+  
   </style>
 </head>
 <body>
@@ -503,63 +703,547 @@
 
 
     <!-- Billing Tab -->
-    <div id="tab-billing" style="display:none; background:white; border-radius:16px; padding:30px; box-shadow:0 4px 20px rgba(0,0,0,0.03);">
-      <h3 style="margin:0 0 4px; color:var(--purpleDark);">Billing & Subscription</h3>
-      <p style="color:var(--muted); font-size:14px; margin-bottom:24px;">Manage your plan and view payment history.</p>
+    <div id="tab-billing" style="display:block">
 
-      <!-- Account Blocked Banner -->
-      <div id="billing-blocked-banner" style="display:none; padding:16px 20px; background:linear-gradient(135deg, #fecaca, #fca5a5); border:2px solid #ef4444; border-radius:12px; margin-bottom:20px; font-size:14px; color:#991b1b;">
-        <strong>🚫 Account Blocked</strong><br>
-        Your subscription is cancelled and your account is currently blocked. Your members can no longer scan QR codes or redeem perks.
-        <div style="margin-top:12px;">
-          <button class="btn btn-purple" style="padding:10px 20px; font-size:14px;" onclick="reactivateSubscription()">Reactivate Subscription →</button>
+      <!-- ─── TRIAL (no promo — 7/10) ─── -->
+      <div id="scene-trial-10" class="scene" style="display:none">
+        <div class="alert alert-success">
+          <span class="icon">🟢</span>
+          <div>You're on the <strong>Free Trial</strong>. Your card will not be charged until you reach <strong>10</strong> active members.</div>
+        </div>
+        <div class="billing-section">
+          <h3>Your Plan</h3>
+          <div class="plan-card">
+            <div class="plan-details">
+              <span class="plan-badge trial">🟢 Free Trial</span>
+              <div class="plan-price" style="color:var(--greenDark)">Free <span>until 10 members</span></div>
+              <ul class="plan-features">
+                <li>1 countertop QR sign</li>
+                <li>Welcome perk for new members</li>
+                <li>Track scans &amp; redemptions</li>
+              </ul>
+              <div class="no-charge-note">🔒 Your card on file will NOT be charged until you reach 10 members</div>
+            </div>
+            <div class="usage-widget">
+              <div style="font-size:13px;font-weight:700;color:var(--muted)">Active Members</div>
+              <div class="usage-count">7 <span>/ 10</span></div>
+              <div class="usage-bar"><div class="usage-fill" style="width:70%"></div></div>
+              <div class="usage-note">📊 3 more members → auto-charge starts ($29.99/mo)</div>
+            </div>
+          </div>
+        </div>
+        <div class="billing-section">
+          <h3>Manage</h3>
+          <div class="action-link" >
+            <div class="left">
+              <div class="icon-wrap">💳</div>
+              <div><h4>Update Payment Method</h4><p>Change the card on file via Stripe's secure portal</p></div>
+            </div>
+            <div class="arrow">→</div>
+          </div>
+          <div class="action-link" onclick="showCancelWarning()">
+            <div class="left">
+              <div class="icon-wrap" style="background:rgba(220,53,69,.08)">🚫</div>
+              <div><h4 style="color:var(--red)">Cancel Subscription</h4><p>This will completely block your account — not just downgrade</p></div>
+            </div>
+            <div class="arrow" style="color:var(--red)">→</div>
+          </div>
+          <div id="cancel-warning-trial-10" class="cancel-warning" style="display:none">
+            <h4>⚠️ Are you sure? Cancelling will BLOCK your account:</h4>
+            <ul>
+              <li>You will not be able to create campaigns or promotions</li>
+              <li>Members will not be able to redeem perks by scanning your QR code</li>
+              <li>Your member list and data will be preserved but inaccessible</li>
+              <li>Only the Billing tab will remain active for reactivation</li>
+            </ul>
+            <button class="btn btn-red-outline btn-sm" >Yes, Cancel &amp; Block My Account</button>
+            <button class="btn btn-outline btn-sm" style="margin-left:8px" onclick="document.getElementById('cancel-warning-trial-10').style.display='none'">Never Mind</button>
+          </div>
         </div>
       </div>
 
-      <!-- Payment Failed Banner -->
-      <div id="billing-failed-banner" style="display:none; padding:16px 20px; background:linear-gradient(135deg, #fef3c7, #fde68a); border:2px solid #f59e0b; border-radius:12px; margin-bottom:20px; font-size:14px; color:#92400e;">
-        <strong>⚠️ Payment Failed</strong><br>
-        Your last payment attempt failed. Stripe will automatically retry.
-        If all retries fail, your account will be blocked. Please update your payment method.
+      <!-- ─── TRIAL + MEMBER-15 (12/15) ─── -->
+      <div id="scene-trial-15" class="scene" style="display:none">
+        <div class="alert alert-info">
+          <span class="icon">🎟️</span>
+          <div>Promo code <strong>MEMBER-15</strong> applied! Your card will not be charged until you reach <strong>15</strong> active members.</div>
+        </div>
+        <div class="billing-section">
+          <h3>Your Plan</h3>
+          <div class="plan-card">
+            <div class="plan-details">
+              <span class="plan-badge trial">🟢 Free Trial + MEMBER-15</span>
+              <div class="plan-price" style="color:var(--greenDark)">Free <span>until 15 members</span></div>
+              <ul class="plan-features">
+                <li>Extended trial — 15 member limit</li>
+                <li>All trial features included</li>
+              </ul>
+              <div class="no-charge-note">🔒 Your card on file will NOT be charged until you reach 15 members</div>
+            </div>
+            <div class="usage-widget">
+              <div style="font-size:13px;font-weight:700;color:var(--muted)">Active Members</div>
+              <div class="usage-count">12 <span>/ 15</span></div>
+              <div class="usage-bar"><div class="usage-fill" style="width:80%"></div></div>
+              <div class="usage-note">📊 3 more members → auto-charge starts ($29.99/mo)</div>
+            </div>
+          </div>
+        </div>
+        <div class="billing-section">
+          <h3>Manage</h3>
+          <div class="action-link" >
+            <div class="left">
+              <div class="icon-wrap">💳</div>
+              <div><h4>Update Payment Method</h4><p>Change the card on file via Stripe's secure portal</p></div>
+            </div>
+            <div class="arrow">→</div>
+          </div>
+          <div class="action-link" >
+            <div class="left">
+              <div class="icon-wrap" style="background:rgba(220,53,69,.08)">🚫</div>
+              <div><h4 style="color:var(--red)">Cancel Subscription</h4><p>This will completely block your account — not just downgrade</p></div>
+            </div>
+            <div class="arrow" style="color:var(--red)">→</div>
+          </div>
+        </div>
       </div>
 
-      <!-- Plan Status Cards -->
-      <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:16px; margin-bottom:30px;">
-        <div style="padding:20px; background:#faf5ff; border:1.5px solid #e9d5ff; border-radius:14px;">
-          <div style="font-size:13px; color:var(--muted); margin-bottom:6px;">Current Plan</div>
-          <div id="billing-tier" style="font-size:22px; font-weight:800; color:var(--purpleDark);">—</div>
+      <!-- ─── TRIAL + MEMBER-20 (15/20) ─── -->
+      <div id="scene-trial-20" class="scene" style="display:none">
+        <div class="alert alert-info">
+          <span class="icon">🎟️</span>
+          <div>Promo code <strong>MEMBER-20</strong> applied! Your card will not be charged until you reach <strong>20</strong> active members.</div>
         </div>
-        <div style="padding:20px; background:#f0fdf4; border:1.5px solid #bbf7d0; border-radius:14px;">
-          <div style="font-size:13px; color:var(--muted); margin-bottom:6px;">Members</div>
-          <div id="billing-members" style="font-size:22px; font-weight:800; color:#15803d;">—</div>
+        <div class="billing-section">
+          <h3>Your Plan</h3>
+          <div class="plan-card">
+            <div class="plan-details">
+              <span class="plan-badge trial">🟢 Free Trial + MEMBER-20</span>
+              <div class="plan-price" style="color:var(--greenDark)">Free <span>until 20 members</span></div>
+              <ul class="plan-features">
+                <li>Extended trial — 20 member limit</li>
+                <li>All trial features included</li>
+              </ul>
+              <div class="no-charge-note">🔒 Your card on file will NOT be charged until you reach 20 members</div>
+            </div>
+            <div class="usage-widget">
+              <div style="font-size:13px;font-weight:700;color:var(--muted)">Active Members</div>
+              <div class="usage-count">15 <span>/ 20</span></div>
+              <div class="usage-bar"><div class="usage-fill" style="width:75%"></div></div>
+              <div class="usage-note">📊 5 more members → auto-charge starts ($29.99/mo)</div>
+            </div>
+          </div>
         </div>
-        <div style="padding:20px; background:#eff6ff; border:1.5px solid #bfdbfe; border-radius:14px;">
-          <div style="font-size:13px; color:var(--muted); margin-bottom:6px;">Status</div>
-          <div id="billing-status" style="font-size:22px; font-weight:800; color:#1d4ed8;">—</div>
-        </div>
-        <div style="padding:20px; background:#fefce8; border:1.5px solid #fde68a; border-radius:14px;">
-          <div style="font-size:13px; color:var(--muted); margin-bottom:6px;">Next Billing</div>
-          <div id="billing-next" style="font-size:18px; font-weight:700; color:#854d0e;">—</div>
+        <div class="billing-section">
+          <h3>Manage</h3>
+          <div class="action-link" >
+            <div class="left">
+              <div class="icon-wrap">💳</div>
+              <div><h4>Update Payment Method</h4><p>Change the card on file via Stripe's secure portal</p></div>
+            </div>
+            <div class="arrow">→</div>
+          </div>
+          <div class="action-link" >
+            <div class="left">
+              <div class="icon-wrap" style="background:rgba(220,53,69,.08)">🚫</div>
+              <div><h4 style="color:var(--red)">Cancel Subscription</h4><p>This will completely block your account — not just downgrade</p></div>
+            </div>
+            <div class="arrow" style="color:var(--red)">→</div>
+          </div>
         </div>
       </div>
 
-      <!-- Pricing Info -->
-      <div style="padding:20px; background:#f8fafc; border:1.5px solid var(--border); border-radius:14px; margin-bottom:30px;">
-        <h4 style="margin:0 0 10px; color:var(--purpleDark);">💡 Pricing</h4>
-        <p style="font-size:14px; color:var(--muted); margin:0 0 8px; line-height:1.6;">
-          <strong>Free Trial</strong> — $0/mo, up to <span id="billing-limit">10</span> members. No credit card charge until you hit your limit.
-        </p>
-        <p style="font-size:14px; color:var(--muted); margin:0; line-height:1.6;">
-          <strong>Tier 1</strong> — $29.99/mo, unlimited members. Automatically activates when your trial limit is reached or when you select Tier 1 at signup.
-        </p>
+      <!-- ─── TRIAL NEAR LIMIT (9/10) ─── -->
+      <div id="scene-trial-near-10" class="scene" style="display:none">
+        <div class="alert alert-success">
+          <span class="icon">🚀</span>
+          <div><strong>Amazing progress!</strong> You've grown to 9 members — your community loves what you offer!</div>
+        </div>
+        <div class="billing-section">
+          <h3>Your Plan</h3>
+          <div class="plan-card">
+            <div class="plan-details">
+              <span class="plan-badge trial">🟢 Free Trial</span>
+              <div class="plan-price" style="color:var(--greenDark)">Free <span>— growing fast!</span></div>
+              <ul class="plan-features">
+                <li>1 countertop QR sign</li>
+                <li>Welcome perk for new members</li>
+                <li>Track scans &amp; redemptions</li>
+              </ul>
+              <div class="no-charge-note">🎉 One more sign-up unlocks unlimited members and direct campaign creation for $29.99/mo, billed automatically. No action needed on your side!</div>
+            </div>
+            <div class="usage-widget">
+              <div style="font-size:13px;font-weight:700;color:var(--muted)">Active Members</div>
+              <div class="usage-count">9 <span>/ 10</span></div>
+              <div class="usage-bar"><div class="usage-fill" style="width:90%"></div></div>
+              <div class="usage-note">🌟 1 more member and you'll unlock Tier 1 features!</div>
+            </div>
+          </div>
+        </div>
+        <div class="billing-section">
+          <h3>Manage</h3>
+          <div class="action-link" >
+            <div class="left">
+              <div class="icon-wrap">💳</div>
+              <div><h4>Update Payment Method</h4><p>Change the card on file via Stripe's secure portal</p></div>
+            </div>
+            <div class="arrow">→</div>
+          </div>
+          <div class="action-link" >
+            <div class="left">
+              <div class="icon-wrap" style="background:rgba(220,53,69,.08)">🚫</div>
+              <div><h4 style="color:var(--red)">Cancel Subscription</h4><p>This will completely block your account — not just downgrade</p></div>
+            </div>
+            <div class="arrow" style="color:var(--red)">→</div>
+          </div>
+        </div>
       </div>
 
-      <!-- Invoice History -->
-      <h4 style="margin:0 0 12px; color:var(--purpleDark);">Invoice History</h4>
-      <div id="billing-invoices" style="font-size:14px; color:var(--muted);">
-        <p>No invoices yet.</p>
+      <!-- ─── TRIAL NEAR LIMIT + MEMBER-15 (14/15) ─── -->
+      <div id="scene-trial-near-15" class="scene" style="display:none">
+        <div class="alert alert-success">
+          <span class="icon">🚀</span>
+          <div><strong>Amazing progress!</strong> 14 members and counting — your community loves what you offer!</div>
+        </div>
+        <div class="billing-section">
+          <h3>Your Plan</h3>
+          <div class="plan-card">
+            <div class="plan-details">
+              <span class="plan-badge trial">🟢 Free Trial + MEMBER-15</span>
+              <div class="plan-price" style="color:var(--greenDark)">Free <span>— growing fast!</span></div>
+              <ul class="plan-features">
+                <li>Extended trial — 15 member limit</li>
+                <li>All trial features included</li>
+              </ul>
+              <div class="no-charge-note">🎉 One more sign-up unlocks unlimited members and direct campaign creation for $29.99/mo, billed automatically. No action needed on your side!</div>
+            </div>
+            <div class="usage-widget">
+              <div style="font-size:13px;font-weight:700;color:var(--muted)">Active Members</div>
+              <div class="usage-count">14 <span>/ 15</span></div>
+              <div class="usage-bar"><div class="usage-fill" style="width:93%"></div></div>
+              <div class="usage-note">🌟 1 more member and you'll unlock Tier 1 features!</div>
+            </div>
+          </div>
+        </div>
+        <div class="billing-section">
+          <h3>Manage</h3>
+          <div class="action-link" >
+            <div class="left"><div class="icon-wrap">💳</div><div><h4>Update Payment Method</h4><p>Change the card on file via Stripe's secure portal</p></div></div>
+            <div class="arrow">→</div>
+          </div>
+          <div class="action-link" >
+            <div class="left"><div class="icon-wrap" style="background:rgba(220,53,69,.08)">🚫</div><div><h4 style="color:var(--red)">Cancel Subscription</h4><p>This will completely block your account</p></div></div>
+            <div class="arrow" style="color:var(--red)">→</div>
+          </div>
+        </div>
       </div>
-    </div>
+
+      <!-- ─── TRIAL NEAR LIMIT + MEMBER-20 (19/20) ─── -->
+      <div id="scene-trial-near-20" class="scene" style="display:none">
+        <div class="alert alert-success">
+          <span class="icon">🚀</span>
+          <div><strong>Amazing progress!</strong> 19 members already — your community loves what you offer!</div>
+        </div>
+        <div class="billing-section">
+          <h3>Your Plan</h3>
+          <div class="plan-card">
+            <div class="plan-details">
+              <span class="plan-badge trial">🟢 Free Trial + MEMBER-20</span>
+              <div class="plan-price" style="color:var(--greenDark)">Free <span>— growing fast!</span></div>
+              <ul class="plan-features">
+                <li>Extended trial — 20 member limit</li>
+                <li>All trial features included</li>
+              </ul>
+              <div class="no-charge-note">🎉 One more sign-up unlocks unlimited members and direct campaign creation for $29.99/mo, billed automatically. No action needed on your side!</div>
+            </div>
+            <div class="usage-widget">
+              <div style="font-size:13px;font-weight:700;color:var(--muted)">Active Members</div>
+              <div class="usage-count">19 <span>/ 20</span></div>
+              <div class="usage-bar"><div class="usage-fill" style="width:95%"></div></div>
+              <div class="usage-note">🌟 1 more member and you'll unlock Tier 1 features!</div>
+            </div>
+          </div>
+        </div>
+        <div class="billing-section">
+          <h3>Manage</h3>
+          <div class="action-link" >
+            <div class="left"><div class="icon-wrap">💳</div><div><h4>Update Payment Method</h4><p>Change the card on file via Stripe's secure portal</p></div></div>
+            <div class="arrow">→</div>
+          </div>
+          <div class="action-link" >
+            <div class="left"><div class="icon-wrap" style="background:rgba(220,53,69,.08)">🚫</div><div><h4 style="color:var(--red)">Cancel Subscription</h4><p>This will completely block your account</p></div></div>
+            <div class="arrow" style="color:var(--red)">→</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── TIER 1 ACTIVE ─── -->
+      <div id="scene-tier1" class="scene" style="display:none">
+        <div class="alert alert-success">
+          <span class="icon">✅</span>
+          <div>Your <strong>Tier 1</strong> subscription is active. Next charge: <strong>April 27, 2026</strong> — $29.99.</div>
+        </div>
+        <div class="billing-section">
+          <h3>Your Plan</h3>
+          <div class="plan-card">
+            <div class="plan-details">
+              <span class="plan-badge tier1">💎 Tier 1</span>
+              <div class="plan-price">$29.99 <span>/month</span></div>
+              <ul class="plan-features">
+                <li>Unlimited digital promotions</li>
+                <li>Weekly newsletter inclusions</li>
+                <li>Push notifications to members</li>
+                <li>Advanced member analytics</li>
+                <li>Priority support</li>
+              </ul>
+            </div>
+            <div class="usage-widget" style="justify-content:center;text-align:center">
+              <div style="font-size:42px;margin-bottom:4px">♾️</div>
+              <div style="font-size:20px;font-weight:900;color:var(--purpleDark)">Unlimited Members</div>
+              <div style="font-size:14px;color:var(--muted);font-weight:600">Currently: 47 active members</div>
+            </div>
+          </div>
+        </div>
+        <div class="info-grid">
+          <div class="info-item">
+            <div class="label">Billing Status</div>
+            <div class="value"><span class="status-pill active">● Active</span></div>
+          </div>
+          <div class="info-item">
+            <div class="label">Next Billing Date</div>
+            <div class="value">Apr 27, 2026</div>
+          </div>
+          <div class="info-item">
+            <div class="label">Member Since</div>
+            <div class="value">Jan 27, 2026</div>
+          </div>
+        </div>
+        <div class="billing-section">
+          <h3>Manage Subscription</h3>
+          <div class="action-link" >
+            <div class="left">
+              <div class="icon-wrap">💳</div>
+              <div><h4>Update Payment Method</h4><p>Change your card or bank account via Stripe's secure portal</p></div>
+            </div>
+            <div class="arrow">→</div>
+          </div>
+          <div class="action-link" >
+            <div class="left">
+              <div class="icon-wrap">📄</div>
+              <div><h4>Download Invoices</h4><p>Access and download PDF invoices for your records</p></div>
+            </div>
+            <div class="arrow">→</div>
+          </div>
+          <div class="action-link" onclick="showCancelWarning()">
+            <div class="left">
+              <div class="icon-wrap" style="background:rgba(220,53,69,.08)">🚫</div>
+              <div><h4 style="color:var(--red)">Cancel Subscription</h4><p>WARNING: This will completely block your account — not just downgrade</p></div>
+            </div>
+            <div class="arrow" style="color:var(--red)">→</div>
+          </div>
+          <div id="cancel-warning-tier1" class="cancel-warning" style="display:none">
+            <h4>⚠️ Are you sure? Cancelling will BLOCK your entire account:</h4>
+            <ul>
+              <li>You will NOT be able to create campaigns or promotions</li>
+              <li>Members will NOT be able to redeem perks by scanning your QR code</li>
+              <li>Your member list and campaign data will be preserved but inaccessible</li>
+              <li>Only the Billing tab will remain active for reactivation</li>
+            </ul>
+            <p style="font-size:12px;color:var(--muted);margin-bottom:12px">Your data will be preserved. You can reactivate anytime to restore full access.</p>
+            <button class="btn btn-red-outline btn-sm" >Yes, Cancel &amp; Block My Account</button>
+            <button class="btn btn-outline btn-sm" style="margin-left:8px" onclick="document.getElementById('cancel-warning-tier1').style.display='none'">Never Mind</button>
+          </div>
+        </div>
+        <div class="billing-section">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+            <h3 style="margin:0">Invoice History</h3>
+            <button class="btn btn-outline btn-sm">⬇ Export CSV</button>
+          </div>
+          <div style="overflow-x:auto">
+            <table class="invoice-table">
+              <thead><tr><th>Invoice</th><th>Date</th><th>Period</th><th>Amount</th><th>Status</th><th></th></tr></thead>
+              <tbody>
+                <tr>
+                  <td style="font-family:monospace;color:var(--purple)">INV-2026-003</td>
+                  <td>Mar 27, 2026</td><td>Mar 27 – Apr 27</td>
+                  <td style="font-weight:900">$29.99</td>
+                  <td><span class="status-pill active">Paid</span></td>
+                  <td><a href="#" style="color:var(--purple);font-size:13px;font-weight:700">PDF ↗</a></td>
+                </tr>
+                <tr>
+                  <td style="font-family:monospace;color:var(--purple)">INV-2026-002</td>
+                  <td>Feb 27, 2026</td><td>Feb 27 – Mar 27</td>
+                  <td style="font-weight:900">$29.99</td>
+                  <td><span class="status-pill active">Paid</span></td>
+                  <td><a href="#" style="color:var(--purple);font-size:13px;font-weight:700">PDF ↗</a></td>
+                </tr>
+                <tr>
+                  <td style="font-family:monospace;color:var(--purple)">INV-2026-001</td>
+                  <td>Jan 27, 2026</td><td>Jan 27 – Feb 27</td>
+                  <td style="font-weight:900">$29.99</td>
+                  <td><span class="status-pill active">Paid</span></td>
+                  <td><a href="#" style="color:var(--purple);font-size:13px;font-weight:700">PDF ↗</a></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── PAYMENT FAILED ─── -->
+      <div id="scene-failed" class="scene" style="display:none">
+        <div class="alert alert-danger">
+          <span class="icon">🚨</span>
+          <div>
+            <strong>Payment failed!</strong> We couldn't charge your card ending in •••• 4242. Please update your payment method.
+            <br><span style="font-size:12px;opacity:0.8">Stripe will retry in 3 days. After 3 failed attempts, your account will be <strong>completely blocked</strong>.</span>
+          </div>
+        </div>
+        <div class="billing-section">
+          <h3>Your Plan</h3>
+          <div class="plan-card">
+            <div class="plan-details">
+              <span class="plan-badge tier1">💎 Tier 1</span>
+              <div class="plan-price">$29.99 <span>/month</span></div>
+              <div style="margin-top:4px">
+                <span class="status-pill failed">⚠ Payment Failed</span>
+                <span style="font-size:12px;color:var(--muted);margin-left:8px">Retry in 3 days</span>
+              </div>
+            </div>
+            <div class="usage-widget" style="border-color:rgba(220,53,69,.3);text-align:center;justify-content:center">
+              <div style="font-size:44px;margin-bottom:6px">⚠️</div>
+              <div style="font-weight:800;color:var(--red);margin-bottom:12px">Action Required</div>
+              <button class="btn btn-purple" >💳 Update Payment Method</button>
+            </div>
+          </div>
+        </div>
+        <div class="billing-section">
+          <h3>Manage Subscription</h3>
+          <div class="action-link" >
+            <div class="left">
+              <div class="icon-wrap">💳</div>
+              <div><h4>Update Payment Method</h4><p>Fix your payment to avoid account suspension</p></div>
+            </div>
+            <div class="arrow">→</div>
+          </div>
+          <div class="action-link" >
+            <div class="left">
+              <div class="icon-wrap" style="background:rgba(220,53,69,.08)">🚫</div>
+              <div><h4 style="color:var(--red)">Cancel Subscription</h4><p>This will completely block your account</p></div>
+            </div>
+            <div class="arrow" style="color:var(--red)">→</div>
+          </div>
+        </div>
+        <div class="billing-section">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+            <h3 style="margin:0">Invoice History</h3>
+          </div>
+          <table class="invoice-table">
+            <thead><tr><th>Invoice</th><th>Date</th><th>Amount</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr style="background:rgba(220,53,69,.03)">
+                <td style="font-family:monospace">INV-2026-004</td>
+                <td>Apr 27, 2026</td>
+                <td style="font-weight:900">$29.99</td>
+                <td><span class="status-pill failed">● Failed</span></td>
+              </tr>
+              <tr>
+                <td style="font-family:monospace;color:var(--purple)">INV-2026-003</td>
+                <td>Mar 27, 2026</td>
+                <td style="font-weight:900">$29.99</td>
+                <td><span class="status-pill active">Paid</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ─── ACCOUNT BLOCKED (CANCELLED) ─── -->
+      <div id="scene-blocked" class="scene" style="display:none">
+        <div class="alert alert-danger" style="background:rgba(220,53,69,.12);border-color:rgba(220,53,69,.4)">
+          <span class="icon">🚫</span>
+          <div>
+            <strong>Account Suspended.</strong> Your subscription has been cancelled and all services are blocked.
+            <br>Members cannot redeem perks. Campaigns are frozen. Only this Billing tab is accessible.
+          </div>
+        </div>
+
+        <div class="billing-section" style="text-align:center;padding:48px">
+          <div style="font-size:52px;margin-bottom:14px">🔒</div>
+          <h3 style="font-size:24px;margin-bottom:8px;color:var(--red)">Account Blocked</h3>
+          <p style="color:var(--muted);font-size:15px;max-width:520px;margin:0 auto 24px">
+            Your subscription was cancelled. All services are suspended — campaigns, promotions, and QR code redemptions are disabled. Your member data and campaign history are <strong>preserved</strong> and will be restored when you reactivate.
+          </p>
+
+          <div style="background:rgba(220,53,69,.04);border:1.5px solid rgba(220,53,69,.15);border-radius:14px;padding:20px;max-width:440px;margin:0 auto 28px;text-align:left">
+            <div style="font-size:13px;font-weight:800;color:var(--red);margin-bottom:10px">What's currently blocked:</div>
+            <div style="display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600;color:#991b1b">
+              <div>❌ Cannot create campaigns or promotions</div>
+              <div>❌ Members see "This merchant is inactive" when scanning QR</div>
+              <div>❌ Member list is frozen (data preserved, not deleted)</div>
+              <div>❌ No emails sent to your members</div>
+            </div>
+          </div>
+
+          <div style="background:rgba(107,193,122,.06);border:1.5px solid rgba(107,193,122,.2);border-radius:14px;padding:20px;max-width:440px;margin:0 auto 28px;text-align:left">
+            <div style="font-size:13px;font-weight:800;color:var(--greenDark);margin-bottom:10px">What's still available:</div>
+            <div style="display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600;color:#166534">
+              <div>✅ This Billing tab</div>
+              <div>✅ View invoice history</div>
+              <div>✅ Update payment method</div>
+              <div>✅ Reactivate subscription</div>
+            </div>
+          </div>
+
+          <button class="btn btn-green" style="padding:16px 36px;font-size:16px" >
+            🔄 Reactivate Subscription — $29.99/mo
+          </button>
+          <p style="font-size:12px;color:var(--muted);margin-top:12px">
+            Your saved card will be charged immediately. All your members and campaigns will be restored.
+          </p>
+        </div>
+
+        <div class="billing-section">
+          <h3>Manage</h3>
+          <div class="action-link" >
+            <div class="left">
+              <div class="icon-wrap">💳</div>
+              <div><h4>Update Payment Method</h4><p>Update your card before reactivating</p></div>
+            </div>
+            <div class="arrow">→</div>
+          </div>
+        </div>
+
+        <div class="billing-section">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+            <h3 style="margin:0">Invoice History</h3>
+          </div>
+          <table class="invoice-table">
+            <thead><tr><th>Invoice</th><th>Date</th><th>Amount</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr style="background:rgba(220,53,69,.03)">
+                <td style="font-family:monospace">INV-2026-004</td>
+                <td>Apr 27, 2026</td>
+                <td style="font-weight:900">$29.99</td>
+                <td><span class="status-pill failed">● Failed</span></td>
+              </tr>
+              <tr>
+                <td style="font-family:monospace;color:var(--purple)">INV-2026-003</td>
+                <td>Mar 27, 2026</td>
+                <td style="font-weight:900">$29.99</td>
+                <td><span class="status-pill active">Paid</span></td>
+              </tr>
+              <tr>
+                <td style="font-family:monospace;color:var(--purple)">INV-2026-002</td>
+                <td>Feb 27, 2026</td>
+                <td style="font-weight:900">$29.99</td>
+                <td><span class="status-pill active">Paid</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- /tab-billing -->
 
     <!-- Profile Settings -->
     <div id="tab-profile" style="display:none; background:white; border-radius:16px; padding:30px; box-shadow:0 4px 20px rgba(0,0,0,0.03);">
@@ -1229,66 +1913,198 @@
       if (tabId === 'billing') loadBilling();
     }
 
+    async function goToCustomerPortal() {
+      const token = localStorage.getItem('perkfinity_token');
+      const merchantId = localStorage.getItem('perkfinity_merchant_id');
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/v1/stripe/create-customer-portal`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ merchant_id: merchantId })
+        });
+        const json = await res.json();
+        if (json.success && json.data.url) {
+          window.location.href = json.data.url;
+        } else {
+          alert('Failed to open billing portal: ' + (json.error || 'Unknown error'));
+        }
+      } catch(e) {
+        alert('Error connecting to billing system.');
+      }
+    }
+
+    async function cancelSubscription() {
+      if(!confirm("Are you sure you want to cancel? You will have access until the end of your billing cycle, after which your account will be blocked.")) return;
+      const token = localStorage.getItem('perkfinity_token');
+      const merchantId = localStorage.getItem('perkfinity_merchant_id');
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/v1/merchants/${merchantId}/billing/cancel`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const json = await res.json();
+        if (json.success) {
+          alert("Your subscription has been cancelled and will end at the current billing cycle.");
+          loadBilling();
+        } else {
+          alert('Failed to cancel: ' + json.error);
+        }
+      } catch(e) {
+        alert('Error cancelling subscription.');
+      }
+    }
+
+    function showCancelWarning() {
+      const visibleScene = document.querySelector('.scene[style*="display: block"], .scene[style*="display:block"]');
+      if (!visibleScene) return;
+      const warning = visibleScene.querySelector('.cancel-warning');
+      if (warning) {
+        warning.style.display = warning.style.display === 'none' ? 'block' : 'none';
+      }
+    }
+
+    function doCancelAction() {
+      cancelSubscription();
+    }
+
+    function exportInvoicesCSV() {
+      if(!window.currentInvoices || !window.currentInvoices.length) {
+        alert("No invoices to export."); return;
+      }
+      let csvContent = "data:text/csv;charset=utf-8,";
+      csvContent += "Invoice ID,Date,Period,Amount,Status,PDF Link\n";
+      window.currentInvoices.forEach(inv => {
+        const date = new Date(inv.created_at).toLocaleDateString();
+        const amount = "$" + (inv.amount_cents / 100).toFixed(2);
+        const st = inv.status;
+        const pdf = inv.hosted_invoice_url || "N/A";
+        csvContent += `${inv.stripe_invoice_id},${date},,${amount},${st},${pdf}\n`;
+      });
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "perkfinity_invoices.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
     async function loadBilling() {
       const token = localStorage.getItem('perkfinity_token');
+      const merchantId = localStorage.getItem('perkfinity_merchant_id');
       try {
         const res = await fetch(`${BACKEND_URL}/api/v1/merchants/${merchantId}/billing`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const json = await res.json();
-        if (!json.success) {
-          console.error('Failed to load billing:', json.error);
-          return;
-        }
+        if (!json.success) return console.error('Failed to load billing:', json.error);
         const d = json.data;
+        window.currentInvoices = d.invoices || [];
 
-        // Tier display
-        const tierMap = { 'trial': 'Free Trial', 'free': 'Free Trial', 'tier1': 'Tier 1 ($29.99/mo)' };
-        document.getElementById('billing-tier').textContent = tierMap[d.tier] || d.tier || 'Free Trial';
-
-        // Members
-        const memberLimit = d.member_limit || 10;
-        document.getElementById('billing-members').textContent = `${d.member_count} / ${memberLimit}`;
-        document.getElementById('billing-limit').textContent = memberLimit;
-
-        // Status
-        const statusMap = { 'none': '—', 'trial': '✅ Trial', 'active': '✅ Active', 'payment_failed': '⚠️ Payment Failed', 'cancelled': '🚫 Cancelled' };
-        document.getElementById('billing-status').textContent = statusMap[d.billing_status] || d.billing_status || '—';
-
-        // Next billing
-        if (d.next_billing_date) {
-          document.getElementById('billing-next').textContent = new Date(d.next_billing_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-        } else {
-          document.getElementById('billing-next').textContent = d.tier === 'trial' ? 'After trial limit' : '—';
+        // Determine scene
+        let sceneName = 'tier1';
+        if (d.account_blocked) {
+          sceneName = 'blocked';
+        } else if (d.billing_status === 'payment_failed') {
+          sceneName = 'failed';
+        } else if (d.tier === 'trial' || d.tier === 'free') {
+          let limit = d.member_limit || 10;
+          let count = d.member_count || 0;
+          let diff = limit - count;
+          let base = limit === 10 ? '10' : (limit === 15 ? '15' : '20');
+          sceneName = (diff <= 2 && diff >= 0) ? `trial-near-${base}` : `trial-${base}`;
         }
 
-        // Banners
-        document.getElementById('billing-blocked-banner').style.display = d.account_blocked ? 'block' : 'none';
-        document.getElementById('billing-failed-banner').style.display = (d.billing_status === 'payment_failed' && !d.account_blocked) ? 'block' : 'none';
-
-        // Invoices
-        const invoiceEl = document.getElementById('billing-invoices');
-        if (d.invoices && d.invoices.length > 0) {
-          const rows = d.invoices.map(inv => {
-            const date = new Date(inv.paid_at || inv.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-            const amount = `$${(inv.amount_cents / 100).toFixed(2)}`;
-            const badge = inv.status === 'paid'
-              ? '<span style="background:#dcfce7;color:#15803d;padding:2px 8px;border-radius:6px;font-size:12px;font-weight:600;">Paid</span>'
-              : '<span style="background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:6px;font-size:12px;font-weight:600;">Pending</span>';
-            return `<tr><td style="padding:8px 12px;">${date}</td><td style="padding:8px 12px;">${amount}</td><td style="padding:8px 12px;">${badge}</td></tr>`;
-          }).join('');
-          invoiceEl.innerHTML = `
-            <table style="width:100%;border-collapse:collapse;">
-              <thead><tr style="border-bottom:2px solid var(--border);text-align:left;">
-                <th style="padding:8px 12px;font-weight:600;color:var(--purpleDark);">Date</th>
-                <th style="padding:8px 12px;font-weight:600;color:var(--purpleDark);">Amount</th>
-                <th style="padding:8px 12px;font-weight:600;color:var(--purpleDark);">Status</th>
-              </tr></thead>
-              <tbody>${rows}</tbody>
-            </table>`;
-        } else {
-          invoiceEl.innerHTML = '<p style="color:var(--muted);font-size:14px;">No invoices yet. Invoices will appear here once your Tier 1 subscription starts.</p>';
+        // Hide all scenes
+        document.querySelectorAll('.scene').forEach(s => s.style.display = 'none');
+        
+        // Handle pending cancellation state
+        let pendingCancelAlert = '';
+        if (d.billing_status === 'pending_cancellation') {
+            pendingCancelAlert = `
+            <div class="alert alert-warning" style="margin-bottom:20px;">
+              <span class="icon">ℹ️</span>
+              <div>
+                <strong>Cancellation Pending.</strong> Your subscription will cancel at the end of your billing cycle. You will retain full access until then, after which your account will be suspended.
+              </div>
+            </div>`;
         }
+
+        const sceneEl = document.getElementById('scene-' + sceneName);
+        if (sceneEl) {
+          sceneEl.style.display = 'block';
+
+          // Inject pending cancellation alert at top if needed
+          if (pendingCancelAlert) {
+             let exist = sceneEl.querySelector('.cancel-alert-banner');
+             if(!exist) {
+                sceneEl.insertAdjacentHTML('afterbegin', `<div class="cancel-alert-banner">${pendingCancelAlert}</div>`);
+             }
+             // Hide cancel buttons if already cancelling
+             sceneEl.querySelectorAll('.action-link').forEach(link => {
+                if(link.innerHTML.includes('Cancel Subscription')) link.style.display = 'none';
+             });
+          }
+
+          // Dynamic Updates
+          const usageCount = sceneEl.querySelector('.usage-count');
+          if (usageCount) usageCount.innerHTML = `${d.member_count || 0} <span>/ ${d.member_limit || 10}</span>`;
+          
+          const usageBar = sceneEl.querySelector('.usage-fill');
+          if (usageBar) {
+             let pct = ((d.member_count || 0) / (d.member_limit || 10)) * 100;
+             if (pct > 100) pct = 100;
+             usageBar.style.width = pct + "%";
+          }
+
+          // Info grids (for tier1)
+          const nextBillingVals = sceneEl.querySelectorAll('.value');
+          if (nextBillingVals.length >= 3 && d.next_billing_date) {
+            nextBillingVals[1].innerText = new Date(d.next_billing_date).toLocaleDateString();
+          }
+
+          // Wiring buttons
+          sceneEl.querySelectorAll('.action-link').forEach(link => {
+             link.onclick = null; // remove existing
+             if (link.innerHTML.includes('Update Payment Method') || link.innerHTML.includes('Download Invoices')) {
+                 link.onclick = goToCustomerPortal;
+             }
+          });
+          
+          // Wire Cancel Warning Confirm
+          const realCancelBtn = sceneEl.querySelector('.cancel-warning button.btn-red-outline');
+          if (realCancelBtn) realCancelBtn.onclick = doCancelAction;
+
+          // Wire Export CSV
+          const exportBtn = sceneEl.querySelector('button.btn-outline:not(.btn-sm)'); 
+          if(exportBtn && exportBtn.innerText.includes('Export CSV')) {
+             exportBtn.onclick = exportInvoicesCSV;
+          }
+
+          // Build Inv Table
+          const tbody = sceneEl.querySelector('.invoice-table tbody');
+          if (tbody) {
+             if (window.currentInvoices.length > 0) {
+                 tbody.innerHTML = window.currentInvoices.map(inv => {
+                     const date = new Date(inv.created_at).toLocaleDateString();
+                     const amount = "$" + (inv.amount_cents / 100).toFixed(2);
+                     const badge = inv.status === 'paid' ? '<span class="status-pill active">Paid</span>' : '<span class="status-pill failed">Failed</span>';
+                     return `<tr>
+                        <td style="font-family:monospace;color:var(--purple)">${inv.stripe_invoice_id || 'INV-PENDING'}</td>
+                        <td>${date}</td>
+                        <td style="font-weight:900">${amount}</td>
+                        <td>${badge}</td>
+                     </tr>`;
+                 }).join('');
+             } else {
+                 tbody.innerHTML = '<tr><td colspan="4" style="color:var(--muted);text-align:center;padding:12px;">No invoices yet.</td></tr>';
+             }
+          }
+        }
+
       } catch (e) {
         console.error('Error loading billing:', e);
       }
