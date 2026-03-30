@@ -76,6 +76,7 @@
         <a href="#" onclick="switchTab('promotion')">Create a Promotion</a>
 
         <a href="#" onclick="switchTab('profile')">Profile</a>
+        <a href="#" onclick="switchTab('billing')">Billing</a>
       </div>
     </div>
   </div>
@@ -500,6 +501,65 @@
     </div><!-- /tab-promotion -->
 
 
+
+    <!-- Billing Tab -->
+    <div id="tab-billing" style="display:none; background:white; border-radius:16px; padding:30px; box-shadow:0 4px 20px rgba(0,0,0,0.03);">
+      <h3 style="margin:0 0 4px; color:var(--purpleDark);">Billing & Subscription</h3>
+      <p style="color:var(--muted); font-size:14px; margin-bottom:24px;">Manage your plan and view payment history.</p>
+
+      <!-- Account Blocked Banner -->
+      <div id="billing-blocked-banner" style="display:none; padding:16px 20px; background:linear-gradient(135deg, #fecaca, #fca5a5); border:2px solid #ef4444; border-radius:12px; margin-bottom:20px; font-size:14px; color:#991b1b;">
+        <strong>🚫 Account Blocked</strong><br>
+        Your subscription is cancelled and your account is currently blocked. Your members can no longer scan QR codes or redeem perks.
+        <div style="margin-top:12px;">
+          <button class="btn btn-purple" style="padding:10px 20px; font-size:14px;" onclick="reactivateSubscription()">Reactivate Subscription →</button>
+        </div>
+      </div>
+
+      <!-- Payment Failed Banner -->
+      <div id="billing-failed-banner" style="display:none; padding:16px 20px; background:linear-gradient(135deg, #fef3c7, #fde68a); border:2px solid #f59e0b; border-radius:12px; margin-bottom:20px; font-size:14px; color:#92400e;">
+        <strong>⚠️ Payment Failed</strong><br>
+        Your last payment attempt failed. Stripe will automatically retry.
+        If all retries fail, your account will be blocked. Please update your payment method.
+      </div>
+
+      <!-- Plan Status Cards -->
+      <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:16px; margin-bottom:30px;">
+        <div style="padding:20px; background:#faf5ff; border:1.5px solid #e9d5ff; border-radius:14px;">
+          <div style="font-size:13px; color:var(--muted); margin-bottom:6px;">Current Plan</div>
+          <div id="billing-tier" style="font-size:22px; font-weight:800; color:var(--purpleDark);">—</div>
+        </div>
+        <div style="padding:20px; background:#f0fdf4; border:1.5px solid #bbf7d0; border-radius:14px;">
+          <div style="font-size:13px; color:var(--muted); margin-bottom:6px;">Members</div>
+          <div id="billing-members" style="font-size:22px; font-weight:800; color:#15803d;">—</div>
+        </div>
+        <div style="padding:20px; background:#eff6ff; border:1.5px solid #bfdbfe; border-radius:14px;">
+          <div style="font-size:13px; color:var(--muted); margin-bottom:6px;">Status</div>
+          <div id="billing-status" style="font-size:22px; font-weight:800; color:#1d4ed8;">—</div>
+        </div>
+        <div style="padding:20px; background:#fefce8; border:1.5px solid #fde68a; border-radius:14px;">
+          <div style="font-size:13px; color:var(--muted); margin-bottom:6px;">Next Billing</div>
+          <div id="billing-next" style="font-size:18px; font-weight:700; color:#854d0e;">—</div>
+        </div>
+      </div>
+
+      <!-- Pricing Info -->
+      <div style="padding:20px; background:#f8fafc; border:1.5px solid var(--border); border-radius:14px; margin-bottom:30px;">
+        <h4 style="margin:0 0 10px; color:var(--purpleDark);">💡 Pricing</h4>
+        <p style="font-size:14px; color:var(--muted); margin:0 0 8px; line-height:1.6;">
+          <strong>Free Trial</strong> — $0/mo, up to <span id="billing-limit">10</span> members. No credit card charge until you hit your limit.
+        </p>
+        <p style="font-size:14px; color:var(--muted); margin:0; line-height:1.6;">
+          <strong>Tier 1</strong> — $29.99/mo, unlimited members. Automatically activates when your trial limit is reached or when you select Tier 1 at signup.
+        </p>
+      </div>
+
+      <!-- Invoice History -->
+      <h4 style="margin:0 0 12px; color:var(--purpleDark);">Invoice History</h4>
+      <div id="billing-invoices" style="font-size:14px; color:var(--muted);">
+        <p>No invoices yet.</p>
+      </div>
+    </div>
 
     <!-- Profile Settings -->
     <div id="tab-profile" style="display:none; background:white; border-radius:16px; padding:30px; box-shadow:0 4px 20px rgba(0,0,0,0.03);">
@@ -1102,7 +1162,7 @@
     }
 
     function switchTab(tabId) {
-      document.querySelectorAll('.empty-state, #tab-members, #tab-profile, #tab-print-sign, #tab-promotion').forEach(el => el.style.display = 'none');
+      document.querySelectorAll('.empty-state, #tab-members, #tab-profile, #tab-print-sign, #tab-promotion, #tab-billing').forEach(el => el.style.display = 'none');
       document.querySelectorAll('.nav-tabs a').forEach(el => el.classList.remove('active'));
       
       const target = document.getElementById('tab-' + tabId);
@@ -1166,11 +1226,103 @@
         })
         .catch(e => console.error("Failed to load profile data"));
       }
+      if (tabId === 'billing') loadBilling();
+    }
+
+    async function loadBilling() {
+      const token = localStorage.getItem('perkfinity_token');
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/v1/merchants/${merchantId}/billing`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const json = await res.json();
+        if (!json.success) {
+          console.error('Failed to load billing:', json.error);
+          return;
+        }
+        const d = json.data;
+
+        // Tier display
+        const tierMap = { 'trial': 'Free Trial', 'free': 'Free Trial', 'tier1': 'Tier 1 ($29.99/mo)' };
+        document.getElementById('billing-tier').textContent = tierMap[d.tier] || d.tier || 'Free Trial';
+
+        // Members
+        const memberLimit = d.member_limit || 10;
+        document.getElementById('billing-members').textContent = `${d.member_count} / ${memberLimit}`;
+        document.getElementById('billing-limit').textContent = memberLimit;
+
+        // Status
+        const statusMap = { 'none': '—', 'trial': '✅ Trial', 'active': '✅ Active', 'payment_failed': '⚠️ Payment Failed', 'cancelled': '🚫 Cancelled' };
+        document.getElementById('billing-status').textContent = statusMap[d.billing_status] || d.billing_status || '—';
+
+        // Next billing
+        if (d.next_billing_date) {
+          document.getElementById('billing-next').textContent = new Date(d.next_billing_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        } else {
+          document.getElementById('billing-next').textContent = d.tier === 'trial' ? 'After trial limit' : '—';
+        }
+
+        // Banners
+        document.getElementById('billing-blocked-banner').style.display = d.account_blocked ? 'block' : 'none';
+        document.getElementById('billing-failed-banner').style.display = (d.billing_status === 'payment_failed' && !d.account_blocked) ? 'block' : 'none';
+
+        // Invoices
+        const invoiceEl = document.getElementById('billing-invoices');
+        if (d.invoices && d.invoices.length > 0) {
+          const rows = d.invoices.map(inv => {
+            const date = new Date(inv.paid_at || inv.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            const amount = `$${(inv.amount_cents / 100).toFixed(2)}`;
+            const badge = inv.status === 'paid'
+              ? '<span style="background:#dcfce7;color:#15803d;padding:2px 8px;border-radius:6px;font-size:12px;font-weight:600;">Paid</span>'
+              : '<span style="background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:6px;font-size:12px;font-weight:600;">Pending</span>';
+            return `<tr><td style="padding:8px 12px;">${date}</td><td style="padding:8px 12px;">${amount}</td><td style="padding:8px 12px;">${badge}</td></tr>`;
+          }).join('');
+          invoiceEl.innerHTML = `
+            <table style="width:100%;border-collapse:collapse;">
+              <thead><tr style="border-bottom:2px solid var(--border);text-align:left;">
+                <th style="padding:8px 12px;font-weight:600;color:var(--purpleDark);">Date</th>
+                <th style="padding:8px 12px;font-weight:600;color:var(--purpleDark);">Amount</th>
+                <th style="padding:8px 12px;font-weight:600;color:var(--purpleDark);">Status</th>
+              </tr></thead>
+              <tbody>${rows}</tbody>
+            </table>`;
+        } else {
+          invoiceEl.innerHTML = '<p style="color:var(--muted);font-size:14px;">No invoices yet. Invoices will appear here once your Tier 1 subscription starts.</p>';
+        }
+      } catch (e) {
+        console.error('Error loading billing:', e);
+      }
+    }
+
+    async function reactivateSubscription() {
+      const btn = event.target;
+      btn.disabled = true;
+      btn.textContent = 'Reactivating...';
+
+      try {
+        const token = localStorage.getItem('perkfinity_token');
+        const res = await fetch(`${BACKEND_URL}/api/v1/merchants/${merchantId}/billing/reactivate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
+        });
+        const json = await res.json();
+        if (json.success) {
+          alert('✅ Subscription reactivated! Your account is now active.');
+          loadBilling(); // Refresh
+        } else {
+          alert('❌ ' + (json.error || 'Failed to reactivate'));
+        }
+      } catch (e) {
+        alert('❌ Network error. Please try again.');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Reactivate Subscription →';
+      }
     }
     
     function generateSignFromDashboard() {
       // Switch tab visually to our new print view
-      document.querySelectorAll('.empty-state, #tab-members, #tab-profile, #tab-print-sign').forEach(el => el.style.display = 'none');
+      document.querySelectorAll('.empty-state, #tab-members, #tab-profile, #tab-print-sign, #tab-billing').forEach(el => el.style.display = 'none');
       document.querySelectorAll('.nav-tabs a').forEach(el => el.classList.remove('active'));
       document.getElementById('tab-print-sign').style.display = 'block';
 
