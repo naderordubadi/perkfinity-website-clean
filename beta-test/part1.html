@@ -416,16 +416,23 @@
   <div class="step">
     <div class="step-header">
       <div class="step-number">4</div>
-      <div class="step-title">Step 4: Connect Bank Account</div>
+      <div class="step-title">Step 4: Payment Method</div>
     </div>
-    <p>This step collects payment information via <strong>Plaid</strong> (a secure bank connection service).</p>
+    <p>This step securely collects payment information via <strong>Stripe</strong>.</p>
 
     <div class="tip-box">
-      <strong>💡 For Testing:</strong> This is currently a <strong>sandbox/simulated</strong> Plaid connection. No real bank account will be connected or charged. Simply click the <span class="field-label">🔗 Connect Bank with Plaid</span> button and wait for the simulated connection to complete.
+      <strong>💡 For Testing:</strong> This is currently pointing to the <strong>Stripe Test Environment</strong>. No real cards will be charged.
+      <br><br>Please enter the following fake testing details:
+      <ul style="margin-top:8px;">
+        <li><span class="field-label">Card Number</span> — <code style="background:#fff;padding:2px 6px;border-radius:4px;color:#3A2870;">4242 4242 4242 4242</code></li>
+        <li><span class="field-label">Expiration</span> — Any future date (e.g. <code style="background:#fff;padding:2px 6px;border-radius:4px;color:#3A2870;">12/30</code>)</li>
+        <li><span class="field-label">CVC</span> — Any 3 digits (e.g. <code style="background:#fff;padding:2px 6px;border-radius:4px;color:#3A2870;">123</code>)</li>
+        <li><span class="field-label">ZIP</span> — Any 5 digits (e.g. <code style="background:#fff;padding:2px 6px;border-radius:4px;color:#3A2870;">12345</code>)</li>
+      </ul>
     </div>
 
-    <p>If you selected <strong>Trial Mode</strong> in Step 2, you'll see a green notice explaining that you won't be billed until reaching 10 active members.</p>
-    <p>After the Plaid simulation completes, you'll automatically advance to Step 5.</p>
+    <p>If you selected <strong>Trial Mode</strong> in Step 2, you'll see a green notice explaining that you won't be billed until reaching 10 active members. The system simply saves the card on file for future use.</p>
+    <p>Click <span class="field-label">Save Payment Details</span>. After the simulation completes, you'll automatically advance to Step 5.</p>
   </div>
 
   <!-- STEP 5 -->

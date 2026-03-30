@@ -761,9 +761,8 @@
         btn.disabled = true;
         btn.innerText = 'Saving card...';
 
-        // --- MOCK MODE FOR BETA TESTERS ---
-        // Change to false to re-enable real Stripe payments
-        const ENABLE_MOCK_PAYMENT = true;
+        // [MOCK BYPASS] Set to true ONLY if testers cannot use real Stripe
+        const ENABLE_MOCK_PAYMENT = false;
         if (ENABLE_MOCK_PAYMENT) {
           setTimeout(() => {
             document.querySelectorAll('.wizard-step').forEach(el => el.style.display = 'none');
@@ -771,7 +770,6 @@
           }, 1000); // Fake a 1 second network delay
           return;
         }
-        // ----------------------------------
 
         if (!stripeInstance || !stripeClientSecret) {
           errEl.textContent = 'Payment system not ready. Please wait a moment and try again.';
