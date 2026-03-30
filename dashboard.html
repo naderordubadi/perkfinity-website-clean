@@ -2060,6 +2060,13 @@
              usageBar.style.width = pct + "%";
           }
 
+          const usageNote = sceneEl.querySelector('.usage-note');
+          if (usageNote && (d.tier === 'trial' || d.tier === 'free')) {
+              let diff = (d.member_limit || 10) - (d.member_count || 0);
+              if (diff < 0) diff = 0;
+              usageNote.innerHTML = `📊 ${diff} more members → auto-charge starts ($29.99/mo)`;
+          }
+
           // Info grids (for tier1)
           const nextBillingVals = sceneEl.querySelectorAll('.value');
           if (nextBillingVals.length >= 3 && d.next_billing_date) {
