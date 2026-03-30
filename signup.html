@@ -231,9 +231,9 @@
             </div>
           </div>
 
-          <!-- STEP 4: Payment (Plaid Integration) -->
+          <!-- STEP 4: Payment (Stripe Integration) -->
           <div id="step-4-bank" class="wizard-step" style="display:none;">
-            <h3 style="margin-top:0;margin-bottom:12px;color:var(--purpleDark)">Step 4: Connect Bank Account</h3>
+            <h3 style="margin-top:0;margin-bottom:12px;color:var(--purpleDark)">Step 4: Payment Information</h3>
 
             <!-- ⏰ Amber session notice -->
             <div id="session-notice" style="padding:14px 18px;background:linear-gradient(135deg, #fef3c7, #fde68a);border:2px solid #f59e0b;border-radius:12px;margin-bottom:18px;font-size:14px;color:#92400e;display:flex;align-items:flex-start;gap:10px;">
@@ -248,28 +248,47 @@
             <div id="trial-bank-notice"
               style="display:none;padding:14px 18px;background:rgba(107,193,122,.12);border:1px solid rgba(107,193,122,.4);border-radius:12px;margin-bottom:18px;font-size:14px;color:#1a6b2b">
               🟢 <strong>No charge today!</strong> You're on the <strong>Trial Plan</strong>. We collect your payment
-              info now, but <strong>you won't be billed until you reach 10 active members</strong>, which then you will be upgraded to Tier 1.
+              info now, but <strong>you won't be billed until you reach <span id="trial-limit-text">10</span> active members</strong>, which then you will be upgraded to Tier 1.
             </div>
             <!-- Tier 1 notice -->
             <div id="tier1-bank-notice"
               style="display:none;padding:14px 18px;background:rgba(91,63,165,.06);border:1px solid rgba(91,63,165,.2);border-radius:12px;margin-bottom:18px;font-size:14px;color:var(--purpleDark)">
-              💳 Your <strong>$29.99/mo Tier 1</strong> subscription will begin once your bank is connected. No hidden
+              💳 Your <strong>$29.99/mo Tier 1</strong> subscription will begin once your card is connected. No hidden
               fees.
             </div>
 
-            <div
-              style="padding:40px 20px;border:1px solid var(--border);border-radius:16px;margin-bottom:30px;background:#FAFAFA;text-align:center">
+            <!-- STRIPE CARD FORM (Trial — Setup Intent) -->
+            <div id="stripe-card-section"
+              style="padding:40px 20px;border:1px solid var(--border);border-radius:16px;margin-bottom:20px;background:#FAFAFA;">
               <div
                 style="width:60px;height:60px;background:var(--purpleLight);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px">
-                <span style="font-size:24px">🏦</span>
+                <span style="font-size:24px">💳</span>
               </div>
-              <h4 style="margin:0 0 10px;color:var(--ink)">Plaid Secure Connection</h4>
-              <p style="margin:0 0 20px;font-size:14px;color:var(--muted)">We use Plaid to securely verify your bank
-                account without storing your credentials.</p>
+              <h4 style="margin:0 0 10px;color:var(--ink);text-align:center">Enter Your Card Details</h4>
+              <p style="margin:0 0 20px;font-size:14px;color:var(--muted);text-align:center">Your card is securely stored by Stripe. We never see your full card number.</p>
 
-              <button class="btn btn-purple" id="btnPlaidLink" style="padding:15px 30px;font-size:16px"
-                onclick="openMockPlaidLink()">
-                🔗 Connect Bank with Plaid
+              <!-- Stripe Elements mount point -->
+              <div id="card-element" style="padding:14px 16px;border:1.5px solid var(--border);border-radius:12px;background:#fff;min-height:44px;"></div>
+              <div id="card-errors" style="color:#dc3545;font-size:13px;margin-top:8px;display:none;"></div>
+
+              <button class="btn btn-purple" id="btnSaveCard" style="width:100%;padding:15px;margin-top:20px;font-size:16px"
+                onclick="handleStripePayment()">
+                Save Card & Continue →
+              </button>
+            </div>
+
+            <!-- STRIPE CHECKOUT REDIRECT (Tier 1) -->
+            <div id="stripe-checkout-section" style="display:none;padding:40px 20px;border:1px solid var(--border);border-radius:16px;margin-bottom:20px;background:#FAFAFA;text-align:center;">
+              <div
+                style="width:60px;height:60px;background:var(--purpleLight);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px">
+                <span style="font-size:24px">💳</span>
+              </div>
+              <h4 style="margin:0 0 10px;color:var(--ink)">Complete Your Payment</h4>
+              <p style="margin:0 0 20px;font-size:14px;color:var(--muted)">You'll be redirected to Stripe's secure checkout to pay <strong>$29.99</strong> for your first month.</p>
+
+              <button class="btn btn-purple" id="btnCheckout" style="padding:15px 30px;font-size:16px"
+                onclick="handleStripeCheckout()">
+                💳 Pay $29.99 & Continue →
               </button>
             </div>
 
@@ -391,6 +410,8 @@
 
     <!-- Required JS for rendering QRs natively in HTML -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- Stripe.js for secure payment collection -->
+    <script src="https://js.stripe.com/v3/"></script>
     <script>
       let selectedTier = 'trial';
       let currentMerchantId = null;
@@ -399,6 +420,40 @@
       let currentQrUrl = null;
       let uploadedLogoBase64 = null;
       const BACKEND_URL = 'https://perkfinity-backend.vercel.app';
+      const STRIPE_PK = 'pk_test_51TGUVuPlipdB2ZzDsDA8vLlFIlfCaMrPojFTSYaNTPqTND4JREDBdCLJqzwEVyPdHNmmdEFm5uBsgVVI4rNG1bp8001Z7I0iQA';
+
+      // Stripe Elements init
+      let stripeInstance = null;
+      let stripeElements = null;
+      let cardElement = null;
+      let stripeClientSecret = null;
+
+      function initStripeElements(clientSecret) {
+        stripeClientSecret = clientSecret;
+        stripeInstance = Stripe(STRIPE_PK);
+        stripeElements = stripeInstance.elements();
+        cardElement = stripeElements.create('card', {
+          style: {
+            base: {
+              fontSize: '16px',
+              color: '#1a1a2e',
+              fontFamily: 'Inter, Outfit, system-ui, sans-serif',
+              '::placeholder': { color: '#aab7c4' }
+            },
+            invalid: { color: '#dc3545' }
+          }
+        });
+        cardElement.mount('#card-element');
+        cardElement.on('change', (event) => {
+          const errEl = document.getElementById('card-errors');
+          if (event.error) {
+            errEl.textContent = event.error.message;
+            errEl.style.display = 'block';
+          } else {
+            errEl.style.display = 'none';
+          }
+        });
+      }
 
       function togglePassword(inputId, icon) {
         const input = document.getElementById(inputId);
@@ -457,7 +512,7 @@
         printWindow.document.close();
       }
 
-      // Add auto-formatting to phone input
+      // Add auto-formatting to phone input + handle Stripe Checkout return
       document.addEventListener('DOMContentLoaded', () => {
         const phoneInput = document.getElementById('phone');
         if (phoneInput) {
@@ -465,6 +520,42 @@
             let x = e.target.value.replace(/\D/g, '').match(/(\d{0,3})(\d{0,3})(\d{0,4})/);
             e.target.value = !x[2] ? x[1] : x[1] + '-' + x[2] + (x[3] ? '-' + x[3] : '');
           });
+        }
+
+        // Handle return from Stripe Checkout (Tier 1)
+        const urlParams = new URLSearchParams(window.location.search);
+        const paymentStatus = urlParams.get('payment');
+        const returnMerchantId = urlParams.get('merchant_id');
+
+        if (paymentStatus === 'success' && returnMerchantId) {
+          // Restore session from localStorage
+          currentMerchantId = returnMerchantId;
+          currentAccessToken = localStorage.getItem('perkfinity_token');
+          currentQrUrl = null; // Will be generated at sign generation
+
+          // Skip directly to Step 5 (logo upload)
+          document.querySelectorAll('.wizard-step').forEach(el => el.style.display = 'none');
+          document.getElementById('step-5-logo').style.display = 'block';
+
+          // Clean the URL
+          window.history.replaceState({}, document.title, window.location.pathname);
+        } else if (paymentStatus === 'cancelled' && returnMerchantId) {
+          // User cancelled checkout — show Step 4 with an error
+          currentMerchantId = returnMerchantId;
+          currentAccessToken = localStorage.getItem('perkfinity_token');
+          selectedTier = 'tier1';
+
+          document.querySelectorAll('.wizard-step').forEach(el => el.style.display = 'none');
+          document.getElementById('step-4-bank').style.display = 'block';
+          document.getElementById('tier1-bank-notice').style.display = 'block';
+          document.getElementById('stripe-card-section').style.display = 'none';
+          document.getElementById('stripe-checkout-section').style.display = 'block';
+
+          const errEl = document.getElementById('signupError');
+          errEl.innerText = 'Payment was cancelled. Please try again to activate your account.';
+          errEl.style.display = 'block';
+
+          window.history.replaceState({}, document.title, window.location.pathname);
         }
       });
 
@@ -604,7 +695,7 @@
           localStorage.setItem('perkfinity_business_name', payload.name);
           localStorage.setItem('perkfinity_email', payload.email);
 
-          // ALL tiers collect bank info — Trial won't be charged until 10 members
+          // ALL tiers collect payment info
           currentPlaidToken = data.data?.plaid_link_token;
           document.querySelectorAll('.wizard-step').forEach(el => el.style.display = 'none');
           document.getElementById('step-4-bank').style.display = 'block';
@@ -612,6 +703,9 @@
           // Show the correct notice banner for the selected tier
           document.getElementById('trial-bank-notice').style.display = selectedTier === 'trial' ? 'block' : 'none';
           document.getElementById('tier1-bank-notice').style.display = selectedTier === 'tier1' ? 'block' : 'none';
+
+          // Initialize Stripe UI for this tier
+          showPaymentStep();
 
         } catch (e) {
           err.innerText = e.message;
@@ -622,16 +716,110 @@
         }
       }
 
-      async function openMockPlaidLink() {
-        const btn = document.getElementById('btnPlaidLink');
-        btn.disabled = true;
-        btn.innerText = "Connecting to Plaid Sandbox...";
+      // Show correct payment UI based on tier
+      function showPaymentStep() {
+        if (selectedTier === 'tier1') {
+          // Tier 1: Show checkout redirect button
+          document.getElementById('stripe-card-section').style.display = 'none';
+          document.getElementById('stripe-checkout-section').style.display = 'block';
+        } else {
+          // Trial: Show inline card form — need to create Setup Intent first
+          document.getElementById('stripe-card-section').style.display = 'block';
+          document.getElementById('stripe-checkout-section').style.display = 'none';
+          createSetupIntent();
+        }
 
-        // Simulating the user completing the Plaid authentication
-        setTimeout(async () => {
-          document.querySelectorAll('.wizard-step').forEach(el => el.style.display = 'none');
-          document.getElementById('step-5-logo').style.display = 'block';
-        }, 1500);
+        // Update trial limit text based on promo code
+        const promoCode = document.getElementById('promo_code').value.trim().toUpperCase();
+        const limitMap = { 'MEMBER-15': 15, 'MEMBER-20': 20 };
+        const limit = limitMap[promoCode] || 10;
+        const limitSpan = document.getElementById('trial-limit-text');
+        if (limitSpan) limitSpan.textContent = limit;
+      }
+
+      async function createSetupIntent() {
+        try {
+          const res = await fetch(`${BACKEND_URL}/api/v1/stripe/create-setup-intent`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ merchant_id: currentMerchantId })
+          });
+          const data = await res.json();
+          if (data.success && data.data.client_secret) {
+            initStripeElements(data.data.client_secret);
+          } else {
+            console.error('Setup intent creation failed:', data.error);
+          }
+        } catch (e) {
+          console.error('Failed to create setup intent:', e);
+        }
+      }
+
+      async function handleStripePayment() {
+        const btn = document.getElementById('btnSaveCard');
+        const errEl = document.getElementById('card-errors');
+        btn.disabled = true;
+        btn.innerText = 'Saving card...';
+
+        if (!stripeInstance || !stripeClientSecret) {
+          errEl.textContent = 'Payment system not ready. Please wait a moment and try again.';
+          errEl.style.display = 'block';
+          btn.disabled = false;
+          btn.innerText = 'Save Card & Continue →';
+          return;
+        }
+
+        try {
+          const { setupIntent, error } = await stripeInstance.confirmCardSetup(stripeClientSecret, {
+            payment_method: { card: cardElement }
+          });
+
+          if (error) {
+            errEl.textContent = error.message;
+            errEl.style.display = 'block';
+            btn.disabled = false;
+            btn.innerText = 'Save Card & Continue →';
+            return;
+          }
+
+          if (setupIntent.status === 'succeeded') {
+            // Card saved! Move to Step 5 (logo)
+            document.querySelectorAll('.wizard-step').forEach(el => el.style.display = 'none');
+            document.getElementById('step-5-logo').style.display = 'block';
+          }
+        } catch (e) {
+          errEl.textContent = 'An unexpected error occurred. Please try again.';
+          errEl.style.display = 'block';
+          btn.disabled = false;
+          btn.innerText = 'Save Card & Continue →';
+        }
+      }
+
+      async function handleStripeCheckout() {
+        const btn = document.getElementById('btnCheckout');
+        btn.disabled = true;
+        btn.innerText = 'Redirecting to Stripe...';
+
+        try {
+          const res = await fetch(`${BACKEND_URL}/api/v1/stripe/create-checkout-session`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ merchant_id: currentMerchantId })
+          });
+          const data = await res.json();
+          if (data.success && data.data.checkout_url) {
+            window.location.href = data.data.checkout_url;
+          } else {
+            const errEl = document.getElementById('signupError');
+            errEl.innerText = data.error || 'Failed to start checkout.';
+            errEl.style.display = 'block';
+            btn.disabled = false;
+            btn.innerText = '💳 Pay $29.99 & Continue →';
+          }
+        } catch (e) {
+          btn.disabled = false;
+          btn.innerText = '💳 Pay $29.99 & Continue →';
+        }
       }
 
       // Compress image to max 200x200px, JPEG quality 0.7 — keeps base64 under ~30KB
