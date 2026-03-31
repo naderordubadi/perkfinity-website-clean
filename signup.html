@@ -249,10 +249,20 @@
             <p style="font-size:13px;color:var(--muted);margin-top:-10px;margin-bottom:20px;">Must contain at least 1
               uppercase, 1 lowercase, and 1 number.</p>
             <div id="step3Error" style="color:red;margin-bottom:12px;display:none;"></div>
+            
+            <label style="display:flex;align-items:start;gap:10px;font-size:13px;color:var(--muted);margin-bottom:15px;cursor:pointer;">
+              <input type="checkbox" id="termsCheckbox" style="margin-top:2px;width:16px;height:16px;accent-color:var(--purple);cursor:pointer;" onchange="
+                const btn = document.getElementById('btnStep3');
+                btn.disabled = !this.checked;
+                btn.style.opacity = this.checked ? '1' : '0.5';
+                btn.style.cursor = this.checked ? 'pointer' : 'not-allowed';
+              ">
+              <span style="line-height:1.4">By creating an account, I acknowledge that I have read and agree to Perkfinity's <a href="terms-of-use.html" target="_blank" style="color:var(--purple);font-weight:600;text-decoration:none;">Terms of Use</a> and <a href="privacy-policy.html" target="_blank" style="color:var(--purple);font-weight:600;text-decoration:none;">Privacy Policy</a>.</span>
+            </label>
 
             <div style="display:flex;gap:15px">
               <button class="btn" style="background:#e2e8f0;color:#334155;flex:1;padding:15px;font-weight:600;border:1px solid #cbd5e1;" onclick="nextStep(2)">← Go Back</button>
-              <button class="btn btn-purple" id="btnStep3" style="flex:2;padding:15px" onclick="executeSignup()">Create
+              <button class="btn btn-purple" id="btnStep3" style="flex:2;padding:15px;opacity:0.5;cursor:not-allowed;" disabled onclick="executeSignup()">Create
                 Account & Continue →</button>
             </div>
           </div>
@@ -654,6 +664,15 @@
       async function executeSignup() {
         const btn = document.getElementById('btnStep3');
         const err = document.getElementById('step3Error');
+        
+        err.style.display = 'none';
+
+        // Validate Terms of Use
+        if (!document.getElementById('termsCheckbox').checked) {
+          err.innerText = "You must agree to the Terms of Use and Privacy Policy.";
+          err.style.display = 'block';
+          return;
+        }
 
         // Validate passwords
         const password = document.getElementById('password').value;
