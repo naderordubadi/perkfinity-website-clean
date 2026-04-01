@@ -822,6 +822,7 @@
           localStorage.setItem('perkfinity_merchant_id', currentMerchantId);
           localStorage.setItem('perkfinity_business_name', payload.name);
           localStorage.setItem('perkfinity_email', payload.email);
+          localStorage.setItem('perkfinity_member_perk', payload.perk);
 
           // ALL tiers collect payment info
           currentPlaidToken = data.data?.plaid_link_token;
@@ -1038,8 +1039,8 @@
         document.getElementById('step-4-success').style.display = 'block';
 
         // Inject dynamic values directly into poster
-        const storeName = document.getElementById('store_name').value;
-        const perk = document.getElementById('member_perk').value;
+        const storeName = localStorage.getItem('perkfinity_business_name') || document.getElementById('store_name').value;
+        const perk = localStorage.getItem('perkfinity_member_perk') || document.getElementById('member_perk').value;
 
         document.getElementById('poster-store').innerText = storeName;
         document.getElementById('poster-perk').innerText = perk;
