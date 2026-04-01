@@ -400,6 +400,7 @@
                 <th onclick="sortTable('merchants','business_name')">Business <span class="sort-arrow">▲</span></th>
                 <th onclick="sortTable('merchants','contact_email')">Email <span class="sort-arrow">▲</span></th>
                 <th onclick="sortTable('merchants','city')">City <span class="sort-arrow">▲</span></th>
+                <th onclick="sortTable('merchants','pos_system')">POS <span class="sort-arrow">▲</span></th>
                 <th onclick="sortTable('merchants','tier')">Tier <span class="sort-arrow">▲</span></th>
                 <th onclick="sortTable('merchants','status')">Status <span class="sort-arrow">▲</span></th>
                 <th onclick="sortTable('merchants','member_count')">Members <span class="sort-arrow">▲</span></th>
@@ -407,7 +408,7 @@
               </tr>
             </thead>
             <tbody id="merchants-tbody">
-              <tr><td colspan="7" style="color:var(--muted);text-align:center;padding:40px;">Loading merchants...</td></tr>
+              <tr><td colspan="8" style="color:var(--muted);text-align:center;padding:40px;">Loading merchants...</td></tr>
             </tbody>
           </table>
           <div class="pagination" id="merchants-pagination"></div>
@@ -813,12 +814,13 @@
               <td><strong>${m.business_name || '—'}</strong></td>
               <td>${m.contact_email || m.email || '—'}</td>
               <td>${m.city || '—'}</td>
+              <td>${m.pos_system || '—'}</td>
               <td><span class="badge ${m.tier === 'tier1' ? 'tier1' : 'free'}">${m.tier === 'tier1' ? 'Tier 1' : 'Free'}</span></td>
               <td><span class="badge ${m.status || 'active'}">${m.status || 'active'}</span></td>
               <td>${m.member_count || 0}</td>
               <td>${formatDate(m.created_at)}</td>
             </tr>
-          `).join('') || emptyRow(7, 'No merchants found');
+          `).join('') || emptyRow(8, 'No merchants found');
           break;
 
         case 'members':
