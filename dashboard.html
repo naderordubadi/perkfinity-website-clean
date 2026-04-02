@@ -978,9 +978,9 @@
 
       <!-- ─── TIER 1 ACTIVE ─── -->
       <div id="scene-tier1" class="scene" style="display:none">
-        <div class="alert alert-success">
-          <span class="icon">✅</span>
-          <div>Your <strong>Tier 1</strong> subscription is active. Next charge: <strong class="tier1-next-charge">April 27, 2026</strong> — $29.99.</div>
+        <div id="tier1-status-wrapper" class="alert alert-success">
+          <span id="tier1-status-icon" class="icon">✅</span>
+          <div id="tier1-status-text">Your <strong>Tier 1</strong> subscription is active. Next charge: <strong class="tier1-next-charge">April 27, 2026</strong> — $29.99.</div>
         </div>
         <div class="billing-section">
           <h3>Your Plan</h3>
@@ -2140,8 +2140,24 @@
              nextBillingStr = nextDt.toISOString();
           }
 
-          if (sceneEl.querySelector('.tier1-next-charge')) {
-            sceneEl.querySelector('.tier1-next-charge').innerText = nextBillingStr ? formatDt(nextBillingStr) : 'N/A';
+          if (d.billing_status === 'pending_cancellation') {
+             const banner = document.getElementById('tier1-status-wrapper');
+             if (banner) {
+                banner.className = 'alert alert-danger';
+                banner.style.background = 'rgba(220,53,69,.08)';
+                banner.style.borderColor = 'rgba(220,53,69,.3)';
+                banner.style.cursor = 'pointer';
+                banner.onclick = () => {
+                   const bottomBanner = document.querySelector('.cancel-alert-banner');
+                   if (bottomBanner) bottomBanner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                };
+                document.getElementById('tier1-status-icon').innerText = '⚠️';
+                document.getElementById('tier1-status-text').innerHTML = `<strong>Cancellation pending.</strong> Your account will be active until the end of your current subscription period on <strong>${nextBillingStr ? formatDt(nextBillingStr) : 'N/A'}</strong>, and then automatically cancel. <span style="text-decoration:underline; font-size:13px; margin-left:6px; color:var(--red);">See details ↓</span>`;
+             }
+          } else {
+             if (sceneEl.querySelector('.tier1-next-charge')) {
+               sceneEl.querySelector('.tier1-next-charge').innerText = nextBillingStr ? formatDt(nextBillingStr) : 'N/A';
+             }
           }
           if (sceneEl.querySelector('.tier1-next-billing')) {
             sceneEl.querySelector('.tier1-next-billing').innerText = nextBillingStr ? formatDt(nextBillingStr) : 'N/A';
