@@ -2034,10 +2034,20 @@
         let pendingCancelAlert = '';
         if (d.billing_status === 'pending_cancellation') {
             pendingCancelAlert = `
-            <div class="alert alert-warning" style="margin-bottom:20px;">
-              <span class="icon">ℹ️</span>
+            <div class="alert alert-danger" style="margin-bottom:20px; background:rgba(220,53,69,.08); border-color:rgba(220,53,69,.3);">
+              <span class="icon">⚠️</span>
               <div>
-                <strong>Cancellation Pending.</strong> Your subscription will cancel at the end of your billing cycle. You will retain full access until then, after which your account will be suspended.
+                <strong>Cancellation Pending.</strong> Your subscription will cancel at the end of your current billing cycle${d.next_billing_date ? ' (' + new Date(d.next_billing_date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) + ')' : ''}.
+                <div style="margin-top:10px; font-size:13px; color:#555;">
+                  <strong>When cancellation takes effect, your account will be fully blocked:</strong>
+                  <ul style="margin:6px 0 0 0; padding-left:18px; line-height:1.8;">
+                    <li>You will <strong>not</strong> be able to create campaigns or promotions</li>
+                    <li>Members will <strong>not</strong> be able to redeem perks by scanning your QR code</li>
+                    <li>Your member list and campaign data will be preserved but inaccessible</li>
+                    <li>Only the Billing tab will remain active for reactivation</li>
+                  </ul>
+                </div>
+                <div style="margin-top:8px; font-size:12px; color:var(--muted);">Your data will be preserved. You can reactivate anytime to restore full access.</div>
               </div>
             </div>`;
         }
@@ -2109,6 +2119,8 @@
              link.onclick = null; // remove existing
              if (link.innerHTML.includes('Update Payment Method') || link.innerHTML.includes('Download Invoices')) {
                  link.onclick = goToCustomerPortal;
+             } else if (link.innerHTML.includes('Cancel Subscription')) {
+                 link.onclick = showCancelWarning;
              }
           });
           
