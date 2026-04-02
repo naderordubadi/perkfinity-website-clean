@@ -2129,10 +2129,12 @@
           if (realCancelBtn) realCancelBtn.onclick = doCancelAction;
 
           // Wire Export CSV
-          const exportBtn = sceneEl.querySelector('button.btn-outline:not(.btn-sm)'); 
-          if(exportBtn && exportBtn.innerText.includes('Export CSV')) {
-             exportBtn.onclick = exportInvoicesCSV;
-          }
+          const exportBtns = sceneEl.querySelectorAll('button');
+          exportBtns.forEach(btn => {
+            if(btn.innerText.includes('Export CSV')) {
+               btn.onclick = exportInvoicesCSV;
+            }
+          });
 
           // Build Inv Table
           const tbody = sceneEl.querySelector('.invoice-table tbody');
