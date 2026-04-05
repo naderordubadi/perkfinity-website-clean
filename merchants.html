@@ -4,9 +4,87 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Perkfinity — For Merchants | Grow Your Business</title>
-  <meta name="description" content="Grow and retain customers with Perkfinity's privacy-first digital perks platform. Free setup, no hardware, no POS integration needed."/>
+  <meta name="description" content="Attract and retain customers with Perkfinity's privacy-first digital perks platform. No hardware, no employee training, no POS integration needed. Free setup."/>
   <link rel="icon" href="assets/Perkfinity-App-Icon.png"/>
   <link rel="stylesheet" href="styles.css"/>
+  <style>
+    /* ── Merchant Hero (premium dark, mirrors Members) ── */
+    .mch-hero{
+      position:relative;overflow:hidden;padding:72px 0 0;
+      background:linear-gradient(135deg,#0f0a1e 0%,#1a0f3c 40%,#0a1a10 100%);
+    }
+    .mch-orb{position:absolute;border-radius:50%;filter:blur(90px);pointer-events:none;z-index:0}
+    .mch-orb1{width:640px;height:640px;top:-140px;right:-100px;background:radial-gradient(circle,rgba(91,63,165,.5),transparent 70%)}
+    .mch-orb2{width:480px;height:480px;bottom:60px;left:-80px;background:radial-gradient(circle,rgba(107,193,122,.32),transparent 70%)}
+    .mch-hero-grid{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center;padding-bottom:100px;position:relative;z-index:1}
+    .mch-eyebrow{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+    .mch-tag{font-size:12px;font-weight:700;padding:5px 12px;border-radius:20px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.82);letter-spacing:.3px}
+    .mch-heading{font-size:clamp(36px,4.2vw,62px);font-weight:1100;line-height:1.05;letter-spacing:-.03em;margin:0 0 18px;color:#fff}
+    .mch-green{background:linear-gradient(90deg,#6BC17A,#9de06a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .mch-sub{font-size:17px;font-weight:500;color:rgba(255,255,255,.65);line-height:1.65;margin:0 0 32px;max-width:500px}
+    .mch-value-list{display:flex;flex-direction:column;gap:11px;margin-bottom:34px}
+    .mch-val-item{display:flex;align-items:center;gap:12px;font-size:15px;font-weight:700;color:rgba(255,255,255,.88)}
+    .mch-val-ico{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#6BC17A,#4fa860);display:grid;place-items:center;flex-shrink:0;box-shadow:0 3px 8px rgba(107,193,122,.35)}
+    .mch-val-ico svg{width:13px;height:13px}
+    .mch-cta-row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+    .mch-visual{position:relative;height:520px}
+    .mch-visual img{width:100%;height:100%;object-fit:cover;border-radius:28px;display:block;box-shadow:0 32px 80px rgba(0,0,0,.5)}
+    .mch-visual-glow{position:absolute;inset:-20px;border-radius:40px;background:radial-gradient(circle at 50% 50%,rgba(91,63,165,.25),transparent 70%);z-index:-1}
+    .mch-badge{position:absolute;display:flex;align-items:center;gap:10px;background:rgba(10,8,30,.85);border:1px solid rgba(255,255,255,.15);backdrop-filter:blur(14px);border-radius:14px;padding:10px 16px;min-width:170px;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+    .mch-badge-top{top:28px;right:-28px;animation:mchFloat 3.5s ease-in-out infinite}
+    .mch-badge-bot{bottom:48px;left:-28px;animation:mchFloat 3.5s ease-in-out infinite 1s}
+    .mch-badge-ico{font-size:22px}
+    .mch-badge-val{font-size:13px;font-weight:800;color:#fff}
+    .mch-badge-label{font-size:11px;color:rgba(255,255,255,.5)}
+    @keyframes mchFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+    .mch-wave{position:relative;height:130px;margin-top:-20px}
+    .mch-wave svg{position:absolute;left:0;bottom:-1px;width:100%;height:140px;display:block}
+
+    /* ── Value Props Grid ── */
+    .vp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+    .vp-card{background:#fff;border:1px solid var(--border);border-radius:22px;box-shadow:var(--shadow2);padding:28px 22px;transition:transform .2s,box-shadow .2s}
+    .vp-card:hover{transform:translateY(-4px);box-shadow:var(--shadow)}
+    .vp-ico{width:52px;height:52px;border-radius:18px;display:grid;place-items:center;margin-bottom:18px;font-size:26px}
+    .vp-ico.purple{background:rgba(91,63,165,.10);border:1px solid rgba(91,63,165,.18)}
+    .vp-ico.green{background:rgba(107,193,122,.12);border:1px solid rgba(107,193,122,.22)}
+    .vp-ico.red{background:rgba(224,73,80,.08);border:1px solid rgba(224,73,80,.15)}
+    .vp-card h4{margin:0 0 8px;font-size:17px;color:var(--purpleDark);font-weight:1100;letter-spacing:-.01em}
+    .vp-card p{margin:0;color:var(--muted);font-size:14px;font-weight:850;line-height:1.6}
+
+    /* ── Pricing Cards ── */
+    .pricing-cards{display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:820px;margin:0 auto}
+    .p-card{background:#fff;border:1.5px solid var(--border);border-radius:24px;padding:34px 30px;box-shadow:var(--shadow2);position:relative;transition:transform .2s,box-shadow .2s}
+    .p-card:hover{transform:translateY(-4px);box-shadow:var(--shadow)}
+    .p-card.featured{border-color:var(--purple);box-shadow:0 0 0 3px rgba(91,63,165,.12),var(--shadow)}
+    .p-badge{position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--purple),var(--purple2));color:#fff;font-size:11px;font-weight:1000;letter-spacing:.06em;text-transform:uppercase;padding:5px 16px;border-radius:999px;white-space:nowrap}
+    .p-tier{font-size:11px;font-weight:1000;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:8px}
+    .p-name{font-size:20px;font-weight:1100;color:var(--purpleDark);margin:0 0 4px}
+    .p-price{font-size:36px;font-weight:1100;color:var(--purpleDark);letter-spacing:-.03em;margin:14px 0 4px;line-height:1}
+    .p-price span{font-size:16px;font-weight:700;color:var(--muted)}
+    .p-limit{font-size:13px;font-weight:850;color:var(--greenDark);margin:0 0 22px;background:rgba(107,193,122,.10);border:1px solid rgba(107,193,122,.22);border-radius:8px;padding:6px 12px;display:inline-block}
+    .p-features{display:flex;flex-direction:column;gap:10px;margin-bottom:24px}
+    .p-feat{display:flex;align-items:flex-start;gap:10px;font-size:14px;font-weight:850;color:var(--ink)}
+    .p-feat .ck{width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,#6BC17A,#4fa860);display:grid;place-items:center;flex-shrink:0;margin-top:1px}
+    .p-feat .ck svg{width:11px;height:11px}
+    .p-cta{display:block;width:100%;text-align:center;padding:14px;border-radius:14px;font-weight:900;font-size:15px;text-decoration:none;transition:transform .15s,box-shadow .15s}
+    .p-cta:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.18)}
+    .p-cta.green{background:linear-gradient(135deg,#6BC17A,#4fa860);color:#fff}
+    .p-cta.purple{background:linear-gradient(135deg,var(--purple),var(--purple2));color:#fff}
+    .p-note{font-size:12px;color:var(--muted);text-align:center;margin-top:12px;font-weight:850}
+
+    /* ── Responsive ── */
+    @media(max-width:980px){
+      .mch-hero-grid{grid-template-columns:1fr;gap:32px;padding-bottom:60px}
+      .mch-visual{height:340px}
+      .mch-badge{display:none}
+      .vp-grid{grid-template-columns:1fr 1fr}
+      .pricing-cards{grid-template-columns:1fr}
+    }
+    @media(max-width:600px){
+      .vp-grid{grid-template-columns:1fr}
+      .pricing-cards{grid-template-columns:1fr}
+    }
+  </style>
 </head>
 <body>
   <header class="header">
@@ -31,95 +109,173 @@
   <main>
 
     <!-- ===== HERO ===== -->
-    <section class="merchant-hero">
-      <div class="container merchant-hero-inner">
+    <section class="mch-hero">
+      <div class="mch-orb mch-orb1" aria-hidden="true"></div>
+      <div class="mch-orb mch-orb2" aria-hidden="true"></div>
+      <div class="container mch-hero-grid">
+
+        <!-- LEFT: Copy -->
         <div>
-          <div class="breadcrumb" style="color:rgba(255,255,255,.55);margin-bottom:14px">
-            <a href="index.html" style="color:rgba(255,255,255,.65)">Home</a>
-            <span class="sep" style="opacity:.4">›</span>
-            <span>For Merchants</span>
+          <div class="mch-eyebrow">
+            <span class="mch-tag">🚀 Free Setup</span>
+            <span class="mch-tag">📱 No Hardware</span>
+            <span class="mch-tag">🔒 Zero Privacy Liability</span>
+            <span class="mch-tag">⚡ No POS Integration</span>
           </div>
-          <h1>Grow Your Business<br>with Perkfinity</h1>
-          <p class="hero-sub">One App. Safe. Simple. Local Perks.</p>
-          <div class="hero-badges">
-            <span class="hero-badge">🚀 Free Setup</span>
-            <span class="hero-badge">📱 No Hardware Needed</span>
-            <span class="hero-badge">🔒 Privacy-First</span>
-            <span class="hero-badge">⚡ No POS Integration</span>
+          <h1 class="mch-heading">
+            Grow Your Business.<br>
+            <span class="mch-green">Zero Friction.</span>
+          </h1>
+          <p class="mch-sub">Launch digital perks and announcements to your customers in minutes — no new hardware, no employee training, no complicated setup. Perkfinity works invisibly alongside your existing operation.</p>
+
+          <div class="mch-value-list">
+            <div class="mch-val-item">
+              <span class="mch-val-ico" aria-hidden="true"><svg viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5 6.5-7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              No employee training — customers do everything on their own phone
+            </div>
+            <div class="mch-val-item">
+              <span class="mch-val-ico" aria-hidden="true"><svg viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5 6.5-7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              Free email &amp; push notifications sent by Perkfinity to your members
+            </div>
+            <div class="mch-val-item">
+              <span class="mch-val-ico" aria-hidden="true"><svg viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5 6.5-7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              Frictionless check-out — no slowing down your line
+            </div>
+            <div class="mch-val-item">
+              <span class="mch-val-ico" aria-hidden="true"><svg viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5 6.5-7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              Zero privacy liability — you never collect or store customer data
+            </div>
+            <div class="mch-val-item">
+              <span class="mch-val-ico" aria-hidden="true"><svg viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5 6.5-7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              Online dashboard — create campaigns &amp; announcements from anywhere
+            </div>
           </div>
-          <a href="#merchant-interest" class="btn btn-green" style="font-size:16px;padding:15px 32px">
-            Join the Merchant Interest List →
-          </a>
+
+          <div class="mch-cta-row">
+            <a href="signup.html" class="btn btn-green" style="font-size:16px;padding:15px 32px;border-radius:14px;">
+              Sign Up Free →
+            </a>
+            <a href="login.html" class="btn" style="background:rgba(255,255,255,0.1);border:1.5px solid rgba(255,255,255,0.25);color:#fff;font-size:15px;padding:15px 24px;border-radius:14px;">
+              Merchant Login
+            </a>
+          </div>
         </div>
-        <div class="merchant-hero-img">
-          <img src="assets/merchant-hero.png" alt="Happy store owner viewing sales growth on tablet">
+
+        <!-- RIGHT: Visual -->
+        <div class="mch-visual" aria-label="Merchant using Perkfinity dashboard">
+          <div class="mch-visual-glow" aria-hidden="true"></div>
+          <img src="assets/merchant-hero.png" alt="Happy store owner viewing Perkfinity dashboard on tablet">
+          <div class="mch-badge mch-badge-top" aria-hidden="true">
+            <span class="mch-badge-ico">📊</span>
+            <div>
+              <div class="mch-badge-val">Live Dashboard</div>
+              <div class="mch-badge-label">Manage from anywhere</div>
+            </div>
+          </div>
+          <div class="mch-badge mch-badge-bot" aria-hidden="true">
+            <span class="mch-badge-ico">⚡</span>
+            <div>
+              <div class="mch-badge-val">Setup in 10 min</div>
+              <div class="mch-badge-label">No hardware needed</div>
+            </div>
+          </div>
         </div>
+
+      </div>
+      <div class="mch-wave" aria-hidden="true">
+        <svg viewBox="0 0 1440 140" preserveAspectRatio="none">
+          <path d="M0,90 C280,140 560,40 860,95 C1060,135 1260,60 1440,90 L1440,140 L0,140 Z" fill="#ffffff"/>
+        </svg>
       </div>
     </section>
 
-    <!-- ===== WHAT IS PERKFINITY ===== -->
+    <!-- ===== WHAT PERKFINITY DOES FOR YOU ===== -->
     <section class="info-section bg-white">
       <div class="container">
         <span class="section-label">
           <svg viewBox="0 0 16 16" fill="none" style="width:13px;height:13px"><circle cx="8" cy="8" r="6" stroke="#fff" stroke-width="1.5"/><path d="M8 5v3.5l2 1.5" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>
-          What is Perkfinity?
+          What You Get
         </span>
-        <h2>A Privacy-First Digital<br>Perks Platform</h2>
-        <p class="section-sub">Perkfinity helps local businesses attract and retain nearby customers through digital perks — with <strong>no hardware, no POS integration, and no disruption</strong> to your existing workflow. Customers use one app to discover your offers.</p>
-        <div class="tier-grid">
-          <div class="tier-card">
-            <div class="tier-badge"><span class="tier-dot">1</span> Tier 1</div>
-            <h3>Digital Coupons</h3>
-            <p>Offer instant digital coupons to new and returning customers. Simple, effective, and trackable with zero hardware required.</p>
+        <h2>Everything You Need.<br>Nothing You Don't.</h2>
+        <p class="section-sub">Perkfinity is built for local business owners who want results, not complexity. No loyalty punch cards. No app to install on your register. No training manual. Just a QR stand, an online dashboard, and more returning customers.</p>
+        <div class="vp-grid">
+
+          <div class="vp-card">
+            <div class="vp-ico purple">📱</div>
+            <h4>No Hardware. Ever.</h4>
+            <p>Place your branded QR stand at the counter. That's it. No tablets, no scanners, no new devices to buy, break, or maintain.</p>
           </div>
-          <div class="tier-card">
-            <div class="tier-badge"><span class="tier-dot">2</span> Tier 2</div>
-            <h3>Points &amp; Rewards</h3>
-            <p>Build a loyalty loop — customers earn points with every visit and redeem them for rewards you define. Keeps them coming back.</p>
+
+          <div class="vp-card">
+            <div class="vp-ico green">🎓</div>
+            <h4>Zero Employee Training</h4>
+            <p>Your staff does absolutely nothing different. Customers scan with their own phone while waiting in line — completely self-serve, every time.</p>
           </div>
-          <div class="tier-card">
-            <div class="tier-badge"><span class="tier-dot">3</span> Tier 3</div>
-            <h3>Insights &amp; Promotions</h3>
-            <p>Unlock advanced analytics, premium app visibility, and targeted promotional tools to grow your customer base.</p>
+
+          <div class="vp-card">
+            <div class="vp-ico purple">💻</div>
+            <h4>Online Dashboard Access</h4>
+            <p>Log in from any browser, anywhere. Create digital coupon campaigns, send announcements, and see who's joining — all in one clean dashboard.</p>
           </div>
+
+          <div class="vp-card">
+            <div class="vp-ico green">📣</div>
+            <h4>Free Email &amp; Push Notifications</h4>
+            <p>Perkfinity sends your campaigns and announcements to your members via email and push notification at no extra charge. Your message, delivered.</p>
+          </div>
+
+          <div class="vp-card">
+            <div class="vp-ico purple">⚡</div>
+            <h4>Frictionless Check-Out</h4>
+            <p>No phone numbers typed at the register. No awkward asks across the counter. Perkfinity never slows down your line — it's invisible to your cashiers.</p>
+          </div>
+
+          <div class="vp-card">
+            <div class="vp-ico red">🔒</div>
+            <h4>Zero Privacy Liability</h4>
+            <p>You never collect, store, or touch customer personal data. Perkfinity handles all of it, keeping you fully compliant and completely liability-free.</p>
+          </div>
+
         </div>
-        <p style="margin:22px 0 0;color:var(--muted);font-size:14px;font-weight:850;text-align:center">All tiers available at launch. The difference is simply pricing and feature depth.</p>
       </div>
     </section>
 
-    <!-- ===== ZERO EMPLOYEE FRICTION ===== -->
-    <section class="info-section" style="background:rgba(107, 193, 122, 0.04)">
-      <div class="container" style="max-width:920px; text-align:center;">
-        <span class="section-label" style="background:var(--green); color:#fff;">
+    <!-- ===== ZERO FRICTION SECTION ===== -->
+    <section class="info-section" style="background:rgba(107,193,122,0.04)">
+      <div class="container" style="max-width:920px;text-align:center">
+        <span class="section-label" style="background:var(--green);color:#fff">
           <svg viewBox="0 0 16 16" fill="none" style="width:13px;height:13px"><path d="M1 8L5 12L15 2" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           Zero Operational Friction
         </span>
-        <h2>No Staff Training Needed.</h2>
-        <p class="section-sub" style="margin-bottom:44px; max-width:700px; margin-left:auto; margin-right:auto;">We built Perkfinity to solve the #1 merchant complaint: <em>"Loyalty programs take too much line time."</em> Perkfinity operates 100% autonomously on the customer's hardware. Your employees do <strong>nothing</strong> different.</p>
-        
-        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:24px; text-align:left;">
-          <div style="background:#fff; border-radius:20px; padding:32px; box-shadow:0 8px 24px rgba(0,0,0,0.03); border:1px solid rgba(0,0,0,0.05);">
-            <div style="background:rgba(91, 63, 165, 0.08); width:50px; height:50px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:24px; margin-bottom:20px;">📱</div>
-            <h4 style="font-size:19px; color:var(--textDark); margin-bottom:12px;">The Customer Does the Work</h4>
-            <p style="font-size:15px; color:var(--muted); line-height:1.6; margin:0;">Members point their own personal phone at your beautifully branded acrylic QR stand while they wait in line. The app natively coordinates the check-in, tracks loyalty points, and loads the active discounts effortlessly.</p>
-          </div>
-          
-          <div style="background:#fff; border-radius:20px; padding:32px; box-shadow:0 8px 24px rgba(0,0,0,0.03); border:1px solid rgba(0,0,0,0.05);">
-            <div style="background:rgba(224, 73, 80, 0.08); width:50px; height:50px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:24px; margin-bottom:20px;">⌨️</div>
-            <h4 style="font-size:19px; color:var(--textDark); margin-bottom:12px;">No Cashier Data Entry</h4>
-            <p style="font-size:15px; color:var(--muted); line-height:1.6; margin:0;">Say goodbye to frustrating punch cards, typing in 10-digit phone numbers on iPads, and downloading third-party scanning apps. Your staff never touch an extra device or awkwardly ask for private emails across the counter.</p>
+        <h2>Your Employees Do Nothing Different.</h2>
+        <p class="section-sub" style="margin-bottom:44px;max-width:700px;margin-left:auto;margin-right:auto">
+          The #1 merchant complaint about loyalty programs: <em>"It wastes time at the register."</em> Perkfinity was designed specifically to eliminate that problem. Everything happens on the customer's own phone — your team never touches an extra device.
+        </p>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:24px;text-align:left">
+
+          <div style="background:#fff;border-radius:20px;padding:32px;box-shadow:0 8px 24px rgba(0,0,0,0.04);border:1px solid rgba(0,0,0,0.05)">
+            <div style="background:rgba(91,63,165,0.08);width:50px;height:50px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:20px">📱</div>
+            <h4 style="font-size:18px;color:var(--purpleDark);margin-bottom:10px;font-weight:1100">The Customer Does the Work</h4>
+            <p style="font-size:14px;color:var(--muted);line-height:1.65;margin:0">Members scan your branded QR stand with their own phone while they wait in line. The app handles check-in, loads your active campaign, and shows the coupon — all without your staff lifting a finger.</p>
           </div>
 
-          <div style="background:#fff; border-radius:20px; padding:32px; box-shadow:0 8px 24px rgba(0,0,0,0.03); border:1px solid rgba(0,0,0,0.05);">
-            <div style="background:rgba(107, 193, 122, 0.08); width:50px; height:50px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:24px; margin-bottom:20px;">⚡</div>
-            <h4 style="font-size:19px; color:var(--textDark); margin-bottom:12px;">Zero POS Integration</h4>
-            <p style="font-size:15px; color:var(--muted); line-height:1.6; margin:0;">Because everything executes natively inside the member's app, Perkfinity runs alongside <strong>any POS system</strong> universally (Toast, Clover, Square). Cashiers simply ring up the total as normal when shown the success screen!</p>
+          <div style="background:#fff;border-radius:20px;padding:32px;box-shadow:0 8px 24px rgba(0,0,0,0.04);border:1px solid rgba(0,0,0,0.05)">
+            <div style="background:rgba(224,73,80,0.08);width:50px;height:50px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:20px">⌨️</div>
+            <h4 style="font-size:18px;color:var(--purpleDark);margin-bottom:10px;font-weight:1100">No Cashier Data Entry</h4>
+            <p style="font-size:14px;color:var(--muted);line-height:1.65;margin:0">No punch cards. No typing 10-digit phone numbers. No awkwardly asking for email addresses across a busy counter. Your cashiers simply ring up the total as normal — that's it.</p>
           </div>
+
+          <div style="background:#fff;border-radius:20px;padding:32px;box-shadow:0 8px 24px rgba(0,0,0,0.04);border:1px solid rgba(0,0,0,0.05)">
+            <div style="background:rgba(107,193,122,0.08);width:50px;height:50px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:20px">⚡</div>
+            <h4 style="font-size:18px;color:var(--purpleDark);margin-bottom:10px;font-weight:1100">Works With Any POS</h4>
+            <p style="font-size:14px;color:var(--muted);line-height:1.65;margin:0">Because everything runs inside the member's app, Perkfinity is 100% compatible with Toast, Clover, Square, Lightspeed, or any POS you already use — no integration, no IT support required.</p>
+          </div>
+
         </div>
       </div>
     </section>
 
-    <!-- ===== WHY IT WORKS ===== -->
+    <!-- ===== WHY IT WORKS (STATS) ===== -->
     <section class="info-section">
       <div class="container">
         <span class="section-label">
@@ -127,7 +283,7 @@
           The Data
         </span>
         <h2>Why Local Businesses<br>Use Digital Perks</h2>
-        <p class="section-sub">Research consistently shows that loyalty programs and digital deals are proven drivers of repeat business and higher spend.</p>
+        <p class="section-sub">Research consistently shows that digital deals and repeat-visit incentives are proven drivers of customer loyalty and higher spend.</p>
         <div class="stat-grid">
           <div class="stat-card">
             <div class="stat-icon" aria-hidden="true">
@@ -144,7 +300,7 @@
             </div>
             <div>
               <div class="stat-num">70%</div>
-              <p>Customers are <strong>70% more likely to return</strong> after redeeming a coupon at your business</p>
+              <p>Customers are <strong>70% more likely to return</strong> after redeeming a digital coupon at your business</p>
             </div>
           </div>
           <div class="stat-card">
@@ -162,7 +318,7 @@
             </div>
             <div>
               <div class="stat-num">↑ YoY</div>
-              <p>Mobile coupon engagement continues to <strong>grow year over year</strong> — customers expect digital perks</p>
+              <p>Mobile coupon engagement continues to <strong>grow year over year</strong> — your customers already expect digital perks</p>
             </div>
           </div>
         </div>
@@ -170,148 +326,75 @@
     </section>
 
     <!-- ===== PRICING ===== -->
-    <section class="info-section bg-white">
+    <section class="info-section bg-white" id="pricing">
       <div class="container">
         <span class="section-label">
           <svg viewBox="0 0 16 16" fill="none" style="width:13px;height:13px"><path d="M8 2v1.5m0 9V14M3.5 5l1.2 1.2m6.6-1.2L10 6.2M2 8h1.5m9 0H14M5 11l-1.5 1.5m9-1.5 1.5 1.5" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>
           Transparent Pricing
         </span>
         <h2>Simple, Honest Pricing</h2>
-        <p class="section-sub">No surprises — final pricing is shared before activation. <strong>No automatic enrollment.</strong></p>
-        <div class="pricing-grid">
-          <!-- Left: tier cards -->
-          <div>
-            <div class="price-card">
-              <div class="price-tier-label">Interest List</div>
-              <h3>Join Today — It's Free</h3>
-              <div class="price-free">Free — No Obligation</div>
-              <div class="value-checks" style="gap:10px">
-                <div class="value-check" style="font-size:14px">
-                  <span class="check-ico" style="width:22px;height:22px" aria-hidden="true"><svg viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5 6.5-7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-                  Early partner visibility in the app
-                </div>
-                <div class="value-check" style="font-size:14px">
-                  <span class="check-ico" style="width:22px;height:22px" aria-hidden="true"><svg viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5 6.5-7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-                  Priority placement during launch
-                </div>
-                <div class="value-check" style="font-size:14px">
-                  <span class="check-ico" style="width:22px;height:22px" aria-hidden="true"><svg viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5 6.5-7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-                  Lock in early partner pricing
-                </div>
-                <div class="value-check" style="font-size:14px">
-                  <span class="check-ico" style="width:22px;height:22px" aria-hidden="true"><svg viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5 6.5-7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-                  Help shape Perkfinity's features
-                </div>
-              </div>
+        <p class="section-sub" style="margin-bottom:40px">Start free. Upgrade when you're ready. No hidden fees, no contracts, no surprises.</p>
+
+        <div class="pricing-cards">
+
+          <!-- Free Trial -->
+          <div class="p-card">
+            <div class="p-tier">Free Trial</div>
+            <div class="p-name">Try Perkfinity</div>
+            <div class="p-price">$0 <span>/ month</span></div>
+            <div class="p-limit">Up to 10 members</div>
+            <div class="p-features">
+              <div class="p-feat"><span class="ck"><svg viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5 6.5-7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Online merchant dashboard</div>
+              <div class="p-feat"><span class="ck"><svg viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5 6.5-7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Create digital coupon campaigns</div>
+              <div class="p-feat"><span class="ck"><svg viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5 6.5-7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Send announcements to members</div>
+              <div class="p-feat"><span class="ck"><svg viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5 6.5-7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Branded QR check-in</div>
+              <div class="p-feat"><span class="ck"><svg viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5 6.5-7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>No hardware, no POS integration</div>
+              <div class="p-feat"><span class="ck"><svg viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5 6.5-7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Zero privacy liability</div>
             </div>
-            <div class="price-card">
-              <div class="price-tier-label">Tier 1 — After Launch</div>
-              <h3>Digital Coupon Plan</h3>
-              <div class="value-checks" style="gap:10px">
-                <div class="value-check" style="font-size:14px">
-                  <span class="check-ico" style="width:22px;height:22px" aria-hidden="true"><svg viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5 6.5-7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-                  Free setup
-                </div>
-                <div class="value-check" style="font-size:14px">
-                  <span class="check-ico" style="width:22px;height:22px" aria-hidden="true"><svg viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5 6.5-7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-                  Up to 10 redemptions included
-                </div>
-                <div class="value-check" style="font-size:14px">
-                  <span class="check-ico" style="width:22px;height:22px" aria-hidden="true"><svg viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5 6.5-7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-                  Low monthly subscription after threshold
-                </div>
-              </div>
-              <div class="price-note">Final pricing shared before activation. No auto-enrollment.</div>
-            </div>
+            <a href="signup.html" class="p-cta green">Get Started Free →</a>
+            <p class="p-note">No credit card required to start</p>
           </div>
-          <!-- Right: CTA box -->
-          <div class="cta-box">
-            <h3>Joining the interest list does NOT obligate you to sign up or pay.</h3>
-            <div class="value-checks" style="gap:10px;margin-bottom:18px">
-              <div class="value-check" style="font-size:14px">
-                <span class="check-ico" style="width:22px;height:22px" aria-hidden="true"><svg viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5 6.5-7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-                Early partner visibility in the app
-              </div>
-              <div class="value-check" style="font-size:14px">
-                <span class="check-ico" style="width:22px;height:22px" aria-hidden="true"><svg viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5 6.5-7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-                Priority placement during launch
-              </div>
-              <div class="value-check" style="font-size:14px">
-                <span class="check-ico" style="width:22px;height:22px" aria-hidden="true"><svg viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5 6.5-7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-                Lock in early partner pricing
-              </div>
-              <div class="value-check" style="font-size:14px">
-                <span class="check-ico" style="width:22px;height:22px" aria-hidden="true"><svg viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5 6.5-7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-                Help shape features
-              </div>
+
+          <!-- Tier 1 -->
+          <div class="p-card featured">
+            <div class="p-badge">Most Popular</div>
+            <div class="p-tier">Tier 1</div>
+            <div class="p-name">Grow with Perkfinity</div>
+            <div class="p-price">$29.99 <span>/ month</span></div>
+            <div class="p-limit">Unlimited members</div>
+            <div class="p-features">
+              <div class="p-feat"><span class="ck"><svg viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5 6.5-7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Everything in Free Trial</div>
+              <div class="p-feat"><span class="ck"><svg viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5 6.5-7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><strong>Unlimited members</strong></div>
+              <div class="p-feat"><span class="ck"><svg viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5 6.5-7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Free email &amp; push notifications by Perkfinity</div>
+              <div class="p-feat"><span class="ck"><svg viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5 6.5-7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Multiple active campaigns</div>
+              <div class="p-feat"><span class="ck"><svg viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5 6.5-7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Member analytics &amp; check-in history</div>
+              <div class="p-feat"><span class="ck"><svg viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5 6.5-7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Priority support</div>
             </div>
-            <p class="launch-note">⚡ Launching this Summer (June).<br>Limited early partner spots available.</p>
-            <a href="#merchant-interest" class="btn btn-green" style="width:100%;justify-content:center">
-              Reserve Your Spot →
-            </a>
+            <a href="signup.html" class="p-cta purple">Start Free, Then Upgrade →</a>
+            <p class="p-note">Auto-upgrade when you reach 10 members</p>
           </div>
+
         </div>
       </div>
     </section>
 
-    <!-- ===== MERCHANT INTEREST FORM ===== -->
-    <section class="merchant-form-section" id="merchant-interest">
+    <!-- ===== SIGN UP CTA ===== -->
+    <section class="merchant-form-section" id="merchant-signup">
       <div class="container">
-        <h2>Merchant Interest List</h2>
-        <p class="form-sub">Share your details and we'll reach out with launch information and next steps.</p>
-        <div class="merchant-form-panel">
-          <form
-            id="merchantInterestForm"
-            method="POST"
-            action="https://formspree.io/f/xeerkpay"
-            aria-label="Merchant interest form"
-          >
-            <div class="form-row">
-              <label>Store/Business Name *<input type="text" name="store_name" required></label>
-            </div>
-            <div class="form-row">
-              <label>Street Address *<input type="text" name="street_address" required></label>
-            </div>
-            <div class="form-row">
-              <label>Unit / Suite<input type="text" name="unit"></label>
-            </div>
-            <div class="form-row form-row-3">
-              <label>City *<input type="text" name="city" required></label>
-              <label>State *<input type="text" name="state" required></label>
-              <label>ZIP Code *<input type="text" name="zip" required></label>
-            </div>
-            <div class="form-row">
-              <label>Contact Name *<input type="text" name="contact_name" required></label>
-            </div>
-            <div class="form-row form-row-2">
-              <label>Email Address *<input type="email" name="email" required></label>
-              <label>Phone Number<input type="tel" name="phone"></label>
-            </div>
-            <div class="form-row">
-              <label>Type of Business *<input type="text" name="business_type" placeholder="e.g. café, bakery, salon" required></label>
-            </div>
-            <div class="form-row">
-              <label>Notes / Questions<textarea name="notes" rows="3" placeholder="Anything else you'd like us to know?"></textarea></label>
-            </div>
-            <div class="form-row" style="margin-top:6px">
-              <button class="btn btn-green" type="submit" style="width:100%;justify-content:center;font-size:16px;padding:15px 24px">
-                Join Merchant Interest List →
-              </button>
-            </div>
-            <div id="merchantStatus" class="status" style="margin-top:12px;text-align:center"></div>
-          </form>
-
-          <!-- Ready to Sign Up Banner -->
-          <div style="margin-top:28px; background:#5B3FA5; border-radius:20px; padding:32px 28px; text-align:center; position:relative; overflow:hidden; box-shadow:0 12px 40px rgba(91,63,165,0.3);">
-            <div style="font-size:32px; margin-bottom:10px;">🚀</div>
-            <h3 style="color:#fff; font-size:22px; font-weight:800; margin:0 0 8px; letter-spacing:-0.02em;">Already know you want in?</h3>
-            <p style="color:rgba(255,255,255,0.85); font-size:15px; margin:0 0 20px; max-width:380px; margin-left:auto; margin-right:auto; line-height:1.6;">
-              Skip the interest list — create your merchant account now and start setting up your perks today.
-            </p>
-            <a href="signup.html" style="display:inline-block; padding:16px 40px; background:#fff; color:#5B3FA5; font-size:17px; font-weight:800; border-radius:14px; text-decoration:none; box-shadow:0 6px 24px rgba(0,0,0,0.15); transition:transform 0.2s, box-shadow 0.2s; letter-spacing:-0.01em;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 10px 32px rgba(0,0,0,0.2)'" onmouseout="this.style.transform='none';this.style.boxShadow='0 6px 24px rgba(0,0,0,0.15)'">
-              Take Me to Sign Up →
-            </a>
-            <p style="color:#fff; font-size:12px; margin:14px 0 0; font-weight:600;">Free setup in 10 minutes · No new hardware or POS required<br>No charge until you reach 10 members</p>
+        <h2>Ready to Get Started?</h2>
+        <p class="form-sub">Create your free merchant account in 10 minutes. No hardware. No credit card to start.</p>
+        <div style="max-width:480px;margin:0 auto;text-align:center">
+          <a href="signup.html" style="display:inline-flex;align-items:center;gap:10px;background:#fff;color:#5B3FA5;font-weight:900;font-size:18px;padding:18px 44px;border-radius:16px;text-decoration:none;box-shadow:0 8px 32px rgba(0,0,0,0.18);transition:transform 0.2s,box-shadow 0.2s;margin-bottom:20px" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 14px 40px rgba(0,0,0,0.22)'" onmouseout="this.style.transform='none';this.style.boxShadow='0 8px 32px rgba(0,0,0,0.18)'">
+            Sign Up Free →
+          </a>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
+            <span style="color:rgba(255,255,255,.7);font-size:13px;font-weight:700">✓ Free setup in 10 minutes</span>
+            <span style="color:rgba(255,255,255,.7);font-size:13px;font-weight:700">✓ No hardware or POS required</span>
+            <span style="color:rgba(255,255,255,.7);font-size:13px;font-weight:700">✓ No credit card until you reach 10 members</span>
+          </div>
+          <div style="margin-top:28px">
+            <p style="color:rgba(255,255,255,.55);font-size:13px;margin:0 0 12px;font-weight:700">Already have an account?</p>
+            <a href="login.html" style="color:rgba(255,255,255,.8);font-size:14px;font-weight:800;text-decoration:underline">Merchant Login →</a>
           </div>
         </div>
       </div>
