@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Perkfinity — Merchant Login</title>
-  <meta name="description" content="Log in to your Perkfinity Merchant Dashboard."/>
+  <title>Perkfinity — Merchant Sign In</title>
+  <meta name="description" content="Sign in to your Perkfinity Merchant Dashboard."/>
   <link rel="icon" href="assets/Perkfinity-App-Icon.png"/>
   <link rel="stylesheet" href="styles.css"/>
   <style>
@@ -42,8 +42,8 @@
       <nav class="nav" aria-label="Primary navigation">
         <a href="members.html">For Members</a>
         <a href="merchants.html">For Merchants</a>
-        <a href="login.html" aria-current="page">Merchant Login</a>
-        <a href="signup.html">Merchant Sign Up</a>
+        
+        <a href="signup.html">Merchant Sign Up / Sign In</a>
         <a href="how-it-works.html">How it Works</a>
       </nav>
       <a class="btn btn-green" href="mailto:hello@perkfinity.net" aria-label="Contact Us">
@@ -56,7 +56,7 @@
     <div class="login-container">
       <div style="text-align:center; margin-bottom: 30px;">
         <h1 style="font-size: 28px; color: var(--purpleDark); margin-bottom: 8px;">Welcome Back</h1>
-        <p style="color: var(--muted); font-size: 16px;">Log in to your Merchant Dashboard</p>
+        <p style="color: var(--muted); font-size: 16px;">Sign in to your Merchant Dashboard</p>
       </div>
 
       <div id="loginError" class="error-box"></div>
@@ -77,7 +77,7 @@
           </div>
         </div>
         <button type="submit" id="submitBtn" class="btn btn-purple" style="width: 100%; font-size: 16px; padding: 16px;">
-          Log In
+          Sign In
         </button>
       </form>
 
@@ -167,7 +167,7 @@
       const submitBtn = document.getElementById('submitBtn');
 
       errorBox.style.display = 'none';
-      submitBtn.innerText = 'Logging in...';
+      submitBtn.innerText = 'Signing in...';
       submitBtn.disabled = true;
       submitBtn.style.opacity = '0.7';
 
@@ -206,7 +206,7 @@
         errorBox.style.display = 'block';
         console.error('Login error:', err);
       } finally {
-        submitBtn.innerText = 'Log In';
+        submitBtn.innerText = 'Sign In';
         submitBtn.disabled = false;
         submitBtn.style.opacity = '1';
       }
