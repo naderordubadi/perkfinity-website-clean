@@ -229,13 +229,13 @@
     <img src="../assets/Perkfinity-Logo.png" alt="Perkfinity" class="logo" style="margin:0 auto 20px;">
     <div class="badge">🔄 Part 4 · Returning Member · Beta Test Guide</div>
     <h1>Returning Member Tester Guide</h1>
-    <p class="subtitle">Test the login flow for a user who already has the app installed — run this as a separate session after completing Part 2.</p>
+    <p class="subtitle">Test the sign-in flow for a user who already has the app installed — run this as a separate session after completing Part 2.</p>
   </div>
 
   <!-- ═══════════════════════ WELCOME ═══════════════════════ -->
   <div class="info-box">
-    <h3>👋 Welcome back, Tester!</h3>
-    <p>This guide covers <strong>Part 4: Returning Member</strong> — testing the experience of a user who already has the Perkfinity app and logs back in after scanning a new QR code.</p>
+    <h3>👋 Welcome back!</h3>
+    <p>This guide covers <strong>Part 4: Returning Member</strong> — testing the experience of a user who already has the Perkfinity app and signs back in after scanning a new QR code.</p>
     <ul>
       <li>⚠️ <strong>Please complete <a href="Perkfinity_Tester_Guide.html">Part 1</a>, <a href="ConsumerApp_Tester_Guide.html">Part 2</a>, and <a href="CampaignCreation_Tester_Guide.html">Part 3</a> before starting this guide.</strong></li>
       <li>You need an existing consumer account from Part 2 and an active campaign created in Part 3.</li>
@@ -253,7 +253,7 @@
     <div class="phase-icon" style="background:rgba(255,255,255,0.2); box-shadow:none;">🔄</div>
     <div>
       <h2 style="color:white; font-size:20px;">Part 4: Returning Member</h2>
-      <p style="color:rgba(255,255,255,0.85);">Verify the app correctly preserves QR context through the log-in flow</p>
+      <p style="color:rgba(255,255,255,0.85);">Verify the app correctly preserves QR context through the sign-in flow</p>
     </div>
   </div>
 
@@ -263,18 +263,18 @@
   <div class="step">
     <div class="step-header">
       <div class="step-number">A1</div>
-      <div class="step-title">Scan the Merchant QR Code &amp; Log In</div>
+      <div class="step-title">Scan the Merchant QR Code &amp; Sign In</div>
     </div>
-    <p>This tests whether the app correctly remembers a pending offer even when the user logs in <em>after</em> scanning:</p>
+    <p>This tests whether the app correctly remembers a pending offer even when the user signs in <em>after</em> scanning:</p>
     <ol>
       <li>Sign out of the app — the <strong>Sign Out</strong> button is on the <strong>Home screen</strong> (top-right corner)</li>
-      <li>Scan the <strong>same merchant QR code from Part 1</strong> with your iPhone camera</li>
-      <li>On the onboarding slides, tap <strong>Skip</strong> or progress through to the auth screen</li>
-      <li>Tap <strong>"Log In"</strong> and enter your email and password</li>
-      <li>Tap <span class="fl">Log In</span></li>
+      <li>Scan the <strong>same merchant QR code from Part 1</strong> with your iPhone camera — a <strong>yellow Perkfinity banner</strong> will appear at the bottom of the screen. Tap it to open the app.</li>
+      <li>The app opens <strong>immediately to the Sign In page</strong> — since the app is already installed on your device, there are no onboarding slides. You land directly at the sign-in screen.</li>
+      <li>Tap <strong>"Already Registered? Sign In"</strong> and enter your email and password</li>
+      <li>Tap <span class="fl">Sign In</span></li>
     </ol>
     <div class="tip-box">
-      <strong>💡 Expected Result:</strong> After logging in, the Home screen should immediately show the pending offer banner — confirming the app preserved the QR scan context through the log-in flow.
+      <strong>💡 Expected Result:</strong> After signing in, the Home screen should immediately show the pending offer banner — confirming the app preserved the QR scan context through the sign-in flow.
     </div>
   </div>
 
@@ -283,14 +283,17 @@
       <div class="step-number">A2</div>
       <div class="step-title">Loading &amp; Offer Detection</div>
     </div>
-    <p>After tapping Log In, watch for these states:</p>
+    <p>After tapping Sign In, the app goes through a quick sequence of states — <strong>these transitions happen so fast you may barely notice them:</strong></p>
     <ol>
-      <li>The Log In button changes to <strong>"Please wait..."</strong> (loading feedback)</li>
-      <li>A full-screen loading state appears: <em>"Loading your offers..."</em> with an hourglass animation</li>
+      <li>The Sign In button briefly changes to <strong>"Please wait..."</strong></li>
+      <li>A full-screen loading state flashes: <em>"Loading your offers..."</em> with an hourglass animation</li>
       <li>The app lands on the Home screen with your offers loaded</li>
     </ol>
-    <div class="warning-box">
-      <strong>⚠️ Check:</strong> The pending offer from the QR scan should appear in the <strong>Available Perks</strong> section — confirming the offer context was preserved through log-in.
+    <div class="tip-box">
+      <strong>💡 Don't worry if you miss the loading states</strong> — they are intentionally fast. What matters is that you land on the <strong>Home screen</strong> with the pending offer visible.
+    </div>
+    <div class="warning-box" style="margin-top:10px;">
+      <strong>⚠️ Check:</strong> The pending offer from the QR scan should appear in the <strong>Available Perks</strong> section — confirming the offer context was preserved through sign-in.
     </div>
   </div>
 
@@ -301,18 +304,18 @@
     </div>
     <p>Verify that ignoring the timer securely expires the offer on both ends:</p>
     <ol>
-      <li>On the Home screen, <strong>note how many offers are listed</strong> in the Available Perks section before proceeding</li>
-      <li>Tap your pending offer to open the details view</li>
-      <li>Tap <span class="fl">Activate Offer</span></li>
-      <li>The 5-minute countdown timer will begin. <em>(Let this timer run out entirely without tapping Done)</em></li>
+      <li>On the Home screen, check the <strong>Available Perks</strong> section — you should see <strong>3 offers</strong>, one for each campaign you created in Part 3.</li>
+      <li>Tap the <strong>gold banner</strong> to get to the list of offers</li>
+      <li>Choose one of the offers and tap <span class="fl">Activate This Offer</span></li>
+      <li>The 5-minute countdown begins. <em>Let it run out entirely</em> — tapping Done/Cancel, switching to any other tab, or closing the app will stop the timer and return the offer to Available, so stay on the screen until it expires.</li>
       <li>Once expired, <strong>check the app first</strong> before the dashboard:
         <ul style="margin-top:8px;">
-          <li>Tap the <strong>History</strong> tab — confirm the expired offer appears there with an <em>Expired</em> status</li>
-          <li>Return to the <strong>Home screen</strong> — confirm the number of available offers went down by one</li>
+          <li>Tap the <strong>History</strong> tab — confirm the expired offer appears with an <em>Expired</em> status</li>
+          <li>Return to the <strong>Home screen</strong> — confirm the available offer count dropped by one</li>
         </ul>
       </li>
       <li>Then open the <strong>Merchant Dashboard</strong> on your computer</li>
-      <li>Navigate to <strong>Member List</strong> and confirm the member's status changed to <em>Expired</em></li>
+      <li>Navigate to <strong>Member List</strong> and confirm that the status of <strong>that specific offer changed to <em>Expired</em></strong> for that member.</li>
     </ol>
     <div class="tip-box">
       <strong>💡 Expected Result:</strong> The app History shows the offer as <em>Expired</em>, the Home screen available count decreases by 1, and the Member List in the Merchant Dashboard shows the status as <em>Expired</em>.
@@ -328,8 +331,8 @@
     <ol>
       <li>Get to a pending offer:
         <ul style="margin-top:8px;">
-          <li><strong>If you are still logged in</strong> — go to the Home screen; your remaining pending offers will already be listed there</li>
-          <li><strong>If you are not logged in</strong> — scan the merchant QR code again and log in to access your pending offers</li>
+          <li><strong>If you are still signed in</strong> — go to the Home screen; your remaining pending offers will already be listed there</li>
+          <li><strong>If you are not signed in</strong> — scan the merchant QR code again and sign in to access your pending offers</li>
         </ul>
       </li>
       <li>Tap the offer and tap <span class="fl">Activate Offer</span> to start the timer</li>
@@ -349,8 +352,8 @@
     <ol>
       <li>Get to a pending offer:
         <ul style="margin-top:8px;">
-          <li><strong>If you are still logged in</strong> — go to the Home screen; your remaining pending offers will already be listed there</li>
-          <li><strong>If you are not logged in</strong> — scan the merchant QR code again and log in to access your pending offers</li>
+          <li><strong>If you are still signed in</strong> — go to the Home screen; your remaining pending offers will already be listed there</li>
+          <li><strong>If you are not signed in</strong> — scan the merchant QR code again and sign in to access your pending offers</li>
         </ul>
       </li>
       <li>Tap the offer and tap <span class="fl">Activate Offer</span> to start the timer</li>
@@ -358,7 +361,7 @@
       <li>Return to the Home screen</li>
     </ol>
     <div class="tip-box">
-      <strong>💡 Expected Result:</strong> The app should safely catch the interruption and revert the offer to a "Pending" state in your list.
+      <strong>💡 Expected Result:</strong> The app should safely catch the interruption and revert the offer to an <strong>"Available"</strong> state in your list.
     </div>
   </div>
 
@@ -386,15 +389,15 @@
     <tbody>
       <tr>
         <td><strong>A1</strong></td>
-        <td>QR Scan → Log In</td>
-        <td>Existing user recognized; log-in prompt appears with QR context preserved</td>
+        <td>QR Scan → Sign In</td>
+        <td>Existing user recognized; sign-in prompt appears with QR context preserved</td>
         <td>☐ Pass&nbsp;&nbsp;☐ Fail</td>
         <td></td>
       </tr>
       <tr>
         <td><strong>A2</strong></td>
-        <td>Offer Available After Login</td>
-        <td>Pending offer appears on Home screen after logging in</td>
+        <td>Offer Available After Sign In</td>
+        <td>Pending offer appears on Home screen after signing in</td>
         <td>☐ Pass&nbsp;&nbsp;☐ Fail</td>
         <td></td>
       </tr>
@@ -408,7 +411,7 @@
       <tr>
         <td><strong>A2</strong></td>
         <td>QR Code Redemption</td>
-        <td>Merchant scans code; offer marked as Redeemed</td>
+        <td>Cashier taps Mark as Redeemed; offer marked as Redeemed in the app History and Merchant Dashboard</td>
         <td>☐ Pass&nbsp;&nbsp;☐ Fail</td>
         <td></td>
       </tr>
@@ -429,7 +432,7 @@
       <tr>
         <td><strong>A5</strong></td>
         <td>Background Interruption</td>
-        <td>Offer reverts to Pending after navigating away mid-timer</td>
+        <td>Offer reverts to Available after navigating away mid-timer</td>
         <td>☐ Pass&nbsp;&nbsp;☐ Fail</td>
         <td></td>
       </tr>

@@ -470,7 +470,7 @@
 
   <!-- ═══════════════════════ WELCOME ═══════════════════════ -->
   <div class="info-box">
-    <h3>👋 Welcome, Tester!</h3>
+    <h3>👋 Welcome!</h3>
     <p>This guide walks you through the <strong>Member (Consumer) experience</strong> — the app that everyday shoppers use to discover perks and redeem discounts at local merchants.</p>
     <ul>
       <li>You will scan a merchant QR code, download the Perkfinity app, sign up, and redeem your first perk</li>
@@ -585,17 +585,6 @@
     </div>
   </div>
 
-  <div class="step">
-    <div class="step-header">
-      <div class="step-number">A3</div>
-      <div class="step-title">Open the App — Confirm Home Screen</div>
-    </div>
-    <p>After installation completes, tap <span class="fl">Open</span> in TestFlight (or open Perkfinity from your home screen).</p>
-    <p><strong>Expected result:</strong> The app opens to the <strong>general Home screen</strong>. You should see participating merchants and the Available Perks section — but <strong>no merchant-specific pending offer banner</strong>, since you are not signed up / logged in yet.</p>
-    <div class="tip-box">
-      <strong>💡 Note:</strong> If a pending offer <em>does</em> appear at this point, note it — that would mean the QR session was unexpectedly preserved into the install. For the purposes of this test, proceed normally either way.
-    </div>
-  </div>
 
 
   <!-- ═══════════════════════════════════════════════════════════
@@ -604,8 +593,8 @@
   <div class="phase-header">
     <div class="phase-icon">🔑</div>
     <div>
-      <h2>Phase B: Account Creation &amp; Onboarding</h2>
-      <p>Camera permissions, sign-up, profile, and final permissions</p>
+      <h2>Phase B: Opening App for First Time &amp; Onboarding</h2>
+      <p>Informative banners, sign-up, profile setup, permissions, and landing on Home or Scan</p>
     </div>
   </div>
 
@@ -616,14 +605,14 @@
     </div>
     <div class="checklist" style="margin:0;">
       <ul>
-        <li><div class="cb"></div><strong>Camera Permission:</strong> Does the permission dialog appear with correct wording? Does Allow/Cancel work as expected?</li>
+        <li><div class="cb"></div><strong>Informative Banners:</strong><span> Do the 3 onboarding slides appear immediately on first launch (before sign-up)? Does each slide advance correctly?</span></li>
         <li><div class="cb"></div><strong>Sign-Up Options:</strong> Are all three sign-up methods visible (Apple, Google, Email)?</li>
         <li><div class="cb"></div><strong>Form Validation:</strong> Do password requirements check in real time (✓ green checks appear as criteria are met)?</li>
         <li><div class="cb"></div><strong>Error States:</strong> If you submit an incomplete form, does a clear error appear?</li>
         <li><div class="cb"></div><strong>Profile Fields:</strong> Do Name, Phone, City, and ZIP fields accept input correctly?</li>
-        <li><div class="cb"></div><strong>Location Setting:</strong> In the Permissions screen, is the <strong>Enable Location checkbox pre-checked</strong>? Can it be unchecked and re-checked? (Keep it enabled for testing.)</li>
-        <li><div class="cb"></div><strong>Push Notifications Setting:</strong> Is the <strong>Allow Notifications checkbox pre-checked</strong>? Can it be unchecked and re-checked? (Keep it enabled for testing.)</li>
-        <li><div class="cb"></div><strong>Post-Permissions destination:</strong> After tapping Continue on the Permissions screen, does the app go directly to the <strong>Scan screen</strong>?</li>
+        <li><div class="cb"></div><strong>Location Permission Box:</strong><span> Does the Location box appear with an <strong>Allow button below it</strong>? When tapped, does the iPhone native location prompt appear? Does choosing Allow While Using App / Allow Once / Deny register the response?</span></li>
+        <li><div class="cb"></div><strong>Notifications Permission Box:</strong><span> Does the Notifications box appear with an <strong>Allow button below it</strong>? When tapped, does the iPhone native notifications prompt appear? Does choosing Allow / Don't Allow register the response?</span></li>
+        <li><div class="cb"></div><strong>Finish Setup Button:</strong><span> Does the button stay <strong>grayed out</strong> until both boxes have been responded to? Once both are answered, does it light up and become tappable? After tapping, does the app go to the <strong>Home screen</strong> (scan session still active) or the <strong>Scan page</strong> (scan session expired)?</span></li>
       </ul>
     </div>
   </div>
@@ -631,16 +620,17 @@
   <div class="step">
     <div class="step-header">
       <div class="step-number">B1</div>
-      <div class="step-title">Camera Access Permission</div>
+      <div class="step-title">Informative Banners After First Launch</div>
     </div>
-    <p>The first screen after launch is a <strong>camera permission request</strong>:</p>
-    <ul>
-      <li><strong>Title:</strong> "Camera Access Needed"</li>
-      <li><strong>Description:</strong> <em>"Perkfinity needs your camera to scan QR codes and unlock discounts at local merchant stores."</em></li>
-      <li>Tap <span class="fl">Allow Camera Access</span> — this is required to scan QR codes in-store later</li>
-    </ul>
+    <p>The very first time you open the Perkfinity app, three introductory slides appear automatically — before the sign-up screen. Tap <span class="fl">Continue →</span> on each slide to advance:</p>
+    <ol>
+      <li>🔒 <strong>"Privacy-First"</strong> — Your data is encrypted and never shared with merchants</li>
+      <li>⚡ <strong>"Redeem Instantly"</strong> — Show your QR code or fallback code to the cashier to redeem in seconds</li>
+      <li>🏪 <strong>"One App, Many Stores"</strong> — Perks at a growing network of local merchants</li>
+    </ol>
+    <p>Tap <span class="fl">Get Started →</span> on the last slide to proceed to the Sign-Up screen.</p>
     <div class="tip-box">
-      <strong>💡 iOS will show its own native camera permission dialog</strong> after you tap Allow. Tap <strong>"Allow"</strong> there too.
+      <strong>💡 Tip:</strong> You can also tap <strong>Skip</strong> in the top-right corner on any slide to jump directly to the Sign-Up screen.
     </div>
   </div>
 
@@ -648,24 +638,7 @@
   <div class="step">
     <div class="step-header">
       <div class="step-number">B2</div>
-      <div class="step-title">Scan the QR Code to Reach Sign-Up</div>
-    </div>
-    <p>After granting camera access, the live QR scanner opens:</p>
-    <ul>
-      <li>Corner bracket frame with a <strong>purple animated scanning line</strong></li>
-      <li>Text: <em>"Align QR Code — Position the merchant QR code within the frame to reveal your reward."</em></li>
-    </ul>
-    <p><strong>Point your camera at the merchant QR code again.</strong> This scan takes you directly to the sign-up page.</p>
-    <div class="tip-box">
-      <strong>💡 Tip:</strong> Use the same QR code from Phase A (the printed sign or screen). Hold steady — the scanner will detect it automatically.
-    </div>
-  </div>
-
-
-  <div class="step">
-    <div class="step-header">
-      <div class="step-number">B3</div>
-      <div class="step-title">Choose Sign-Up Method</div>
+      <div class="step-title">Already Registered? Sign In</div>
     </div>
     <p>A sign-in options screen prompts you to create an account or log in. Three options are available:</p>
     <ul>
@@ -673,7 +646,7 @@
       <li>🔵 <strong>Sign in with Google</strong></li>
       <li>📧 <strong>Sign Up with Email</strong> (recommended for this test)</li>
     </ul>
-    <p>At the bottom: <em>"Already registered? Log in"</em> — use this if you already have a Perkfinity account.</p>
+    <p>At the bottom: <em>"Already registered? Sign in"</em> — use this if you already have a Perkfinity account.</p>
     <div class="tip-box">
       <strong>💡 For this test, tap <span class="fl">Sign Up with Email</span></strong> to test the full registration flow. You can test Apple/Google sign-in in a separate pass.
     </div>
@@ -681,7 +654,7 @@
 
   <div class="step">
     <div class="step-header">
-      <div class="step-number">B4</div>
+      <div class="step-number">B3</div>
       <div class="step-title">Create Your Account — Email &amp; Password</div>
     </div>
     <p>Fill in the registration form:</p>
@@ -699,14 +672,14 @@
       </tbody>
     </table>
     <div class="warning-box">
-      <strong>📝 Write down your credentials.</strong> You'll need your email + password to log back in later.
+      <strong>📝 Write down your credentials.</strong> You'll need your email + password to sign back in later.
     </div>
     <p>Tap <span class="fl">Create Account →</span> when all checkmarks are green.</p>
   </div>
 
   <div class="step">
     <div class="step-header">
-      <div class="step-number">B5</div>
+      <div class="step-number">B4</div>
       <div class="step-title">Complete Your Profile</div>
     </div>
     <p>After account creation, you'll be taken to a profile setup screen. Fill in:</p>
@@ -724,34 +697,38 @@
 
   <div class="step">
     <div class="step-header">
-      <div class="step-number">B6</div>
+      <div class="step-number">B5</div>
       <div class="step-title">Location &amp; Notification Permissions</div>
     </div>
-    <p>Both permissions appear on the <strong>same screen</strong> with two pre-checked checkboxes:</p>
-    <ul>
-      <li>☑ <strong>"Enable Location"</strong> — allows Perkfinity to find merchants near you</li>
-      <li>☑ <strong>"Allow Notifications"</strong> — lets Perkfinity notify you of new perks and redemption confirmations</li>
-    </ul>
-    <p>Tap <span class="fl">Continue →</span> (below the Push Notifications checkbox) to proceed.</p>
+    <p>The Permissions screen shows <strong>two separate permission boxes</strong>. Each box displays what the permission is for and has an <span class="fl">Allow</span> button <strong>below it</strong>. Tap the button in each box to make your selection:</p>
+    <div style="border:1px solid var(--border); border-radius:10px; padding:14px 18px; margin:14px 0;">
+      <p style="margin:0 0 8px;"><strong>📍 Location</strong> — Allows Perkfinity to find merchants near you</p>
+      <p style="margin:0;">Tap <span class="fl">Allow</span> below this box → your iPhone's native location prompt appears → choose <strong>Allow While Using App</strong> or <strong>Allow Once</strong> (or Deny).</p>
+    </div>
+    <div style="border:1px solid var(--border); border-radius:10px; padding:14px 18px; margin:14px 0;">
+      <p style="margin:0 0 8px;"><strong>🔔 Push Notifications</strong> — Lets Perkfinity notify you of new perks and the Daily Digest</p>
+      <p style="margin:0;">Tap <span class="fl">Allow</span> below this box → your iPhone's native notifications prompt appears → choose <strong>Allow</strong> (or Don't Allow).</p>
+    </div>
     <div class="tip-box">
-      <strong>💡 Note:</strong> You can uncheck either permission — but for the purposes of this test, please <strong>leave both checkboxes checked</strong> so we can verify the full experience.
+      <strong>💡 Both selections required:</strong> The <strong>Finish Setup</strong> button stays grayed out until you have made a selection on <strong>both boxes</strong> — Allow or Deny, either counts. Once both are responded to, Finish Setup lights up. Tap it to complete onboarding.
+    </div>
+    <div class="warning-box" style="margin-top:10px;">
+      <strong>⚠️ For testing:</strong> Please tap <strong>Allow</strong> on both so we can verify the full merchant discovery and notification experience.
     </div>
   </div>
 
   <div class="step">
     <div class="step-header">
-      <div class="step-number">B7</div>
-      <div class="step-title">App Tour Slides</div>
+      <div class="step-number">B6</div>
+      <div class="step-title">Home Screen or Scan Page</div>
     </div>
-    <p>Three introductory onboarding slides walk you through Perkfinity's value propositions. Tap <span class="fl">Continue →</span> on each slide to advance:</p>
-    <ol>
-      <li>🔒 <strong>"Privacy-First"</strong> — Your data is encrypted and never shared with merchants</li>
-      <li>⚡ <strong>"Redeem Instantly"</strong> — Show QR code or code to cashier to redeem in seconds</li>
-      <li>🏪 <strong>"One App, Many Stores"</strong> — Perks at a growing network of local merchants</li>
-    </ol>
-    <p>Tap <span class="fl">Get Started →</span> on the last slide to land on the Home screen (you're already signed in).</p>
+    <p>After completing Permissions, the app routes you based on whether your original QR scan session is still active:</p>
+    <ul>
+      <li><strong>Scan session still active:</strong> You land directly on the <strong>Home screen</strong> with your pending offer already queued. Look for the gold "Available Offers" banner in the Available Perks section.</li>
+      <li><strong>Scan session expired:</strong> You land on the <strong>Scan page</strong>. Tap <span class="fl">Allow Camera Access</span> — if your iPhone shows a native camera permission prompt, tap <strong>Allow</strong>. Then point your camera at the merchant QR code again — the offer will load and you'll be taken to the Home screen.</li>
+    </ul>
     <div class="tip-box">
-      <strong>💡 Tip:</strong> You can also tap <strong>Skip</strong> in the top-right corner to go directly to the Home screen.
+      <strong>💡 Either path is normal.</strong> Both routes end at the Home screen with your offer ready to activate. If you reach the Scan page, use the same QR code from Phase A.
     </div>
   </div>
 
@@ -775,7 +752,7 @@
     <div class="checklist" style="margin:0;">
       <ul>
         <li><div class="cb"></div><strong>Sign Out button:</strong> Does the Sign Out button appear in the top-right corner? Tapping it should log you out and return to the sign-in screen.</li>
-        <li><div class="cb"></div><strong>Hero banner:</strong> Is the "Ready to Save at Local Shops?" card visible? Does tapping <strong>Get Started →</strong> launch the 3 onboarding slides?</li>
+        <li><div class="cb"></div><strong>Hero banner:</strong><span> Is the "Ready to Save at Local Shops?" card visible? Does tapping <strong>Get Started →</strong> launch the 3 onboarding slides?</span></li>
         <li><div class="cb"></div><strong>Gold "Available Offers" banner:</strong> Is it visible in the Available Perks section with the correct offer count (e.g. "1 Available")? Does tapping it open the Offers page?</li>
         <li><div class="cb"></div><strong>Offers page — single offer:</strong> Does it show merchant name, offer title, terms, expiration date, and "Activate This Offer" button?</li>
         <li><div class="cb"></div><strong>Offers page — multiple offers:</strong> If more than one offer exists, are ← Prev / Next → buttons and dot indicators visible and working?</li>
@@ -934,11 +911,19 @@
       <div class="step-number">E1</div>
       <div class="step-title">Check the History Tab</div>
     </div>
-    <p>Tap the <strong>History</strong> tab in the bottom navigation bar. You should see:</p>
+    <p>Tap the <strong>History</strong> tab in the bottom navigation bar. The page has <strong>two tabs at the top</strong>:</p>
     <ul>
-      <li>Your redeemed perk listed as an entry (e.g. <em>"Buy One Get One Free — Safebox Savings"</em>)</li>
-      <li>The precise <strong>redemption timestamp</strong> (date and time)</li>
-      <li>Status marked as <strong>Redeemed</strong></li>
+      <li>
+        <strong>Perk History</strong> — shows your redemption record. You should see:
+        <ul style="margin-top:6px;">
+          <li>Your redeemed perk listed as an entry (e.g. <em>"Buy One Get One Free — Safebox Savings"</em>)</li>
+          <li>The precise <strong>redemption timestamp</strong> (date and time)</li>
+          <li>Status marked as <strong>Redeemed</strong></li>
+        </ul>
+      </li>
+      <li style="margin-top:10px;">
+        <strong>Notifications</strong> — shows your notification history from Perkfinity. Once the Daily Digest runs (sent each morning), any perk or announcement emails sent to you will also appear here as in-app notification cards. Each card shows the merchant name, offer details, and a <strong>View Offer →</strong> button. If you have unread notifications, a <strong>red badge dot</strong> appears on the History tab icon in the bottom nav bar.
+      </li>
     </ul>
     <div class="tip-box">
       <strong>💡 Cross-check:</strong> If you have access to the Merchant Dashboard, confirm the same redemption appears there under the member's record.

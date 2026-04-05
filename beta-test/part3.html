@@ -237,7 +237,7 @@
 
   <!-- ═══════════════════════ WELCOME ═══════════════════════ -->
   <div class="info-box">
-    <h3>👋 Welcome back, Tester!</h3>
+    <h3>👋 Welcome back!</h3>
     <p>This guide covers <strong>Part 3: Campaign Creation</strong>. You will use the <strong>Merchant Dashboard</strong> to setup campaigns and configure your storefront.</p>
     <ul>
       <li>⚠️ <strong>Please complete <a href="Perkfinity_Tester_Guide.html">Part 1: Merchant Sign-Up</a> and <a href="ConsumerApp_Tester_Guide.html">Part 2: Member Sign-Up</a> before starting this guide.</strong></li>
@@ -270,13 +270,17 @@
   <div class="step">
     <div class="step-header">
       <div class="step-number">A1</div>
-      <div class="step-title">Log into the Merchant Dashboard</div>
+      <div class="step-title">Sign In to the Merchant Dashboard</div>
     </div>
     <ol>
-      <li>Go to <a href="https://perkfinity.net/login.html" target="_blank" style="color:#1E7A2E; font-weight:600;">perkfinity.net/login.html</a> on your computer.</li>
-      <li>Enter your merchant email and password (the one you set up in Part 1).</li>
-      <li>Click <span class="fl">Log In</span>.</li>
+      <li>Go to <a href="https://perkfinity.net" target="_blank" style="color:#1E7A2E; font-weight:600;">perkfinity.net</a> on your computer.</li>
+      <li>Click <span class="fl">Merchant Sign Up / Sign In</span> in the top navigation bar.</li>
+      <li>On the sign-in page, click <span class="fl">Sign in here</span> at the bottom.</li>
+      <li>Enter the <strong>email and password</strong> you created in Part 1 and click <span class="fl">Sign In</span>.</li>
     </ol>
+    <div class="tip-box">
+      <strong>💡 Tip:</strong> If you can't remember your credentials, they're the same ones you wrote down at the end of Part 1 Step 3.
+    </div>
   </div>
 
   <div class="step">
@@ -308,6 +312,12 @@
     </div>
   </div>
 
+  <div class="tip-box" style="margin-bottom:24px;">
+    <strong>💡 How Perkfinity Delivers Campaigns — Smart Daily Digest</strong><br><br>
+    When you send a campaign with <strong>Email + Push</strong> delivery, Perkfinity uses a <strong>Smart Daily Digest</strong> approach rather than sending each campaign instantly. All promotions and announcements sent to members are <strong>batched together and delivered once each morning</strong> — keeping inboxes clean and avoiding notification fatigue.<br><br>
+    <strong>However, the offer is available to your members immediately.</strong> As soon as you click 🚀 Send Promotion, the campaign becomes active in the app — members can see and activate it right away from their Home screen, even before the Daily Digest email or push notification arrives.
+  </div>
+
   <div class="step">
     <div class="step-header">
       <div class="step-number">B1</div>
@@ -318,7 +328,7 @@
       <li><strong>Type:</strong> Select <span class="fl">Percentage Off</span>.</li>
       <li><strong>Details:</strong> Enter a discount percentage (e.g., 20%). Set expiration to <strong>3–4 days in the future</strong>.</li>
       <li><strong>Condition:</strong> Select <span class="fl">No Minimum</span>.</li>
-      <li><strong>Delivery:</strong> Select Email.</li>
+      <li><strong>Delivery:</strong> Select <span class="fl">Email + Push</span>.</li>
       <li><strong>Audience:</strong> Select <span class="fl">All Members</span>.</li>
       <li><strong>Preview &amp; Send:</strong> Review the generated email preview on the right, ensure the logo and offer look correct, then click <strong>🚀 Send Promotion</strong>.</li>
     </ol>
@@ -349,8 +359,8 @@
     <ol>
       <li><strong>Type:</strong> Select <span class="fl">Buy One Get One</span>.</li>
       <li><strong>Details:</strong> Fill in the Buy/Get details and item description. Select a future expiry.</li>
-      <li><strong>Condition:</strong> Select <span class="fl">No Minimum</span>.</li>
-      <li><strong>Delivery:</strong> Select Email.</li>
+      <li><strong>Condition:</strong> Select <span class="fl">Minimum Items</span> and enter the same quantity you set in the Buy field above (e.g. if Buy = 1, enter 1).</li>
+      <li><strong>Delivery:</strong> Select <span class="fl">Push</span>.</li>
       <li><strong>Audience:</strong> Select <span class="fl">All Members</span> and hit <strong>🚀 Send Promotion</strong>.</li>
     </ol>
   </div>
@@ -364,7 +374,7 @@
     <ol>
       <li><strong>Type:</strong> Select <span class="fl">Announcement</span>.</li>
       <li><strong>Details:</strong> Add a Subject (e.g., "We are open late Fridays!") and a Message Body. Leave expiration blank.</li>
-      <li><strong>Delivery:</strong> Select Email.</li>
+      <li><strong>Delivery:</strong> Select <span class="fl">Email + Push</span>.</li>
       <li><strong>Audience:</strong> Select <span class="fl">All Members</span> and <strong>🚀 Send Promotion</strong>.</li>
     </ol>
   </div>
@@ -387,9 +397,12 @@
     </div>
     <ol>
       <li>Under the <strong>Create a Promotion</strong> tab, switch to the <span class="fl-blue">Campaign History</span> sub-tab.</li>
-      <li>Verify that all 4 entries (3 promotions + 1 announcement) appear in the table.</li>
-      <li>Check that the Type, Audience, and Expires dates match exactly what you inputted.</li>
+      <li>Verify that all <strong>5 entries</strong> appear in the table — the 3 promotions + 1 announcement you just created, plus the <strong>Initial Sign-Up Perk</strong> that was automatically activated when you completed merchant registration in Part 1.</li>
+      <li>Check that the Type, Audience, and Expires dates match exactly what you inputted for each campaign.</li>
     </ol>
+    <div class="tip-box">
+      <strong>💡 About the Initial Sign-Up Perk:</strong> This is the welcome offer you set during merchant sign-up (e.g. "10% Off First Visit"). It appears as the first entry in Campaign History and is automatically available to any member who scans your QR code for the first time.
+    </div>
   </div>
 
   <div class="step">
@@ -433,7 +446,7 @@
       <tr>
         <td><strong>A</strong></td>
         <td>Dashboard Login</td>
-        <td>Login successful, routes to dashboard</td>
+        <td>Sign in successful; routes to dashboard</td>
         <td>☐ Pass&nbsp;&nbsp;☐ Fail</td>
         <td></td>
       </tr>
