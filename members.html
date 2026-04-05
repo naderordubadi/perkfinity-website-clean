@@ -32,37 +32,87 @@
 
     <!-- ===== HERO ===== -->
     <section class="members-hero">
+      <div class="mh-bg-orb mh-orb1" aria-hidden="true"></div>
+      <div class="mh-bg-orb mh-orb2" aria-hidden="true"></div>
       <div class="container members-hero-grid">
-        <div>
-          <div class="breadcrumb">
-            <a href="index.html">Home</a>
-            <span class="sep">›</span>
-            <span>For Members</span>
+
+        <!-- LEFT: Copy -->
+        <div class="mh-copy">
+          <div class="mh-eyebrow">
+            <span class="mh-tag">🛡️ Privacy-First</span>
+            <span class="mh-tag">📱 Free App</span>
+            <span class="mh-tag">🏪 Local Businesses</span>
           </div>
-          <h1>Perks &amp; Rewards<br>Await!</h1>
-          <p class="hero-sub">Save Money and Earn Rewards<br>at Local Businesses</p>
-          <div class="value-checks">
-            <div class="value-check">
-              <span class="check-ico" aria-hidden="true"><svg viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5 6.5-7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-              Exclusive Discounts
+          <h1 class="mh-heading">
+            Save Money.<br>
+            <span class="mh-gradient-text">Protect Your Identity.</span>
+          </h1>
+          <p class="mh-sub">Shop at local businesses, earn exclusive perks, and never share your personal data. Perkfinity keeps you rewarded — and anonymous.</p>
+
+          <div class="mh-chips">
+            <div class="mh-chip">
+              <span class="mh-chip-ico">🎟️</span>
+              <div>
+                <div class="mh-chip-title">Exclusive Deals</div>
+                <div class="mh-chip-desc">Digital coupons from local shops</div>
+              </div>
             </div>
-            <div class="value-check">
-              <span class="check-ico" aria-hidden="true"><svg viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5 6.5-7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-              Earn Points &amp; Perks
+            <div class="mh-chip">
+              <span class="mh-chip-ico">🔒</span>
+              <div>
+                <div class="mh-chip-title">Zero Data Sharing</div>
+                <div class="mh-chip-desc">Merchants never see your info</div>
+              </div>
             </div>
-            <div class="value-check">
-              <span class="check-ico" aria-hidden="true"><svg viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5 6.5-7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-              Digital Coupons
+            <div class="mh-chip">
+              <span class="mh-chip-ico">📲</span>
+              <div>
+                <div class="mh-chip-title">One-Tap Check-In</div>
+                <div class="mh-chip-desc">Scan QR — no login at register</div>
+              </div>
             </div>
-            <div class="value-check">
-              <span class="check-ico" aria-hidden="true"><svg viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5 6.5-7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-              Privacy-First — Your Data Stays Yours
+            <div class="mh-chip">
+              <span class="mh-chip-ico">🏪</span>
+              <div>
+                <div class="mh-chip-title">Multi-Merchant</div>
+                <div class="mh-chip-desc">One app, every local business</div>
+              </div>
             </div>
+          </div>
+
+          <div class="mh-cta-row">
+            <button class="btn btn-green mh-store-btn" onclick="alert('Coming Soon! We will update the link as soon as it\'s available.')" style="font-size:15px;padding:14px 24px;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="white" style="flex-shrink:0"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+              App Store
+            </button>
+            <button class="btn mh-store-btn" onclick="alert('Coming Soon! We will update the link as soon as it\'s available.')" style="background:rgba(255,255,255,0.1);border:1.5px solid rgba(255,255,255,0.25);color:#fff;font-size:15px;padding:14px 24px;backdrop-filter:blur(8px);">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="white" style="flex-shrink:0"><path d="M3.18 23.76c.3.17.64.24.99.18l12.23-12.23-2.93-2.93L3.18 23.76zm16.3-13.47L16.96 9l-2 1.14L3.15.34A1.32 1.32 0 0 0 2 .5C1.4.82 1 1.43 1 2.16v19.7c0 .73.4 1.34 1 1.66l.15.08 11.81-11.81-2.5-2.5 8.02-2.47.5-.48c.02-.01.03-.06.03-.06zM20.8 10.5l-4.97-2.88L13.6 9.84 22 14.4l-1.2-3.9z"/></svg>
+              Google Play
+            </button>
           </div>
         </div>
-        <div class="hero-visual" aria-label="Member using Perkfinity on phone">
+
+        <!-- RIGHT: Visual -->
+        <div class="mh-visual" aria-label="Member using Perkfinity on phone">
+          <div class="mh-visual-glow" aria-hidden="true"></div>
           <img src="assets/hero-photo.png" alt="Member enjoying perks with Perkfinity">
+          <!-- Floating stat badge -->
+          <div class="mh-badge mh-badge-top" aria-hidden="true">
+            <span class="mh-badge-ico">🔒</span>
+            <div>
+              <div class="mh-badge-val">100% Private</div>
+              <div class="mh-badge-label">Your data, your rules</div>
+            </div>
+          </div>
+          <div class="mh-badge mh-badge-bot" aria-hidden="true">
+            <span class="mh-badge-ico">🎟️</span>
+            <div>
+              <div class="mh-badge-val">Perks Ready</div>
+              <div class="mh-badge-label">Tap QR to redeem</div>
+            </div>
+          </div>
         </div>
+
       </div>
       <div class="members-wave" aria-hidden="true">
         <svg viewBox="0 0 1440 140" preserveAspectRatio="none">
@@ -71,32 +121,9 @@
       </div>
     </section>
 
-    <!-- ===== ZIP CODE SEARCH ===== -->
-    <section style="background:#fff; padding:56px 0; border-bottom:1px solid #f0eeff;">
-      <div class="container" style="text-align:center;">
-        <div style="display:inline-block; background:linear-gradient(135deg,rgba(91,63,165,0.08),rgba(107,193,122,0.08)); border:1.5px solid rgba(91,63,165,0.15); border-radius:20px; padding:40px 48px; max-width:600px; width:100%;">
-          <div style="font-size:36px; margin-bottom:12px;">📍</div>
-          <h2 style="margin:0 0 8px; font-size:clamp(20px,4vw,28px); color:#1a1a2e; font-weight:800;">Find Perks Around You!</h2>
-          <p style="color:#666; font-size:15px; margin:0 0 24px;">Check which stores and businesses near you are offering perks &amp; rewards right now.</p>
-          <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
-            <input type="text" id="membersZipInput" placeholder="Enter ZIP Code" maxlength="5" inputmode="numeric"
-              style="flex:1; min-width:150px; max-width:220px; padding:14px 20px; border:1.5px solid rgba(91,63,165,0.3); border-radius:14px; font-size:17px; font-weight:700; outline:none; letter-spacing:2px; text-align:center; transition:border-color 0.2s;"
-              onfocus="this.style.borderColor='#5B3FA5'" onblur="this.style.borderColor='rgba(91,63,165,0.3)'"
-              onkeydown="if(event.key==='Enter') findMemberPerks()">
-            <button onclick="findMemberPerks()" class="btn btn-purple" style="padding:14px 28px; font-size:16px; border-radius:14px;">
-              Find Perks →
-            </button>
-          </div>
-        </div>
-      </div>
-    </section>
-    <script>
-      function findMemberPerks() {
-        const zip = document.getElementById('membersZipInput').value.trim();
-        if (!/^\d{5}$/.test(zip)) { alert('Please enter a valid 5-digit ZIP code.'); return; }
-        window.location.href = 'merchants-search.html?zip=' + zip;
-      }
-    </script>
+
+    <!-- ===== ZIP CODE SEARCH (silenced — re-enable when merchants are live) ===== -->
+    <!-- <section style="background:#fff; padding:56px 0;">...</section> -->
 
     <!-- ===== HOW IT WORKS ===== -->
     <section class="how-section">
@@ -141,56 +168,37 @@
                 <path d="M39.5 10l2 2 3.5-3.5" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </div>
-            <h3>Scan, Earn &amp; Redeem Perks</h3>
-            <p>Scan the store's QR code, collect points, and redeem them for real rewards.</p>
+            <h3>Scan &amp; Redeem Perks Instantly</h3>
+            <p>Each store offers perks curated just for you. Scan their QR code, unlock your personalized deal, and redeem it on the spot — no waiting, no clipping.</p>
           </div>
 
         </div>
       </div>
     </section>
 
-    <!-- ===== WAITLIST CTA + FORM ===== -->
-    <section class="members-cta" id="member-waitlist">
-      <div class="container">
-        <h2>Join the Waitlist!</h2>
-        <p class="cta-sub">Be the First to <span class="highlight">Unlock Perks</span> in Your Area</p>
-
-        <div class="member-form-panel">
-          <form
-            id="memberWaitlistForm"
-            method="POST"
-            action="https://formspree.io/f/mvzwrvng"
-            aria-label="Join the members waitlist"
-          >
-            <div class="form-row">
-              <label>
-                Full Name *
-                <input type="text" name="full_name" placeholder="Jane Smith" required>
-              </label>
-            </div>
-            <div class="form-row">
-              <label>
-                Email Address *
-                <input type="email" name="email" placeholder="jane@email.com" required>
-              </label>
-            </div>
-            <div class="form-row form-row-2">
-              <label>
-                City *
-                <input type="text" name="city" placeholder="Your city" required>
-              </label>
-              <label>
-                ZIP Code *
-                <input type="text" name="zip" placeholder="92688" required>
-              </label>
-            </div>
-            <div class="form-row" style="margin-top:6px">
-              <button class="btn btn-green" type="submit" style="width:100%;justify-content:center;font-size:16px;padding:15px 24px">
-                Join the Members Waitlist →
-              </button>
-            </div>
-            <div id="waitlistStatus" class="status" style="margin-top:12px;text-align:center"></div>
-          </form>
+    <!-- ===== DOWNLOAD THE APP ===== -->
+    <section style="background:#f8f6ff; padding:72px 24px;">
+      <div class="container" style="max-width:560px; margin:0 auto;">
+        <div style="background:linear-gradient(145deg,#5B3FA5,#7c5cbf); border-radius:24px; padding:48px 36px; display:flex; flex-direction:column; align-items:flex-start; gap:20px; box-shadow:0 12px 40px rgba(91,63,165,0.25);">
+          <span style="font-size:12px; font-weight:800; letter-spacing:3px; text-transform:uppercase; color:rgba(255,255,255,0.65);">For Members</span>
+          <h2 style="font-size:clamp(22px,3vw,32px); font-weight:900; color:#fff; margin:0; line-height:1.25;">Download the App.<br>Start Saving Today.</h2>
+          <p style="color:rgba(255,255,255,0.82); font-size:15px; line-height:1.65; margin:0;">Discover exclusive perks at local businesses in your neighborhood. Free to join, privacy-first, no plastic cards needed.</p>
+          <div style="display:flex; flex-direction:column; gap:12px; width:100%; margin-top:8px;">
+            <a href="#" onclick="event.preventDefault(); alert('Coming Soon! The Perkfinity app will be available on the App Store very soon.')" style="display:flex; align-items:center; gap:12px; background:rgba(255,255,255,0.12); border:1.5px solid rgba(255,255,255,0.25); border-radius:14px; padding:13px 20px; text-decoration:none; transition:background 0.2s; cursor:pointer;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.12)'">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+              <div>
+                <div style="font-size:10px; color:rgba(255,255,255,0.7); font-weight:600; letter-spacing:1px; text-transform:uppercase;">Download on the</div>
+                <div style="font-size:16px; font-weight:800; color:#fff;">App Store</div>
+              </div>
+            </a>
+            <a href="#" onclick="event.preventDefault(); alert('Coming Soon! The Perkfinity app will be available on Google Play very soon.')" style="display:flex; align-items:center; gap:12px; background:rgba(255,255,255,0.12); border:1.5px solid rgba(255,255,255,0.25); border-radius:14px; padding:13px 20px; text-decoration:none; transition:background 0.2s; cursor:pointer;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.12)'">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M3.18 23.76c.3.17.64.24.99.18l12.23-12.23-2.93-2.93L3.18 23.76zm16.3-13.47L16.96 9l-2 1.14L3.15.34A1.32 1.32 0 0 0 2 .5C1.4.82 1 1.43 1 2.16v19.7c0 .73.4 1.34 1 1.66l.15.08 11.81-11.81-2.5-2.5 8.02-2.47.5-.48c.02-.01.03-.06.03-.06zM20.8 10.5l-4.97-2.88L13.6 9.84 22 14.4l-1.2-3.9z"/></svg>
+              <div>
+                <div style="font-size:10px; color:rgba(255,255,255,0.7); font-weight:600; letter-spacing:1px; text-transform:uppercase;">Get it on</div>
+                <div style="font-size:16px; font-weight:800; color:#fff;">Google Play</div>
+              </div>
+            </a>
+          </div>
         </div>
       </div>
     </section>
@@ -222,8 +230,8 @@
               </svg>
             </div>
             <div>
-              <h3>Earn Points With Every Visit</h3>
-              <p>Your personal information is never shared with merchants. Shop and earn in complete privacy.</p>
+              <h3>Protect Your Personal Information</h3>
+              <p>Merchants only see that you checked in — never your name, email, or contact details. Your identity stays yours.</p>
             </div>
           </div>
 
@@ -250,15 +258,10 @@
             </div>
             <div>
               <h3>Multi-Merchant, One App</h3>
-              <p>One app works across all participating local businesses. Earn and redeem perks everywhere.</p>
+              <p>One app works across all participating local businesses. Activate &amp; redeem perks everywhere.</p>
             </div>
           </div>
 
-        </div>
-        <div style="text-align:center">
-          <a href="#member-waitlist" class="btn btn-purple" style="font-size:16px;padding:16px 34px">
-            Join the Waitlist Now →
-          </a>
         </div>
       </div>
     </section>
