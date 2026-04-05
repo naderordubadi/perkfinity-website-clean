@@ -134,12 +134,61 @@
     .badge.free { background:rgba(255,255,255,0.08); color:var(--muted); }
     .badge.tier1 { background:rgba(139,92,246,0.15); color:var(--purple); }
 
+    /* Badge for Free For Life */
+    .badge.ffl { background:rgba(107,193,122,0.12); color:#1a6b2b; }
+
+    /* Code box */
+    .code-box {
+      background:rgba(139,92,246,0.08); border:1px solid rgba(139,92,246,0.25);
+      border-radius:10px; padding:14px 20px; font-family:monospace; font-size:18px;
+      font-weight:700; letter-spacing:3px; color:var(--purple); cursor:pointer;
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      transition:all 0.2s;
+    }
+    .code-box:hover { background:rgba(139,92,246,0.14); }
+    .code-box .copy-hint { font-size:11px; font-weight:600; color:var(--mutedLight); letter-spacing:0; font-family:'Outfit',sans-serif; }
+
+    /* Checkbox col */
+    .data-table td.cb-col, .data-table th.cb-col { width:36px; text-align:center; padding:12px 8px; }
+    input[type=checkbox] { width:14px; height:14px; cursor:pointer; accent-color:var(--purple); }
+
+    /* Bulk action bar */
+    .bulk-bar {
+      display:none; align-items:center; gap:10px; padding:10px 16px;
+      background:rgba(139,92,246,0.08); border:1px solid rgba(139,92,246,0.2);
+      border-radius:var(--radius); margin-bottom:12px;
+    }
+    .bulk-bar.visible { display:flex; }
+    .bulk-bar-count { font-size:13px; font-weight:700; color:var(--purple); flex:1; }
+
+    /* Admin gate modal */
+    .gate-modal-bg {
+      position:fixed; inset:0; z-index:9998; background:rgba(0,0,0,0.6);
+      display:flex; align-items:center; justify-content:center;
+    }
+    .gate-modal-bg.hidden { display:none; }
+    .gate-modal {
+      background:#1E293B; border:1px solid var(--border); border-radius:16px;
+      padding:32px; width:100%; max-width:420px;
+    }
+    .gate-modal h3 { font-size:18px; font-weight:800; margin:0 0 6px; }
+    .gate-modal p { font-size:13px; color:var(--muted); margin:0 0 20px; }
+
+    /* Email compose */
+    .email-compose { display:none; }
+    .email-compose.visible { display:block; }
+
+    /* Section badge */
+    .badge.available { background:rgba(107,193,122,0.12); color:#1a6b2b; }
+    .badge.expired { background:rgba(255,255,255,0.06); color:var(--mutedLight); }
+
     /* Section Cards */
     .section-card {
       background:var(--bgCard); border:1px solid var(--border); border-radius:var(--radius);
       padding:24px; margin-bottom:24px;
     }
     .section-title { font-size:15px; font-weight:700; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
+
 
     /* Tab Content */
     .tab-content { display:none; }
@@ -292,6 +341,11 @@
         <span class="icon">📢</span> Announcements
       </div>
 
+      <div class="nav-section">Tools</div>
+      <div class="nav-item" onclick="showTab('access-codes')">
+        <span class="icon">🔑</span> Access Codes
+      </div>
+
       <div style="flex:1;"></div>
       <div style="padding:16px 20px; font-size:11px; color:var(--mutedLight);">
         Perkfinity Admin v1.0<br/>
@@ -382,10 +436,12 @@
             <option value="active">Active</option>
             <option value="inactive">Inactive</option>
             <option value="pending">Pending</option>
+            <option value="cancelled">Cancelled</option>
           </select>
           <select class="toolbar-select" id="merchant-filter-tier" onchange="filterTable('merchants')">
             <option value="">All Tiers</option>
-            <option value="free">Free</option>
+            <option value="free">Free Trial</option>
+            <option value="free_for_life">Free For Life</option>
             <option value="tier1">Tier 1</option>
           </select>
           <div style="flex:1;"></div>
@@ -393,10 +449,18 @@
           <button class="toolbar-btn" onclick="exportData('merchants','txt')">📋 TXT</button>
         </div>
 
+        <!-- Bulk Action Bar -->
+        <div class="bulk-bar" id="merchant-bulk-bar">
+          <span class="bulk-bar-count"><span id="bulk-count">0</span> merchant(s) selected</span>
+          <button class="toolbar-btn" onclick="openBulkEmail()">📧 Send Email</button>
+          <button class="toolbar-btn" style="background:rgba(239,68,68,0.12);border-color:rgba(239,68,68,0.3);color:var(--red)" onclick="openBulkDelete()">🗑️ Delete</button>
+        </div>
+
         <div class="table-wrap">
           <table class="data-table" id="merchants-table">
             <thead>
               <tr>
+                <th class="cb-col"><input type="checkbox" id="merchant-select-all" onchange="toggleSelectAll(this)"></th>
                 <th onclick="sortTable('merchants','business_name')">Business <span class="sort-arrow">▲</span></th>
                 <th onclick="sortTable('merchants','contact_email')">Email <span class="sort-arrow">▲</span></th>
                 <th onclick="sortTable('merchants','city')">City <span class="sort-arrow">▲</span></th>
@@ -408,7 +472,7 @@
               </tr>
             </thead>
             <tbody id="merchants-tbody">
-              <tr><td colspan="8" style="color:var(--muted);text-align:center;padding:40px;">Loading merchants...</td></tr>
+              <tr><td colspan="9" style="color:var(--muted);text-align:center;padding:40px;">Loading merchants...</td></tr>
             </tbody>
           </table>
           <div class="pagination" id="merchants-pagination"></div>
@@ -646,6 +710,72 @@
         </div>
       </div>
 
+      <!-- ═══════════════════════════════════════════════════════════ -->
+      <!-- ACCESS CODES TAB                                          -->
+      <!-- ═══════════════════════════════════════════════════════════ -->
+      <div id="tab-access-codes" class="tab-content">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Free For Life Access Codes</div>
+            <div class="page-subtitle">One-time-use codes that give merchants free permanent access (no credit card)</div>
+          </div>
+          <button class="toolbar-btn" onclick="loadAccessCodes()">🔄 Refresh</button>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; align-items:start;">
+          <!-- Generate Code -->
+          <div class="section-card">
+            <div class="section-title">🔑 Generate New Code</div>
+            <div class="form-group">
+              <label class="form-label">Label / Note <span style="color:var(--mutedLight);font-weight:400">(internal use only)</span></label>
+              <input type="text" class="form-input" id="ac-label" placeholder="e.g. Dental office — Dr. Smith" maxlength="100"/>
+            </div>
+            <button class="toolbar-btn primary" style="width:100%;padding:12px;font-size:14px" onclick="generateAccessCode()">
+              ✨ Generate Code
+            </button>
+            <div id="ac-result" style="margin-top:16px;display:none">
+              <div class="form-label" style="margin-bottom:8px">Generated Code — click to copy</div>
+              <div class="code-box" id="ac-code-box" onclick="copyCode()">
+                <span id="ac-code-value">FREE-XXXX-XXXX</span>
+                <span class="copy-hint">📋 Click to copy</span>
+              </div>
+              <div id="ac-copy-confirm" style="font-size:12px;color:var(--green);margin-top:6px;display:none">✓ Copied to clipboard!</div>
+              <div style="margin-top:10px;font-size:12px;color:var(--muted);">This code expires in <strong>30 days</strong> if unused. Share it directly with the merchant.</div>
+            </div>
+            <div id="ac-gen-err" style="color:var(--red);font-size:13px;margin-top:10px;display:none"></div>
+          </div>
+
+          <!-- Stats -->
+          <div>
+            <div class="stat-grid" style="grid-template-columns:1fr 1fr;margin-bottom:0">
+              <div class="stat-card"><div class="stat-value green" id="ac-stat-available">—</div><div class="stat-label">Available</div></div>
+              <div class="stat-card"><div class="stat-value purple" id="ac-stat-used">—</div><div class="stat-label">Redeemed</div></div>
+              <div class="stat-card"><div class="stat-value amber" id="ac-stat-expired">—</div><div class="stat-label">Expired</div></div>
+              <div class="stat-card"><div class="stat-value" id="ac-stat-total">—</div><div class="stat-label">Total Generated</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-wrap" style="margin-top:20px">
+          <table class="data-table" id="access-codes-table">
+            <thead>
+              <tr>
+                <th>Code</th>
+                <th>Label</th>
+                <th>Status</th>
+                <th>Used By</th>
+                <th>Used At</th>
+                <th>Expires</th>
+                <th>Created</th>
+              </tr>
+            </thead>
+            <tbody id="access-codes-tbody">
+              <tr><td colspan="7" style="color:var(--muted);text-align:center;padding:40px">Loading codes...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
     </div>
   </div>
 
@@ -717,6 +847,7 @@
       document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
       document.getElementById('tab-' + name).classList.add('active');
       event.target.closest('.nav-item').classList.add('active');
+      if (name === 'access-codes') loadAccessCodes();
     }
 
     // ── Time Display ────────────────────────────────────────────
@@ -809,18 +940,22 @@
         case 'merchants':
           data = getFilteredData('merchants');
           tbody = document.getElementById('merchants-tbody');
-          tbody.innerHTML = data.map(m => `
+          tbody.innerHTML = data.map(m => {
+            const tierLabel = m.tier === 'tier1' ? 'Tier 1' : m.tier === 'free_for_life' ? 'Free For Life' : 'Free Trial';
+            const tierClass = m.tier === 'tier1' ? 'tier1' : m.tier === 'free_for_life' ? 'ffl' : 'free';
+            return `
             <tr>
-              <td><strong>${m.business_name || '—'}</strong></td>
-              <td>${m.contact_email || m.email || '—'}</td>
-              <td>${m.city || '—'}</td>
-              <td>${m.pos_system || '—'}</td>
-              <td><span class="badge ${m.tier === 'tier1' ? 'tier1' : 'free'}">${m.tier === 'tier1' ? 'Tier 1' : 'Free'}</span></td>
+              <td class="cb-col"><input type="checkbox" class="merchant-cb" data-id="${m.id}" onchange="updateBulkBar()"></td>
+              <td><strong>${m.business_name || '\u2014'}</strong></td>
+              <td>${m.contact_email || m.email || '\u2014'}</td>
+              <td>${m.city || '\u2014'}</td>
+              <td>${m.pos_system || '\u2014'}</td>
+              <td><span class="badge ${tierClass}">${tierLabel}</span></td>
               <td><span class="badge ${m.status || 'active'}">${m.status || 'active'}</span></td>
               <td>${m.member_count || 0}</td>
               <td>${formatDate(m.created_at)}</td>
-            </tr>
-          `).join('') || emptyRow(8, 'No merchants found');
+            </tr>`;
+          }).join('') || emptyRow(9, 'No merchants found');
           break;
 
         case 'members':
@@ -1020,6 +1155,204 @@
     }
 
     // ── Initial Load (handled by auth gate) ────────────────────
+
+    // ╔══════════════════════════════════════════════╗
+    // ║  ACCESS CODES                                ║
+    // ╚══════════════════════════════════════════════╝
+    const ADMIN_SECRET = 'perkfinity-admin-2025'; // Must match ADMIN_SECRET env var
+
+    async function generateAccessCode() {
+      const label = document.getElementById('ac-label').value.trim();
+      const errEl = document.getElementById('ac-gen-err');
+      errEl.style.display = 'none';
+      try {
+        const res = await fetch(API_BASE + '/admin/access-codes', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-admin-secret': ADMIN_SECRET },
+          body: JSON.stringify({ label: label || null })
+        });
+        const json = await res.json();
+        if (!json.success) throw new Error(json.error);
+        document.getElementById('ac-code-value').textContent = json.data.code;
+        document.getElementById('ac-result').style.display = 'block';
+        document.getElementById('ac-copy-confirm').style.display = 'none';
+        document.getElementById('ac-label').value = '';
+        showToast('✅ Code generated');
+        loadAccessCodes();
+      } catch(e) {
+        errEl.textContent = 'Error: ' + e.message;
+        errEl.style.display = 'block';
+      }
+    }
+
+    function copyCode() {
+      const code = document.getElementById('ac-code-value').textContent;
+      navigator.clipboard.writeText(code).then(() => {
+        document.getElementById('ac-copy-confirm').style.display = 'block';
+        setTimeout(() => document.getElementById('ac-copy-confirm').style.display = 'none', 2000);
+      });
+    }
+
+    async function loadAccessCodes() {
+      try {
+        const res = await fetch(API_BASE + '/admin/access-codes', {
+          headers: { 'x-admin-secret': ADMIN_SECRET }
+        });
+        const json = await res.json();
+        if (!json.success) return;
+        const codes = json.data.codes || [];
+        const fmt = (d) => d ? new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '\u2014';
+        const statusBadge = (s) => s === 'available' ? '<span class="badge available">Available</span>' : s === 'used' ? '<span class="badge tier1">Used</span>' : '<span class="badge expired">Expired</span>';
+        document.getElementById('access-codes-tbody').innerHTML = codes.map(c => `
+          <tr>
+            <td style="font-family:monospace;font-weight:700;color:var(--purple);letter-spacing:1px">${c.code}</td>
+            <td>${c.label || '<em style="color:var(--mutedLight)">No label</em>'}</td>
+            <td>${statusBadge(c.status)}</td>
+            <td>${c.used_by_name || '\u2014'}</td>
+            <td>${fmt(c.used_at)}</td>
+            <td>${fmt(c.expires_at)}</td>
+            <td>${fmt(c.created_at)}</td>
+          </tr>`).join('') || '<tr><td colspan="7" style="color:var(--muted);text-align:center;padding:40px">No codes yet</td></tr>';
+        document.getElementById('ac-stat-available').textContent = codes.filter(c=>c.status==='available').length;
+        document.getElementById('ac-stat-used').textContent = codes.filter(c=>c.status==='used').length;
+        document.getElementById('ac-stat-expired').textContent = codes.filter(c=>c.status==='expired').length;
+        document.getElementById('ac-stat-total').textContent = codes.length;
+      } catch(e) { console.error('loadAccessCodes failed', e); }
+    }
+
+    // ╔══════════════════════════════════════════════╗
+    // ║  BULK MERCHANT ACTIONS                       ║
+    // ╚══════════════════════════════════════════════╝
+    function getSelectedMerchantIds() {
+      return [...document.querySelectorAll('.merchant-cb:checked')].map(el => el.dataset.id);
+    }
+
+    function updateBulkBar() {
+      const ids = getSelectedMerchantIds();
+      const bar = document.getElementById('merchant-bulk-bar');
+      document.getElementById('bulk-count').textContent = ids.length;
+      bar.classList.toggle('visible', ids.length > 0);
+    }
+
+    function toggleSelectAll(cb) {
+      document.querySelectorAll('.merchant-cb').forEach(el => el.checked = cb.checked);
+      updateBulkBar();
+    }
+
+    // Gate modal state
+    let pendingGateAction = null;
+    let gateEmailData = null;
+
+    function openGateModal(action, data = null) {
+      pendingGateAction = action;
+      gateEmailData = data;
+      document.getElementById('gate-password').value = '';
+      document.getElementById('gate-error').style.display = 'none';
+      document.getElementById('gate-email-compose').classList.remove('visible');
+      document.getElementById('gate-modal-title').textContent = action === 'email' ? 'Confirm: Send Bulk Email' : 'Confirm: Delete Merchant(s)';
+      document.getElementById('gate-modal-desc').textContent = action === 'email'
+        ? `You are about to send an email to ${getSelectedMerchantIds().length} merchant(s). Enter your admin password to confirm.`
+        : `You are about to PERMANENTLY delete ${getSelectedMerchantIds().length} merchant account(s). This cannot be undone. Enter your admin password to confirm.`;
+      if (action === 'email') {
+        document.getElementById('gate-email-compose').classList.add('visible');
+      }
+      document.getElementById('gate-modal-bg').classList.remove('hidden');
+    }
+
+    function closeGateModal() {
+      document.getElementById('gate-modal-bg').classList.add('hidden');
+      pendingGateAction = null;
+    }
+
+    function openBulkEmail() {
+      if (!getSelectedMerchantIds().length) return showToast('⚠️ Select at least one merchant');
+      openGateModal('email');
+    }
+
+    function openBulkDelete() {
+      if (!getSelectedMerchantIds().length) return showToast('⚠️ Select at least one merchant');
+      openGateModal('delete');
+    }
+
+    async function confirmGateAction() {
+      const password = document.getElementById('gate-password').value;
+      if (!password) return;
+      const errEl = document.getElementById('gate-error');
+      errEl.style.display = 'none';
+
+      // Verify admin password locally via SHA-256
+      const passHash = await sha256(password);
+      if (passHash !== ADMIN_PASS_HASH) {
+        errEl.textContent = 'Incorrect password. Try again.';
+        errEl.style.display = 'block';
+        return;
+      }
+
+      const ids = getSelectedMerchantIds();
+      closeGateModal();
+
+      if (pendingGateAction === 'email') {
+        const subject = document.getElementById('gate-email-subject').value.trim();
+        const body = document.getElementById('gate-email-body').value.trim();
+        if (!subject || !body) return showToast('⚠️ Subject and body are required');
+        try {
+          const res = await fetch(API_BASE + '/admin/send-email', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-admin-secret': ADMIN_SECRET },
+            body: JSON.stringify({ merchant_ids: ids, subject, body })
+          });
+          const json = await res.json();
+          showToast(json.success ? `✅ Sent to ${json.data.sent} merchant(s)` : '❌ ' + json.error);
+        } catch(e) { showToast('❌ Send failed: ' + e.message); }
+
+      } else if (pendingGateAction === 'delete') {
+        let deleted = 0, failed = 0;
+        for (const id of ids) {
+          try {
+            const res = await fetch(API_BASE + '/admin/merchants/' + id, {
+              method: 'DELETE',
+              headers: { 'x-admin-secret': ADMIN_SECRET }
+            });
+            const json = await res.json();
+            if (json.success) deleted++; else failed++;
+          } catch(e) { failed++; }
+        }
+        showToast(`✅ Deleted ${deleted}${ failed ? ', ' + failed + ' failed' : '' }`);
+        // Deselect all and refresh
+        document.getElementById('merchant-select-all').checked = false;
+        updateBulkBar();
+        loadAllData();
+      }
+    }
+
   </script>
+
+  <!-- Admin Gate Modal -->
+  <div class="gate-modal-bg hidden" id="gate-modal-bg">
+    <div class="gate-modal">
+      <h3 id="gate-modal-title">Confirm Action</h3>
+      <p id="gate-modal-desc">Enter your admin password to proceed.</p>
+      <!-- Email compose (shown only for send-email action) -->
+      <div class="email-compose" id="gate-email-compose">
+        <div class="form-group">
+          <label class="form-label">Subject</label>
+          <input type="text" class="form-input" id="gate-email-subject" placeholder="Email subject line"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Message Body <span style="color:var(--mutedLight)">(HTML supported)</span></label>
+          <textarea class="form-textarea" id="gate-email-body" placeholder="Write your message here..."></textarea>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Admin Password</label>
+        <input type="password" class="form-input" id="gate-password" placeholder="Enter admin password" onkeydown="if(event.key==='Enter') confirmGateAction()"/>
+      </div>
+      <div class="login-error" id="gate-error" style="display:none;color:var(--red);font-size:13px;margin-bottom:14px;"></div>
+      <div style="display:flex;gap:10px;">
+        <button class="toolbar-btn primary" style="flex:1;padding:12px" onclick="confirmGateAction()">Confirm</button>
+        <button class="toolbar-btn" style="padding:12px 20px" onclick="closeGateModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
 </body>
 </html>

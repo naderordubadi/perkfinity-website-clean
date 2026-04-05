@@ -829,17 +829,23 @@
           localStorage.setItem('perkfinity_email', payload.email);
           localStorage.setItem('perkfinity_member_perk', payload.perk);
 
-          // ALL tiers collect payment info
-          currentPlaidToken = data.data?.plaid_link_token;
-          document.querySelectorAll('.wizard-step').forEach(el => el.style.display = 'none');
-          document.getElementById('step-4-bank').style.display = 'block';
+          // Free For Life codes bypass Stripe entirely — go straight to logo upload (Step 5)
+          if (data.data?.skip_stripe === true) {
+            document.querySelectorAll('.wizard-step').forEach(el => el.style.display = 'none');
+            document.getElementById('step-5-logo').style.display = 'block';
+          } else {
+            // ALL other tiers collect payment info
+            currentPlaidToken = data.data?.plaid_link_token;
+            document.querySelectorAll('.wizard-step').forEach(el => el.style.display = 'none');
+            document.getElementById('step-4-bank').style.display = 'block';
 
-          // Show the correct notice banner for the selected tier
-          document.getElementById('trial-bank-notice').style.display = selectedTier === 'trial' ? 'block' : 'none';
-          document.getElementById('tier1-bank-notice').style.display = selectedTier === 'tier1' ? 'block' : 'none';
+            // Show the correct notice banner for the selected tier
+            document.getElementById('trial-bank-notice').style.display = selectedTier === 'trial' ? 'block' : 'none';
+            document.getElementById('tier1-bank-notice').style.display = selectedTier === 'tier1' ? 'block' : 'none';
 
-          // Initialize Stripe UI for this tier
-          showPaymentStep();
+            // Initialize Stripe UI for this tier
+            showPaymentStep();
+          }
 
         } catch (e) {
           err.innerText = e.message;

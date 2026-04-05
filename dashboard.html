@@ -1089,7 +1089,58 @@
         </div>
       </div>
 
+      <!-- ─── FREE FOR LIFE ─── -->
+      <div id="scene-free-for-life" class="scene" style="display:none">
+        <div class="alert alert-success">
+          <span class="icon">🎖️</span>
+          <div>You have a <strong>Free For Life</strong> account — no billing, no limits, full access forever.</div>
+        </div>
+        <div class="billing-section">
+          <h3>Your Plan</h3>
+          <div class="plan-card">
+            <div class="plan-details">
+              <span class="plan-badge tier1" style="background:rgba(107,193,122,0.12);color:#1a6b2b;border-color:rgba(107,193,122,0.3);">🎖️ Free For Life</span>
+              <div class="plan-price" style="color:var(--greenDark)">Free <span>forever</span></div>
+              <ul class="plan-features">
+                <li>Unlimited member capacity</li>
+                <li>Campaigns &amp; announcements</li>
+                <li>QR code enrollment</li>
+                <li>Member analytics</li>
+              </ul>
+              <div class="no-charge-note" style="background:rgba(107,193,122,0.08);border-color:rgba(107,193,122,0.3);">🔒 You will never be charged. This account has no payment method attached.</div>
+            </div>
+            <div class="usage-widget" style="justify-content:center;text-align:center">
+              <div style="font-size:42px;margin-bottom:4px">♾️</div>
+              <div style="font-size:20px;font-weight:900;color:var(--greenDark)">Unlimited Members</div>
+              <div id="ffl-member-count" style="font-size:14px;color:var(--muted);font-weight:600;margin-top:4px">Currently: — active members</div>
+            </div>
+          </div>
+        </div>
+        <div class="billing-section">
+          <h3>Manage Account</h3>
+          <div class="action-link" onclick="showFFLCancelWarning()">
+            <div class="left">
+              <div class="icon-wrap" style="background:rgba(220,53,69,.08)">🚫</div>
+              <div><h4 style="color:var(--red)">Cancel Account</h4><p>This will block your account. Your data is preserved and support can reactivate you.</p></div>
+            </div>
+            <div class="arrow" style="color:var(--red)">→</div>
+          </div>
+          <div id="cancel-warning-ffl" class="cancel-warning" style="display:none">
+            <h4>⚠️ Are you sure? Cancelling will BLOCK your account:</h4>
+            <ul>
+              <li>You will not be able to create campaigns or promotions</li>
+              <li>Members will not be able to redeem perks by scanning your QR code</li>
+              <li>Your member list and data will be preserved but inaccessible</li>
+              <li>Contact support to reactivate at any time</li>
+            </ul>
+            <button class="btn btn-red-outline btn-sm" onclick="confirmFFLCancel()">Yes, Cancel My Account</button>
+            <button class="btn btn-outline btn-sm" style="margin-left:8px" onclick="document.getElementById('cancel-warning-ffl').style.display='none'">Never Mind</button>
+          </div>
+        </div>
+      </div>
+
       <!-- ─── PAYMENT FAILED ─── -->
+
       <div id="scene-failed" class="scene" style="display:none">
         <div class="alert alert-danger">
           <span class="icon">🚨</span>
@@ -2013,6 +2064,31 @@
       cancelSubscription();
     }
 
+    function showFFLCancelWarning() {
+      const w = document.getElementById('cancel-warning-ffl');
+      if (w) w.style.display = w.style.display === 'none' ? 'block' : 'none';
+    }
+
+    async function confirmFFLCancel() {
+      const token = localStorage.getItem('perkfinity_token');
+      const merchantId = localStorage.getItem('perkfinity_merchant_id');
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/v1/merchants/${merchantId}/cancel`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const json = await res.json();
+        if (json.success) {
+          alert('Your account has been cancelled. Your data is preserved. Contact support to reactivate.');
+          loadBilling();
+        } else {
+          alert('Failed to cancel: ' + json.error);
+        }
+      } catch(e) {
+        alert('Error cancelling account.');
+      }
+    }
+
     function exportInvoicesCSV() {
       if(!window.currentInvoices || !window.currentInvoices.length) {
         alert("No invoices to export."); return;
@@ -2053,6 +2129,8 @@
           sceneName = 'blocked';
         } else if (d.billing_status === 'payment_failed') {
           sceneName = 'failed';
+        } else if (d.tier === 'free_for_life') {
+          sceneName = 'free-for-life';
         } else if (d.tier === 'trial' || d.tier === 'free') {
           let limit = d.member_limit || 10;
           let count = d.member_count || 0;
@@ -2127,6 +2205,11 @@
           
           if (sceneEl.querySelector('.tier1-member-count')) {
             sceneEl.querySelector('.tier1-member-count').innerText = `Currently: ${d.member_count || 0} active members`;
+          }
+          // Free For Life member count
+          const fflCount = document.getElementById('ffl-member-count');
+          if (fflCount && d.tier === 'free_for_life') {
+            fflCount.innerText = `Currently: ${d.member_count || 0} active members`;
           }
 
           let nextBillingStr = d.next_billing_date;
