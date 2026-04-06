@@ -99,37 +99,40 @@
   <div class="phase">Phase B — Account Creation &amp; Onboarding</div>
 
   <div class="step">
-    <div class="step-header"><div class="step-num">B1</div><div class="step-title">Camera Access Permission</div></div>
-    <p>First screen: camera permission dialog. Tap <span class="fl">Allow Camera Access</span>. Then tap <strong>Allow</strong> on the iOS native dialog too.</p>
+    <div class="step-header"><div class="step-num">B1</div><div class="step-title">Informative Banners</div></div>
+    <p>The app opens to 3 swipeable welcome banners (Privacy-First, Redeem Instantly, One App Many Stores). Tap <span class="fl">Continue →</span> on each or tap <strong>Skip</strong> (top-right) to proceed.</p>
   </div>
+
   <div class="step">
-    <div class="step-header"><div class="step-num">B2</div><div class="step-title">Scan the QR Code in App</div></div>
-    <p>The QR scanner opens. Point your camera at the same merchant QR code from Part 1. Hold steady — the scanner detects it automatically and takes you to sign-up.</p>
+    <div class="step-header"><div class="step-num">B2</div><div class="step-title">Already Registered? Sign In</div></div>
+    <p>If you already have an account, tap <strong>Already Registered? Sign In</strong> and enter your credentials. For this test, proceed to Create Account below.</p>
   </div>
+
   <div class="step">
-    <div class="step-header"><div class="step-num">B3</div><div class="step-title">Choose Sign-Up Method</div></div>
-    <p>Tap <span class="fl">Sign Up with Email</span> (recommended for this test). Three options are available: Apple, Google, and Email.</p>
-  </div>
-  <div class="step">
-    <div class="step-header"><div class="step-num">B4</div><div class="step-title">Create Account — Email &amp; Password</div></div>
+    <div class="step-header"><div class="step-num">B3</div><div class="step-title">Create Account</div></div>
+    <p>Tap <span class="fl">Sign Up with Email</span>. Three options available: Apple, Google, and Email.</p>
     <ul>
       <li><strong>Email</strong> — real working address (e.g. your+test@gmail.com)</li>
       <li><strong>Password</strong> — min 8 chars, 1 uppercase, 1 lowercase, 1 number (e.g. TestPass1)</li>
     </ul>
-    <div class="warn"><strong>📝 Write down your credentials</strong> — you'll need them to log back in for Part 4.</div>
+    <div class="warn"><strong>📝 Write down your credentials</strong> — you’ll need them to sign back in for Part 4.</div>
     <p>Tap <span class="fl">Create Account →</span> when all checkmarks are green.</p>
   </div>
+
   <div class="step">
-    <div class="step-header"><div class="step-num">B5</div><div class="step-title">Complete Your Profile</div></div>
-    <p>Fill in: <strong>Full Name</strong>, <strong>Phone</strong> (auto-formatted), <strong>City</strong>, <strong>ZIP Code</strong> (use real values for location matching). Tap <span class="fl">Continue →</span>.</p>
+    <div class="step-header"><div class="step-num">B4</div><div class="step-title">Profile Setup</div></div>
+    <p>Fill in: <strong>Full Name</strong>, <strong>Phone</strong> (auto-formatted), <strong>City</strong>, <strong>ZIP Code</strong>. Tap <span class="fl">Continue →</span>.</p>
   </div>
+
   <div class="step">
-    <div class="step-header"><div class="step-num">B6</div><div class="step-title">Location &amp; Notification Permissions</div></div>
-    <p>Two pre-checked boxes: <strong>Enable Location</strong> and <strong>Allow Notifications</strong>. Leave both checked for testing. Tap <span class="fl">Continue →</span>.</p>
+    <div class="step-header"><div class="step-num">B5</div><div class="step-title">Permissions</div></div>
+    <p>Two separate permission boxes appear — <strong>Location</strong> and <strong>Notifications</strong>. Each has an <strong>Allow</strong> button below it. Make a selection (Allow or Deny) on <em>both</em> boxes. The <span class="fl">Finish Setup</span> button unlocks once both have been addressed.</p>
   </div>
+
   <div class="step">
-    <div class="step-header"><div class="step-num">B7</div><div class="step-title">App Tour Slides</div></div>
-    <p>Three onboarding slides (Privacy-First, Redeem Instantly, One App Many Stores). Tap <span class="fl">Continue →</span> on each, then <span class="fl">Get Started →</span> (or tap <strong>Skip</strong> top-right).</p>
+    <div class="step-header"><div class="step-num">B6</div><div class="step-title">Home Screen &amp; Scan</div></div>
+    <p>You land on the Home screen. Tap the <strong>Scan</strong> tab (bottom nav). If prompted, tap <span class="fl">Allow Camera Access</span> and then <strong>Allow</strong> on the iOS dialog. Point your camera at the merchant QR code — the scanner detects it automatically.</p>
+    <div class="tip"><strong>💡 Scan session still active?</strong> If the session is still active, your offers will load. If it shows <em>Scan session expired</em>, tap Allow Camera Access and re-scan.</div>
   </div>
 
   <div class="phase">Phase C — Home Screen &amp; Discovery</div>
@@ -185,11 +188,11 @@
     <tbody>
       <tr><td><strong>A</strong></td><td>QR Scan → Browser Opens</td><td>Landing page loads with pending offer banner</td><td>☐ Pass &nbsp; ☐ Fail</td><td></td></tr>
       <tr><td><strong>A</strong></td><td>TestFlight Install</td><td>App installs and opens successfully</td><td>☐ Pass &nbsp; ☐ Fail</td><td></td></tr>
-      <tr><td><strong>B</strong></td><td>Camera Permission</td><td>Dialog appears; Allow works correctly</td><td>☐ Pass &nbsp; ☐ Fail</td><td></td></tr>
-      <tr><td><strong>B</strong></td><td>Email Sign-Up</td><td>Account created; password checker works in real-time</td><td>☐ Pass &nbsp; ☐ Fail</td><td></td></tr>
-      <tr><td><strong>B</strong></td><td>Profile Completion</td><td>Name, Phone, City, ZIP saved correctly</td><td>☐ Pass &nbsp; ☐ Fail</td><td></td></tr>
-      <tr><td><strong>B</strong></td><td>Location &amp; Push Settings</td><td>In-app checkboxes pre-checked; Continue saves settings</td><td>☐ Pass &nbsp; ☐ Fail</td><td></td></tr>
-      <tr><td><strong>B</strong></td><td>Onboarding Slides</td><td>3 slides appear; Get Started routes to Home</td><td>☐ Pass &nbsp; ☐ Fail</td><td></td></tr>
+      <tr><td><strong>B</strong></td><td>Informative Banners</td><td>3 banners display; Continue/Skip works</td><td>☐ Pass &nbsp; ☐ Fail</td><td></td></tr>
+      <tr><td><strong>B</strong></td><td>Create Account</td><td>Account created; password checker works in real-time</td><td>☐ Pass &nbsp; ☐ Fail</td><td></td></tr>
+      <tr><td><strong>B</strong></td><td>Profile Setup</td><td>Name, Phone, City, ZIP saved correctly</td><td>☐ Pass &nbsp; ☐ Fail</td><td></td></tr>
+      <tr><td><strong>B</strong></td><td>Permissions (Location &amp; Notifications)</td><td>Two separate boxes; Finish Setup unlocks after both addressed</td><td>☐ Pass &nbsp; ☐ Fail</td><td></td></tr>
+      <tr><td><strong>B</strong></td><td>Home Screen &amp; Scan</td><td>Camera opens; QR detected; offers load</td><td>☐ Pass &nbsp; ☐ Fail</td><td></td></tr>
       <tr><td><strong>C</strong></td><td>Home Screen</td><td>Pending offer banner visible; merchant cards load</td><td>☐ Pass &nbsp; ☐ Fail</td><td></td></tr>
       <tr><td><strong>D</strong></td><td>Activate Offer</td><td>5-min countdown starts; QR + 6-digit code shown</td><td>☐ Pass &nbsp; ☐ Fail</td><td></td></tr>
       <tr><td><strong>D</strong></td><td>Mark as Redeemed</td><td>"✅ Successfully Redeemed!" confirmation appears</td><td>☐ Pass &nbsp; ☐ Fail</td><td></td></tr>
