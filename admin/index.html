@@ -810,7 +810,10 @@
                 <span id="ann-preview-count" style="font-size:20px;font-weight:800;color:var(--purple);margin-left:8px;">—</span>
                 <span id="ann-preview-loading" style="display:none;color:var(--muted);font-size:13px;margin-left:8px;">⏳ Counting...</span>
               </div>
-              <div id="ann-preview-sample" style="font-size:12px;color:var(--muted);max-width:50%;text-align:right;"></div>
+              <div style="display:flex;align-items:center;gap:10px;">
+                <div id="ann-preview-sample" style="font-size:12px;color:var(--muted);text-align:right;"></div>
+                <button class="toolbar-btn" onclick="annClearFilters();annPreview();" style="font-size:12px;padding:6px 12px;">🔄 Clear Filters</button>
+              </div>
             </div>
           </div>
 
@@ -1839,7 +1842,20 @@
       const mcWrap = document.getElementById('ann-member-count-wrap');
       statusWrap.style.display = (type === 'members') ? 'none' : 'block';
       mcWrap.style.display = (type === 'members') ? 'none' : 'block';
+      // Reset filters and rebuild dropdowns for this type
+      annClearFilters();
+      annUpdateDropdowns();
       annPreview();
+    }
+
+    function annClearFilters() {
+      document.getElementById('ann-city').value = '';
+      document.getElementById('ann-zip').value = '';
+      document.getElementById('ann-status').value = '';
+      document.getElementById('ann-joined').value = '';
+      document.getElementById('ann-member-max').value = '';
+      document.getElementById('ann-preview-count').textContent = '—';
+      document.getElementById('ann-preview-sample').textContent = '';
     }
 
     function annSetSender(sender, el) {
@@ -1848,17 +1864,40 @@
       el.classList.add('active');
     }
 
+    // Cached audience options from DB
+    let _annOptions = null;
+
     // Load audience filter options from DB
     async function annLoadOptions() {
       const res = await adminFetch('/admin/audience-options');
       if (!res.success) return;
-      const d = res.data;
-      const allCities = [...new Set([...d.merchant_cities, ...d.member_cities])].sort();
-      const allZips = [...new Set([...d.merchant_zips, ...d.member_zips])].sort();
+      _annOptions = res.data;
+      annUpdateDropdowns();
+    }
+
+    // Rebuild city/zip dropdowns based on selected audience type
+    function annUpdateDropdowns() {
+      if (!_annOptions) return;
+      const d = _annOptions;
+      let cities = [];
+      let zips = [];
+
+      if (_annType === 'merchants') {
+        cities = d.merchant_cities || [];
+        zips = d.merchant_zips || [];
+      } else if (_annType === 'members') {
+        cities = d.member_cities || [];
+        zips = d.member_zips || [];
+      } else {
+        // both or external — combine
+        cities = [...new Set([...(d.merchant_cities || []), ...(d.member_cities || [])])].sort();
+        zips = [...new Set([...(d.merchant_zips || []), ...(d.member_zips || [])])].sort();
+      }
+
       const cityEl = document.getElementById('ann-city');
-      cityEl.innerHTML = '<option value="">All Cities</option>' + allCities.map(c => `<option value="${c}">${c}</option>`).join('');
+      cityEl.innerHTML = '<option value="">All Cities</option>' + cities.map(c => `<option value="${c}">${c}</option>`).join('');
       const zipEl = document.getElementById('ann-zip');
-      zipEl.innerHTML = '<option value="">All Zip Codes</option>' + allZips.map(z => `<option value="${z}">${z}</option>`).join('');
+      zipEl.innerHTML = '<option value="">All Zip Codes</option>' + zips.map(z => `<option value="${z}">${z}</option>`).join('');
     }
 
     // Live audience preview
