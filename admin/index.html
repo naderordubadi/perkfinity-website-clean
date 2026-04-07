@@ -2041,12 +2041,12 @@
       const overlay = document.createElement('div');
       overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;';
       overlay.innerHTML = `
-        <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:32px;max-width:420px;text-align:center;">
+        <div style="background:#ffffff;border-radius:16px;padding:32px;max-width:420px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
           <div style="font-size:36px;margin-bottom:12px;">📧</div>
-          <h3 style="color:var(--text);margin:0 0 8px;">Confirm Send</h3>
-          <p style="color:var(--muted);margin:0 0 24px;font-size:14px;">Send this email to <strong style="color:var(--purple);">${recipientText}</strong> recipients?</p>
+          <h3 style="color:#1a1a2e;margin:0 0 8px;">Confirm Send</h3>
+          <p style="color:#666;margin:0 0 24px;font-size:14px;">Send this email to <strong style="color:var(--purple);">${recipientText}</strong> recipients?</p>
           <div style="display:flex;gap:12px;justify-content:center;">
-            <button id="ann-confirm-cancel" style="padding:10px 24px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text);cursor:pointer;font-size:14px;">Cancel</button>
+            <button id="ann-confirm-cancel" style="padding:10px 24px;border-radius:8px;border:1px solid #ddd;background:#f5f5f5;color:#333;cursor:pointer;font-size:14px;">Cancel</button>
             <button id="ann-confirm-send" style="padding:10px 24px;border-radius:8px;border:none;background:linear-gradient(135deg,var(--purple),var(--green));color:#fff;cursor:pointer;font-weight:700;font-size:14px;">✉️ Send Now</button>
           </div>
         </div>`;
@@ -2131,43 +2131,43 @@
       const overlay = document.createElement('div');
       overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;overflow:auto;padding:24px;';
       overlay.innerHTML = `
-        <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;max-width:640px;width:100%;max-height:90vh;overflow:auto;">
+        <div style="background:#ffffff;border-radius:16px;padding:28px;max-width:640px;width:100%;max-height:90vh;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-            <h3 style="color:var(--text);margin:0;">📧 Campaign Details</h3>
-            <button onclick="this.closest('div[style]').parentElement.remove()" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;">✕</button>
+            <h3 style="color:#1a1a2e;margin:0;">📧 Campaign Details</h3>
+            <button onclick="this.closest('div[style]').parentElement.remove()" style="background:none;border:none;color:#999;font-size:20px;cursor:pointer;">✕</button>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;">
-            <div style="background:var(--bg);padding:12px;border-radius:10px;">
-              <div style="font-size:11px;color:var(--muted);text-transform:uppercase;">Date</div>
-              <div style="font-weight:600;">${formatDate(h.created_at)}</div>
+            <div style="background:#f8f8fc;padding:12px;border-radius:10px;">
+              <div style="font-size:11px;color:#999;text-transform:uppercase;">Date</div>
+              <div style="font-weight:600;color:#1a1a2e;">${formatDate(h.created_at)}</div>
             </div>
-            <div style="background:var(--bg);padding:12px;border-radius:10px;">
-              <div style="font-size:11px;color:var(--muted);text-transform:uppercase;">Status</div>
+            <div style="background:#f8f8fc;padding:12px;border-radius:10px;">
+              <div style="font-size:11px;color:#999;text-transform:uppercase;">Status</div>
               <div><span class="badge ${h.status === 'sent' ? 'active' : 'pending'}">${h.status}</span></div>
             </div>
-            <div style="background:var(--bg);padding:12px;border-radius:10px;">
-              <div style="font-size:11px;color:var(--muted);text-transform:uppercase;">Sender</div>
-              <div style="font-weight:600;">${h.sender}</div>
+            <div style="background:#f8f8fc;padding:12px;border-radius:10px;">
+              <div style="font-size:11px;color:#999;text-transform:uppercase;">Sender</div>
+              <div style="font-weight:600;color:#1a1a2e;">${h.sender}</div>
             </div>
-            <div style="background:var(--bg);padding:12px;border-radius:10px;">
-              <div style="font-size:11px;color:var(--muted);text-transform:uppercase;">Audience</div>
-              <div style="font-weight:600;">${typeLabels[h.audience_type] || h.audience_type}</div>
+            <div style="background:#f8f8fc;padding:12px;border-radius:10px;">
+              <div style="font-size:11px;color:#999;text-transform:uppercase;">Audience</div>
+              <div style="font-weight:600;color:#1a1a2e;">${typeLabels[h.audience_type] || h.audience_type}</div>
             </div>
-            <div style="background:var(--bg);padding:12px;border-radius:10px;">
-              <div style="font-size:11px;color:var(--muted);text-transform:uppercase;">Recipients</div>
-              <div style="font-weight:600;">${h.recipient_count}${h.external_count ? ' + ' + h.external_count + ' external' : ''}</div>
+            <div style="background:#f8f8fc;padding:12px;border-radius:10px;">
+              <div style="font-size:11px;color:#999;text-transform:uppercase;">Recipients</div>
+              <div style="font-weight:600;color:#1a1a2e;">${h.recipient_count}${h.external_count ? ' + ' + h.external_count + ' external' : ''}</div>
             </div>
-            <div style="background:var(--bg);padding:12px;border-radius:10px;">
-              <div style="font-size:11px;color:var(--muted);text-transform:uppercase;">Attachments</div>
-              <div style="font-weight:600;">${h.has_attachments ? '📎 Yes' : 'None'}</div>
+            <div style="background:#f8f8fc;padding:12px;border-radius:10px;">
+              <div style="font-size:11px;color:#999;text-transform:uppercase;">Attachments</div>
+              <div style="font-weight:600;color:#1a1a2e;">${h.has_attachments ? '📎 Yes' : 'None'}</div>
             </div>
           </div>
           <div style="margin-bottom:16px;">
-            <div style="font-size:12px;color:var(--muted);text-transform:uppercase;margin-bottom:6px;">Filters Applied</div>
-            <div style="background:var(--bg);padding:12px;border-radius:10px;font-size:13px;">${filterInfo}</div>
+            <div style="font-size:12px;color:#999;text-transform:uppercase;margin-bottom:6px;">Filters Applied</div>
+            <div style="background:#f8f8fc;padding:12px;border-radius:10px;font-size:13px;color:#333;">${filterInfo}</div>
           </div>
-          <div style="font-size:12px;color:var(--muted);text-transform:uppercase;margin-bottom:6px;">Subject: ${h.subject}</div>
-          <div style="background:#fff;border-radius:12px;padding:4px;max-height:400px;overflow:auto;">
+          <div style="font-size:12px;color:#999;text-transform:uppercase;margin-bottom:6px;">Subject: ${h.subject}</div>
+          <div style="background:#fff;border:1px solid #eee;border-radius:12px;padding:4px;max-height:400px;overflow:auto;">
             ${h.html_body || '<div style="padding:24px;text-align:center;color:#999;">Email preview not available (sent before this feature)</div>'}
           </div>
         </div>`;
