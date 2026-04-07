@@ -1032,13 +1032,23 @@
     updateTime();
 
     // ── Data Loading ────────────────────────────────────────────
-    async function adminFetch(endpoint) {
-      try {
-        const res = await fetch(API_BASE + endpoint);
-        return await res.json();
-      } catch (err) {
-        console.error('Admin fetch error:', err);
-        return { success: false, error: err.message };
+    async function adminFetch(endpoint, retries = 2) {
+      for (let attempt = 0; attempt <= retries; attempt++) {
+        try {
+          const res = await fetch(API_BASE + endpoint);
+          if (!res.ok && attempt < retries) {
+            await new Promise(r => setTimeout(r, 1500));
+            continue;
+          }
+          return await res.json();
+        } catch (err) {
+          if (attempt < retries) {
+            await new Promise(r => setTimeout(r, 1500));
+            continue;
+          }
+          console.error('Admin fetch error:', err);
+          return { success: false, error: err.message };
+        }
       }
     }
 
