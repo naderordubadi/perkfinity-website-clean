@@ -2038,16 +2038,17 @@
 
       // Custom confirmation modal
       const recipientText = document.getElementById('ann-review-recipients').textContent;
+      const scheduleInfo = scheduledAt ? `<br><span style="font-size:12px;color:#999;">📅 Scheduled for: <strong style="color:#333;">${new Date(scheduledAt).toLocaleString()}</strong></span>` : '';
       const overlay = document.createElement('div');
       overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;';
       overlay.innerHTML = `
         <div style="background:#ffffff;border-radius:16px;padding:32px;max-width:420px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
-          <div style="font-size:36px;margin-bottom:12px;">📧</div>
-          <h3 style="color:#1a1a2e;margin:0 0 8px;">Confirm Send</h3>
-          <p style="color:#666;margin:0 0 24px;font-size:14px;">Send this email to <strong style="color:var(--purple);">${recipientText}</strong> recipients?</p>
+          <div style="font-size:36px;margin-bottom:12px;">${scheduledAt ? '📅' : '📧'}</div>
+          <h3 style="color:#1a1a2e;margin:0 0 8px;">${scheduledAt ? 'Schedule Email' : 'Confirm Send'}</h3>
+          <p style="color:#666;margin:0 0 24px;font-size:14px;">${scheduledAt ? 'Schedule' : 'Send'} this email to <strong style="color:var(--purple);">${recipientText}</strong> recipients?${scheduleInfo}</p>
           <div style="display:flex;gap:12px;justify-content:center;">
             <button id="ann-confirm-cancel" style="padding:10px 24px;border-radius:8px;border:1px solid #ddd;background:#f5f5f5;color:#333;cursor:pointer;font-size:14px;">Cancel</button>
-            <button id="ann-confirm-send" style="padding:10px 24px;border-radius:8px;border:none;background:linear-gradient(135deg,var(--purple),var(--green));color:#fff;cursor:pointer;font-weight:700;font-size:14px;">✉️ Send Now</button>
+            <button id="ann-confirm-send" style="padding:10px 24px;border-radius:8px;border:none;background:linear-gradient(135deg,var(--purple),var(--green));color:#fff;cursor:pointer;font-weight:700;font-size:14px;">✉️ ${scheduledAt ? 'Schedule' : 'Send'}</button>
           </div>
         </div>`;
       document.body.appendChild(overlay);
