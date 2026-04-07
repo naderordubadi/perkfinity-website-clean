@@ -941,7 +941,7 @@
           <div style="display:flex;justify-content:space-between;margin-top:16px;">
             <button class="toolbar-btn" onclick="annGoStep(2)" style="padding:12px 24px;">← Back</button>
             <button class="toolbar-btn primary" onclick="annSend()" style="padding:14px 36px;font-size:15px;background:linear-gradient(135deg,var(--purple),var(--green));">
-              📤 Send Campaign
+              ✉️ Send
             </button>
           </div>
           <div id="ann-send-status" style="margin-top:12px;font-size:14px;text-align:center;"></div>
@@ -2099,8 +2099,8 @@
         return;
       }
       const typeLabels = { merchants: '🏪 Merchants', members: '👤 Members', both: '🏪👤 Both', external: '📧 External', custom: '📧 Custom' };
-      tbody.innerHTML = res.data.map(h => `
-        <tr>
+      tbody.innerHTML = res.data.map((h, i) => `
+        <tr style="cursor:pointer;" onclick="annShowDetail(${i})" title="Click to view details">
           <td>${formatDate(h.created_at)}</td>
           <td><strong>${h.subject}</strong></td>
           <td style="font-size:12px;">${h.sender}</td>
@@ -2111,13 +2111,82 @@
           <td><span class="badge ${h.status === 'sent' ? 'active' : h.status === 'partial' ? 'pending' : 'inactive'}">${h.status}</span></td>
         </tr>
       `).join('');
+      // Store for detail view
+      window._annHistory = res.data;
     }
 
-    // Init on tab show
+    function annShowDetail(idx) {
+      const h = window._annHistory[idx];
+      if (!h) return;
+      const typeLabels = { merchants: '🏪 Merchants', members: '👤 Members', both: '🏪👤 Both', external: '📧 External', custom: '📧 Custom' };
+      const filters = h.filters || {};
+      let filterInfo = '';
+      if (filters.cities && filters.cities.length) filterInfo += `<div>🏙️ Cities: ${filters.cities.join(', ')}</div>`;
+      if (filters.zip_codes && filters.zip_codes.length) filterInfo += `<div>📮 Zips: ${filters.zip_codes.join(', ')}</div>`;
+      if (filters.statuses && filters.statuses.length) filterInfo += `<div>📋 Status: ${filters.statuses.join(', ')}</div>`;
+      if (filters.joined_days) filterInfo += `<div>📅 Joined: Last ${filters.joined_days} days</div>`;
+      if (filters.member_count_max != null) filterInfo += `<div>👥 Max Members: ≤ ${filters.member_count_max}</div>`;
+      if (!filterInfo) filterInfo = '<div style="color:var(--muted);">No filters (all recipients)</div>';
+
+      const overlay = document.createElement('div');
+      overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;overflow:auto;padding:24px;';
+      overlay.innerHTML = `
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;max-width:640px;width:100%;max-height:90vh;overflow:auto;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+            <h3 style="color:var(--text);margin:0;">📧 Campaign Details</h3>
+            <button onclick="this.closest('div[style]').parentElement.remove()" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;">✕</button>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;">
+            <div style="background:var(--bg);padding:12px;border-radius:10px;">
+              <div style="font-size:11px;color:var(--muted);text-transform:uppercase;">Date</div>
+              <div style="font-weight:600;">${formatDate(h.created_at)}</div>
+            </div>
+            <div style="background:var(--bg);padding:12px;border-radius:10px;">
+              <div style="font-size:11px;color:var(--muted);text-transform:uppercase;">Status</div>
+              <div><span class="badge ${h.status === 'sent' ? 'active' : 'pending'}">${h.status}</span></div>
+            </div>
+            <div style="background:var(--bg);padding:12px;border-radius:10px;">
+              <div style="font-size:11px;color:var(--muted);text-transform:uppercase;">Sender</div>
+              <div style="font-weight:600;">${h.sender}</div>
+            </div>
+            <div style="background:var(--bg);padding:12px;border-radius:10px;">
+              <div style="font-size:11px;color:var(--muted);text-transform:uppercase;">Audience</div>
+              <div style="font-weight:600;">${typeLabels[h.audience_type] || h.audience_type}</div>
+            </div>
+            <div style="background:var(--bg);padding:12px;border-radius:10px;">
+              <div style="font-size:11px;color:var(--muted);text-transform:uppercase;">Recipients</div>
+              <div style="font-weight:600;">${h.recipient_count}${h.external_count ? ' + ' + h.external_count + ' external' : ''}</div>
+            </div>
+            <div style="background:var(--bg);padding:12px;border-radius:10px;">
+              <div style="font-size:11px;color:var(--muted);text-transform:uppercase;">Attachments</div>
+              <div style="font-weight:600;">${h.has_attachments ? '📎 Yes' : 'None'}</div>
+            </div>
+          </div>
+          <div style="margin-bottom:16px;">
+            <div style="font-size:12px;color:var(--muted);text-transform:uppercase;margin-bottom:6px;">Filters Applied</div>
+            <div style="background:var(--bg);padding:12px;border-radius:10px;font-size:13px;">${filterInfo}</div>
+          </div>
+          <div style="font-size:12px;color:var(--muted);text-transform:uppercase;margin-bottom:6px;">Subject: ${h.subject}</div>
+          <div style="background:#fff;border-radius:12px;padding:4px;max-height:400px;overflow:auto;">
+            ${h.html_body || '<div style="padding:24px;text-align:center;color:#999;">Email preview not available (sent before this feature)</div>'}
+          </div>
+        </div>`;
+      overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+      document.body.appendChild(overlay);
+    }
+
+    // Init on tab show — reset wizard to step 1
     const _origShowTab = showTab;
     showTab = function(name) {
       _origShowTab(name);
-      if (name === 'announcements') { annLoadOptions(); annPreview(); annLoadHistory(); }
+      if (name === 'announcements') {
+        annGoStep(1);
+        annLoadOptions();
+        annPreview();
+        annLoadHistory();
+        // Clear compose fields for fresh start
+        document.getElementById('ann-send-status').innerHTML = '';
+      }
     };
 
   </script>
