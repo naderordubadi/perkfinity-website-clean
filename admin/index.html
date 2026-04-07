@@ -1837,11 +1837,11 @@
       // Show/hide filters
       const filters = document.getElementById('ann-filters');
       filters.style.display = type === 'external' ? 'none' : 'grid';
-      // Show/hide merchant-specific filters
+      // Show/hide merchant-only filters (status and member count only apply to merchants)
       const statusWrap = document.getElementById('ann-status-wrap');
       const mcWrap = document.getElementById('ann-member-count-wrap');
-      statusWrap.style.display = (type === 'members') ? 'none' : 'block';
-      mcWrap.style.display = (type === 'members') ? 'none' : 'block';
+      statusWrap.style.display = (type === 'merchants') ? 'block' : 'none';
+      mcWrap.style.display = (type === 'merchants') ? 'block' : 'none';
       // Reset filters and rebuild dropdowns for this type
       annClearFilters();
       annUpdateDropdowns();
