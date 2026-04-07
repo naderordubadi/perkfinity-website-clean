@@ -590,15 +590,18 @@
             <thead>
               <tr>
                 <th onclick="sortTable('campaigns','title')">Title <span class="sort-arrow">▲</span></th>
+                <th onclick="sortTable('campaigns','campaign_type')">Type <span class="sort-arrow">▲</span></th>
                 <th onclick="sortTable('campaigns','merchant_name')">Merchant <span class="sort-arrow">▲</span></th>
                 <th onclick="sortTable('campaigns','status')">Status <span class="sort-arrow">▲</span></th>
                 <th onclick="sortTable('campaigns','redemption_count')">Redeemed <span class="sort-arrow">▲</span></th>
+                <th onclick="sortTable('campaigns','expired_count')">Expired <span class="sort-arrow">▲</span></th>
+                <th onclick="sortTable('campaigns','total_sent')">Total <span class="sort-arrow">▲</span></th>
                 <th onclick="sortTable('campaigns','created_at')">Created <span class="sort-arrow">▲</span></th>
                 <th onclick="sortTable('campaigns','end_at')">Expires <span class="sort-arrow">▲</span></th>
               </tr>
             </thead>
             <tbody id="campaigns-tbody">
-              <tr><td colspan="6" style="color:var(--muted);text-align:center;padding:40px;">Loading campaigns...</td></tr>
+              <tr><td colspan="9" style="color:var(--muted);text-align:center;padding:40px;">Loading campaigns...</td></tr>
             </tbody>
           </table>
           <div class="pagination" id="campaigns-pagination"></div>
@@ -1150,16 +1153,22 @@
         case 'campaigns':
           data = getFilteredData('campaigns');
           tbody = document.getElementById('campaigns-tbody');
-          tbody.innerHTML = data.map(c => `
+          tbody.innerHTML = data.map(c => {
+            const cType = c.campaign_type === 'announcement' || c.discount_percentage === -1 ? 'Announcement' : 'Perk';
+            const cTypeClass = cType === 'Announcement' ? 'ffl' : 'tier1';
+            return `
             <tr>
               <td><strong>${c.title || '—'}</strong></td>
+              <td><span class="badge ${cTypeClass}">${cType}</span></td>
               <td>${c.merchant_name || c.business_name || '—'}</td>
               <td><span class="badge ${c.status === 'active' ? 'active' : c.status === 'expired' ? 'inactive' : 'pending'}">${c.status || '—'}</span></td>
               <td>${c.redemption_count || 0}</td>
+              <td>${c.expired_count || 0}</td>
+              <td>${c.total_sent || 0}</td>
               <td>${formatDate(c.created_at)}</td>
               <td>${formatDate(c.end_at)}</td>
-            </tr>
-          `).join('') || emptyRow(6, 'No campaigns found');
+            </tr>`;
+          }).join('') || emptyRow(9, 'No campaigns found');
           break;
       }
     }
@@ -1253,7 +1262,8 @@
       const data = getFilteredData(type);
       if (!data.length) return showToast('⚠️ No data to export');
 
-      const headers = Object.keys(data[0]);
+      const excludeFields = ['logo_url', 'password_hash', 'push_token', 'stripe_payment_method_id'];
+      const headers = Object.keys(data[0]).filter(h => !excludeFields.includes(h));
       let content;
 
       if (format === 'csv') {
