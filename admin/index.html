@@ -289,6 +289,39 @@
       .main-content { margin-left:0; padding:20px 16px; }
       .stat-grid { grid-template-columns:repeat(2,1fr); }
     }
+
+    /* ── Announcement Wizard ── */
+    .ann-step-tab {
+      flex:1; padding:14px 16px; font-size:14px; font-weight:600; cursor:pointer;
+      background:var(--card); color:var(--muted); text-align:center;
+      transition:all 0.2s; display:flex; align-items:center; justify-content:center;
+      border-right:1px solid var(--border);
+    }
+    .ann-step-tab:last-child { border-right:0; }
+    .ann-step-tab.active { background:rgba(91,63,165,0.12); color:var(--purple); }
+    .ann-step-tab:hover { background:rgba(91,63,165,0.06); }
+    .ann-step { display:none; }
+    .ann-step.active { display:block; }
+    .ann-type-btn {
+      padding:10px 18px; border-radius:10px; font-size:13px; font-weight:600;
+      background:var(--card); color:var(--muted); border:2px solid var(--border);
+      cursor:pointer; transition:all 0.2s;
+    }
+    .ann-type-btn:hover { border-color:var(--purple); color:var(--text); }
+    .ann-type-btn.active { border-color:var(--purple); background:rgba(91,63,165,0.1); color:var(--purple); }
+    .ann-sender-card {
+      flex:1; padding:14px 16px; border-radius:10px; cursor:pointer;
+      border:2px solid var(--border); background:var(--card); transition:all 0.2s;
+    }
+    .ann-sender-card:hover { border-color:var(--purple); }
+    .ann-sender-card.active { border-color:var(--purple); background:rgba(91,63,165,0.08); }
+    .ann-attach-item {
+      display:flex; align-items:center; gap:8px; padding:6px 10px;
+      background:rgba(91,63,165,0.06); border-radius:8px; margin-bottom:6px; font-size:13px;
+    }
+    .ann-attach-item button {
+      background:none; border:none; color:var(--red); cursor:pointer; font-size:16px; padding:0 4px;
+    }
   </style>
 </head>
 <body>
@@ -692,49 +725,241 @@
       <div id="tab-announcements" class="tab-content">
         <div class="page-header">
           <div>
-            <div class="page-title">Announcements & Newsletter</div>
-            <div class="page-subtitle">Send communications to merchants and members</div>
+            <div class="page-title">Email Campaigns</div>
+            <div class="page-subtitle">Send targeted communications to merchants, members, and prospects</div>
           </div>
         </div>
 
-        <div class="section-card">
-          <div class="section-title">📧 Compose Announcement</div>
-          <div class="form-group">
-            <label class="form-label">Audience</label>
-            <select class="form-input" id="announce-audience" style="cursor:pointer;">
-              <option value="all_merchants">All Merchants</option>
-              <option value="tier1_merchants">Tier 1 Merchants Only</option>
-              <option value="all_members">All Members</option>
-              <option value="all">Everyone (Merchants + Members)</option>
-            </select>
+        <!-- ── Wizard Steps Indicator ── -->
+        <div style="display:flex;gap:0;margin-bottom:24px;border-radius:12px;overflow:hidden;border:1px solid var(--border);">
+          <div class="ann-step-tab active" id="ann-step-tab-1" onclick="annGoStep(1)">
+            <span style="background:var(--purple);color:#fff;border-radius:50%;width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;margin-right:8px;">1</span>
+            Audience
           </div>
-          <div class="form-group">
-            <label class="form-label">Subject Line</label>
-            <input type="text" class="form-input" id="announce-subject" placeholder="e.g. New Feature: Daily Digest Notifications"/>
+          <div class="ann-step-tab" id="ann-step-tab-2" onclick="annGoStep(2)">
+            <span style="background:var(--purple);color:#fff;border-radius:50%;width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;margin-right:8px;">2</span>
+            Compose
           </div>
-          <div class="form-group">
-            <label class="form-label">Message Body <span style="color:var(--mutedLight);">(HTML supported)</span></label>
-            <textarea class="form-textarea" id="announce-body" placeholder="Write your announcement here..."></textarea>
-          </div>
-          <div style="display:flex; gap:10px; align-items:center;">
-            <button class="toolbar-btn primary" onclick="sendAnnouncement()" style="padding:12px 24px;">
-              📤 Send Announcement
-            </button>
-            <button class="toolbar-btn" onclick="previewAnnouncement()">
-              👁️ Preview
-            </button>
-            <div id="announce-status" style="font-size:13px; color:var(--muted);"></div>
+          <div class="ann-step-tab" id="ann-step-tab-3" onclick="annGoStep(3)">
+            <span style="background:var(--purple);color:#fff;border-radius:50%;width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;margin-right:8px;">3</span>
+            Review & Send
           </div>
         </div>
 
-        <div class="section-card">
-          <div class="section-title">📋 Sent History</div>
-          <table class="data-table">
-            <thead><tr><th>Date</th><th>Subject</th><th>Audience</th><th>Recipients</th></tr></thead>
-            <tbody id="announce-history">
-              <tr><td colspan="4" style="color:var(--muted);">No announcements sent yet</td></tr>
-            </tbody>
-          </table>
+        <!-- ═══ STEP 1: AUDIENCE ═══ -->
+        <div id="ann-step-1" class="ann-step active">
+          <div class="section-card">
+            <div class="section-title">👥 Select Your Audience</div>
+
+            <!-- User Type -->
+            <div class="form-group">
+              <label class="form-label">Recipient Type</label>
+              <div style="display:flex;gap:10px;">
+                <button class="ann-type-btn active" onclick="annSetType('merchants',this)">🏪 Merchants</button>
+                <button class="ann-type-btn" onclick="annSetType('members',this)">👤 Members</button>
+                <button class="ann-type-btn" onclick="annSetType('both',this)">🏪👤 Both</button>
+                <button class="ann-type-btn" onclick="annSetType('external',this)">📧 External Only</button>
+              </div>
+            </div>
+
+            <!-- Filters Row -->
+            <div id="ann-filters" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:12px;">
+              <div class="form-group" style="margin-bottom:0">
+                <label class="form-label" style="font-size:12px">City</label>
+                <select class="form-input" id="ann-city" onchange="annPreview()" style="font-size:13px;padding:8px 10px;">
+                  <option value="">All Cities</option>
+                </select>
+              </div>
+              <div class="form-group" style="margin-bottom:0">
+                <label class="form-label" style="font-size:12px">Zip Code</label>
+                <select class="form-input" id="ann-zip" onchange="annPreview()" style="font-size:13px;padding:8px 10px;">
+                  <option value="">All Zip Codes</option>
+                </select>
+              </div>
+              <div class="form-group" id="ann-status-wrap" style="margin-bottom:0">
+                <label class="form-label" style="font-size:12px">Status</label>
+                <select class="form-input" id="ann-status" onchange="annPreview()" style="font-size:13px;padding:8px 10px;">
+                  <option value="">All Statuses</option>
+                  <option value="free_trial">Free Trial</option>
+                  <option value="tier1">Tier 1 (Paying)</option>
+                  <option value="free_for_life">Free For Life</option>
+                  <option value="pending_cancellation">Pending Cancel</option>
+                  <option value="blocked">Blocked</option>
+                </select>
+              </div>
+              <div class="form-group" style="margin-bottom:0">
+                <label class="form-label" style="font-size:12px">Joined</label>
+                <select class="form-input" id="ann-joined" onchange="annPreview()" style="font-size:13px;padding:8px 10px;">
+                  <option value="">All Time</option>
+                  <option value="7">Last 7 Days</option>
+                  <option value="30">Last 30 Days</option>
+                  <option value="60">Last 60 Days</option>
+                  <option value="90">Last 90 Days</option>
+                </select>
+              </div>
+              <div class="form-group" id="ann-member-count-wrap" style="margin-bottom:0">
+                <label class="form-label" style="font-size:12px">Max Members ≤</label>
+                <input type="number" class="form-input" id="ann-member-max" placeholder="e.g. 5" min="0" onchange="annPreview()" style="font-size:13px;padding:8px 10px;">
+              </div>
+            </div>
+
+            <!-- Audience Counter -->
+            <div style="margin-top:16px;padding:14px 18px;background:rgba(91,63,165,0.08);border-radius:10px;display:flex;align-items:center;justify-content:space-between;">
+              <div>
+                <span style="font-size:14px;font-weight:600;color:var(--text);">Matching Recipients:</span>
+                <span id="ann-preview-count" style="font-size:20px;font-weight:800;color:var(--purple);margin-left:8px;">—</span>
+                <span id="ann-preview-loading" style="display:none;color:var(--muted);font-size:13px;margin-left:8px;">⏳ Counting...</span>
+              </div>
+              <div id="ann-preview-sample" style="font-size:12px;color:var(--muted);max-width:50%;text-align:right;"></div>
+            </div>
+          </div>
+
+          <!-- External Emails -->
+          <div class="section-card" style="margin-top:16px">
+            <div class="section-title">📧 External Email List <span style="font-size:12px;font-weight:400;color:var(--muted);">(optional — prospects not in your system)</span></div>
+            <div class="form-group" style="margin-bottom:8px">
+              <textarea class="form-textarea" id="ann-external-emails" placeholder="Paste emails (one per line or comma separated)&#10;john@example.com&#10;jane@business.net" style="min-height:80px;font-size:13px;"></textarea>
+            </div>
+            <div style="display:flex;gap:10px;align-items:center;">
+              <label class="toolbar-btn" style="cursor:pointer;margin:0;font-size:13px;">
+                📄 Upload CSV
+                <input type="file" accept=".csv,.txt" onchange="annLoadCSV(event)" style="display:none;">
+              </label>
+              <span id="ann-ext-count" style="font-size:12px;color:var(--muted);"></span>
+            </div>
+          </div>
+
+          <div style="display:flex;justify-content:flex-end;margin-top:16px;">
+            <button class="toolbar-btn primary" onclick="annGoStep(2)" style="padding:12px 32px;">Next: Compose →</button>
+          </div>
+        </div>
+
+        <!-- ═══ STEP 2: COMPOSE ═══ -->
+        <div id="ann-step-2" class="ann-step">
+          <div class="section-card">
+            <div class="section-title">✉️ Compose Email</div>
+
+            <!-- Sender -->
+            <div class="form-group">
+              <label class="form-label">Send From</label>
+              <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                <label class="ann-sender-card active" onclick="annSetSender('hello@perkfinity.net',this)">
+                  <input type="radio" name="ann-sender" value="hello@perkfinity.net" checked style="display:none;">
+                  <div style="font-weight:700;font-size:14px;">👋 hello@</div>
+                  <div style="font-size:11px;color:var(--muted);margin-top:2px;">Welcome & onboarding</div>
+                </label>
+                <label class="ann-sender-card" onclick="annSetSender('support@perkfinity.net',this)">
+                  <input type="radio" name="ann-sender" value="support@perkfinity.net" style="display:none;">
+                  <div style="font-weight:700;font-size:14px;">🛠️ support@</div>
+                  <div style="font-size:11px;color:var(--muted);margin-top:2px;">Outreach & brochures</div>
+                </label>
+                <label class="ann-sender-card" onclick="annSetSender('noreply@perkfinity.net',this)">
+                  <input type="radio" name="ann-sender" value="noreply@perkfinity.net" style="display:none;">
+                  <div style="font-weight:700;font-size:14px;">📢 noreply@</div>
+                  <div style="font-size:11px;color:var(--muted);margin-top:2px;">Announcements & alerts</div>
+                </label>
+              </div>
+            </div>
+
+            <!-- Subject -->
+            <div class="form-group">
+              <label class="form-label">Subject Line</label>
+              <input type="text" class="form-input" id="ann-subject" placeholder="e.g. Grow Your Business with Perkfinity">
+            </div>
+
+            <!-- Body -->
+            <div class="form-group">
+              <label class="form-label">Email Body <span style="font-size:12px;color:var(--muted);font-weight:400;">HTML supported</span></label>
+              <textarea class="form-textarea" id="ann-body" placeholder="Write your email content here..." style="min-height:200px;font-family:monospace;font-size:13px;"></textarea>
+            </div>
+
+            <!-- Attachments -->
+            <div class="form-group">
+              <label class="form-label">Attachments <span style="font-size:12px;color:var(--muted);font-weight:400;">(max 3 files, 4MB each)</span></label>
+              <div id="ann-attachments-list" style="margin-bottom:8px;"></div>
+              <label class="toolbar-btn" style="cursor:pointer;display:inline-flex;align-items:center;gap:6px;">
+                📎 Add File
+                <input type="file" onchange="annAddAttachment(event)" style="display:none;" multiple>
+              </label>
+            </div>
+          </div>
+
+          <div style="display:flex;justify-content:space-between;margin-top:16px;">
+            <button class="toolbar-btn" onclick="annGoStep(1)" style="padding:12px 24px;">← Back</button>
+            <button class="toolbar-btn primary" onclick="annGoStep(3)" style="padding:12px 32px;">Next: Review →</button>
+          </div>
+        </div>
+
+        <!-- ═══ STEP 3: REVIEW & SEND ═══ -->
+        <div id="ann-step-3" class="ann-step">
+          <div class="section-card">
+            <div class="section-title">📋 Review & Send</div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+              <div class="stat-card" style="text-align:left;">
+                <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">Recipients</div>
+                <div id="ann-review-recipients" style="font-size:22px;font-weight:800;color:var(--purple);">0</div>
+              </div>
+              <div class="stat-card" style="text-align:left;">
+                <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">Sender</div>
+                <div id="ann-review-sender" style="font-size:14px;font-weight:600;color:var(--text);">—</div>
+              </div>
+              <div class="stat-card" style="text-align:left;">
+                <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">Subject</div>
+                <div id="ann-review-subject" style="font-size:14px;font-weight:600;color:var(--text);word-break:break-word;">—</div>
+              </div>
+              <div class="stat-card" style="text-align:left;">
+                <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">Attachments</div>
+                <div id="ann-review-attachments" style="font-size:14px;font-weight:600;color:var(--text);">None</div>
+              </div>
+            </div>
+
+            <!-- Preview -->
+            <div style="margin-top:16px;">
+              <div style="font-size:13px;font-weight:600;color:var(--muted);margin-bottom:8px;">Email Preview</div>
+              <div id="ann-preview-html" style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:20px;max-height:400px;overflow-y:auto;color:#333;"></div>
+            </div>
+
+            <!-- Schedule -->
+            <div class="form-group" style="margin-top:16px;">
+              <label class="form-label">When to Send</label>
+              <div style="display:flex;gap:10px;align-items:center;">
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:14px;">
+                  <input type="radio" name="ann-schedule" value="now" checked onchange="document.getElementById('ann-schedule-dt').style.display='none'"> Send Now
+                </label>
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:14px;">
+                  <input type="radio" name="ann-schedule" value="later" onchange="document.getElementById('ann-schedule-dt').style.display='inline-block'"> Schedule
+                </label>
+                <input type="datetime-local" class="form-input" id="ann-schedule-dt" style="display:none;width:auto;font-size:13px;padding:6px 10px;">
+              </div>
+            </div>
+          </div>
+
+          <div style="display:flex;justify-content:space-between;margin-top:16px;">
+            <button class="toolbar-btn" onclick="annGoStep(2)" style="padding:12px 24px;">← Back</button>
+            <button class="toolbar-btn primary" onclick="annSend()" style="padding:14px 36px;font-size:15px;background:linear-gradient(135deg,var(--purple),var(--green));">
+              📤 Send Campaign
+            </button>
+          </div>
+          <div id="ann-send-status" style="margin-top:12px;font-size:14px;text-align:center;"></div>
+        </div>
+
+        <!-- ═══ SENT HISTORY ═══ -->
+        <div class="section-card" style="margin-top:24px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div class="section-title">📋 Sent History</div>
+            <button class="toolbar-btn" onclick="annLoadHistory()" style="font-size:12px;">🔄 Refresh</button>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead><tr>
+                <th>Date</th><th>Subject</th><th>Sender</th><th>Audience</th><th>Recipients</th><th>External</th><th>📎</th><th>Status</th>
+              </tr></thead>
+              <tbody id="ann-history-tbody">
+                <tr><td colspan="8" style="color:var(--muted);text-align:center;padding:32px;">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
@@ -1584,6 +1809,257 @@
         loadAllData();
       }
     }
+
+    // ═══════════════════════════════════════════════════════════════
+    // ANNOUNCEMENT WIZARD
+    // ═══════════════════════════════════════════════════════════════
+    let _annType = 'merchants';
+    let _annSender = 'hello@perkfinity.net';
+    let _annAttachments = [];
+    let _annPreviewTimer = null;
+
+    function annGoStep(n) {
+      document.querySelectorAll('.ann-step').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.ann-step-tab').forEach(t => t.classList.remove('active'));
+      document.getElementById('ann-step-' + n).classList.add('active');
+      document.getElementById('ann-step-tab-' + n).classList.add('active');
+      if (n === 3) annPopulateReview();
+      if (n === 1) annPreview();
+    }
+
+    function annSetType(type, btn) {
+      _annType = type;
+      document.querySelectorAll('.ann-type-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      // Show/hide filters
+      const filters = document.getElementById('ann-filters');
+      filters.style.display = type === 'external' ? 'none' : 'grid';
+      // Show/hide merchant-specific filters
+      const statusWrap = document.getElementById('ann-status-wrap');
+      const mcWrap = document.getElementById('ann-member-count-wrap');
+      statusWrap.style.display = (type === 'members') ? 'none' : 'block';
+      mcWrap.style.display = (type === 'members') ? 'none' : 'block';
+      annPreview();
+    }
+
+    function annSetSender(sender, el) {
+      _annSender = sender;
+      document.querySelectorAll('.ann-sender-card').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+    }
+
+    // Load audience filter options from DB
+    async function annLoadOptions() {
+      const res = await adminFetch('/admin/audience-options');
+      if (!res.success) return;
+      const d = res.data;
+      const allCities = [...new Set([...d.merchant_cities, ...d.member_cities])].sort();
+      const allZips = [...new Set([...d.merchant_zips, ...d.member_zips])].sort();
+      const cityEl = document.getElementById('ann-city');
+      cityEl.innerHTML = '<option value="">All Cities</option>' + allCities.map(c => `<option value="${c}">${c}</option>`).join('');
+      const zipEl = document.getElementById('ann-zip');
+      zipEl.innerHTML = '<option value="">All Zip Codes</option>' + allZips.map(z => `<option value="${z}">${z}</option>`).join('');
+    }
+
+    // Live audience preview
+    async function annPreview() {
+      if (_annType === 'external') {
+        document.getElementById('ann-preview-count').textContent = '—';
+        document.getElementById('ann-preview-sample').textContent = 'External list only';
+        return;
+      }
+      clearTimeout(_annPreviewTimer);
+      document.getElementById('ann-preview-loading').style.display = 'inline';
+      _annPreviewTimer = setTimeout(async () => {
+        const audience = annBuildAudience();
+        try {
+          const res = await fetch(API_BASE + '/admin/audience-preview', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ audience })
+          });
+          const json = await res.json();
+          document.getElementById('ann-preview-loading').style.display = 'none';
+          if (json.success) {
+            document.getElementById('ann-preview-count').textContent = json.data.count;
+            const sample = (json.data.sample || []).map(r => r.name || r.email).slice(0, 5).join(', ');
+            document.getElementById('ann-preview-sample').textContent = sample ? 'e.g. ' + sample + (json.data.count > 5 ? '...' : '') : '';
+          }
+        } catch (e) {
+          document.getElementById('ann-preview-loading').style.display = 'none';
+        }
+      }, 500);
+    }
+
+    function annBuildAudience() {
+      const city = document.getElementById('ann-city').value;
+      const zip = document.getElementById('ann-zip').value;
+      const status = document.getElementById('ann-status').value;
+      const joined = document.getElementById('ann-joined').value;
+      const memberMax = document.getElementById('ann-member-max').value;
+      return {
+        type: _annType,
+        cities: city ? [city] : [],
+        zip_codes: zip ? [zip] : [],
+        statuses: status ? [status] : [],
+        joined_days: joined ? parseInt(joined) : null,
+        member_count_max: memberMax !== '' ? parseInt(memberMax) : null
+      };
+    }
+
+    function annGetExternalEmails() {
+      const text = document.getElementById('ann-external-emails').value.trim();
+      if (!text) return [];
+      return text.split(/[\n,;]+/).map(e => e.trim()).filter(e => e.includes('@'));
+    }
+
+    function annLoadCSV(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        const emails = e.target.result.split(/[\n,;]+/).map(l => l.trim()).filter(l => l.includes('@'));
+        document.getElementById('ann-external-emails').value += (document.getElementById('ann-external-emails').value ? '\n' : '') + emails.join('\n');
+        document.getElementById('ann-ext-count').textContent = `✅ Loaded ${emails.length} emails from ${file.name}`;
+      };
+      reader.readAsText(file);
+    }
+
+    function annAddAttachment(event) {
+      const files = event.target.files;
+      for (const file of files) {
+        if (_annAttachments.length >= 3) { showToast('⚠️ Maximum 3 attachments'); break; }
+        if (file.size > 4 * 1024 * 1024) { showToast('⚠️ File too large: ' + file.name + ' (max 4MB)'); continue; }
+        const reader = new FileReader();
+        reader.onload = e => {
+          const base64 = e.target.result.split(',')[1];
+          _annAttachments.push({ name: file.name, content: base64, size: file.size });
+          annRenderAttachments();
+        };
+        reader.readAsDataURL(file);
+      }
+      event.target.value = '';
+    }
+
+    function annRemoveAttachment(idx) {
+      _annAttachments.splice(idx, 1);
+      annRenderAttachments();
+    }
+
+    function annRenderAttachments() {
+      const el = document.getElementById('ann-attachments-list');
+      el.innerHTML = _annAttachments.map((a, i) => `
+        <div class="ann-attach-item">
+          <span>📎 ${a.name}</span>
+          <span style="color:var(--muted);font-size:11px;">(${(a.size / 1024).toFixed(0)} KB)</span>
+          <button onclick="annRemoveAttachment(${i})">✕</button>
+        </div>
+      `).join('');
+    }
+
+    function annPopulateReview() {
+      const extCount = annGetExternalEmails().length;
+      const dbCount = document.getElementById('ann-preview-count').textContent;
+      const total = (parseInt(dbCount) || 0) + extCount;
+      document.getElementById('ann-review-recipients').textContent = total + (extCount ? ` (${extCount} external)` : '');
+      document.getElementById('ann-review-sender').textContent = _annSender;
+      document.getElementById('ann-review-subject').textContent = document.getElementById('ann-subject').value || '(no subject)';
+      document.getElementById('ann-review-attachments').textContent = _annAttachments.length ? _annAttachments.map(a => a.name).join(', ') : 'None';
+      // Build preview HTML
+      const body = document.getElementById('ann-body').value;
+      const subject = document.getElementById('ann-subject').value;
+      document.getElementById('ann-preview-html').innerHTML = annBuildEmailTemplate(subject, body);
+    }
+
+    function annBuildEmailTemplate(subject, body) {
+      return `
+        <div style="font-family:'Helvetica Neue',Arial,sans-serif;max-width:520px;margin:0 auto;background:#ffffff;border-radius:16px;overflow:hidden;border:1px solid #eee;">
+          <div style="background:linear-gradient(135deg,#5B3FA5,#6BC17A);padding:24px;text-align:center;">
+            <img src="https://perkfinity.net/assets/Perkfinity-Logo.png" alt="Perkfinity" style="height:32px;opacity:0.95;margin-bottom:8px;"/>
+            <div style="color:#fff;font-size:18px;font-weight:700;">${subject || ''}</div>
+          </div>
+          <div style="padding:24px 28px;font-size:15px;color:#333;line-height:1.7;">
+            ${body || '<p style="color:#999;">Email body will appear here...</p>'}
+          </div>
+          <div style="padding:16px 28px;border-top:1px solid #f0f0f0;text-align:center;">
+            <div style="font-size:11px;color:#bbb;">Powered by <strong style="color:#5B3FA5;">Perkfinity</strong> — Your neighborhood perk platform</div>
+          </div>
+        </div>`;
+    }
+
+    async function annSend() {
+      const subject = document.getElementById('ann-subject').value.trim();
+      const body = document.getElementById('ann-body').value.trim();
+      if (!subject) { showToast('⚠️ Subject is required'); annGoStep(2); return; }
+      if (!body) { showToast('⚠️ Email body is required'); annGoStep(2); return; }
+
+      const schedule = document.querySelector('input[name="ann-schedule"]:checked').value;
+      const scheduledAt = schedule === 'later' ? document.getElementById('ann-schedule-dt').value : null;
+      if (schedule === 'later' && !scheduledAt) { showToast('⚠️ Please select a date/time'); return; }
+
+      // Confirm
+      if (!confirm(`Send this email to ${document.getElementById('ann-review-recipients').textContent} recipients?`)) return;
+
+      const statusEl = document.getElementById('ann-send-status');
+      statusEl.innerHTML = '<span style="color:var(--purple);">⏳ Sending...</span>';
+
+      const html_body = annBuildEmailTemplate(subject, body);
+
+      try {
+        const res = await fetch(API_BASE + '/admin/send-announcement', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            subject,
+            html_body,
+            sender: _annSender,
+            audience: _annType !== 'external' ? annBuildAudience() : { type: 'external' },
+            external_emails: annGetExternalEmails(),
+            attachments: _annAttachments,
+            scheduled_at: scheduledAt
+          })
+        });
+        const json = await res.json();
+        if (json.success) {
+          statusEl.innerHTML = `<span style="color:var(--green);">✅ Sent to ${json.data.sent} recipients${json.data.failed ? ' (' + json.data.failed + ' failed)' : ''}</span>`;
+          showToast('✅ Campaign sent successfully!');
+          annLoadHistory();
+        } else {
+          statusEl.innerHTML = `<span style="color:var(--red);">❌ ${json.error}</span>`;
+        }
+      } catch (e) {
+        statusEl.innerHTML = `<span style="color:var(--red);">❌ Network error: ${e.message}</span>`;
+      }
+    }
+
+    async function annLoadHistory() {
+      const res = await adminFetch('/admin/announcement-history');
+      const tbody = document.getElementById('ann-history-tbody');
+      if (!res.success || !res.data || res.data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="color:var(--muted);text-align:center;padding:32px;">No campaigns sent yet</td></tr>';
+        return;
+      }
+      const typeLabels = { merchants: '🏪 Merchants', members: '👤 Members', both: '🏪👤 Both', external: '📧 External', custom: '📧 Custom' };
+      tbody.innerHTML = res.data.map(h => `
+        <tr>
+          <td>${formatDate(h.created_at)}</td>
+          <td><strong>${h.subject}</strong></td>
+          <td style="font-size:12px;">${h.sender}</td>
+          <td>${typeLabels[h.audience_type] || h.audience_type || '—'}</td>
+          <td>${h.recipient_count}</td>
+          <td>${h.external_count || 0}</td>
+          <td>${h.has_attachments ? '📎' : '—'}</td>
+          <td><span class="badge ${h.status === 'sent' ? 'active' : h.status === 'partial' ? 'pending' : 'inactive'}">${h.status}</span></td>
+        </tr>
+      `).join('');
+    }
+
+    // Init on tab show
+    const _origShowTab = showTab;
+    showTab = function(name) {
+      _origShowTab(name);
+      if (name === 'announcements') { annLoadOptions(); annPreview(); annLoadHistory(); }
+    };
 
   </script>
 
