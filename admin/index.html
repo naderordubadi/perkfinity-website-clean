@@ -912,11 +912,11 @@
 
         <div style="background:#f8fafc;border-radius:12px;padding:18px 20px;margin-bottom:20px;">
           <div style="font-size:14px;font-weight:800;color:#1a1a2e;margin-bottom:10px;">📍 Location</div>
-          ${infoRow('Address', m.address)}
-          ${infoRow('Suite', m.suite)}
-          ${infoRow('City', m.location_city || m.city)}
-          ${infoRow('State', m.state)}
-          ${infoRow('Zip Code', m.location_zip || m.postal_code)}
+          ${infoRow('Address', m.location_address || m.address)}
+          ${infoRow('Suite', m.location_suite || m.suite)}
+          ${infoRow('City', m.location_city)}
+          ${infoRow('State', m.location_state || m.state)}
+          ${infoRow('Zip Code', m.location_zip)}
         </div>
 
         <div style="background:#f8fafc;border-radius:12px;padding:18px 20px;margin-bottom:20px;">
