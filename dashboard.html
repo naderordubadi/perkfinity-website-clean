@@ -1940,6 +1940,59 @@
           </div>
         </div>
 
+      <!-- ─── BLOCKED (Free For Life) ─── -->
+      </div>
+      <div id="scene-blocked-ffl" class="scene" style="display:none">
+        <div class="alert alert-danger" style="background:rgba(220,53,69,.12);border-color:rgba(220,53,69,.4)">
+          <span class="icon">🚫</span>
+          <div>
+            <strong>Account Cancelled.</strong> Your Free For Life account has been cancelled and all services are blocked.
+            <br>Members cannot redeem perks. Campaigns are frozen. Only this Billing tab is accessible.
+          </div>
+        </div>
+
+        <div class="billing-section" style="text-align:center;padding:48px">
+          <div style="font-size:52px;margin-bottom:14px">🔒</div>
+          <h3 style="font-size:24px;margin-bottom:8px;color:var(--red)">Account Cancelled</h3>
+          <p style="color:var(--muted);font-size:15px;max-width:520px;margin:0 auto 24px">
+            Your Free For Life account was cancelled. All services are suspended — campaigns, promotions, and QR code redemptions
+            are disabled. Your member data and campaign history are <strong>preserved</strong>.
+          </p>
+
+          <div
+            style="background:rgba(220,53,69,.04);border:1.5px solid rgba(220,53,69,.15);border-radius:14px;padding:20px;max-width:440px;margin:0 auto 28px;text-align:left">
+            <div style="font-size:13px;font-weight:800;color:var(--red);margin-bottom:10px">What's currently blocked:
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600;color:#991b1b">
+              <div>❌ Cannot create campaigns or promotions</div>
+              <div>❌ Members see "This merchant is inactive" when scanning QR</div>
+              <div>❌ Member list is frozen (data preserved, not deleted)</div>
+              <div>❌ No emails sent to your members</div>
+            </div>
+          </div>
+
+          <div
+            style="background:rgba(107,193,122,.06);border:1.5px solid rgba(107,193,122,.2);border-radius:14px;padding:20px;max-width:440px;margin:0 auto 28px;text-align:left">
+            <div style="font-size:13px;font-weight:800;color:var(--greenDark);margin-bottom:10px">How to reactivate:</div>
+            <div style="display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600;color:#166534">
+              <div>✅ This Billing tab remains accessible</div>
+              <div>📧 Contact Perkfinity support to reactivate your account</div>
+            </div>
+          </div>
+
+          <div style="background:rgba(91,63,165,.06);border:1.5px solid rgba(91,63,165,.2);border-radius:14px;padding:20px 28px;max-width:440px;margin:0 auto 28px;text-align:center">
+            <div style="font-size:14px;font-weight:700;color:var(--purpleDark);margin-bottom:6px">Need to reactivate?</div>
+            <p style="font-size:13px;color:var(--muted);margin:0 0 12px">Please contact Perkfinity support and we'll restore your account.</p>
+            <a href="mailto:support@perkfinity.net" class="btn btn-purple" style="padding:12px 28px;font-size:14px;text-decoration:none;display:inline-block">
+              📧 Email Support
+            </a>
+          </div>
+
+          <a style="display:inline-block; margin-top:20px; font-size:12px; color:#9ca3af; text-decoration:underline; cursor:pointer;"
+            onclick="showBillingDeleteModal()" onmouseover="this.style.color='#ef4444'"
+            onmouseout="this.style.color='#9ca3af'">Delete Account & Personal Data</a>
+        </div>
+
         <div class="billing-section">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
             <h3 style="margin:0">Invoice History</h3>
@@ -2300,8 +2353,34 @@
         }
       }).catch(() => { });
 
-      // Member List is default tab — load data immediately
-      loadMembers();
+      // Check if account is blocked — if so, lock to Billing tab only
+      fetch(`${BACKEND_URL}/api/v1/merchants/${merchantId}/billing`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      }).then(r => r.json()).then(json => {
+        if (json.success && json.data && json.data.account_blocked) {
+          // Lock all tabs except Billing
+          document.querySelectorAll('.nav-tabs a').forEach(a => {
+            if (!a.textContent.includes('Billing')) {
+              a.style.opacity = '0.35';
+              a.style.pointerEvents = 'none';
+              a.style.cursor = 'not-allowed';
+            }
+          });
+          // Force switch to Billing tab
+          document.querySelectorAll('.empty-state, #tab-members, #tab-profile, #tab-print-sign, #tab-promotion, #tab-billing').forEach(el => el.style.display = 'none');
+          document.querySelectorAll('.nav-tabs a').forEach(el => el.classList.remove('active'));
+          const billingTab = document.querySelector('.nav-tabs a[onclick*="billing"]');
+          if (billingTab) billingTab.classList.add('active');
+          document.getElementById('tab-billing').style.display = 'block';
+          loadBilling();
+        } else {
+          // Normal flow — Member List is default tab
+          loadMembers();
+        }
+      }).catch(() => {
+        // If billing check fails, fall back to default
+        loadMembers();
+      });
     });
 
     // ── Promotion Wizard ─────────────────────────────────────────
@@ -2881,7 +2960,7 @@
         // Determine scene
         let sceneName = 'tier1';
         if (d.account_blocked) {
-          sceneName = 'blocked';
+          sceneName = d.tier === 'free_for_life' ? 'blocked-ffl' : 'blocked';
         } else if (d.billing_status === 'payment_failed') {
           sceneName = 'failed';
         } else if (d.tier === 'free_for_life') {
