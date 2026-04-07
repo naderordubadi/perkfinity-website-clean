@@ -619,7 +619,7 @@
           </div>
         </div>
 
-        <div class="stat-grid">
+        <div class="stat-grid" style="grid-template-columns:repeat(5,1fr);">
           <div class="stat-card">
             <div class="stat-value green" id="bill-mrr">$0</div>
             <div class="stat-label">Monthly Recurring Revenue</div>
@@ -627,6 +627,10 @@
           <div class="stat-card">
             <div class="stat-value purple" id="bill-paying">0</div>
             <div class="stat-label">Paying Merchants</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" style="color:#38bdf8;" id="bill-eligible">0</div>
+            <div class="stat-label">Upgrade Eligible</div>
           </div>
           <div class="stat-card">
             <div class="stat-value amber" id="bill-pending">0</div>
@@ -665,11 +669,12 @@
                 <th onclick="sortTable('billing','status')">Status <span class="sort-arrow">▲</span></th>
                 <th onclick="sortTable('billing','amount_cents')">Amount <span class="sort-arrow">▲</span></th>
                 <th>Period</th>
+                <th onclick="sortTable('billing','next_billing_date')">Next Billing <span class="sort-arrow">▲</span></th>
                 <th onclick="sortTable('billing','paid_at')">Paid At <span class="sort-arrow">▲</span></th>
               </tr>
             </thead>
             <tbody id="billing-tbody">
-              <tr><td colspan="6" style="color:var(--muted);text-align:center;padding:40px;">Loading billing data...</td></tr>
+              <tr><td colspan="7" style="color:var(--muted);text-align:center;padding:40px;">Loading billing data...</td></tr>
             </tbody>
           </table>
         </div>
@@ -1093,6 +1098,7 @@
         document.getElementById('ov-mrr').textContent = '$' + (bStats.mrr || '0');
         document.getElementById('bill-mrr').textContent = '$' + (bStats.mrr || '0');
         document.getElementById('bill-paying').textContent = bStats.paying_merchants || 0;
+        document.getElementById('bill-eligible').textContent = bStats.upgrade_eligible || 0;
         document.getElementById('bill-pending').textContent = bStats.pending_cancel || 0;
         document.getElementById('bill-failed').textContent = bStats.failed_payments || 0;
         renderTable('billing');
@@ -1185,19 +1191,32 @@
           tbody.innerHTML = data.map(inv => {
             const amt = ((parseInt(inv.amount_cents) || 0) / 100).toFixed(2);
             const statusClass = inv.status === 'paid' ? 'active' : inv.status === 'failed' ? 'inactive' : 'pending';
-            const period = inv.period_start && inv.period_end
-              ? formatDate(inv.period_start) + ' — ' + formatDate(inv.period_end)
-              : '—';
+            // Show full month period: period_start to end of that month
+            let period = '\u2014';
+            if (inv.period_start) {
+              const ps = new Date(inv.period_start);
+              const pe = inv.period_end ? new Date(inv.period_end) : null;
+              // If period_end is same day or within 1 day of start, compute end of billing month
+              if (!pe || Math.abs(pe - ps) < 2 * 86400000) {
+                const monthEnd = new Date(ps);
+                monthEnd.setMonth(monthEnd.getMonth() + 1);
+                monthEnd.setDate(monthEnd.getDate() - 1);
+                period = formatDate(ps) + ' \u2014 ' + formatDate(monthEnd);
+              } else {
+                period = formatDate(ps) + ' \u2014 ' + formatDate(pe);
+              }
+            }
             return `
             <tr>
-              <td><strong>${inv.merchant_name || '—'}</strong></td>
+              <td><strong>${inv.merchant_name || '\u2014'}</strong></td>
               <td><span class="badge ${inv.subscription_tier === 'tier1' ? 'tier1' : 'free'}">${inv.subscription_tier === 'tier1' ? 'Tier 1' : 'Free'}</span></td>
-              <td><span class="badge ${statusClass}">${inv.status || '—'}</span></td>
+              <td><span class="badge ${statusClass}">${inv.status || '\u2014'}</span></td>
               <td>$${amt}</td>
               <td>${period}</td>
-              <td>${inv.paid_at ? formatDate(inv.paid_at) : '—'}</td>
+              <td>${inv.next_billing_date ? formatDate(inv.next_billing_date) : '\u2014'}</td>
+              <td>${inv.paid_at ? formatDate(inv.paid_at) : '\u2014'}</td>
             </tr>`;
-          }).join('') || emptyRow(6, 'No invoices yet — billing starts when merchants upgrade to Tier 1');
+          }).join('') || emptyRow(7, 'No invoices yet \u2014 billing starts when merchants upgrade to Tier 1');
           break;
       }
     }
