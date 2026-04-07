@@ -3011,6 +3011,8 @@
               link.onclick = goToCustomerPortal;
             } else if (link.innerHTML.includes('Cancel Subscription')) {
               link.onclick = showCancelWarning;
+            } else if (link.innerHTML.includes('Cancel Account')) {
+              link.onclick = showFFLCancelWarning;
             }
           });
 
