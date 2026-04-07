@@ -3016,9 +3016,11 @@
             }
           });
 
-          // Wire Cancel Warning Confirm
-          const realCancelBtn = sceneEl.querySelector('.cancel-warning button.btn-red-outline');
-          if (realCancelBtn) realCancelBtn.onclick = doCancelAction;
+          // Wire Cancel Warning Confirm — only for Stripe-based scenes, NOT Free For Life
+          if (sceneName !== 'free-for-life') {
+            const realCancelBtn = sceneEl.querySelector('.cancel-warning button.btn-red-outline');
+            if (realCancelBtn) realCancelBtn.onclick = doCancelAction;
+          }
 
           // Wire Export CSV
           const exportBtns = sceneEl.querySelectorAll('button');
