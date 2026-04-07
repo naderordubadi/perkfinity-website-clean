@@ -3746,23 +3746,3 @@
 </body>
 
 </html>
-const esc = v => `"${String(v).replace(/"/g,'""')}"`;
-content = [headers.map(esc).join(','), ...rows.map(r => fields.map(f => esc(r[f])).join(','))].join('\n');
-mime = 'text/csv'; ext = 'csv';
-} else {
-const colW = [12, 16, 10, 8, 24, 10, 28];
-const pad = (s, w) => String(s).substring(0, w).padEnd(w);
-const line = colW.map(w => '-'.repeat(w)).join(' ');
-const hdr = headers.map((h, i) => pad(h, colW[i])).join(' ');
-content = [hdr, line, ...rows.map(r => fields.map((f, i) => pad(r[f], colW[i])).join(' '))].join('\n');
-mime = 'text/plain'; ext = 'txt';
-}
-const a = document.createElement('a');
-a.href = URL.createObjectURL(new Blob([content], { type: mime }));
-a.download = `perkfinity-members-${new Date().toISOString().slice(0,10)}.${ext}`;
-a.click();
-}
-</script>
-</body>
-
-</html>
