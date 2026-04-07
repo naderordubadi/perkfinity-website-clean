@@ -923,18 +923,9 @@
               <div id="ann-preview-html" style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:20px;max-height:400px;overflow-y:auto;color:#333;"></div>
             </div>
 
-            <!-- Schedule -->
-            <div class="form-group" style="margin-top:16px;">
-              <label class="form-label">When to Send</label>
-              <div style="display:flex;gap:10px;align-items:center;">
-                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:14px;">
-                  <input type="radio" name="ann-schedule" value="now" checked onchange="document.getElementById('ann-schedule-dt').style.display='none'"> Send Now
-                </label>
-                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:14px;">
-                  <input type="radio" name="ann-schedule" value="later" onchange="document.getElementById('ann-schedule-dt').style.display='inline-block'"> Schedule
-                </label>
-                <input type="datetime-local" class="form-input" id="ann-schedule-dt" style="display:none;width:auto;font-size:13px;padding:6px 10px;">
-              </div>
+            <!-- Schedule (not supported by Brevo transactional API — always sends immediately) -->
+            <div class="form-group" style="margin-top:16px;display:none;">
+              <input type="radio" name="ann-schedule" value="now" checked style="display:none;">
             </div>
           </div>
 
@@ -2081,8 +2072,10 @@
         });
         const json = await res.json();
         if (json.success) {
-          statusEl.innerHTML = `<span style="color:var(--green);">✅ Sent to ${json.data.sent} recipients${json.data.failed ? ' (' + json.data.failed + ' failed)' : ''}</span>`;
-          showToast('✅ Campaign sent successfully!');
+          const count = json.data.sent || json.data.total_recipients;
+          const failText = json.data.failed ? ` (${json.data.failed} failed)` : '';
+          statusEl.innerHTML = `<span style="color:var(--green);">✅ Email sent to ${count} recipients successfully!${failText}</span>`;
+          showToast('✅ Email sent successfully!');
           annLoadHistory();
         } else {
           statusEl.innerHTML = `<span style="color:var(--red);">❌ ${json.error}</span>`;
