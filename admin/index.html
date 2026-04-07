@@ -1912,20 +1912,20 @@
       _annPreviewTimer = setTimeout(async () => {
         const audience = annBuildAudience();
         try {
-          const res = await fetch(API_BASE + '/admin/audience-preview', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ audience })
-          });
-          const json = await res.json();
+          const json = await adminFetch('/admin/audience-preview?audience=' + encodeURIComponent(JSON.stringify(audience)));
           document.getElementById('ann-preview-loading').style.display = 'none';
           if (json.success) {
             document.getElementById('ann-preview-count').textContent = json.data.count;
             const sample = (json.data.sample || []).map(r => r.name || r.email).slice(0, 5).join(', ');
             document.getElementById('ann-preview-sample').textContent = sample ? 'e.g. ' + sample + (json.data.count > 5 ? '...' : '') : '';
+          } else {
+            document.getElementById('ann-preview-count').textContent = '⚠️';
+            console.error('Preview error:', json.error);
           }
         } catch (e) {
           document.getElementById('ann-preview-loading').style.display = 'none';
+          document.getElementById('ann-preview-count').textContent = '⚠️';
+          console.error('Preview fetch error:', e);
         }
       }, 500);
     }
