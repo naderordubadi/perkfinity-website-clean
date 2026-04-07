@@ -1154,8 +1154,9 @@
           data = getFilteredData('campaigns');
           tbody = document.getElementById('campaigns-tbody');
           tbody.innerHTML = data.map(c => {
-            const cType = c.campaign_type === 'announcement' || c.discount_percentage === -1 ? 'Announcement' : 'Perk';
-            const cTypeClass = cType === 'Announcement' ? 'ffl' : 'tier1';
+            const typeLabels = { percent: '% Off', dollar: '$ Off', bogo: 'BOGO', freeitem: 'Free Item', loyalty: 'Loyalty', flash: 'Flash Sale', announcement: 'Announcement', perk: 'Perk', custom: 'Custom' };
+            const cType = typeLabels[c.campaign_type] || (c.discount_percentage === -1 ? 'Announcement' : 'Perk');
+            const cTypeClass = c.campaign_type === 'announcement' || c.discount_percentage === -1 ? 'ffl' : 'tier1';
             return `
             <tr>
               <td><strong>${c.title || '—'}</strong></td>
