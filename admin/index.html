@@ -630,7 +630,7 @@
           </div>
           <div class="stat-card">
             <div class="stat-value amber" id="bill-pending">0</div>
-            <div class="stat-label">Pending Upgrades</div>
+            <div class="stat-label">Pending Cancel</div>
           </div>
           <div class="stat-card">
             <div class="stat-value red" id="bill-failed">0</div>
@@ -639,7 +639,7 @@
         </div>
 
         <div class="toolbar">
-          <select class="toolbar-select" id="billing-filter-period">
+          <select class="toolbar-select" id="billing-filter-period" onchange="filterTable('billing')">
             <option value="all">All Time</option>
             <option value="30">Last 30 Days</option>
             <option value="90">Last 90 Days</option>
@@ -660,18 +660,16 @@
           <table class="data-table" id="billing-table">
             <thead>
               <tr>
-                <th>Merchant</th>
-                <th>Tier</th>
-                <th>Status</th>
-                <th>Amount</th>
+                <th onclick="sortTable('billing','merchant_name')">Merchant <span class="sort-arrow">▲</span></th>
+                <th onclick="sortTable('billing','subscription_tier')">Tier <span class="sort-arrow">▲</span></th>
+                <th onclick="sortTable('billing','status')">Status <span class="sort-arrow">▲</span></th>
+                <th onclick="sortTable('billing','amount_cents')">Amount <span class="sort-arrow">▲</span></th>
                 <th>Period</th>
-                <th>Paid At</th>
+                <th onclick="sortTable('billing','paid_at')">Paid At <span class="sort-arrow">▲</span></th>
               </tr>
             </thead>
             <tbody id="billing-tbody">
-              <tr><td colspan="6" style="color:var(--muted);text-align:center;padding:40px;">
-                No billing data yet — billing starts when merchants upgrade to Tier 1
-              </td></tr>
+              <tr><td colspan="6" style="color:var(--muted);text-align:center;padding:40px;">Loading billing data...</td></tr>
             </tbody>
           </table>
         </div>
@@ -1087,9 +1085,18 @@
         `).join('') || '<tr><td colspan="5" style="color:var(--muted);">No merchants yet</td></tr>';
       }
 
-      // MRR placeholder
-      document.getElementById('ov-mrr').textContent = '$0';
-      document.getElementById('bill-mrr').textContent = '$0';
+      // Load billing
+      const billRes = await adminFetch('/admin/billing');
+      if (billRes.success) {
+        allBilling = billRes.data.invoices || [];
+        const bStats = billRes.data.stats || {};
+        document.getElementById('ov-mrr').textContent = '$' + (bStats.mrr || '0');
+        document.getElementById('bill-mrr').textContent = '$' + (bStats.mrr || '0');
+        document.getElementById('bill-paying').textContent = bStats.paying_merchants || 0;
+        document.getElementById('bill-pending').textContent = bStats.pending_cancel || 0;
+        document.getElementById('bill-failed').textContent = bStats.failed_payments || 0;
+        renderTable('billing');
+      }
 
       document.getElementById('refresh-spinner').style.display = 'none';
       showToast('✅ Dashboard data refreshed');
@@ -1171,6 +1178,27 @@
             </tr>`;
           }).join('') || emptyRow(9, 'No campaigns found');
           break;
+
+        case 'billing':
+          data = getFilteredData('billing');
+          tbody = document.getElementById('billing-tbody');
+          tbody.innerHTML = data.map(inv => {
+            const amt = ((parseInt(inv.amount_cents) || 0) / 100).toFixed(2);
+            const statusClass = inv.status === 'paid' ? 'active' : inv.status === 'failed' ? 'inactive' : 'pending';
+            const period = inv.period_start && inv.period_end
+              ? formatDate(inv.period_start) + ' — ' + formatDate(inv.period_end)
+              : '—';
+            return `
+            <tr>
+              <td><strong>${inv.merchant_name || '—'}</strong></td>
+              <td><span class="badge ${inv.subscription_tier === 'tier1' ? 'tier1' : 'free'}">${inv.subscription_tier === 'tier1' ? 'Tier 1' : 'Free'}</span></td>
+              <td><span class="badge ${statusClass}">${inv.status || '—'}</span></td>
+              <td>$${amt}</td>
+              <td>${period}</td>
+              <td>${inv.paid_at ? formatDate(inv.paid_at) : '—'}</td>
+            </tr>`;
+          }).join('') || emptyRow(6, 'No invoices yet — billing starts when merchants upgrade to Tier 1');
+          break;
       }
     }
 
@@ -1221,6 +1249,17 @@
           );
           if (campStatus) data = data.filter(c => c.status === campStatus);
           break;
+
+        case 'billing':
+          data = [...allBilling];
+          const billStatus = document.getElementById('billing-filter-status').value;
+          const billPeriod = document.getElementById('billing-filter-period').value;
+          if (billStatus) data = data.filter(i => i.status === billStatus);
+          if (billPeriod && billPeriod !== 'all') {
+            const cutoff = new Date(Date.now() - parseInt(billPeriod) * 86400000);
+            data = data.filter(i => new Date(i.created_at) >= cutoff);
+          }
+          break;
       }
       return data;
     }
@@ -1240,6 +1279,7 @@
         case 'merchants': data = allMerchants; break;
         case 'members': data = allMembers; break;
         case 'campaigns': data = allCampaigns; break;
+        case 'billing': data = allBilling; break;
         default: return;
       }
 
