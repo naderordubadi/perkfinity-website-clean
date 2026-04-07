@@ -619,7 +619,7 @@
           </div>
         </div>
 
-        <div class="stat-grid" style="grid-template-columns:repeat(5,1fr);">
+        <div class="stat-grid" style="grid-template-columns:repeat(6,1fr);">
           <div class="stat-card">
             <div class="stat-value green" id="bill-mrr">$0</div>
             <div class="stat-label">Monthly Recurring Revenue</div>
@@ -631,6 +631,10 @@
           <div class="stat-card">
             <div class="stat-value" style="color:#38bdf8;" id="bill-eligible">0</div>
             <div class="stat-label">Upgrade Eligible</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" style="color:#a78bfa;" id="bill-ffl">0</div>
+            <div class="stat-label">Free For Life</div>
           </div>
           <div class="stat-card">
             <div class="stat-value amber" id="bill-pending">0</div>
@@ -1099,6 +1103,7 @@
         document.getElementById('bill-mrr').textContent = '$' + (bStats.mrr || '0');
         document.getElementById('bill-paying').textContent = bStats.paying_merchants || 0;
         document.getElementById('bill-eligible').textContent = bStats.upgrade_eligible || 0;
+        document.getElementById('bill-ffl').textContent = bStats.ffl_merchants || 0;
         document.getElementById('bill-pending').textContent = bStats.pending_cancel || 0;
         document.getElementById('bill-failed').textContent = bStats.failed_payments || 0;
         renderTable('billing');
