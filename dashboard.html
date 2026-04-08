@@ -1377,22 +1377,22 @@
 
       <!-- ─── TRIAL + MEMBER-20 (15/20) ─── -->
       <div id="scene-trial-20" class="scene" style="display:none">
-        <div class="alert alert-info">
+        <div class="alert alert-info" id="trial-alert" style="display:none">
           <span class="icon">🎟️</span>
-          <div>Promo code <strong>MEMBER-20</strong> applied! Your card will not be charged until you reach
-            <strong>20</strong> active members.</div>
+          <div>Promo code <strong id="trial-promo-name">PROMO</strong> applied! Your card will not be charged until you reach
+            <strong id="trial-promo-limit">X</strong> active members.</div>
         </div>
         <div class="billing-section">
           <h3>Your Plan</h3>
           <div class="plan-card">
             <div class="plan-details">
-              <span class="plan-badge trial">🟢 Free Trial + MEMBER-20</span>
-              <div class="plan-price" style="color:var(--greenDark)">Free <span>until 20 members</span></div>
+              <span class="plan-badge trial" id="trial-badge">🟢 Free Trial + PROMO</span>
+              <div class="plan-price" style="color:var(--greenDark)">Free <span id="trial-price-subtext">until X members</span></div>
               <ul class="plan-features">
-                <li>Extended trial — 20 member limit</li>
+                <li id="trial-feature-limit">Extended trial — X member limit</li>
                 <li>All trial features included</li>
               </ul>
-              <div class="no-charge-note">🔒 Your card on file will NOT be charged until you reach 20 members</div>
+              <div class="no-charge-note">🔒 Your card on file will NOT be charged until you reach <span id="trial-no-charge-limit">X</span> members</div>
             </div>
             <div class="usage-widget">
               <div style="font-size:13px;font-weight:700;color:var(--muted)">Active Members</div>
@@ -1542,16 +1542,16 @@
       <div id="scene-trial-near-20" class="scene" style="display:none">
         <div class="alert alert-success">
           <span class="icon">🚀</span>
-          <div><strong>Amazing progress!</strong> 19 members already — your community loves what you offer!</div>
+          <div><strong>Amazing progress!</strong> <span id="near-member-count-hero">X</span> members already — your community loves what you offer!</div>
         </div>
         <div class="billing-section">
           <h3>Your Plan</h3>
           <div class="plan-card">
             <div class="plan-details">
-              <span class="plan-badge trial">🟢 Free Trial + MEMBER-20</span>
+              <span class="plan-badge trial" id="near-badge">🟢 Free Trial + PROMO</span>
               <div class="plan-price" style="color:var(--greenDark)">Free <span>— growing fast!</span></div>
               <ul class="plan-features">
-                <li>Extended trial — 20 member limit</li>
+                <li id="near-feature-limit">Extended trial — X member limit</li>
                 <li>All trial features included</li>
               </ul>
               <div class="no-charge-note">🎉 One more sign-up unlocks unlimited members and direct campaign creation for
@@ -2969,8 +2969,7 @@
           let limit = d.member_limit || 10;
           let count = d.member_count || 0;
           let diff = limit - count;
-          let base = limit === 10 ? '10' : (limit === 15 ? '15' : '20');
-          sceneName = (diff <= 2 && diff >= 0) ? `trial-near-${base}` : `trial-${base}`;
+          sceneName = (diff <= 2 && diff >= 0) ? 'trial-near-20' : 'trial-20';
         }
 
         // Hide all scenes
@@ -3017,8 +3016,29 @@
           }
 
           // Dynamic Updates
+          const promoCode = d.promo_code;
+          const memberLimit = d.member_limit || 10;
+
+          if (sceneName === 'trial-20') {
+            document.getElementById('trial-badge').innerText = promoCode ? `🟢 Free Trial + ${promoCode}` : `🟢 Free Trial`;
+            document.getElementById('trial-price-subtext').innerText = `until ${memberLimit} members`;
+            document.getElementById('trial-feature-limit').innerText = promoCode ? `Extended trial — ${memberLimit} member limit` : `1 countertop QR sign`;
+            document.getElementById('trial-no-charge-limit').innerText = memberLimit;
+            if (promoCode) {
+              document.getElementById('trial-alert').style.display = 'flex';
+              document.getElementById('trial-promo-name').innerText = promoCode;
+              document.getElementById('trial-promo-limit').innerText = memberLimit;
+            }
+          }
+
+          if (sceneName === 'trial-near-20') {
+            document.getElementById('near-badge').innerText = promoCode ? `🟢 Free Trial + ${promoCode}` : `🟢 Free Trial`;
+            document.getElementById('near-feature-limit').innerText = promoCode ? `Extended trial — ${memberLimit} member limit` : `1 countertop QR sign`;
+            document.getElementById('near-member-count-hero').innerText = d.member_count || 0;
+          }
+
           const usageCount = sceneEl.querySelector('.usage-count');
-          if (usageCount) usageCount.innerHTML = `${d.member_count || 0} <span>/ ${d.member_limit || 10}</span>`;
+          if (usageCount) usageCount.innerHTML = `${d.member_count || 0} <span>/ ${memberLimit}</span>`;
 
           const usageBar = sceneEl.querySelector('.usage-fill');
           if (usageBar) {
