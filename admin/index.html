@@ -989,63 +989,137 @@
       <div id="tab-access-codes" class="tab-content">
         <div class="page-header">
           <div>
-            <div class="page-title">Free For Life Access Codes</div>
-            <div class="page-subtitle">One-time-use codes that give merchants free permanent access (no credit card)</div>
+            <div class="page-title">Special Access Codes</div>
+            <div class="page-subtitle">Manage single-use Free For Life codes or multi-use Community Promos.</div>
           </div>
-          <button class="toolbar-btn" onclick="loadAccessCodes()">🔄 Refresh</button>
+          <button class="toolbar-btn" onclick="loadAccessCodes()">🔄 Refresh Data</button>
         </div>
 
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; align-items:start;">
-          <!-- Generate Code -->
-          <div class="section-card">
-            <div class="section-title">🔑 Generate New Code</div>
-            <div class="form-group">
-              <label class="form-label">Label / Note <span style="color:var(--mutedLight);font-weight:400">(internal use only)</span></label>
-              <input type="text" class="form-input" id="ac-label" placeholder="e.g. Dental office — Dr. Smith" maxlength="100"/>
-            </div>
-            <button class="toolbar-btn primary" style="width:100%;padding:12px;font-size:14px" onclick="generateAccessCode()">
-              ✨ Generate Code
-            </button>
-            <div id="ac-result" style="margin-top:16px;display:none">
-              <div class="form-label" style="margin-bottom:8px">Generated Code — click to copy</div>
-              <div class="code-box" id="ac-code-box" onclick="copyCode()">
-                <span id="ac-code-value">FREE-XXXX-XXXX</span>
-                <span class="copy-hint">📋 Click to copy</span>
+        <div style="display:flex; border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-bottom:24px;">
+          <div class="ann-step-tab active" id="tab-btn-cp" onclick="switchAcTab('cp')">Community Promos (Multi-use)</div>
+          <div class="ann-step-tab" id="tab-btn-ffl" onclick="switchAcTab('ffl')">Free For Life (Single-use)</div>
+        </div>
+
+        <!-- COMMUNITY PROMOS VIEW -->
+        <div id="ac-view-cp">
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; align-items:start;">
+            <div class="section-card" style="margin-bottom:0">
+              <div class="section-title">🔑 Generate Community Promo</div>
+              <div class="form-group" style="margin-bottom:10px">
+                <label class="form-label">Custom Code Name <span style="color:var(--mutedLight);font-weight:400">(e.g. IRVINE-30)</span></label>
+                <input type="text" class="form-input" id="ac-cp-custom-code" placeholder="Enter custom code text..." style="text-transform:uppercase"/>
               </div>
-              <div id="ac-copy-confirm" style="font-size:12px;color:var(--green);margin-top:6px;display:none">✓ Copied to clipboard!</div>
-              <div style="margin-top:10px;font-size:12px;color:var(--muted);">This code expires in <strong>30 days</strong> if unused. Share it directly with the merchant.</div>
+              <div style="display:flex;gap:12px">
+                <div class="form-group" style="flex:1;margin-bottom:0">
+                  <label class="form-label">Member Limit</label>
+                  <input type="number" class="form-input" id="ac-cp-member-limit" placeholder="e.g. 25" min="1"/>
+                </div>
+                <div class="form-group" style="flex:1;margin-bottom:0">
+                  <label class="form-label">Valid For <span style="color:var(--mutedLight);font-weight:400">(Days)</span></label>
+                  <input type="number" class="form-input" id="ac-cp-expires-days" placeholder="e.g. 30" min="1" value="30"/>
+                </div>
+              </div>
+              <div class="form-group" style="margin-top:12px">
+                <label class="form-label">Internal Note <span style="color:var(--mutedLight);font-weight:400">(e.g. Irvine Community Launch)</span></label>
+                <input type="text" class="form-input" id="ac-cp-label" placeholder="Note" maxlength="100"/>
+              </div>
+              <button class="toolbar-btn green" style="width:100%;padding:12px;font-size:14px;justify-content:center;margin-top:8px;" onclick="generateCommunityPromo()">
+                ✨ Generate Promo Code
+              </button>
+              
+              <div id="ac-cp-result" style="margin-top:16px;display:none">
+                <div class="form-label" style="margin-bottom:8px">Generated Code — click to copy</div>
+                <div class="code-box" style="border-color:rgba(107,193,122,0.3);color:var(--green);background:rgba(107,193,122,0.1)" onclick="copyText(document.getElementById('ac-cp-code-value').textContent, 'ac-cp-copy-confirm')">
+                  <span id="ac-cp-code-value"></span>
+                  <span class="copy-hint" style="color:var(--green)">📋 Click to copy</span>
+                </div>
+                <div id="ac-cp-copy-confirm" style="font-size:12px;color:var(--green);margin-top:6px;display:none">✓ Copied to clipboard!</div>
+              </div>
+              <div id="ac-cp-err" style="color:var(--red);font-size:13px;margin-top:10px;display:none"></div>
             </div>
-            <div id="ac-gen-err" style="color:var(--red);font-size:13px;margin-top:10px;display:none"></div>
-          </div>
 
-          <!-- Stats -->
-          <div>
-            <div class="stat-grid" style="grid-template-columns:1fr 1fr;margin-bottom:0">
-              <div class="stat-card"><div class="stat-value green" id="ac-stat-available">—</div><div class="stat-label">Available</div></div>
-              <div class="stat-card"><div class="stat-value purple" id="ac-stat-used">—</div><div class="stat-label">Redeemed</div></div>
-              <div class="stat-card"><div class="stat-value amber" id="ac-stat-expired">—</div><div class="stat-label">Expired</div></div>
-              <div class="stat-card"><div class="stat-value" id="ac-stat-total">—</div><div class="stat-label">Total Generated</div></div>
+            <!-- Stats -->
+            <div>
+              <div class="stat-grid" style="grid-template-columns:1fr 1fr;margin-bottom:0">
+                <div class="stat-card"><div class="stat-value green" id="ac-stat-cp-active">—</div><div class="stat-label">Active Promos</div></div>
+                <div class="stat-card"><div class="stat-value amber" id="ac-stat-cp-expired">—</div><div class="stat-label">Expired Promos</div></div>
+                <div class="stat-card" style="grid-column: span 2"><div class="stat-value purple" id="ac-stat-cp-uses">—</div><div class="stat-label">Total Uses By Merchants</div></div>
+              </div>
             </div>
+          </div>
+          <div class="table-wrap" style="margin-top:20px">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Code</th>
+                  <th>Member Limit</th>
+                  <th>Internal Note</th>
+                  <th>Status</th>
+                  <th>Valid Until</th>
+                  <th>Total Uses</th>
+                  <th>Created</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-cp">
+                <tr><td colspan="7" style="color:var(--muted);text-align:center;padding:40px">Loading codes...</td></tr>
+              </tbody>
+            </table>
           </div>
         </div>
 
-        <div class="table-wrap" style="margin-top:20px">
-          <table class="data-table" id="access-codes-table">
-            <thead>
-              <tr>
-                <th>Code</th>
-                <th>Label</th>
-                <th>Status</th>
-                <th>Used By</th>
-                <th>Used At</th>
-                <th>Expires</th>
-                <th>Created</th>
-              </tr>
-            </thead>
-            <tbody id="access-codes-tbody">
-              <tr><td colspan="7" style="color:var(--muted);text-align:center;padding:40px">Loading codes...</td></tr>
-            </tbody>
-          </table>
+        <!-- FREE FOR LIFE VIEW -->
+        <div id="ac-view-ffl" style="display:none;">
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; align-items:start;">
+            <div class="section-card" style="margin-bottom:0">
+              <div class="section-title">🔑 Generate Free For Life Code</div>
+              <div class="form-group">
+                <label class="form-label">Label / Note <span style="color:var(--mutedLight);font-weight:400">(internal use only)</span></label>
+                <input type="text" class="form-input" id="ac-ffl-label" placeholder="e.g. Dental office — Dr. Smith" maxlength="100"/>
+              </div>
+              <button class="toolbar-btn primary" style="width:100%;padding:12px;font-size:14px;justify-content:center" onclick="generateFFLCode()">
+                ✨ Generate Standard Code
+              </button>
+              
+              <div id="ac-ffl-result" style="margin-top:16px;display:none">
+                <div class="form-label" style="margin-bottom:8px">Generated Code — click to copy</div>
+                <div class="code-box" onclick="copyText(document.getElementById('ac-ffl-code-value').textContent, 'ac-ffl-copy-confirm')">
+                  <span id="ac-ffl-code-value"></span>
+                  <span class="copy-hint">📋 Click to copy</span>
+                </div>
+                <div id="ac-ffl-copy-confirm" style="font-size:12px;color:var(--green);margin-top:6px;display:none">✓ Copied to clipboard!</div>
+                <div style="margin-top:10px;font-size:12px;color:var(--muted);">Expires in <strong>30 days</strong> if unused.</div>
+              </div>
+              <div id="ac-ffl-err" style="color:var(--red);font-size:13px;margin-top:10px;display:none"></div>
+            </div>
+
+            <!-- Stats -->
+            <div>
+              <div class="stat-grid" style="grid-template-columns:1fr 1fr;margin-bottom:0">
+                <div class="stat-card"><div class="stat-value green" id="ac-stat-ffl-available">—</div><div class="stat-label">Available</div></div>
+                <div class="stat-card"><div class="stat-value purple" id="ac-stat-ffl-used">—</div><div class="stat-label">Redeemed</div></div>
+                <div class="stat-card"><div class="stat-value amber" id="ac-stat-ffl-expired">—</div><div class="stat-label">Expired</div></div>
+                <div class="stat-card"><div class="stat-value" id="ac-stat-ffl-total">—</div><div class="stat-label">Total Generated</div></div>
+              </div>
+            </div>
+          </div>
+          <div class="table-wrap" style="margin-top:20px">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Code</th>
+                  <th>Label</th>
+                  <th>Status</th>
+                  <th>Used By</th>
+                  <th>Used At</th>
+                  <th>Expires</th>
+                  <th>Created</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-ffl">
+                <tr><td colspan="7" style="color:var(--muted);text-align:center;padding:40px">Loading codes...</td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
@@ -1666,23 +1740,51 @@
     // ╚══════════════════════════════════════════════╝
     const ADMIN_SECRET = 'perkfinity-admin-2025'; // Must match ADMIN_SECRET env var
 
-    async function generateAccessCode() {
-      const label = document.getElementById('ac-label').value.trim();
-      const errEl = document.getElementById('ac-gen-err');
+    function switchAcTab(tab) {
+      document.getElementById('tab-btn-cp').className = tab === 'cp' ? 'ann-step-tab active' : 'ann-step-tab';
+      document.getElementById('tab-btn-ffl').className = tab === 'ffl' ? 'ann-step-tab active' : 'ann-step-tab';
+      document.getElementById('ac-view-cp').style.display = tab === 'cp' ? 'block' : 'none';
+      document.getElementById('ac-view-ffl').style.display = tab === 'ffl' ? 'block' : 'none';
+    }
+
+    async function generateCommunityPromo() {
+      const customCode = document.getElementById('ac-cp-custom-code').value.trim();
+      const limit = document.getElementById('ac-cp-member-limit').value;
+      const days = document.getElementById('ac-cp-expires-days').value;
+      const label = document.getElementById('ac-cp-label').value.trim();
+
+      if (!customCode || !limit || !days) {
+        return showToast('⚠️ Please fill out all community promo logic fields');
+      }
+
+      const payload = { 
+        type: 'extended_trial',
+        custom_code: customCode,
+        member_limit: limit,
+        expires_in_days: days,
+        label: label || null 
+      };
+
+      const errEl = document.getElementById('ac-cp-err');
       errEl.style.display = 'none';
       try {
         const res = await fetch(API_BASE + '/admin/access-codes', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'x-admin-secret': ADMIN_SECRET },
-          body: JSON.stringify({ label: label || null })
+          body: JSON.stringify(payload)
         });
         const json = await res.json();
         if (!json.success) throw new Error(json.error);
-        document.getElementById('ac-code-value').textContent = json.data.code;
-        document.getElementById('ac-result').style.display = 'block';
-        document.getElementById('ac-copy-confirm').style.display = 'none';
-        document.getElementById('ac-label').value = '';
-        showToast('✅ Code generated');
+        
+        document.getElementById('ac-cp-code-value').textContent = json.data.code;
+        document.getElementById('ac-cp-result').style.display = 'block';
+        document.getElementById('ac-cp-copy-confirm').style.display = 'none';
+        
+        document.getElementById('ac-cp-custom-code').value = '';
+        document.getElementById('ac-cp-member-limit').value = '';
+        document.getElementById('ac-cp-label').value = '';
+        
+        showToast('✅ Community Promo Generated');
         loadAccessCodes();
       } catch(e) {
         errEl.textContent = 'Error: ' + e.message;
@@ -1690,11 +1792,39 @@
       }
     }
 
-    function copyCode() {
-      const code = document.getElementById('ac-code-value').textContent;
-      navigator.clipboard.writeText(code).then(() => {
-        document.getElementById('ac-copy-confirm').style.display = 'block';
-        setTimeout(() => document.getElementById('ac-copy-confirm').style.display = 'none', 2000);
+    async function generateFFLCode() {
+      const label = document.getElementById('ac-ffl-label').value.trim();
+      const payload = { type: 'free_for_life', label: label || null };
+
+      const errEl = document.getElementById('ac-ffl-err');
+      errEl.style.display = 'none';
+      try {
+        const res = await fetch(API_BASE + '/admin/access-codes', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-admin-secret': ADMIN_SECRET },
+          body: JSON.stringify(payload)
+        });
+        const json = await res.json();
+        if (!json.success) throw new Error(json.error);
+        
+        document.getElementById('ac-ffl-code-value').textContent = json.data.code;
+        document.getElementById('ac-ffl-result').style.display = 'block';
+        document.getElementById('ac-ffl-copy-confirm').style.display = 'none';
+        
+        document.getElementById('ac-ffl-label').value = '';
+        showToast('✅ Free For Life Code Generated');
+        loadAccessCodes();
+      } catch(e) {
+        errEl.textContent = 'Error: ' + e.message;
+        errEl.style.display = 'block';
+      }
+    }
+
+    function copyText(val, confirmId) {
+      if(!val) return;
+      navigator.clipboard.writeText(val).then(() => {
+        document.getElementById(confirmId).style.display = 'block';
+        setTimeout(() => document.getElementById(confirmId).style.display = 'none', 2000);
       });
     }
 
@@ -1706,18 +1836,48 @@
         const json = await res.json();
         if (!json.success) return;
         const codes = json.data.codes || [];
+        
+        const cpCodes = codes.filter(c => c.type === 'extended_trial');
+        const fflCodes = codes.filter(c => c.type === 'free_for_life');
+        
         const fmt = (d) => d ? new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '\u2014';
         const statusBadge = (s) => s === 'available' ? '<span class="badge available">Available</span>' : s === 'used' ? '<span class="badge tier1">Used</span>' : '<span class="badge expired">Expired</span>';
-        document.getElementById('access-codes-tbody').innerHTML = codes.map(c => `
+        
+        // Render Community Promos Table
+        document.getElementById('tbody-cp').innerHTML = cpCodes.map(c => `
           <tr>
-            <td style="font-family:monospace;font-weight:700;color:var(--purple);letter-spacing:1px">${c.code}</td>
-            <td>${c.label || '<em style="color:var(--mutedLight)">No label</em>'}</td>
+            <td style="font-family:monospace;font-weight:800;color:var(--green);letter-spacing:1px">${c.code}</td>
+            <td style="font-weight:700">${c.member_limit} Members</td>
+            <td>${c.label || '<em style="color:var(--mutedLight)">—</em>'}</td>
+            <td>${statusBadge(c.status)}</td>
+            <td>${fmt(c.expires_at)}</td>
+            <td style="font-weight:700;color:var(--purple);">${c.use_count || 0}</td>
+            <td>${fmt(c.created_at)}</td>
+          </tr>`).join('') || '<tr><td colspan="7" style="color:var(--muted);text-align:center;padding:40px">No community promos yet</td></tr>';
+          
+        let totalUses = 0;
+        cpCodes.forEach(c => totalUses += (c.use_count || 0));
+        document.getElementById('ac-stat-cp-active').textContent = cpCodes.filter(c=>c.status==='available').length;
+        document.getElementById('ac-stat-cp-expired').textContent = cpCodes.filter(c=>c.status==='expired').length;
+        document.getElementById('ac-stat-cp-uses').textContent = totalUses;
+
+        // Render FFL Table
+        document.getElementById('tbody-ffl').innerHTML = fflCodes.map(c => `
+          <tr>
+            <td style="font-family:monospace;font-weight:800;color:var(--purple);letter-spacing:1px">${c.code}</td>
+            <td>${c.label || '<em style="color:var(--mutedLight)">—</em>'}</td>
             <td>${statusBadge(c.status)}</td>
             <td>${c.used_by_name || '\u2014'}</td>
             <td>${fmt(c.used_at)}</td>
             <td>${fmt(c.expires_at)}</td>
             <td>${fmt(c.created_at)}</td>
-          </tr>`).join('') || '<tr><td colspan="7" style="color:var(--muted);text-align:center;padding:40px">No codes yet</td></tr>';
+          </tr>`).join('') || '<tr><td colspan="7" style="color:var(--muted);text-align:center;padding:40px">No Free For Life codes yet</td></tr>';
+          
+        document.getElementById('ac-stat-ffl-available').textContent = fflCodes.filter(c=>c.status==='available').length;
+        document.getElementById('ac-stat-ffl-used').textContent = fflCodes.filter(c=>c.status==='used').length;
+        document.getElementById('ac-stat-ffl-expired').textContent = fflCodes.filter(c=>c.status==='expired').length;
+        document.getElementById('ac-stat-ffl-total').textContent = fflCodes.length;
+
         document.getElementById('ac-stat-available').textContent = codes.filter(c=>c.status==='available').length;
         document.getElementById('ac-stat-used').textContent = codes.filter(c=>c.status==='used').length;
         document.getElementById('ac-stat-expired').textContent = codes.filter(c=>c.status==='expired').length;
