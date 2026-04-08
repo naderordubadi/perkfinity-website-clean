@@ -2060,7 +2060,7 @@
         let hour24 = hourVal;
         if (ampm === 'PM' && hourVal !== 12) hour24 = hourVal + 12;
         if (ampm === 'AM' && hourVal === 12) hour24 = 0;
-        scheduledAt = `${dateVal}T${String(hour24).padStart(2,'0')}:${minVal}:00`;
+        scheduledAt = new Date(`${dateVal}T${String(hour24).padStart(2,'0')}:${minVal}:00`).toISOString();
       }
 
       const isScheduled = !!scheduledAt;
