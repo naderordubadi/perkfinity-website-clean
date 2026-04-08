@@ -923,11 +923,24 @@
               <div id="ann-preview-html" style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:20px;max-height:400px;overflow-y:auto;color:#333;"></div>
             </div>
 
+            <!-- Schedule -->
+            <div class="form-group" style="margin-top:16px;">
+              <label class="form-label">When to Send</label>
+              <div style="display:flex;gap:10px;align-items:center;">
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:14px;">
+                  <input type="radio" name="ann-schedule" value="now" checked onchange="document.getElementById('ann-schedule-dt').style.display='none';document.getElementById('ann-send-btn').innerHTML='✉️ Send'"> Send Now
+                </label>
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:14px;">
+                  <input type="radio" name="ann-schedule" value="later" onchange="document.getElementById('ann-schedule-dt').style.display='inline-block';document.getElementById('ann-send-btn').innerHTML='📅 Schedule'"> Schedule
+                </label>
+                <input type="datetime-local" class="form-input" id="ann-schedule-dt" style="display:none;width:auto;font-size:13px;padding:6px 10px;">
+              </div>
+            </div>
           </div>
 
           <div style="display:flex;justify-content:space-between;margin-top:16px;">
             <button class="toolbar-btn" onclick="annGoStep(2)" style="padding:12px 24px;">← Back</button>
-            <button class="toolbar-btn primary" onclick="annSend()" style="padding:14px 36px;font-size:15px;background:linear-gradient(135deg,var(--purple),var(--green));">
+            <button id="ann-send-btn" class="toolbar-btn primary" onclick="annSend()" style="padding:14px 36px;font-size:15px;background:linear-gradient(135deg,var(--purple),var(--green));">
               ✉️ Send
             </button>
           </div>
@@ -2019,18 +2032,25 @@
       if (!subject) { showToast('⚠️ Subject is required'); annGoStep(2); return; }
       if (!body) { showToast('⚠️ Email body is required'); annGoStep(2); return; }
 
+      const schedule = document.querySelector('input[name="ann-schedule"]:checked').value;
+      const scheduledAt = schedule === 'later' ? document.getElementById('ann-schedule-dt').value : null;
+      if (schedule === 'later' && !scheduledAt) { showToast('⚠️ Please select a date/time'); return; }
+
+      const isScheduled = !!scheduledAt;
+
       // Custom confirmation modal
       const recipientText = document.getElementById('ann-review-recipients').textContent;
+      const scheduleInfo = isScheduled ? `<br><span style="font-size:12px;color:#999;">📅 Scheduled for: <strong style="color:#333;">${new Date(scheduledAt).toLocaleString()}</strong></span>` : '';
       const overlay = document.createElement('div');
       overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;';
       overlay.innerHTML = `
         <div style="background:#ffffff;border-radius:16px;padding:32px;max-width:420px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
-          <div style="font-size:36px;margin-bottom:12px;">📧</div>
-          <h3 style="color:#1a1a2e;margin:0 0 8px;">Confirm Send</h3>
-          <p style="color:#666;margin:0 0 24px;font-size:14px;">Send this email to <strong style="color:var(--purple);">${recipientText}</strong> recipients?</p>
+          <div style="font-size:36px;margin-bottom:12px;">${isScheduled ? '📅' : '📧'}</div>
+          <h3 style="color:#1a1a2e;margin:0 0 8px;">${isScheduled ? 'Schedule Email' : 'Confirm Send'}</h3>
+          <p style="color:#666;margin:0 0 24px;font-size:14px;">${isScheduled ? 'Schedule' : 'Send'} this email to <strong style="color:var(--purple);">${recipientText}</strong> recipients?${scheduleInfo}</p>
           <div style="display:flex;gap:12px;justify-content:center;">
             <button id="ann-confirm-cancel" style="padding:10px 24px;border-radius:8px;border:1px solid #ddd;background:#f5f5f5;color:#333;cursor:pointer;font-size:14px;">Cancel</button>
-            <button id="ann-confirm-send" style="padding:10px 24px;border-radius:8px;border:none;background:linear-gradient(135deg,var(--purple),var(--green));color:#fff;cursor:pointer;font-weight:700;font-size:14px;">✉️ Send</button>
+            <button id="ann-confirm-send" style="padding:10px 24px;border-radius:8px;border:none;background:linear-gradient(135deg,var(--purple),var(--green));color:#fff;cursor:pointer;font-weight:700;font-size:14px;">${isScheduled ? '📅 Schedule' : '✉️ Send'}</button>
           </div>
         </div>`;
       document.body.appendChild(overlay);
@@ -2043,7 +2063,7 @@
       if (!confirmed) return;
 
       const statusEl = document.getElementById('ann-send-status');
-      statusEl.innerHTML = '<span style="color:var(--purple);">⏳ Sending...</span>';
+      statusEl.innerHTML = `<span style="color:var(--purple);">⏳ ${isScheduled ? 'Scheduling...' : 'Sending...'}</span>`;
 
       const html_body = annBuildEmailTemplate(subject, body);
 
@@ -2057,15 +2077,21 @@
             sender: _annSender,
             audience: _annType !== 'external' ? annBuildAudience() : { type: 'external' },
             external_emails: annGetExternalEmails(),
-            attachments: _annAttachments
+            attachments: _annAttachments,
+            scheduled_at: scheduledAt
           })
         });
         const json = await res.json();
         if (json.success) {
-          const count = json.data.sent || json.data.total_recipients;
-          const failText = json.data.failed ? ` (${json.data.failed} failed)` : '';
-          statusEl.innerHTML = `<span style="color:var(--green);">✅ Email sent to ${count} recipients successfully!${failText}</span>`;
-          showToast('✅ Email sent successfully!');
+          if (isScheduled) {
+            statusEl.innerHTML = `<span style="color:var(--green);">✅ Scheduled Successfully</span>`;
+            showToast('📅 Email scheduled successfully!');
+          } else {
+            const count = json.data.sent || json.data.total_recipients;
+            const failText = json.data.failed ? ` (${json.data.failed} failed)` : '';
+            statusEl.innerHTML = `<span style="color:var(--green);">✅ Email sent to ${count} recipients successfully!${failText}</span>`;
+            showToast('✅ Email sent successfully!');
+          }
           annLoadHistory();
         } else {
           statusEl.innerHTML = `<span style="color:var(--red);">❌ ${json.error}</span>`;
