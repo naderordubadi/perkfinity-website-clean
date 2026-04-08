@@ -926,14 +926,31 @@
             <!-- Schedule -->
             <div class="form-group" style="margin-top:16px;">
               <label class="form-label">When to Send</label>
-              <div style="display:flex;gap:10px;align-items:center;">
+              <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
                 <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:14px;">
-                  <input type="radio" name="ann-schedule" value="now" checked onchange="document.getElementById('ann-schedule-dt').style.display='none';document.getElementById('ann-send-btn').innerHTML='✉️ Send'"> Send Now
+                  <input type="radio" name="ann-schedule" value="now" checked onchange="document.getElementById('ann-schedule-picker').style.display='none';document.getElementById('ann-send-btn').innerHTML='✉️ Send'"> Send Now
                 </label>
                 <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:14px;">
-                  <input type="radio" name="ann-schedule" value="later" onchange="document.getElementById('ann-schedule-dt').style.display='inline-block';document.getElementById('ann-send-btn').innerHTML='📅 Schedule'"> Schedule
+                  <input type="radio" name="ann-schedule" value="later" onchange="document.getElementById('ann-schedule-picker').style.display='flex';document.getElementById('ann-send-btn').innerHTML='📅 Schedule';if(!document.getElementById('ann-sched-date').value){document.getElementById('ann-sched-date').value=new Date().toISOString().split('T')[0]}"> Schedule
                 </label>
-                <input type="datetime-local" class="form-input" id="ann-schedule-dt" style="display:none;width:auto;font-size:13px;padding:6px 10px;">
+              </div>
+              <div id="ann-schedule-picker" style="display:none;margin-top:12px;gap:10px;align-items:center;flex-wrap:wrap;">
+                <input type="date" class="form-input" id="ann-sched-date" style="width:auto;font-size:13px;padding:8px 12px;">
+                <span style="color:var(--muted);font-size:13px;">at</span>
+                <select class="form-input" id="ann-sched-hour" style="width:auto;font-size:13px;padding:8px 10px;">
+                  <option value="12">12</option><option value="1">1</option><option value="2">2</option><option value="3">3</option>
+                  <option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option>
+                  <option value="8">8</option><option value="9" selected>9</option><option value="10">10</option><option value="11">11</option>
+                </select>
+                <span style="color:var(--muted);font-size:16px;font-weight:600;">:</span>
+                <select class="form-input" id="ann-sched-min" style="width:auto;font-size:13px;padding:8px 10px;">
+                  <option value="00">00</option><option value="05">05</option><option value="10">10</option><option value="15">15</option>
+                  <option value="20">20</option><option value="25">25</option><option value="30">30</option><option value="35">35</option>
+                  <option value="40">40</option><option value="45">45</option><option value="50">50</option><option value="55">55</option>
+                </select>
+                <select class="form-input" id="ann-sched-ampm" style="width:auto;font-size:13px;padding:8px 10px;font-weight:600;">
+                  <option value="AM">AM</option><option value="PM">PM</option>
+                </select>
               </div>
             </div>
           </div>
@@ -2033,8 +2050,18 @@
       if (!body) { showToast('⚠️ Email body is required'); annGoStep(2); return; }
 
       const schedule = document.querySelector('input[name="ann-schedule"]:checked').value;
-      const scheduledAt = schedule === 'later' ? document.getElementById('ann-schedule-dt').value : null;
-      if (schedule === 'later' && !scheduledAt) { showToast('⚠️ Please select a date/time'); return; }
+      let scheduledAt = null;
+      if (schedule === 'later') {
+        const dateVal = document.getElementById('ann-sched-date').value;
+        const hourVal = parseInt(document.getElementById('ann-sched-hour').value);
+        const minVal = document.getElementById('ann-sched-min').value;
+        const ampm = document.getElementById('ann-sched-ampm').value;
+        if (!dateVal) { showToast('⚠️ Please select a date'); return; }
+        let hour24 = hourVal;
+        if (ampm === 'PM' && hourVal !== 12) hour24 = hourVal + 12;
+        if (ampm === 'AM' && hourVal === 12) hour24 = 0;
+        scheduledAt = `${dateVal}T${String(hour24).padStart(2,'0')}:${minVal}:00`;
+      }
 
       const isScheduled = !!scheduledAt;
 
