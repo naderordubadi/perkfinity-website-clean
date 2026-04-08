@@ -1838,7 +1838,7 @@
         const codes = json.data.codes || [];
         
         const cpCodes = codes.filter(c => c.type === 'extended_trial');
-        const fflCodes = codes.filter(c => c.type === 'free_for_life');
+        const fflCodes = codes.filter(c => c.type === 'free_for_life' || !c.type);
         
         const fmt = (d) => d ? new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '\u2014';
         const statusBadge = (s) => s === 'available' ? '<span class="badge available">Available</span>' : s === 'used' ? '<span class="badge tier1">Used</span>' : '<span class="badge expired">Expired</span>';
@@ -1877,11 +1877,6 @@
         document.getElementById('ac-stat-ffl-used').textContent = fflCodes.filter(c=>c.status==='used').length;
         document.getElementById('ac-stat-ffl-expired').textContent = fflCodes.filter(c=>c.status==='expired').length;
         document.getElementById('ac-stat-ffl-total').textContent = fflCodes.length;
-
-        document.getElementById('ac-stat-available').textContent = codes.filter(c=>c.status==='available').length;
-        document.getElementById('ac-stat-used').textContent = codes.filter(c=>c.status==='used').length;
-        document.getElementById('ac-stat-expired').textContent = codes.filter(c=>c.status==='expired').length;
-        document.getElementById('ac-stat-total').textContent = codes.length;
       } catch(e) { console.error('loadAccessCodes failed', e); }
     }
 
