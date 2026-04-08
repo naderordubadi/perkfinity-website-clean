@@ -1877,6 +1877,7 @@
         document.getElementById('ac-stat-ffl-used').textContent = fflCodes.filter(c=>c.status==='used').length;
         document.getElementById('ac-stat-ffl-expired').textContent = fflCodes.filter(c=>c.status==='expired').length;
         document.getElementById('ac-stat-ffl-total').textContent = fflCodes.length;
+        showToast('✅ Access Codes refreshed');
       } catch(e) { console.error('loadAccessCodes failed', e); }
     }
 
