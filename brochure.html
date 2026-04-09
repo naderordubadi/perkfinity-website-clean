@@ -31,100 +31,182 @@
       flex-direction: column;
     }
 
-    .hero-panel {
-      padding: 60px 50px 40px;
-      background: linear-gradient(135deg, #4c3093 0%, #3b2476 100%);
-      color: white;
-      text-align: center;
-    }
-    
-    .logo-container {
-      background: white;
-      display: inline-flex;
+    .header-top {
+      display: flex;
+      justify-content: space-between;
       align-items: center;
-      padding: 10px 24px;
-      border-radius: 40px;
-      margin-bottom: 24px;
+      padding: 24px 40px 16px;
+      background: #fff;
     }
 
-    .logo-container img {
-      width: 24px; height: 24px; margin-right: 8px;
+    .logo-container {
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .header-top .tagline {
+      font-weight: 900;
+      color: #5B3FA5;
+      font-size: 16px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .hero-panel {
+      position: relative;
+      background: linear-gradient(90deg, rgba(91,63,165,0.95) 0%, rgba(91,63,165,0.85) 55%, rgba(91,63,165,0.4) 100%), url('assets/homepage-hero-spa.png') center/cover no-repeat;
+      color: white;
+      padding: 32px 40px;
+    }
+    
+    .hero-panel-content {
+      position: relative;
+      z-index: 2;
+      max-width: 60%;
     }
 
     .hero-panel h1 {
-      font-size: 42px; font-weight: 900; line-height: 1.1; margin-bottom: 16px; letter-spacing: -1px;
+      font-size: 34px; font-weight: 900; line-height: 1.1; margin-bottom: 12px; letter-spacing: -1px;
     }
     
     .hero-panel p {
-      font-size: 18px; color: rgba(255,255,255,0.85); font-weight: 500;
+      font-size: 15px; color: rgba(255,255,255,0.95); font-weight: 500; line-height: 1.5;
     }
 
     .content-body {
-      padding: 40px 50px;
+      padding: 20px 40px;
       flex: 1;
       display: flex;
       flex-direction: column;
-      gap: 30px;
+      background: #f8f9fb;
+    }
+    
+    .section-title {
+      text-align: center;
+      font-size: 20px;
+      font-weight: 900;
+      color: #333;
+      margin-bottom: 16px;
+    }
+    
+    .section-title span {
+      color: #6BC17A;
     }
 
-    .value-prop {
-      display: flex;
-      background: #f8f9fc;
-      border-radius: 16px;
-      padding: 24px;
-      border-left: 6px solid #6BC17A;
-    }
-
-    .value-icon { font-size: 42px; margin-right: 20px; }
-    .value-text h3 { font-size: 20px; font-weight: 800; color: #1e1e1e; margin-bottom: 6px; }
-    .value-text p { font-size: 14px; color: #555; line-height: 1.6; }
-
-    .frictionless-box {
-      background: rgba(107, 193, 122, 0.08);
-      border-radius: 20px;
-      padding: 30px;
-      border: 1px solid rgba(107, 193, 122, 0.2);
-    }
-
-    .frictionless-box h2 {
-      text-align: center; color: #1e1e1e; margin-bottom: 24px; font-weight: 900; letter-spacing: -0.5px; font-size: 24px;
-    }
-
-    .friction-grid {
+    .features-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 20px;
+      gap: 12px;
+      margin-bottom: 20px;
     }
 
-    .friction-item {
-      background: white;
-      padding: 24px;
-      border-radius: 16px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    .feature-card {
+      background: #fff;
+      border-radius: 10px;
+      padding: 12px 14px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+      border: 1px solid rgba(0,0,0,0.04);
     }
 
-    .friction-item i { font-size: 24px; margin-bottom: 12px; display: block; }
-    .friction-item h4 { font-size: 16px; font-weight: 800; margin-bottom: 8px; color: #222; }
-    .friction-item p { font-size: 13px; color: #666; line-height: 1.5; }
+    .feature-icon-wrapper {
+      width: 30px;
+      height: 30px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f0edf7;
+      margin-bottom: 8px;
+      font-size: 15px;
+    }
+    
+    .feature-card:nth-child(2) .feature-icon-wrapper { background: #edf2f7; }
+    .feature-card:nth-child(3) .feature-icon-wrapper { background: #eef2fa; }
+    .feature-card:nth-child(4) .feature-icon-wrapper { background: #f0f7f3; }
+
+    .feature-card h3 { font-size: 14px; font-weight: 800; color: #1e1e1e; margin-bottom: 4px; }
+    .feature-card p { font-size: 11.5px; color: #555; line-height: 1.4; }
+
+    .flow-section {
+      text-align: center;
+      margin-bottom: auto;
+    }
+
+    .flow-box {
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px 16px;
+      border: 2px dashed rgba(91,63,165,0.2);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+    }
+    
+    .flow-step {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      padding: 0 10px;
+    }
+    
+    .flow-step-num {
+      width: 32px;
+      height: 32px;
+      background: #5B3FA5;
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+
+    .flow-step p {
+      font-size: 12px; font-weight: 700; color: #1e1e1e; line-height: 1.4;
+    }
+
+    .flow-arrow {
+      color: rgba(91,63,165,0.4);
+      font-weight: bold;
+      font-size: 18px;
+    }
 
     .footer {
-      background: #111;
-      color: white;
-      text-align: center;
-      padding: 30px 40px;
+      background: #6BC17A;
+      color: #1e1e1e;
+      padding: 16px 40px;
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
 
-    .footer-left { text-align: left; }
-    .footer-left h4 { font-size: 18px; margin-bottom: 4px; font-weight: 800; }
-    .footer-left p { color: #888; font-size: 13px; }
+    .footer-left { text-align: left; max-width: 60%; }
+    .footer-left h4 { font-size: 20px; margin-bottom: 6px; font-weight: 900; }
+    .footer-left p { color: rgba(0,0,0,0.85); font-size: 13px; margin-bottom: 6px; line-height: 1.5; }
+    
+    .footer-right {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    
+    .footer-right h4 {
+      font-size: 16px;
+      font-weight: 900;
+      margin-bottom: 4px;
+    }
 
     .footer-qr {
       background: white;
-      padding: 10px;
+      padding: 8px;
       border-radius: 12px;
+      margin-top: 6px;
     }
   </style>
 </head>
@@ -132,71 +214,80 @@
 
   <div class="brochure-page">
     
-    <div class="hero-panel">
+    <div class="header-top">
       <div class="logo-container">
-        <!-- SVG Logo match from website -->
-        <svg viewBox="0 0 24 24" fill="none" style="width:24px; height:24px; margin-right:8px;">
-          <path d="M4 8l8-4 8 4v8l-8 4-8-4V8z" fill="#E6EEF8" stroke="#5B3FA5" stroke-width="2"/>
-          <path d="M8 12l3 3 5-6" stroke="#6BC17A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <span style="color:#5B3FA5; font-size:22px; font-weight:900; letter-spacing:-0.5px;">Perkfinity</span>
+        <img src="assets/Perkfinity-Logo.png" alt="Perkfinity Logo" style="height:32px;">
       </div>
-      <h1>Grow Your Business with Local Perks.</h1>
-      <p>The modern, ultra-fast loyalty program that requires zero hardware.</p>
+      <div class="tagline">PERKS DONE RIGHT</div>
+    </div>
+    
+    <div class="hero-panel">
+      <div class="hero-panel-content">
+        <h1>Attract New Locals &amp; Turn Walk‑Ins Into Regulars.</h1>
+        <p>The modern, privacy-first loyalty network that drives new foot traffic through community-first engagement and automates your repeat business—without the hardware hassle.</p>
+      </div>
     </div>
 
     <div class="content-body">
       
-      <!-- Core Proposition -->
-      <div class="value-prop">
-        <div class="value-icon">📈</div>
-        <div class="value-text">
-          <h3>Turn One-Time Visitors into Regulars</h3>
-          <p>Research consistently shows that customers are <strong>70% more likely to return</strong> after redeeming a coupon or digital perk. We automatically execute high-conversion loyalty tiers that push customers to spend more to unlock your highest tier.</p>
+      <h2 class="section-title">Why Smart Businesses Choose <span>Perkfinity</span></h2>
+      
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon-wrapper">📱</div>
+          <h3>Zero Hardware & Training</h3>
+          <p>No expensive POS integrations, clunky merchant tablets, or confusing employee training needed. Customers independently check themselves in using their own smartphones, eliminating cashier confusion entirely.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon-wrapper">🛡️</div>
+          <h3>Zero Privacy Liability</h3>
+          <p>We completely shield you from data compliance risks. Customer PII (emails/phone numbers) is never shared with you, keeping your reputation spotless.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon-wrapper">📈</div>
+          <h3>Automated Member List</h3>
+          <p>The moment a customer scans your QR code, they are instantly and automatically added to your private Member List—allowing you to easily re-engage with them via Daily Digests.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon-wrapper">💸</div>
+          <h3>First 10 Members Free</h3>
+          <p>Start entirely risk-free. Your Free Trial Tier allows you to continuously capture, retain, and market to your first 10 loyal members without ever paying a dime.</p>
         </div>
       </div>
 
-      <!-- Frictionless Injection -->
-      <div class="frictionless-box">
-        <h2>Zero Operational Friction</h2>
-        
-        <div class="friction-grid">
-          <div class="friction-item">
-            <i>📱</i>
-            <h4>The Customer Does the Work</h4>
-            <p>Customers point their own phones at your acrylic QR stand. The app manages check-ins natively.</p>
+      <div class="flow-section">
+        <h2 class="section-title" style="font-size: 20px;">The Frictionless 3-Step Flow</h2>
+        <div class="flow-box">
+          <div class="flow-step">
+            <div class="flow-step-num">1</div>
+            <p>Set a Welcome Perk & Print your Sign</p>
           </div>
-          <div class="friction-item">
-            <i>⌨️</i>
-            <h4>No Cashier Data Entry</h4>
-            <p>Your employees will never ask for a phone number or awkwardly type emails into an iPad.</p>
+          <div class="flow-arrow">➔</div>
+          <div class="flow-step">
+            <div class="flow-step-num">2</div>
+            <p>They Scan QR & Are Auto-Added to Your List</p>
           </div>
-          <div class="friction-item">
-            <i>⚡</i>
-            <h4>Zero POS Integration</h4>
-            <p>Perkfinity runs flawlessly alongside Square, Toast, or Clover. Just ring them up normally!</p>
-          </div>
-          <div class="friction-item">
-            <i>⏱️</i>
-            <h4>No Checkout Delays</h4>
-            <p>Eliminate punch cards and slow app downloads. Keep your lines moving fast.</p>
+          <div class="flow-arrow">➔</div>
+          <div class="flow-step">
+            <div class="flow-step-num">3</div>
+            <p>We Automate Their Return Visits</p>
           </div>
         </div>
       </div>
-
+      
     </div>
 
     <div class="footer">
       <div class="footer-left">
-        <h4>Setup is 100% Free.</h4>
-        <p>Visit <strong>perkfinity.net</strong> to claim your Merchant Profile.</p>
+        <h4>Have Questions?</h4>
+        <p>Learn exactly how our friction-free platform makes it easy to set up and manage members by visiting <strong>www.perkfinity.net/how-it-works.html</strong></p>
+        <p>Our team is always here to help. Contact us at <strong>support@perkfinity.net</strong></p>
       </div>
-      <div class="footer-qr">
-        <!-- SVG Placeholder QR -->
-        <svg viewBox="0 0 100 100" width="70" height="70" fill="none">
-          <rect width="100" height="100" fill="#fff"/>
-          <path d="M10 10h30v30H10zm10 10h10v10H20zM60 10h30v30H60zm10 10h10v10H70zM10 60h30v30H10zm10 10h10v10H20zM50 10h-10v80h10zM10 50h80v-10H10z" fill="#000"/>
-        </svg>
+      <div class="footer-right">
+        <h4>Join The Community</h4>
+        <div class="footer-qr">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=90x90&data=https://www.perkfinity.net/signup.html" alt="QR Code" width="90" height="90" style="display:block;">
+        </div>
       </div>
     </div>
 
