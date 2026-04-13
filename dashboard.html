@@ -655,6 +655,7 @@
       }
     }
   </style>
+  <script src="/config.js"></script>
 </head>
 
 <body>
@@ -2287,7 +2288,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script>
     // Authentication Check
-    const BACKEND_URL = 'https://perkfinity-backend.vercel.app';
+    const BACKEND_URL = PerkfinityConfig.BACKEND_URL;
     let merchantId = null;
     let apiToken = null;
 

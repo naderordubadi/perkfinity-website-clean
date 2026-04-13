@@ -132,6 +132,7 @@
       .merchant-grid { grid-template-columns: 1fr; }
     }
   </style>
+  <script src="/config.js"></script>
 </head>
 <body>
   <header class="header">
@@ -192,7 +193,7 @@
   </footer>
 
   <script>
-    const BACKEND_URL = 'https://perkfinity-backend.vercel.app';
+    const BACKEND_URL = PerkfinityConfig.BACKEND_URL;
 
     function setStateBox(icon, heading, sub) {
       const box = document.getElementById('resultsState');

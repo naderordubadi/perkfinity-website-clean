@@ -323,6 +323,7 @@
       background:none; border:none; color:var(--red); cursor:pointer; font-size:16px; padding:0 4px;
     }
   </style>
+  <script src="/config.js"></script>
 </head>
 <body>
   <!-- Login Gate -->
@@ -561,6 +562,7 @@
                 <th onclick="sortTable('members','city')">City <span class="sort-arrow">▲</span></th>
                 <th onclick="sortTable('members','zip_code')">ZIP <span class="sort-arrow">▲</span></th>
                 <th onclick="sortTable('members','push_enabled')">Push <span class="sort-arrow">▲</span></th>
+                <th onclick="sortTable('members','device_platform')">Platform <span class="sort-arrow">▲</span></th>
                 <th onclick="sortTable('members','merchant_count')">Merchants <span class="sort-arrow">▲</span></th>
                 <th onclick="sortTable('members','merchants_30d')">Joined 30d <span class="sort-arrow">▲</span></th>
                 <th onclick="sortTable('members','redeemed_30d')">Redeemed 30d <span class="sort-arrow">▲</span></th>
@@ -568,7 +570,7 @@
               </tr>
             </thead>
             <tbody id="members-tbody">
-              <tr><td colspan="8" style="color:var(--muted);text-align:center;padding:40px;">Loading members...</td></tr>
+              <tr><td colspan="9" style="color:var(--muted);text-align:center;padding:40px;">Loading members...</td></tr>
             </tbody>
           </table>
           <div class="pagination" id="members-pagination"></div>
@@ -1129,24 +1131,27 @@
   <!-- Toast Notification -->
   <div class="toast" id="toast"></div>
 
+  <!-- Inactivity Warning Banner -->
+  <div id="inactivity-warning" style="display:none;position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:9999;background:#1e1b3a;border:1px solid #ef4444;border-radius:14px;padding:16px 24px;box-shadow:0 8px 32px rgba(0,0,0,0.4);display:none;align-items:center;gap:16px;min-width:380px;max-width:520px;">
+    <div style="font-size:20px;">⏱️</div>
+    <div style="flex:1;">
+      <div style="font-size:14px;font-weight:700;color:#f1f5f9;margin-bottom:2px;">Session Expiring</div>
+      <div style="font-size:13px;color:#94a3b8;">You'll be signed out in <strong id="inactivity-countdown" style="color:#ef4444;">60</strong> seconds due to inactivity.</div>
+    </div>
+    <button onclick="inactivityReset()" style="background:linear-gradient(135deg,#5b3fa5,#2563eb);color:#fff;border:none;border-radius:9px;padding:10px 18px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;">Stay Logged In</button>
+  </div>
+
   <script>
     // ═══════════════════════════════════════════════════════════════
     // ADMIN DASHBOARD — CLIENT-SIDE LOGIC
     // ═══════════════════════════════════════════════════════════════
 
     // ── Admin Auth Gate ──────────────────────────────────────────
-    // Simple hash to avoid storing creds in plaintext in source
-    async function sha256(str) {
-      const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
-      return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
-    }
-    const ADMIN_EMAIL_HASH = '314e382604a13dfa8f5f9a2986ec663e1b6eab68e56f89d9995568fe66cee93f';
-    const ADMIN_PASS_HASH = '97b242f61072fa7b8d0b00e8b6b5455266a34c072a08218669f13847426522b9';
-
     async function adminLogin() {
       const email = document.getElementById('adminEmail').value.trim().toLowerCase();
       const pass = document.getElementById('adminPassword').value;
       const errEl = document.getElementById('loginError');
+      const btn = document.getElementById('loginBtn');
 
       if (!email || !pass) {
         errEl.textContent = 'Please enter your email and password';
@@ -1154,17 +1159,33 @@
         return;
       }
 
-      const emailHash = await sha256(email);
-      const passHash = await sha256(pass);
+      btn.disabled = true;
+      btn.textContent = 'Signing in...';
+      errEl.style.display = 'none';
 
-      if (emailHash === ADMIN_EMAIL_HASH && passHash === ADMIN_PASS_HASH) {
-        sessionStorage.setItem('perkfinity_admin_auth', 'true');
-        unlockDashboard();
-      } else {
-        errEl.textContent = 'Invalid email or password';
+      try {
+        const res = await fetch(PerkfinityConfig.BACKEND_URL + '/api/v1/admin/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password: pass })
+        });
+        const data = await res.json();
+        if (data.success && data.token) {
+          sessionStorage.setItem('perkfinity_admin_auth', 'true');
+          sessionStorage.setItem('perkfinity_admin_token', data.token);
+          unlockDashboard();
+        } else {
+          errEl.textContent = data.error || 'Invalid email or password';
+          errEl.style.display = 'block';
+          document.getElementById('adminPassword').value = '';
+          document.getElementById('adminPassword').focus();
+        }
+      } catch (e) {
+        errEl.textContent = 'Connection error. Please try again.';
         errEl.style.display = 'block';
-        document.getElementById('adminPassword').value = '';
-        document.getElementById('adminPassword').focus();
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Sign In';
       }
     }
 
@@ -1172,10 +1193,13 @@
       document.getElementById('loginOverlay').classList.add('hidden');
       document.getElementById('adminLayout').style.display = 'flex';
       loadAllData();
+      inactivityStart();
     }
 
     function adminSignOut() {
+      inactivityStop();
       sessionStorage.removeItem('perkfinity_admin_auth');
+      sessionStorage.removeItem('perkfinity_admin_token');
       document.getElementById('adminLayout').style.display = 'none';
       document.getElementById('loginOverlay').classList.remove('hidden');
       document.getElementById('adminEmail').value = '';
@@ -1183,12 +1207,61 @@
       document.getElementById('loginError').style.display = 'none';
     }
 
+    // ── Inactivity Auto-Logout (15 min) ──────────────────────────
+    const INACTIVITY_LIMIT_MS  = 15 * 60 * 1000; // 15 minutes
+    const INACTIVITY_WARN_MS   = 60 * 1000;       // warn 60s before logout
+    let _inactivityTimer  = null;
+    let _inactivityWarnTimer = null;
+    let _inactivityCountdownInterval = null;
+
+    function inactivityStart() {
+      inactivityStop();
+      _inactivityTimer = setTimeout(inactivityWarn, INACTIVITY_LIMIT_MS - INACTIVITY_WARN_MS);
+      ['mousemove','mousedown','keydown','touchstart','scroll','click'].forEach(e =>
+        document.addEventListener(e, inactivityReset, { passive: true })
+      );
+    }
+
+    function inactivityStop() {
+      clearTimeout(_inactivityTimer);
+      clearTimeout(_inactivityWarnTimer);
+      clearInterval(_inactivityCountdownInterval);
+      _inactivityTimer = _inactivityWarnTimer = _inactivityCountdownInterval = null;
+      const w = document.getElementById('inactivity-warning');
+      if (w) w.style.display = 'none';
+      ['mousemove','mousedown','keydown','touchstart','scroll','click'].forEach(e =>
+        document.removeEventListener(e, inactivityReset)
+      );
+    }
+
+    function inactivityReset() {
+      inactivityStop();
+      inactivityStart();
+    }
+
+    function inactivityWarn() {
+      const w = document.getElementById('inactivity-warning');
+      if (w) w.style.display = 'flex';
+      let secs = 60;
+      const cd = document.getElementById('inactivity-countdown');
+      if (cd) cd.textContent = secs;
+      _inactivityCountdownInterval = setInterval(() => {
+        secs--;
+        if (cd) cd.textContent = secs;
+        if (secs <= 0) {
+          clearInterval(_inactivityCountdownInterval);
+          adminSignOut();
+          showToast('🔒 Signed out due to inactivity');
+        }
+      }, 1000);
+    }
+
     // Check session on page load
     if (sessionStorage.getItem('perkfinity_admin_auth') === 'true') {
       unlockDashboard();
     }
 
-    const API_BASE = 'https://perkfinity-backend.vercel.app/api/v1';
+    const API_BASE = PerkfinityConfig.BACKEND_URL + '/api/v1';
 
     // ── Merchant Detail Panel ─────────────────────────────────────
     function showMerchantDetail(merchantId) {
@@ -1240,6 +1313,7 @@
           ${infoRow('Website', m.website)}
           ${infoRow('Perk Offer', m.perk)}
           ${infoRow('POS System', m.pos_system)}
+          ${infoRow('Merchant ID', m.id)}
         </div>
 
         <div style="background:#f8fafc;border-radius:12px;padding:18px 20px;margin-bottom:20px;">
@@ -1311,7 +1385,9 @@
           ${infoRow('City', m.city)}
           ${infoRow('ZIP Code', m.zip_code)}
           ${infoRow('Push Notifications', m.push_token ? 'Enabled' : 'Disabled')}
+          ${infoRow('Platform', m.device_platform === 'ios' ? '🍎 iOS' : m.device_platform === 'android' ? '🤖 Android' : m.device_platform === 'web' ? '🌐 Web' : '—')}
           ${infoRow('Joined', formatDate(m.created_at))}
+          ${infoRow('Member ID', m.id)}
         </div>
 
         <div style="background:#f8fafc;border-radius:12px;padding:18px 20px;">
@@ -1352,9 +1428,12 @@
 
     // ── Data Loading ────────────────────────────────────────────
     async function adminFetch(endpoint, retries = 2) {
+      const token = sessionStorage.getItem('perkfinity_admin_token');
       for (let attempt = 0; attempt <= retries; attempt++) {
         try {
-          const res = await fetch(API_BASE + endpoint);
+          const res = await fetch(API_BASE + endpoint, {
+            headers: token ? { 'Authorization': 'Bearer ' + token } : {}
+          });
           if (!res.ok && attempt < retries) {
             await new Promise(r => setTimeout(r, 1500));
             continue;
@@ -1485,18 +1564,23 @@
         case 'members':
           data = getFilteredData('members');
           tbody = document.getElementById('members-tbody');
-          tbody.innerHTML = data.map(m => `
+          tbody.innerHTML = data.map(m => {
+            const platformLabel = m.device_platform === 'ios' ? '🍎 iOS' : m.device_platform === 'android' ? '🤖 Android' : m.device_platform === 'web' ? '🌐 Web' : '—';
+            const platformClass = m.device_platform === 'ios' ? 'tier1' : m.device_platform === 'android' ? 'active' : 'free';
+            return `
             <tr style="cursor:pointer;" onclick="showMemberDetail('${m.id}')">
               <td><strong>${m.full_name || '—'}</strong></td>
               <td>${m.city || '—'}</td>
               <td>${m.zip_code || '—'}</td>
               <td>${m.push_token ? '<span class="badge active">Yes</span>' : '<span class="badge free">No</span>'}</td>
+              <td>${m.device_platform ? `<span class="badge ${platformClass}">${platformLabel}</span>` : '—'}</td>
               <td>${m.merchant_count || 0}</td>
               <td>${m.merchants_30d || 0}</td>
               <td>${m.redeemed_30d || 0}</td>
               <td>${formatDate(m.created_at)}</td>
             </tr>
-          `).join('') || emptyRow(8, 'No members found');
+          `;
+          }).join('') || emptyRow(9, 'No members found');
           break;
 
         case 'campaigns':
@@ -1526,7 +1610,9 @@
           tbody = document.getElementById('billing-tbody');
           tbody.innerHTML = data.map(inv => {
             const amt = ((parseInt(inv.amount_cents) || 0) / 100).toFixed(2);
-            const statusClass = inv.status === 'paid' ? 'active' : inv.status === 'failed' ? 'inactive' : 'pending';
+            const isPendingCancel = inv.billing_status === 'pending_cancellation';
+            const statusClass = isPendingCancel ? 'inactive' : inv.status === 'paid' ? 'active' : inv.status === 'failed' ? 'inactive' : 'pending';
+            const statusLabel = isPendingCancel ? 'Pending Cancel' : inv.status || '—';
             // Show full month period: period_start to end of that month
             let period = '\u2014';
             if (inv.period_start) {
@@ -1542,14 +1628,17 @@
                 period = formatDate(ps) + ' \u2014 ' + formatDate(pe);
               }
             }
+            const nextBilling = isPendingCancel && inv.next_billing_date
+              ? `<span style="color:#ef4444;font-weight:600;">🚫 ${formatDate(inv.next_billing_date)}</span>`
+              : inv.next_billing_date ? formatDate(inv.next_billing_date) : '\u2014';
             return `
             <tr>
               <td><strong>${inv.merchant_name || '\u2014'}</strong></td>
               <td><span class="badge ${inv.subscription_tier === 'tier1' ? 'tier1' : 'free'}">${inv.subscription_tier === 'tier1' ? 'Tier 1' : 'Free'}</span></td>
-              <td><span class="badge ${statusClass}">${inv.status || '\u2014'}</span></td>
+              <td><span class="badge ${statusClass}">${statusLabel}</span></td>
               <td>$${amt}</td>
               <td>${period}</td>
-              <td>${inv.next_billing_date ? formatDate(inv.next_billing_date) : '\u2014'}</td>
+              <td>${nextBilling}</td>
               <td>${inv.paid_at ? formatDate(inv.paid_at) : '\u2014'}</td>
             </tr>`;
           }).join('') || emptyRow(7, 'No invoices yet \u2014 billing starts when merchants upgrade to Tier 1');
@@ -1738,7 +1827,11 @@
     // ╔══════════════════════════════════════════════╗
     // ║  ACCESS CODES                                ║
     // ╚══════════════════════════════════════════════╝
-    const ADMIN_SECRET = 'perkfinity-admin-2025'; // Must match ADMIN_SECRET env var
+    function getAdminHeaders(extra = {}) {
+      const token = sessionStorage.getItem('perkfinity_admin_token');
+      return { 'Authorization': 'Bearer ' + token, ...extra };
+    }
+    const ADMIN_SECRET = null; // Removed — auth now uses backend-issued JWT token
 
     function switchAcTab(tab) {
       document.getElementById('tab-btn-cp').className = tab === 'cp' ? 'ann-step-tab active' : 'ann-step-tab';
@@ -1770,7 +1863,7 @@
       try {
         const res = await fetch(API_BASE + '/admin/access-codes', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'x-admin-secret': ADMIN_SECRET },
+          headers: getAdminHeaders({ 'Content-Type': 'application/json' }),
           body: JSON.stringify(payload)
         });
         const json = await res.json();
@@ -1801,7 +1894,7 @@
       try {
         const res = await fetch(API_BASE + '/admin/access-codes', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'x-admin-secret': ADMIN_SECRET },
+          headers: getAdminHeaders({ 'Content-Type': 'application/json' }),
           body: JSON.stringify(payload)
         });
         const json = await res.json();
@@ -1831,7 +1924,7 @@
     async function loadAccessCodes() {
       try {
         const res = await fetch(API_BASE + '/admin/access-codes', {
-          headers: { 'x-admin-secret': ADMIN_SECRET }
+          headers: getAdminHeaders(),
         });
         const json = await res.json();
         if (!json.success) return;
@@ -1941,10 +2034,9 @@
       const errEl = document.getElementById('gate-error');
       errEl.style.display = 'none';
 
-      // Verify admin password locally via SHA-256
-      const passHash = await sha256(password);
-      if (passHash !== ADMIN_PASS_HASH) {
-        errEl.textContent = 'Incorrect password. Try again.';
+      // Require typing CONFIRM for destructive actions (backend JWT validates the actual requests)
+      if (password.trim().toUpperCase() !== 'CONFIRM') {
+        errEl.textContent = 'Type CONFIRM to proceed.';
         errEl.style.display = 'block';
         return;
       }
@@ -1959,7 +2051,7 @@
         try {
           const res = await fetch(API_BASE + '/admin/send-email', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'x-admin-secret': ADMIN_SECRET },
+            headers: getAdminHeaders({ 'Content-Type': 'application/json' }),
             body: JSON.stringify({ merchant_ids: ids, subject, body })
           });
           const json = await res.json();
@@ -1972,7 +2064,7 @@
           try {
             const res = await fetch(API_BASE + '/admin/merchants/' + id, {
               method: 'DELETE',
-              headers: { 'x-admin-secret': ADMIN_SECRET }
+              headers: getAdminHeaders(),
             });
             const json = await res.json();
             if (json.success) deleted++; else failed++;
@@ -2253,7 +2345,7 @@
       try {
         const res = await fetch(API_BASE + '/admin/send-announcement', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: getAdminHeaders({ 'Content-Type': 'application/json' }),
           body: JSON.stringify({
             subject,
             html_body,

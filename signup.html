@@ -34,6 +34,7 @@
       }
     }
   </style>
+  <script src="/config.js"></script>
 </head>
 
 <body>
@@ -576,8 +577,8 @@
       let currentPlaidToken = null;
       let currentQrUrl = null;
       let uploadedLogoBase64 = null;
-      const BACKEND_URL = 'https://perkfinity-backend.vercel.app';
-      const STRIPE_PK = 'pk_test_51TGUVuPlipdB2ZzDsDA8vLlFIlfCaMrPojFTSYaNTPqTND4JREDBdCLJqzwEVyPdHNmmdEFm5uBsgVVI4rNG1bp8001Z7I0iQA';
+      const BACKEND_URL = PerkfinityConfig.BACKEND_URL;
+      const STRIPE_PK = PerkfinityConfig.STRIPE_PK;
 
       // Stripe Elements init
       let stripeInstance = null;
