@@ -1157,7 +1157,7 @@
   <div class="toast" id="toast"></div>
 
   <!-- Inactivity Warning Banner -->
-  <div id="inactivity-warning" style="display:none;position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:9999;background:#1e1b3a;border:1px solid #ef4444;border-radius:14px;padding:16px 24px;box-shadow:0 8px 32px rgba(0,0,0,0.4);display:none;align-items:center;gap:16px;min-width:380px;max-width:520px;">
+  <div id="inactivity-warning" style="display:none;position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:9999;background:#1e1b3a;border:1px solid #ef4444;border-radius:14px;padding:16px 24px;box-shadow:0 8px 32px rgba(0,0,0,0.4);align-items:center;gap:16px;min-width:380px;max-width:520px;">
     <div style="font-size:20px;">⏱️</div>
     <div style="flex:1;">
       <div style="font-size:14px;font-weight:700;color:#f1f5f9;margin-bottom:2px;">Session Expiring</div>
@@ -1232,11 +1232,10 @@
       document.getElementById('loginError').style.display = 'none';
     }
 
-    // ── Inactivity Auto-Logout (15 min) ──────────────────────────
-    const INACTIVITY_LIMIT_MS  = 15 * 60 * 1000; // 15 minutes
-    const INACTIVITY_WARN_MS   = 60 * 1000;       // warn 60s before logout
-    let _inactivityTimer  = null;
-    let _inactivityWarnTimer = null;
+    // ── Inactivity Auto-Logout (5 min) ───────────────────────────
+    const INACTIVITY_LIMIT_MS = 5 * 60 * 1000; // 5 minutes
+    const INACTIVITY_WARN_MS  = 60 * 1000;      // warn 60s before logout
+    let _inactivityTimer = null;
     let _inactivityCountdownInterval = null;
 
     function inactivityStart() {
@@ -1249,9 +1248,8 @@
 
     function inactivityStop() {
       clearTimeout(_inactivityTimer);
-      clearTimeout(_inactivityWarnTimer);
       clearInterval(_inactivityCountdownInterval);
-      _inactivityTimer = _inactivityWarnTimer = _inactivityCountdownInterval = null;
+      _inactivityTimer = _inactivityCountdownInterval = null;
       const w = document.getElementById('inactivity-warning');
       if (w) w.style.display = 'none';
       ['mousemove','mousedown','keydown','touchstart','scroll','click'].forEach(e =>
