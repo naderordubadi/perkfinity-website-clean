@@ -133,6 +133,7 @@
     .badge.pending { background:rgba(245,158,11,0.15); color:var(--amber); }
     .badge.free { background:rgba(255,255,255,0.08); color:var(--muted); }
     .badge.tier1 { background:rgba(139,92,246,0.15); color:var(--purple); }
+    .badge.deleted { background:rgba(255,255,255,0.05); color:rgba(255,255,255,0.3); text-decoration:line-through; }
 
     /* Badge for Free For Life */
     .badge.ffl { background:rgba(107,193,122,0.12); color:#1a6b2b; }
@@ -485,6 +486,7 @@
             <option value="inactive">Inactive</option>
             <option value="pending">Pending</option>
             <option value="cancelled">Cancelled</option>
+            <option value="deleted">Deleted</option>
           </select>
           <select class="toolbar-select" id="merchant-filter-tier" onchange="filterTable('merchants')">
             <option value="">All Tiers</option>
@@ -1297,7 +1299,8 @@
       const tierLabel = m.tier === 'tier1' ? 'Tier 1' : m.tier === 'free_for_life' ? 'Free For Life' : 'Free Trial';
       const bs = m.billing_status || m.status || 'active';
       let statusLabel = bs;
-      if (bs === 'pending_cancellation') statusLabel = 'Pending Cancellation';
+      if (bs === 'deleted') { statusLabel = 'Deleted'; }
+      else if (bs === 'pending_cancellation') statusLabel = 'Pending Cancellation';
       else if (bs === 'active') statusLabel = 'Active';
       else if (bs === 'blocked' || m.account_blocked) statusLabel = 'Blocked';
       else if (bs === 'payment_failed') statusLabel = 'Payment Failed';
@@ -1597,7 +1600,8 @@
             const tierClass = m.tier === 'tier1' ? 'tier1' : m.tier === 'free_for_life' ? 'ffl' : 'free';
             const bs = m.billing_status || m.status || 'active';
             let statusLabel, statusClass;
-            if (m.account_blocked) { statusLabel = 'Blocked'; statusClass = 'inactive'; }
+            if (bs === 'deleted') { statusLabel = 'Deleted'; statusClass = 'deleted'; }
+            else if (m.account_blocked) { statusLabel = 'Blocked'; statusClass = 'inactive'; }
             else if (bs === 'pending_cancellation') { statusLabel = 'Pending Cancel'; statusClass = 'inactive'; }
             else if (bs === 'payment_failed') { statusLabel = 'Payment Failed'; statusClass = 'inactive'; }
             else { statusLabel = 'Active'; statusClass = 'active'; }
