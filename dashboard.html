@@ -1916,7 +1916,7 @@
             </div>
           </div>
 
-          <button class="btn btn-green" style="padding:16px 36px;font-size:16px">
+          <button class="btn btn-green" style="padding:16px 36px;font-size:16px" onclick="reactivateSubscription()">
             🔄 Reactivate Subscription — $29.99/mo
           </button>
           <p style="font-size:12px;color:var(--muted);margin-top:12px">
@@ -3014,6 +3014,41 @@
             sceneEl.querySelectorAll('.action-link').forEach(link => {
               if (link.innerHTML.includes('Cancel Subscription')) link.style.display = 'none';
             });
+          }
+
+          // Customize scene-blocked for payment failure vs voluntary cancellation
+          if (sceneName === 'blocked' && d.billing_status === 'payment_failed') {
+            const alertEl = sceneEl.querySelector('.alert');
+            if (alertEl) {
+              alertEl.style.background = 'rgba(220,53,69,.12)';
+              alertEl.style.borderColor = 'rgba(220,53,69,.4)';
+              alertEl.innerHTML = `
+                <span class="icon">&#9888;&#65039;</span>
+                <div>
+                  <strong>Payment Failed &#8212; Action Required.</strong> Your card was declined when we tried to upgrade your account.
+                  <br>Update your payment method below to restore full access.
+                </div>
+              `;
+            }
+            const heading = sceneEl.querySelector('h3');
+            if (heading) heading.textContent = 'Payment Update Required';
+            const subtitle = sceneEl.querySelector('p');
+            if (subtitle) subtitle.textContent = 'Your card was declined when your account reached the member limit and we tried to upgrade you to Tier 1. Update your payment method and click Reactivate to restore all campaigns and member redemptions.';
+            const existBanner = sceneEl.querySelector('.payment-fail-banner');
+            if (!existBanner) {
+              const reactivateBtn = sceneEl.querySelector('.btn-green');
+              if (reactivateBtn) {
+                reactivateBtn.insertAdjacentHTML('beforebegin', `
+                  <div class="payment-fail-banner" style="background:#fef2f2;border:1.5px solid #fecaca;border-radius:12px;padding:16px 20px;max-width:440px;margin:0 auto 24px;text-align:left;">
+                    <div style="font-size:13px;font-weight:700;color:#dc2626;margin-bottom:8px;">To restore your account:</div>
+                    <ol style="margin:0;padding-left:20px;font-size:13px;color:#991b1b;line-height:2;">
+                      <li>Click <strong>Update Payment Method</strong> below to save a new card</li>
+                      <li>Click <strong>Reactivate Subscription</strong> to resume at $29.99/mo</li>
+                    </ol>
+                  </div>
+                `);
+              }
+            }
           }
 
           // Dynamic Updates

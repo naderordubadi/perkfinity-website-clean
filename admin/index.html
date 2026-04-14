@@ -701,6 +701,31 @@
           <button class="toolbar-btn" onclick="exportData('billing','txt')">📋 TXT</button>
         </div>
 
+        <!-- Stuck Payments Alert Panel (auto-upgrade payment failures) -->
+        <div id="stuck-payments-panel" style="display:none;margin-bottom:24px;background:#fef2f2;border:1.5px solid #fecaca;border-radius:14px;padding:20px 24px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+            <span style="font-size:20px;">&#9888;&#65039;</span>
+            <div>
+              <div style="font-weight:800;font-size:15px;color:#dc2626;">Merchants Stuck &#8212; Payment Failed at Auto-Upgrade</div>
+              <div style="font-size:12px;color:#991b1b;margin-top:2px;">These accounts are blocked because a Stripe auto-upgrade charge failed. Stripe will NOT retry. Reminder emails are sending automatically at Day 3, 7, and 10.</div>
+            </div>
+          </div>
+          <table style="width:100%;border-collapse:collapse;font-size:13px;">
+            <thead>
+              <tr style="border-bottom:1.5px solid #fecaca;">
+                <th style="text-align:left;padding:8px 10px;color:#991b1b;font-weight:700;">Merchant</th>
+                <th style="text-align:left;padding:8px 10px;color:#991b1b;font-weight:700;">Email</th>
+                <th style="text-align:center;padding:8px 10px;color:#991b1b;font-weight:700;">Days Stuck</th>
+                <th style="text-align:center;padding:8px 10px;color:#991b1b;font-weight:700;">Reminders Sent</th>
+                <th style="text-align:left;padding:8px 10px;color:#991b1b;font-weight:700;">Failed Since</th>
+              </tr>
+            </thead>
+            <tbody id="stuck-payments-tbody">
+              <tr><td colspan="5" style="padding:12px;text-align:center;color:#991b1b;">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+
         <div class="table-wrap">
           <table class="data-table" id="billing-table">
             <thead>
@@ -1517,6 +1542,45 @@
         document.getElementById('bill-pending').textContent = bStats.pending_cancel || 0;
         document.getElementById('bill-failed').textContent = bStats.failed_payments || 0;
         renderTable('billing');
+
+        // Load stuck-payments panel (auto-upgrade failures)
+        try {
+          const stuckRes = await adminFetch('/admin/stuck-payments');
+          const stuckData = (stuckRes.success && stuckRes.data) ? stuckRes.data : [];
+          const panel = document.getElementById('stuck-payments-panel');
+          const tbody = document.getElementById('stuck-payments-tbody');
+          if (stuckData.length > 0) {
+            panel.style.display = 'block';
+            tbody.innerHTML = stuckData.map(m => {
+              const reminderLabels = ['None sent', 'Day-3 sent', 'Day-7 sent', 'All 3 sent'];
+              const reminderLabel = reminderLabels[Math.min(m.payment_failure_reminder_count || 0, 3)];
+              const days = m.days_since_failure || 0;
+              const daysBadge = days >= 10
+                ? `<span style="color:#dc2626;font-weight:700;">${days}d</span>`
+                : days >= 7
+                  ? `<span style="color:#ef4444;font-weight:600;">${days}d</span>`
+                  : `<span style="color:#f59e0b;font-weight:600;">${days}d</span>`;
+              const failedDate = m.payment_failed_at
+                ? new Date(m.payment_failed_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                : '—';
+              return `
+                <tr style="border-bottom:1px solid #fecaca;">
+                  <td style="padding:8px 10px;font-weight:700;color:#1a1a2e;">
+                    <a href="#" onclick="showMerchantDetail('${m.id}');return false;" style="color:#5b3fa5;text-decoration:none;">${m.business_name || '—'}</a>
+                  </td>
+                  <td style="padding:8px 10px;color:#555;">${m.email || '—'}</td>
+                  <td style="padding:8px 10px;text-align:center;">${daysBadge}</td>
+                  <td style="padding:8px 10px;text-align:center;color:#555;">${reminderLabel}</td>
+                  <td style="padding:8px 10px;color:#555;">${failedDate}</td>
+                </tr>
+              `;
+            }).join('');
+          } else {
+            panel.style.display = 'none';
+          }
+        } catch (stuckErr) {
+          console.warn('Failed to load stuck payments:', stuckErr);
+        }
       }
 
       document.getElementById('refresh-spinner').style.display = 'none';
