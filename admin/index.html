@@ -133,7 +133,7 @@
     .badge.pending { background:rgba(245,158,11,0.15); color:var(--amber); }
     .badge.free { background:rgba(255,255,255,0.08); color:var(--muted); }
     .badge.tier1 { background:rgba(139,92,246,0.15); color:var(--purple); }
-    .badge.deleted { background:rgba(255,255,255,0.05); color:rgba(255,255,255,0.3); text-decoration:line-through; }
+    .badge.deleted { background:rgba(239,68,68,0.12); color:#ef4444; text-decoration:line-through; }
 
     /* Badge for Free For Life */
     .badge.ffl { background:rgba(107,193,122,0.12); color:#1a6b2b; }
@@ -1606,10 +1606,12 @@
             else if (bs === 'payment_failed') { statusLabel = 'Payment Failed'; statusClass = 'inactive'; }
             else { statusLabel = 'Active'; statusClass = 'active'; }
             let billingDate = '\u2014';
-            if (bs === 'pending_cancellation' && m.next_billing_date) {
-              billingDate = '<span style="color:#ef4444;font-weight:600;">\ud83d\udeab ' + formatDate(m.next_billing_date) + '</span>';
-            } else if (m.next_billing_date) {
-              billingDate = formatDate(m.next_billing_date);
+            if (bs !== 'deleted') {
+              if (bs === 'pending_cancellation' && m.next_billing_date) {
+                billingDate = '<span style="color:#ef4444;font-weight:600;">\ud83d\udeab ' + formatDate(m.next_billing_date) + '</span>';
+              } else if (m.next_billing_date) {
+                billingDate = formatDate(m.next_billing_date);
+              }
             }
             return `
             <tr style="cursor:pointer;" onclick="showMerchantDetail('${m.id}')">
@@ -1676,9 +1678,10 @@
           tbody = document.getElementById('billing-tbody');
           tbody.innerHTML = data.map(inv => {
             const amt = ((parseInt(inv.amount_cents) || 0) / 100).toFixed(2);
+            const isDeleted = inv.billing_status === 'deleted';
             const isPendingCancel = inv.billing_status === 'pending_cancellation';
-            const statusClass = isPendingCancel ? 'inactive' : inv.status === 'paid' ? 'active' : inv.status === 'failed' ? 'inactive' : 'pending';
-            const statusLabel = isPendingCancel ? 'Pending Cancel' : inv.status || '—';
+            const statusClass = isDeleted ? 'deleted' : isPendingCancel ? 'inactive' : inv.status === 'paid' ? 'active' : inv.status === 'failed' ? 'inactive' : 'pending';
+            const statusLabel = isDeleted ? 'Deleted' : isPendingCancel ? 'Pending Cancel' : inv.status || '\u2014';
             // Show full month period: period_start to end of that month
             let period = '\u2014';
             if (inv.period_start) {
@@ -1694,9 +1697,10 @@
                 period = formatDate(ps) + ' \u2014 ' + formatDate(pe);
               }
             }
-            const nextBilling = isPendingCancel && inv.next_billing_date
-              ? `<span style="color:#ef4444;font-weight:600;">🚫 ${formatDate(inv.next_billing_date)}</span>`
-              : inv.next_billing_date ? formatDate(inv.next_billing_date) : '\u2014';
+            const nextBilling = isDeleted ? '\u2014'
+              : isPendingCancel && inv.next_billing_date
+                ? `<span style="color:#ef4444;font-weight:600;">\uD83D\uDEAB ${formatDate(inv.next_billing_date)}</span>`
+                : inv.next_billing_date ? formatDate(inv.next_billing_date) : '\u2014';
             return `
             <tr>
               <td><strong>${inv.merchant_name || '\u2014'}</strong></td>
