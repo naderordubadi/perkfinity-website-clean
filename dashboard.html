@@ -1267,13 +1267,13 @@
           <div class="plan-card">
             <div class="plan-details">
               <span class="plan-badge trial">🟢 Free Trial</span>
-              <div class="plan-price" style="color:var(--greenDark)">Free <span>until 10 members</span></div>
+              <div class="plan-price" style="color:var(--greenDark)">Free <span>until 100 members</span></div>
               <ul class="plan-features">
                 <li>1 countertop QR sign</li>
                 <li>Welcome perk for new members</li>
                 <li>Track scans &amp; redemptions</li>
               </ul>
-              <div class="no-charge-note">🔒 Your card on file will NOT be charged until you reach 10 members</div>
+              <div class="no-charge-note">🔒 Your card on file will NOT be charged until you reach 100 members</div>
             </div>
             <div class="usage-widget">
               <div style="font-size:13px;font-weight:700;color:var(--muted)">Active Members</div>
@@ -1322,21 +1322,21 @@
         </div>
       </div>
 
-      <!-- ─── TRIAL + MEMBER-15 (12/15) ─── -->
+      <!-- ─── TRIAL + MEMBER-150 (120/150) ─── -->
       <div id="scene-trial-15" class="scene" style="display:none">
         <div class="alert alert-info">
           <span class="icon">🎟️</span>
-          <div>Promo code <strong>MEMBER-15</strong> applied! Your card will not be charged until you reach
-            <strong>15</strong> active members.</div>
+          <div>Promo code <strong>MEMBER-150</strong> applied! Your card will not be charged until you reach
+            <strong>150</strong> active members.</div>
         </div>
         <div class="billing-section">
           <h3>Your Plan</h3>
           <div class="plan-card">
             <div class="plan-details">
-              <span class="plan-badge trial">🟢 Free Trial + MEMBER-15</span>
-              <div class="plan-price" style="color:var(--greenDark)">Free <span>until 15 members</span></div>
+              <span class="plan-badge trial">🟢 Free Trial + MEMBER-150</span>
+              <div class="plan-price" style="color:var(--greenDark)">Free <span>until 150 members</span></div>
               <ul class="plan-features">
-                <li>Extended trial — 15 member limit</li>
+                <li>Extended trial — 150 member limit</li>
                 <li>All trial features included</li>
               </ul>
               <div class="no-charge-note">🔒 Your card on file will NOT be charged until you reach 15 members</div>
@@ -1376,7 +1376,7 @@
         </div>
       </div>
 
-      <!-- ─── TRIAL + MEMBER-20 (15/20) ─── -->
+      <!-- ─── TRIAL + MEMBER-200 (150/200) ─── -->
       <div id="scene-trial-20" class="scene" style="display:none">
         <div class="alert alert-info" id="trial-alert" style="display:none">
           <span class="icon">🎟️</span>
@@ -1485,17 +1485,17 @@
         </div>
       </div>
 
-      <!-- ─── TRIAL NEAR LIMIT + MEMBER-15 (14/15) ─── -->
+      <!-- ─── TRIAL NEAR LIMIT + MEMBER-150 (140/150) ─── -->
       <div id="scene-trial-near-15" class="scene" style="display:none">
         <div class="alert alert-success">
           <span class="icon">🚀</span>
-          <div><strong>Amazing progress!</strong> 14 members and counting — your community loves what you offer!</div>
+          <div><strong>Amazing progress!</strong> 140 members and counting — your community loves what you offer!</div>
         </div>
         <div class="billing-section">
           <h3>Your Plan</h3>
           <div class="plan-card">
             <div class="plan-details">
-              <span class="plan-badge trial">🟢 Free Trial + MEMBER-15</span>
+              <span class="plan-badge trial">🟢 Free Trial + MEMBER-150</span>
               <div class="plan-price" style="color:var(--greenDark)">Free <span>— growing fast!</span></div>
               <ul class="plan-features">
                 <li>Extended trial — 15 member limit</li>
@@ -1539,7 +1539,7 @@
         </div>
       </div>
 
-      <!-- ─── TRIAL NEAR LIMIT + MEMBER-20 (19/20) ─── -->
+      <!-- ─── TRIAL NEAR LIMIT + MEMBER-200 (190/200) ─── -->
       <div id="scene-trial-near-20" class="scene" style="display:none">
         <div class="alert alert-success">
           <span class="icon">🚀</span>
@@ -2967,7 +2967,7 @@
         } else if (d.tier === 'free_for_life') {
           sceneName = 'free-for-life';
         } else if (d.tier === 'trial' || d.tier === 'free') {
-          let limit = d.member_limit || 10;
+          let limit = d.member_limit || 100;
           let count = d.member_count || 0;
           let diff = limit - count;
           sceneName = (diff <= 2 && diff >= 0) ? 'trial-near-20' : 'trial-20';
@@ -3053,7 +3053,7 @@
 
           // Dynamic Updates
           const promoCode = d.promo_code;
-          const memberLimit = d.member_limit || 10;
+          const memberLimit = d.member_limit || 100;
 
           if (sceneName === 'trial-20') {
             document.getElementById('trial-badge').innerText = promoCode ? `🟢 Free Trial + ${promoCode}` : `🟢 Free Trial`;
@@ -3078,14 +3078,14 @@
 
           const usageBar = sceneEl.querySelector('.usage-fill');
           if (usageBar) {
-            let pct = ((d.member_count || 0) / (d.member_limit || 10)) * 100;
+            let pct = ((d.member_count || 0) / (d.member_limit || 100)) * 100;
             if (pct > 100) pct = 100;
             usageBar.style.width = pct + "%";
           }
 
           const usageNote = sceneEl.querySelector('.usage-note');
           if (usageNote && (d.tier === 'trial' || d.tier === 'free')) {
-            let diff = (d.member_limit || 10) - (d.member_count || 0);
+            let diff = (d.member_limit || 100) - (d.member_count || 0);
             if (diff < 0) diff = 0;
             usageNote.innerHTML = `📊 ${diff} more members → auto-charge starts ($29.99/mo)`;
           }
