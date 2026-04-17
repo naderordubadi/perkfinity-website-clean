@@ -930,6 +930,14 @@
               style="width:100%; padding:10px 14px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; outline:none; box-sizing:border-box; resize:vertical; font-family:inherit;"></textarea>
           </div>
           <div style="margin-bottom:16px; margin-top:8px;">
+            <label style="display:block; font-weight:600; font-size:14px; margin-bottom:8px;">Disclaimer / Conditions <span style="font-weight:400; color:var(--muted);">(optional)</span></label>
+            <textarea id="promo-disclaimer" maxlength="200" rows="2"
+              placeholder="e.g. Cannot be combined with other offers. Valid for dine-in only."
+              oninput="document.getElementById('promo-disclaimer-count').innerText = this.value.length + '/200';"
+              style="width:100%; padding:10px 14px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; outline:none; box-sizing:border-box; resize:vertical; font-family:inherit;"></textarea>
+            <div id="promo-disclaimer-count" style="text-align:right; font-size:11px; color:var(--muted); margin-top:4px;">0/200</div>
+          </div>
+          <div style="margin-bottom:16px; margin-top:8px;">
             <label id="promo-expiry-label"
               style="display:block; font-weight:600; font-size:14px; margin-bottom:8px;">Offer Expires On *</label>
             <input type="date" id="promo-expiry"
@@ -1096,6 +1104,27 @@
                 <div style="font-size:12px;color:var(--muted);">Loyal members from the past quarter</div>
               </div>
             </div>
+            <div class="promo-aud-card" onclick="selectPromoAud(this,'by_location')"
+              style="border:2px solid var(--border); border-radius:12px; padding:14px 18px; cursor:pointer; transition:all 0.2s;">
+              <div style="display:flex; align-items:center; gap:14px;">
+                <span style="font-size:20px;">&#128205;</span>
+                <div>
+                  <div style="font-weight:700; font-size:14px;">By Location</div>
+                  <div style="font-size:12px;color:var(--muted);">Target members by city and/or ZIP code</div>
+                </div>
+              </div>
+              <div id="promo-location-picker" style="display:none; margin-top:14px; margin-left:34px;" onclick="event.stopPropagation();">
+                <div style="margin-bottom:10px;">
+                  <label style="font-weight:600; font-size:13px; display:block; margin-bottom:6px;">City</label>
+                  <div id="promo-city-list" style="display:flex; flex-wrap:wrap; gap:6px;"></div>
+                </div>
+                <div>
+                  <label style="font-weight:600; font-size:13px; display:block; margin-bottom:6px;">ZIP Code</label>
+                  <div id="promo-zip-list" style="display:flex; flex-wrap:wrap; gap:6px;"></div>
+                </div>
+                <div id="promo-location-count" style="margin-top:8px; font-size:12px; color:var(--muted); font-weight:600;"></div>
+              </div>
+            </div>
           </div>
           <div id="promoAudErr" style="color:red;font-size:13px;display:none;margin-bottom:10px;">Please select an
             audience.</div>
@@ -1143,6 +1172,9 @@
                   <span id="promo-email-expiry-line"
                     style="font-size:12px; color:#999; background:#f8f8f8; padding:6px 14px; border-radius:20px; display:inline-block;"></span>
                 </div>
+                <div id="promo-email-disclaimer-line" style="display:none; text-align:center; margin-bottom:12px;">
+                  <span style="font-size:11px; color:#999; font-style:italic;"></span>
+                </div>
                 <hr style="border:none; border-top:1px solid #f0f0f0; margin:16px 0;">
                 <div id="promo-email-address" style="font-size:12px; color:#888; text-align:center; line-height:1.6;">
                 </div>
@@ -1170,6 +1202,7 @@
                   </div>
                   <div id="promo-push-body" style="font-size:12px; color:#666; line-height:1.3;"></div>
                   <div id="promo-push-address" style="font-size:11px; color:#aaa; margin-top:3px;"></div>
+                  <div id="promo-push-disclaimer" style="display:none; font-size:10px; color:#aaa; margin-top:3px; font-style:italic;">Terms and conditions apply.</div>
                 </div>
               </div>
             </div>
@@ -1188,6 +1221,9 @@
               <div>Delivery: <strong id="sum-delivery" style="color:var(--ink);"></strong></div>
               <div>Audience: <strong id="sum-audience" style="color:var(--ink);"></strong></div>
               <div>Expires: <strong id="sum-expiry" style="color:var(--ink);"></strong></div>
+            </div>
+            <div id="sum-disclaimer-wrap" style="display:none; margin-top:10px; padding-top:8px; border-top:1px solid rgba(91,63,165,0.1);">
+              <div style="color:var(--muted);">Disclaimer: <strong id="sum-disclaimer" style="color:var(--ink); font-weight:600;"></strong></div>
             </div>
           </div>
 
@@ -2404,6 +2440,11 @@
         if (cur === 3 && !_promoCond) { showErr('promoCondErr'); return; }
         if (cur === 4 && !_promoDelivery) { showErr('promoDeliveryErr'); return; }
         if (cur === 5 && !_promoAud) { showErr('promoAudErr'); return; }
+        if (cur === 5 && _promoAud === 'by_location' && _selectedCities.size === 0 && _selectedZips.size === 0) {
+          const audErr = document.getElementById('promoAudErr');
+          audErr.innerText = 'Please select at least one city or ZIP code.';
+          audErr.style.display = 'block'; return;
+        }
       }
       hideAllPromoErrs();
       document.querySelectorAll('.promo-step').forEach(el => el.style.display = 'none');
@@ -2523,6 +2564,104 @@
       });
       el.style.border = '2px solid var(--purple)';
       el.style.background = 'rgba(91,63,165,0.05)';
+      // Show/hide location picker
+      const picker = document.getElementById('promo-location-picker');
+      if (picker) picker.style.display = aud === 'by_location' ? 'block' : 'none';
+      if (aud === 'by_location' && !_locationPickerPopulated) populateLocationPicker();
+      if (aud !== 'by_location') _locationPickerPopulated = false;
+    }
+
+    // Location picker state
+    let _selectedCities = new Set();
+    let _selectedZips = new Set();
+
+    let _locationPickerPopulated = false;
+
+    function populateLocationPicker() {
+      _locationPickerPopulated = true;
+      _selectedCities.clear();
+      _selectedZips.clear();
+      const cityContainer = document.getElementById('promo-city-list');
+      const zipContainer = document.getElementById('promo-zip-list');
+      // Get unique cities and zips from loaded members
+      const cities = [...new Set(_membersRaw.map(m => m.city).filter(c => c && c.trim()))].sort();
+      const zips = [...new Set(_membersRaw.map(m => m.zip_code).filter(z => z && z.trim()))].sort();
+
+      function renderChips(container, items, selectedSet, type) {
+        let html = `<button onclick="toggleAllLocation('${type}')" style="padding:5px 12px; border-radius:16px; font-size:12px; font-weight:600; cursor:pointer; border:1.5px solid var(--purple); background:rgba(91,63,165,0.08); color:var(--purple); transition:all 0.15s;" id="loc-select-all-${type}">Select All</button>`;
+        items.forEach(item => {
+          html += `<button onclick="event.stopPropagation(); toggleLocation(this,'${type}','${item.replace(/'/g, "\\\'")}')" data-loc="${item}" data-type="${type}" style="padding:5px 12px; border-radius:16px; font-size:12px; font-weight:600; cursor:pointer; border:1.5px solid var(--border); background:#fff; color:var(--ink); transition:all 0.15s;">${item}</button>`;
+        });
+        if (items.length === 0) html += '<span style="font-size:12px; color:var(--muted);">No data available</span>';
+        container.innerHTML = html;
+      }
+      renderChips(cityContainer, cities, _selectedCities, 'city');
+      renderChips(zipContainer, zips, _selectedZips, 'zip');
+      updateLocationCount();
+    }
+
+    function toggleLocation(btn, type, value) {
+      const set = type === 'city' ? _selectedCities : _selectedZips;
+      if (set.has(value)) {
+        set.delete(value);
+        btn.style.border = '1.5px solid var(--border)';
+        btn.style.background = '#fff';
+        btn.style.color = 'var(--ink)';
+      } else {
+        set.add(value);
+        btn.style.border = '1.5px solid var(--purple)';
+        btn.style.background = 'rgba(91,63,165,0.12)';
+        btn.style.color = 'var(--purple)';
+      }
+      updateSelectAllBtn(type);
+      updateLocationCount();
+    }
+
+    function toggleAllLocation(type) {
+      const set = type === 'city' ? _selectedCities : _selectedZips;
+      const items = type === 'city'
+        ? [...new Set(_membersRaw.map(m => m.city).filter(c => c && c.trim()))]
+        : [...new Set(_membersRaw.map(m => m.zip_code).filter(z => z && z.trim()))];
+      const allSelected = items.length > 0 && items.every(i => set.has(i));
+      const buttons = document.querySelectorAll(`button[data-type="${type}"]`);
+      if (allSelected) {
+        set.clear();
+        buttons.forEach(b => { b.style.border = '1.5px solid var(--border)'; b.style.background = '#fff'; b.style.color = 'var(--ink)'; });
+      } else {
+        items.forEach(i => set.add(i));
+        buttons.forEach(b => { b.style.border = '1.5px solid var(--purple)'; b.style.background = 'rgba(91,63,165,0.12)'; b.style.color = 'var(--purple)'; });
+      }
+      updateSelectAllBtn(type);
+      updateLocationCount();
+    }
+
+    function updateSelectAllBtn(type) {
+      const set = type === 'city' ? _selectedCities : _selectedZips;
+      const items = type === 'city'
+        ? [...new Set(_membersRaw.map(m => m.city).filter(c => c && c.trim()))]
+        : [...new Set(_membersRaw.map(m => m.zip_code).filter(z => z && z.trim()))];
+      const btn = document.getElementById(`loc-select-all-${type}`);
+      if (!btn) return;
+      const allSelected = items.length > 0 && items.every(i => set.has(i));
+      btn.innerText = allSelected ? 'Deselect All' : 'Select All';
+    }
+
+    function updateLocationCount() {
+      const count = _membersRaw.filter(m => {
+        const cityMatch = _selectedCities.size === 0 || _selectedCities.has(m.city);
+        const zipMatch = _selectedZips.size === 0 || _selectedZips.has(m.zip_code);
+        return cityMatch && zipMatch;
+      });
+      // Get unique user_ids
+      const uniqueUsers = new Set(count.map(m => m.member_id));
+      const el = document.getElementById('promo-location-count');
+      if (el) {
+        if (_selectedCities.size === 0 && _selectedZips.size === 0) {
+          el.innerText = 'Select at least one city or ZIP code';
+        } else {
+          el.innerText = `📊 ${uniqueUsers.size} member(s) match your selection`;
+        }
+      }
     }
 
     function buildPromoHeadline() {
@@ -2596,13 +2735,48 @@
         if (qrEl) qrEl.innerHTML = 'When you are in the store, scan the Perkfinity QR code before you order to activate your perk.';
       }
 
+      // Disclaimer in previews and summary
+      const disclaimerVal = (document.getElementById('promo-disclaimer') || {}).value || '';
+      const hasDisclaimer = disclaimerVal.trim().length > 0;
+
+      // Email preview disclaimer
+      const emailDisEl = document.getElementById('promo-email-disclaimer-line');
+      if (emailDisEl) {
+        if (hasDisclaimer) {
+          emailDisEl.querySelector('span').innerText = disclaimerVal.trim();
+          emailDisEl.style.display = 'block';
+        } else {
+          emailDisEl.style.display = 'none';
+        }
+      }
+
+      // Push preview disclaimer
+      const pushDisEl = document.getElementById('promo-push-disclaimer');
+      if (pushDisEl) pushDisEl.style.display = hasDisclaimer ? 'block' : 'none';
+
+      // Summary disclaimer
+      const sumDisWrap = document.getElementById('sum-disclaimer-wrap');
+      if (hasDisclaimer) {
+        document.getElementById('sum-disclaimer').innerText = disclaimerVal.trim();
+        sumDisWrap.style.display = 'block';
+      } else {
+        sumDisWrap.style.display = 'none';
+      }
+
       // Summary
       const typeLabels = { percent: 'Percentage Off', dollar: 'Dollar Off', bogo: 'Buy One Get One', freeitem: 'Free Item', loyalty: 'Loyalty Reward', flash: 'Flash Sale', announcement: 'Announcement' };
-      const audLabels = { all: 'All Members', redeemed_30: 'Redeemed (30d)', expired_30: 'Expired (30d)', never_redeemed: 'Never Redeemed', redeemed_90: 'Redeemed (90d)' };
+      const audLabels = { all: 'All Members', redeemed_30: 'Redeemed (30d)', expired_30: 'Expired (30d)', never_redeemed: 'Never Redeemed', redeemed_90: 'Redeemed (90d)', by_location: 'By Location' };
       const delLabels = { email: 'Email Only', push: 'Push Only', both: 'Email + Push' };
       document.getElementById('sum-type').innerText = typeLabels[_promoType] || '';
       document.getElementById('sum-delivery').innerText = delLabels[_promoDelivery] || '';
-      document.getElementById('sum-audience').innerText = audLabels[_promoAud] || '';
+      let audText = audLabels[_promoAud] || '';
+      if (_promoAud === 'by_location') {
+        const parts = [];
+        if (_selectedCities.size > 0) parts.push('Cities: ' + [..._selectedCities].join(', '));
+        if (_selectedZips.size > 0) parts.push('ZIP: ' + [..._selectedZips].join(', '));
+        audText = parts.join(' · ');
+      }
+      document.getElementById('sum-audience').innerText = audText;
       document.getElementById('sum-expiry').innerText = _promoType === 'announcement' ? (expiryStr || 'No expiry') : (expiryStr || 'Not set');
     }
 
@@ -2629,7 +2803,10 @@
         delivery: _promoDelivery,
         delivery_channel: _promoDelivery,
         audience: _promoAud,
+        audience_cities: _promoAud === 'by_location' ? [..._selectedCities] : [],
+        audience_zips: _promoAud === 'by_location' ? [..._selectedZips] : [],
         expires_at: expiry ? new Date(expiry + 'T23:59:59').toISOString() : null,
+        disclaimer: (document.getElementById('promo-disclaimer') || {}).value || null,
       };
 
       try {
@@ -2654,6 +2831,7 @@
 
     function promoReset() {
       _promoType = null; _promoCond = null; _promoDelivery = null; _promoAud = null;
+      _selectedCities = new Set(); _selectedZips = new Set();
       ['promo-pct', 'promo-dollar', 'promo-bogo-buy', 'promo-bogo-get', 'promo-bogo-item', 'promo-free-item', 'promo-free-min', 'promo-custom-desc', 'promo-expiry', 'promo-cond-spend', 'promo-cond-items', 'promo-announce-subject', 'promo-announce-body'].forEach(id => {
         const el = document.getElementById(id); if (el) el.value = el.type === 'number' && (id.includes('bogo')) ? (id.includes('buy') ? '2' : '1') : '';
       });

@@ -8,6 +8,7 @@
   <meta name="robots" content="noindex, nofollow"/>
   <link rel="icon" href="../assets/Perkfinity-App-Icon.png"/>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
   <style>
     :root {
       --bg: #0F172A;
@@ -236,12 +237,20 @@
     .toast.show { transform:translateY(0); opacity:1; }
     .toast.success { border-color:rgba(107,193,122,0.3); color:var(--green); }
 
-    /* Chart placeholder */
-    .chart-placeholder {
-      height:200px; border-radius:12px; background:rgba(255,255,255,0.02);
-      border:1px dashed var(--border); display:flex; align-items:center; justify-content:center;
-      color:var(--mutedLight); font-size:13px;
+    /* Chart container */
+    .chart-container {
+      position:relative; height:220px; border-radius:12px; background:rgba(255,255,255,0.02);
+      border:1px solid var(--border);
     }
+    .chart-header {
+      display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;
+    }
+    .chart-period-select {
+      background:rgba(255,255,255,0.06); border:1px solid var(--border); border-radius:8px;
+      color:var(--text); font-size:11px; font-weight:600; padding:4px 8px; cursor:pointer;
+      font-family:'Outfit',sans-serif; outline:none;
+    }
+    .chart-period-select option { background:#1a1a2e; }
 
     /* Login Overlay */
     .login-overlay {
@@ -449,12 +458,30 @@
 
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
           <div class="section-card">
-            <div class="section-title">📈 Member Growth (Last 12 Months)</div>
-            <div class="chart-placeholder" id="chart-members">Loading chart data...</div>
+            <div class="chart-header">
+              <div class="section-title" style="margin-bottom:0">📈 Member Signups</div>
+              <select class="chart-period-select" id="chart-members-period" onchange="renderCharts()">
+                <option value="7">Last 7 Days</option>
+                <option value="30">Last 30 Days</option>
+                <option value="90">Last 3 Months</option>
+                <option value="180" selected>Last 6 Months</option>
+                <option value="365">Last 12 Months</option>
+              </select>
+            </div>
+            <div class="chart-container"><canvas id="chart-members"></canvas></div>
           </div>
           <div class="section-card">
-            <div class="section-title">🏪 Merchant Signups (Last 12 Months)</div>
-            <div class="chart-placeholder" id="chart-merchants">Loading chart data...</div>
+            <div class="chart-header">
+              <div class="section-title" style="margin-bottom:0">🏪 Merchant Signups</div>
+              <select class="chart-period-select" id="chart-merchants-period" onchange="renderCharts()">
+                <option value="7">Last 7 Days</option>
+                <option value="30">Last 30 Days</option>
+                <option value="90">Last 3 Months</option>
+                <option value="180" selected>Last 6 Months</option>
+                <option value="365">Last 12 Months</option>
+              </select>
+            </div>
+            <div class="chart-container"><canvas id="chart-merchants"></canvas></div>
           </div>
         </div>
 
@@ -1087,10 +1114,11 @@
                   <th>Valid Until</th>
                   <th>Total Uses</th>
                   <th>Created</th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody id="tbody-cp">
-                <tr><td colspan="7" style="color:var(--muted);text-align:center;padding:40px">Loading codes...</td></tr>
+                <tr><td colspan="8" style="color:var(--muted);text-align:center;padding:40px">Loading codes...</td></tr>
               </tbody>
             </table>
           </div>
@@ -1142,10 +1170,11 @@
                   <th>Used At</th>
                   <th>Expires</th>
                   <th>Created</th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody id="tbody-ffl">
-                <tr><td colspan="7" style="color:var(--muted);text-align:center;padding:40px">Loading codes...</td></tr>
+                <tr><td colspan="8" style="color:var(--muted);text-align:center;padding:40px">Loading codes...</td></tr>
               </tbody>
             </table>
           </div>
@@ -1585,6 +1614,7 @@
       }
 
       document.getElementById('refresh-spinner').style.display = 'none';
+      renderCharts();
       showToast('✅ Dashboard data refreshed');
     }
 
@@ -1655,7 +1685,7 @@
           data = getFilteredData('campaigns');
           tbody = document.getElementById('campaigns-tbody');
           tbody.innerHTML = data.map(c => {
-            const typeLabels = { percent: '% Off', dollar: '$ Off', bogo: 'BOGO', freeitem: 'Free Item', loyalty: 'Loyalty', flash: 'Flash Sale', announcement: 'Announcement', perk: 'Perk', custom: 'Custom' };
+            const typeLabels = { percent: '% Off', dollar: '$ Off', bogo: 'BOGO', freeitem: 'Free Item', loyalty: 'Loyalty', flash: 'Flash Sale', announcement: 'Announcement', perk: 'Initial', custom: 'Custom' };
             const cType = typeLabels[c.campaign_type] || (c.discount_percentage === -1 ? 'Announcement' : 'Perk');
             const cTypeClass = c.campaign_type === 'announcement' || c.discount_percentage === -1 ? 'ffl' : 'tier1';
             return `
@@ -1885,6 +1915,139 @@
       return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
     }
 
+    // ── Chart Rendering ─────────────────────────────────────────
+    let _memberChart = null, _merchantChart = null;
+
+    function aggregateByPeriod(items, days) {
+      const now = new Date();
+      const cutoff = new Date(now - days * 86400000);
+      const filtered = items.filter(i => new Date(i.created_at) >= cutoff);
+
+      // Decide bucket strategy
+      const useDaily = days <= 30;
+      const buckets = {};
+      const labels = [];
+
+      if (useDaily) {
+        // Daily buckets
+        for (let d = 0; d < days; d++) {
+          const date = new Date(now - (days - 1 - d) * 86400000);
+          const key = date.toISOString().slice(0, 10);
+          const label = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+          buckets[key] = 0;
+          labels.push(label);
+        }
+        filtered.forEach(item => {
+          const key = new Date(item.created_at).toISOString().slice(0, 10);
+          if (buckets[key] !== undefined) buckets[key]++;
+        });
+      } else {
+        // Monthly buckets
+        const months = Math.ceil(days / 30);
+        for (let m = months - 1; m >= 0; m--) {
+          const date = new Date(now.getFullYear(), now.getMonth() - m, 1);
+          const key = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0');
+          const label = date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+          buckets[key] = 0;
+          labels.push(label);
+        }
+        filtered.forEach(item => {
+          const d = new Date(item.created_at);
+          const key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+          if (buckets[key] !== undefined) buckets[key]++;
+        });
+      }
+
+      return { labels, values: Object.values(buckets) };
+    }
+
+    function buildChart(canvasId, existingChart, data, color, label) {
+      if (existingChart) existingChart.destroy();
+      const ctx = document.getElementById(canvasId).getContext('2d');
+
+      const barColor = color + '40';
+      const lineColor = color;
+
+      return new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: data.labels,
+          datasets: [
+            {
+              type: 'line',
+              label: label + ' Trend',
+              data: data.values,
+              borderColor: lineColor,
+              backgroundColor: 'transparent',
+              borderWidth: 2.5,
+              tension: 0.35,
+              pointRadius: 3,
+              pointBackgroundColor: lineColor,
+              pointBorderColor: '#fff',
+              pointBorderWidth: 1.5,
+              order: 0,
+            },
+            {
+              type: 'bar',
+              label: label,
+              data: data.values,
+              backgroundColor: barColor,
+              borderColor: lineColor,
+              borderWidth: 1,
+              borderRadius: 4,
+              order: 1,
+            }
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { intersect: false, mode: 'index' },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#1a1a2e',
+              titleColor: '#fff',
+              bodyColor: '#ccc',
+              borderColor: color + '60',
+              borderWidth: 1,
+              padding: 10,
+              cornerRadius: 8,
+              titleFont: { family: 'Outfit', weight: '700', size: 12 },
+              bodyFont: { family: 'Outfit', size: 11 },
+              filter: (item) => item.datasetIndex === 1,
+            },
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { color: '#64748b', font: { family: 'Outfit', size: 10 }, maxRotation: 45 },
+            },
+            y: {
+              beginAtZero: true,
+              grid: { color: 'rgba(255,255,255,0.04)' },
+              ticks: {
+                color: '#64748b',
+                font: { family: 'Outfit', size: 10 },
+                precision: 0,
+              },
+            },
+          },
+        },
+      });
+    }
+
+    function renderCharts() {
+      const memberDays = parseInt(document.getElementById('chart-members-period').value) || 180;
+      const merchantDays = parseInt(document.getElementById('chart-merchants-period').value) || 180;
+
+      const memberData = aggregateByPeriod(allMembers, memberDays);
+      const merchantData = aggregateByPeriod(allMerchants, merchantDays);
+
+      _memberChart = buildChart('chart-members', _memberChart, memberData, '#5b3fa5', 'Members');
+      _merchantChart = buildChart('chart-merchants', _merchantChart, merchantData, '#16a34a', 'Merchants');
+    }
+
     function showToast(msg) {
       const t = document.getElementById('toast');
       t.textContent = msg;
@@ -2016,7 +2179,8 @@
             <td>${fmt(c.expires_at)}</td>
             <td style="font-weight:700;color:var(--purple);">${c.use_count || 0}</td>
             <td>${fmt(c.created_at)}</td>
-          </tr>`).join('') || '<tr><td colspan="7" style="color:var(--muted);text-align:center;padding:40px">No community promos yet</td></tr>';
+            <td>${c.status === 'available' ? `<button onclick="expireAccessCode('${c.id}','${c.code}')" style="padding:4px 10px;font-size:11px;font-weight:700;border:1.5px solid #ef4444;background:rgba(239,68,68,0.08);color:#ef4444;border-radius:8px;cursor:pointer;transition:all 0.15s;" onmouseover="this.style.background='#ef4444';this.style.color='#fff';" onmouseout="this.style.background='rgba(239,68,68,0.08)';this.style.color='#ef4444';">Expire</button>` : '<span style="color:var(--mutedLight);font-size:11px;">—</span>'}</td>
+          </tr>`).join('') || '<tr><td colspan="8" style="color:var(--muted);text-align:center;padding:40px">No community promos yet</td></tr>';
           
         let totalUses = 0;
         cpCodes.forEach(c => totalUses += (c.use_count || 0));
@@ -2034,7 +2198,8 @@
             <td>${fmt(c.used_at)}</td>
             <td>${fmt(c.expires_at)}</td>
             <td>${fmt(c.created_at)}</td>
-          </tr>`).join('') || '<tr><td colspan="7" style="color:var(--muted);text-align:center;padding:40px">No Free For Life codes yet</td></tr>';
+            <td>${c.status === 'available' ? `<button onclick="expireAccessCode('${c.id}','${c.code}')" style="padding:4px 10px;font-size:11px;font-weight:700;border:1.5px solid #ef4444;background:rgba(239,68,68,0.08);color:#ef4444;border-radius:8px;cursor:pointer;transition:all 0.15s;" onmouseover="this.style.background='#ef4444';this.style.color='#fff';" onmouseout="this.style.background='rgba(239,68,68,0.08)';this.style.color='#ef4444';">Expire</button>` : '<span style="color:var(--mutedLight);font-size:11px;">—</span>'}</td>
+          </tr>`).join('') || '<tr><td colspan="8" style="color:var(--muted);text-align:center;padding:40px">No Free For Life codes yet</td></tr>';
           
         document.getElementById('ac-stat-ffl-available').textContent = fflCodes.filter(c=>c.status==='available').length;
         document.getElementById('ac-stat-ffl-used').textContent = fflCodes.filter(c=>c.status==='used').length;
@@ -2042,6 +2207,25 @@
         document.getElementById('ac-stat-ffl-total').textContent = fflCodes.length;
         showToast('✅ Access Codes refreshed');
       } catch(e) { console.error('loadAccessCodes failed', e); }
+    }
+
+    async function expireAccessCode(codeId, codeName) {
+      if (!confirm(`Are you sure you want to expire code "${codeName}"?\n\nThis will prevent future use but won't affect merchants who already used it.`)) return;
+      try {
+        const res = await fetch(API_BASE + '/admin/access-codes/' + codeId + '/expire', {
+          method: 'PUT',
+          headers: getAdminHeaders(),
+        });
+        const json = await res.json();
+        if (json.success) {
+          showToast('✅ Code expired successfully');
+          loadAccessCodes();
+        } else {
+          showToast('❌ ' + (json.error || 'Failed to expire code'));
+        }
+      } catch(e) {
+        showToast('❌ Network error');
+      }
     }
 
     // ╔══════════════════════════════════════════════╗
