@@ -1139,47 +1139,41 @@
         <div id="promo-s6" class="promo-step" style="display:none;">
           <p style="color:var(--muted); font-size:14px; margin-bottom:20px;">Review your promotion before sending.</p>
 
-          <!-- Email Preview -->
+          <!-- Email Preview (Digest Format) -->
           <div id="promo-email-preview-wrap">
-            <h4 style="margin:0 0 10px; color:var(--purpleDark); font-size:14px;">&#128231; Email Preview</h4>
+            <h4 style="margin:0 0 10px; color:var(--purpleDark); font-size:14px;">&#128231; Email Preview <span style="font-size:11px; font-weight:400; color:var(--muted);">(as it appears in Daily Digest)</span></h4>
             <div
-              style="border:1.5px solid var(--border); border-radius:14px; overflow:hidden; margin-bottom:20px; max-width:520px;">
+              style="border:1.5px solid var(--border); border-radius:14px; overflow:hidden; margin-bottom:20px; max-width:520px; background:#fff;">
               <div style="background:linear-gradient(135deg,#5B3FA5,#6BC17A); padding:24px; text-align:center;">
-                <div style="display:flex; align-items:center; justify-content:center; gap:12px; margin-bottom:8px;">
-                  <img id="promo-email-store-logo" src=""
-                    style="width:44px;height:44px;border-radius:50%;object-fit:contain;background:#fff;display:none;border:2px solid rgba(255,255,255,0.8);">
-                  <img src="assets/Perkfinity-Logo.png" alt="Perkfinity" style="height:28px; opacity:0.95;">
-                </div>
-                <div id="promo-email-store-name" style="color:#fff; font-size:18px; font-weight:800;"></div>
+                <img src="assets/Perkfinity-Logo.png" alt="Perkfinity" style="height:28px; opacity:0.95; margin-bottom:8px; display:inline-block;">
+                <div style="color:#fff; font-size:18px; font-weight:800;">Your Neighborhood Perks, Just for You</div>
+                <div style="color:rgba(255,255,255,0.85); font-size:12px; margin-top:4px;">New perks from your favorite stores</div>
               </div>
-              <div style="padding:24px; background:#fff;">
-                <div style="text-align:center; margin-bottom:20px;">
-                  <div
-                    style="display:inline-block; background:linear-gradient(135deg,rgba(91,63,165,0.08),rgba(107,193,122,0.08)); border:1.5px solid rgba(91,63,165,0.15); border-radius:12px; padding:18px 28px;">
-                    <div id="promo-email-offer-label"
-                      style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1.5px; color:#5B3FA5; margin-bottom:6px;">
-                      Exclusive Offer For You</div>
-                    <div id="promo-email-headline" style="font-size:22px; font-weight:900; color:#1a1a2e;"></div>
-                    <div id="promo-email-cond-line" style="font-size:13px; color:#666; margin-top:6px;"></div>
+              <div style="padding:20px 24px;">
+                <div style="font-size:13px; color:#666; margin-bottom:14px;">Hi Member 👋, here's what's new today:</div>
+                <!-- Digest Card -->
+                <div id="promo-digest-card" style="display:flex; align-items:center; gap:14px; padding:14px 16px; background:#f9fafb; border-radius:12px; border:1px solid #f0f0f0;">
+                  <img id="promo-digest-logo" src="" style="width:40px;height:40px;border-radius:50%;object-fit:contain;background:#fff;border:1px solid #eee;flex-shrink:0;display:none;">
+                  <div id="promo-digest-logo-fallback" style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#8B5CF6,#6BC17A);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;font-weight:800;font-size:16px;"></div>
+                  <div style="flex:1;min-width:0;">
+                    <div id="promo-digest-store" style="font-size:14px;font-weight:700;color:#1a1a2e;margin-bottom:2px;"></div>
+                    <div id="promo-digest-title" style="font-size:14px;color:#5B3FA5;font-weight:600;"></div>
+                    <div id="promo-digest-cond" style="font-size:12px;color:#888;margin-top:2px;"></div>
+                    <div id="promo-digest-address" style="font-size:11px;color:#aaa;margin-top:3px;"></div>
+                    <div id="promo-digest-expiry" style="font-size:11px;color:#B45309;margin-top:3px;font-weight:600;"></div>
+                    <div id="promo-digest-disclaimer" style="font-size:10px;color:#aaa;margin-top:3px;font-style:italic;display:none;"></div>
                   </div>
                 </div>
-                <div id="promo-email-qr-line"
-                  style="background:rgba(107,193,122,0.12); border:1px solid rgba(107,193,122,0.3); border-radius:10px; padding:12px 18px; text-align:center; margin:0 0 16px;">
-                  <p style="font-size:14px; color:#1a6b2b; margin:0; font-weight:500;">When you are in the store, scan
-                    the Perkfinity QR code<br>before you order to activate your perk.</p>
+                <div id="promo-digest-announce-body" style="display:none; padding:14px 16px; background:#f9fafb; border-radius:12px; border:1px solid #f0f0f0;">
+                  <div id="promo-digest-announce-store" style="font-size:14px;font-weight:700;color:#1a1a2e;margin-bottom:6px;"></div>
+                  <div id="promo-digest-announce-msg" style="font-size:13px;color:#555;line-height:1.5;"></div>
                 </div>
-                <div style="text-align:center; margin-bottom:16px;">
-                  <span id="promo-email-expiry-line"
-                    style="font-size:12px; color:#999; background:#f8f8f8; padding:6px 14px; border-radius:20px; display:inline-block;"></span>
+                <div style="background:rgba(107,193,122,0.12); border:1px solid rgba(107,193,122,0.3); border-radius:10px; padding:12px 18px; text-align:center; margin-top:14px;">
+                  <p style="font-size:13px; color:#1a6b2b; margin:0; font-weight:500;">Scan the Perkfinity QR code in-store to activate your perks!</p>
                 </div>
-                <div id="promo-email-disclaimer-line" style="display:none; text-align:center; margin-bottom:12px;">
-                  <span style="font-size:11px; color:#999; font-style:italic;"></span>
-                </div>
-                <hr style="border:none; border-top:1px solid #f0f0f0; margin:16px 0;">
-                <div id="promo-email-address" style="font-size:12px; color:#888; text-align:center; line-height:1.6;">
-                </div>
-                <div style="text-align:center; margin-top:12px; font-size:11px; color:#bbb;">Powered by <strong
-                    style="color:#5B3FA5;">Perkfinity</strong></div>
+              </div>
+              <div style="padding:14px 24px; border-top:1px solid #f0f0f0; text-align:center;">
+                <div style="font-size:11px; color:#bbb;">Powered by <strong style="color:#5B3FA5;">Perkfinity</strong></div>
               </div>
             </div>
           </div>
@@ -2710,43 +2704,49 @@
         document.getElementById('promo-push-address').innerText = pushAddr ? '📍 ' + pushAddr : '';
       }
 
-      // Common email fields
-      document.getElementById('promo-email-store-name').innerText = storeName;
-      const logoEl = document.getElementById('promo-email-store-logo');
-      if (logoUrl) { logoEl.src = logoUrl; logoEl.style.display = 'inline-block'; } else { logoEl.style.display = 'none'; }
-      document.getElementById('promo-email-address').innerHTML = storeAddr ? storeName + '<br>' + storeAddr : storeName;
+      // Common digest fields
+      document.getElementById('promo-digest-store').innerText = storeName;
+      const digestLogo = document.getElementById('promo-digest-logo');
+      const digestFallback = document.getElementById('promo-digest-logo-fallback');
+      if (logoUrl) {
+        digestLogo.src = logoUrl; digestLogo.style.display = 'block'; digestFallback.style.display = 'none';
+      } else {
+        digestLogo.style.display = 'none'; digestFallback.style.display = 'flex';
+        digestFallback.innerText = storeName.charAt(0);
+      }
+
+      const digestCard = document.getElementById('promo-digest-card');
+      const announceBody = document.getElementById('promo-digest-announce-body');
 
       if (_promoType === 'announcement') {
-        // Announcement email: show subject + full message body, no perk box label
-        const msg = document.getElementById('promo-announce-body').value || '';
-        document.getElementById('promo-email-offer-label').innerText = '\uD83D\uDCE2 Store Announcement';
-        document.getElementById('promo-email-headline').innerText = headline;
-        document.getElementById('promo-email-cond-line').innerText = '';
-        document.getElementById('promo-email-expiry-line').innerText = '';
-        const qrEl = document.getElementById('promo-email-qr-line');
-        if (qrEl) qrEl.innerHTML = `<em style="color:#333;">${msg}</em>`;
+        // Announcement: show announce card, hide perk card
+        digestCard.style.display = 'none';
+        announceBody.style.display = 'block';
+        document.getElementById('promo-digest-announce-store').innerText = '📢 ' + storeName;
+        document.getElementById('promo-digest-announce-msg').innerText = document.getElementById('promo-announce-body').value || headline;
       } else {
-        // Standard perk email
-        document.getElementById('promo-email-offer-label').innerText = 'Exclusive Offer For You';
-        document.getElementById('promo-email-headline').innerText = headline;
-        document.getElementById('promo-email-cond-line').innerText = condLine;
-        document.getElementById('promo-email-expiry-line').innerText = expiryStr;
-        const qrEl = document.getElementById('promo-email-qr-line');
-        if (qrEl) qrEl.innerHTML = 'When you are in the store, scan the Perkfinity QR code before you order to activate your perk.';
+        // Standard perk: show digest card, hide announce card
+        digestCard.style.display = 'flex';
+        announceBody.style.display = 'none';
+        document.getElementById('promo-digest-title').innerText = headline;
+        document.getElementById('promo-digest-cond').innerText = condLine;
+        const storeAddr = localStorage.getItem('perkfinity_address') || '';
+        document.getElementById('promo-digest-address').innerText = storeAddr ? '📍 ' + storeAddr : '';
+        document.getElementById('promo-digest-expiry').innerText = expiryStr ? 'Expires: ' + expiryStr : '';
       }
 
       // Disclaimer in previews and summary
       const disclaimerVal = (document.getElementById('promo-disclaimer') || {}).value || '';
       const hasDisclaimer = disclaimerVal.trim().length > 0;
 
-      // Email preview disclaimer
-      const emailDisEl = document.getElementById('promo-email-disclaimer-line');
-      if (emailDisEl) {
+      // Email digest disclaimer
+      const digestDisEl = document.getElementById('promo-digest-disclaimer');
+      if (digestDisEl) {
         if (hasDisclaimer) {
-          emailDisEl.querySelector('span').innerText = disclaimerVal.trim();
-          emailDisEl.style.display = 'block';
+          digestDisEl.innerText = disclaimerVal.trim();
+          digestDisEl.style.display = 'block';
         } else {
-          emailDisEl.style.display = 'none';
+          digestDisEl.style.display = 'none';
         }
       }
 
