@@ -2,6 +2,9 @@
   "headers": [
     { "source": "/(.*)", "headers": [{ "key": "Cache-Control", "value": "no-store" }] }
   ],
+  "rewrites": [
+    { "source": "/join/:code", "destination": "/join/index.html" }
+  ],
   "redirects": [
     { "source": "/beta-test", "destination": "/beta-test/part1.html", "permanent": false }
   ]

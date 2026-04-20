@@ -2069,7 +2069,7 @@
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
         <h3 style="margin:0; color:var(--purpleDark);">Merchant Profile Settings</h3>
         <button class="btn btn-purple" style="font-size:13px; padding:9px 18px;"
-          onclick="generateSignFromDashboard()">🖨️ Print QR Sign Again</button>
+          onclick="generateSignFromDashboard()">🖨️ Print QR Sign / Get Shareable Link</button>
       </div>
       <p style="color:var(--muted); font-size:14px; margin-bottom:24px;">Update your login email (username) or change
         your password.</p>
@@ -2213,6 +2213,22 @@
             Letter Size (8.5×11)</button>
         </div>
         <br>
+        <!-- Share on Website -->
+        <div style="background:linear-gradient(135deg, rgba(91,63,165,0.06), rgba(107,193,122,0.06)); border:1.5px solid rgba(91,63,165,0.15); border-radius:14px; padding:18px 22px; margin:0 auto 20px; max-width:460px;">
+          <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+            <span style="font-size:20px;">📲</span>
+            <div>
+              <div style="font-weight:700; font-size:14px; color:var(--purpleDark);">Share on Your Website</div>
+              <div style="font-size:12px; color:var(--muted);">Let customers discover your perks online. Preview what they'll see, then copy the link to your website.</div>
+            </div>
+          </div>
+          <div id="join-link-display" style="background:rgba(0,0,0,0.04); border:1px solid var(--border); border-radius:8px; padding:8px 12px; font-size:12px; color:var(--muted); font-family:monospace; margin-bottom:12px; word-break:break-all; display:none;"></div>
+          <div style="display:flex; gap:10px;">
+            <button class="btn" id="joinPreviewBtn" style="background:var(--purpleLight); color:var(--purpleDark); font-size:13px; padding:9px 18px; flex:1;" onclick="previewJoinPage()">👁 Preview Page</button>
+            <button class="btn btn-purple" id="joinCopyBtn" style="font-size:13px; padding:9px 18px; flex:1;" onclick="copyJoinLink()">🔗 Copy Link</button>
+          </div>
+          <div id="joinCopyToast" style="display:none; margin-top:8px; font-size:12px; color:#16a34a; font-weight:600; text-align:center;">✓ Link copied to clipboard!</div>
+        </div>
         <button class="btn"
           style="background:#e2e8f0;color:#334155;padding:10px 20px;font-weight:600;border:1px solid #cbd5e1;"
           onclick="switchTab('redemption')">← Back to Dashboard</button>
@@ -2360,6 +2376,13 @@
           const d = json.data;
           const parts = [d.address, d.suite, d.city, d.state, d.postal_code].filter(Boolean);
           if (parts.length) localStorage.setItem('perkfinity_address', parts.join(', '));
+          // Cache QR public code for the join link
+          if (d.qr_public_code) {
+            localStorage.setItem('perkfinity_qr_public_code', d.qr_public_code);
+            const joinUrl = `https://perkfinity.net/join/${d.qr_public_code}`;
+            const linkEl = document.getElementById('join-link-display');
+            if (linkEl) { linkEl.innerText = joinUrl; linkEl.style.display = 'block'; }
+          }
           // Sync logo from server — this is the single source of truth
           if (d.logo_url) {
             localStorage.setItem('perkfinity_logo_url', d.logo_url);
@@ -3395,6 +3418,40 @@
       }
     }
 
+    // ── Join Page: Preview & Copy Link ─────────────────────────────
+    function getJoinUrl(forCopy) {
+      const code = localStorage.getItem('perkfinity_qr_public_code');
+      if (!code) return null;
+      if (forCopy) return `https://perkfinity.net/join/${code}`;
+      // For preview, use current host so it works locally
+      const base = window.location.origin;
+      return `${base}/join/index.html?code=${code}`;
+    }
+
+    function previewJoinPage() {
+      const url = getJoinUrl(false);
+      if (url) {
+        window.open(url, '_blank');
+      } else {
+        alert('QR code not found. Please reload the dashboard.');
+      }
+    }
+
+    function copyJoinLink() {
+      const url = getJoinUrl(true);
+      if (!url) { alert('QR code not found. Please reload the dashboard.'); return; }
+      navigator.clipboard.writeText(url).then(() => {
+        const toast = document.getElementById('joinCopyToast');
+        if (toast) {
+          toast.style.display = 'block';
+          setTimeout(() => { toast.style.display = 'none'; }, 2500);
+        }
+      }).catch(() => {
+        // Fallback for older browsers
+        prompt('Copy this link:', url);
+      });
+    }
+
     function generateSignFromDashboard() {
       // Switch tab visually to our new print view
       document.querySelectorAll('.empty-state, #tab-members, #tab-profile, #tab-print-sign, #tab-billing').forEach(el => el.style.display = 'none');
@@ -3440,6 +3497,15 @@
               colorLight: "#ffffff",
               correctLevel: QRCode.CorrectLevel.H
             });
+
+            // Populate the join link on this page
+            const publicCode = json.data.qr_public_code || qrUrl.split('/qr/').pop();
+            if (publicCode) {
+              localStorage.setItem('perkfinity_qr_public_code', publicCode);
+              const joinUrl = `https://perkfinity.net/join/${publicCode}`;
+              const linkEl = document.getElementById('join-link-display');
+              if (linkEl) { linkEl.innerText = joinUrl; linkEl.style.display = 'block'; }
+            }
 
             window.scrollTo({ top: 0, behavior: 'smooth' });
           } else {

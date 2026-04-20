@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Join Perkfinity — Exclusive Local Perks</title>
+  <meta name="description" content="Discover and unlock exclusive perks from your favorite local stores with Perkfinity.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="/assets/Perkfinity-App-Icon.png">
+  <script src="/config.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(160deg, #F3EFFF 0%, #EDE7FB 40%, #E8F5EC 100%);
+      color: #1E1B4B;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+    .page {
+      display: flex; flex-direction: column; align-items: center;
+      padding: 3rem 1.5rem 2rem; min-height: 100vh;
+    }
+    .content { width: 100%; max-width: 420px; display: flex; flex-direction: column; align-items: center; gap: 2rem; }
+
+    /* Header */
+    .header { text-align: center; width: 100%; }
+    .header img { height: 36px; object-fit: contain; margin-bottom: 0.75rem; }
+    .header p { font-size: 0.8rem; color: #6B6394; }
+
+    /* Buttons */
+    .download-btns { display: flex; flex-direction: column; gap: 0.75rem; width: 100%; max-width: 320px; }
+    .btn-appstore {
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      padding: 14px 24px; background: #1E1B4B; border-radius: 14px;
+      color: #fff; font-size: 0.95rem; font-weight: 700;
+      text-decoration: none; border: 1px solid rgba(30,27,75,0.15);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .btn-appstore:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(91,63,165,0.2); }
+    .btn-appstore svg { flex-shrink: 0; }
+
+    /* Divider */
+    .divider { display: flex; align-items: center; width: 100%; max-width: 320px; gap: 1rem; }
+    .divider-line { flex: 1; height: 1px; background: rgba(91,63,165,0.15); }
+    .divider-text { font-size: 0.75rem; color: #9B8DC7; white-space: nowrap; letter-spacing: 0.05em; }
+
+    /* Merchant card */
+    .merchant-card {
+      width: 100%; max-width: 320px; padding: 1.5rem;
+      background: #fff; border: 1px solid rgba(91,63,165,0.12);
+      border-radius: 20px; box-shadow: 0 4px 20px rgba(91,63,165,0.08);
+    }
+    .merchant-row { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
+    .merchant-logo {
+      width: 52px; height: 52px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden; flex-shrink: 0;
+    }
+    .merchant-logo.has-img { background: #fff; border: 2px solid rgba(91,63,165,0.15); }
+    .merchant-logo.no-img { background: linear-gradient(135deg, #8B5CF6, #6BC17A); }
+    .merchant-logo img { width: 100%; height: 100%; object-fit: contain; }
+    .merchant-logo .initial { color: #fff; font-size: 1.4rem; font-weight: 800; }
+    .merchant-name { font-weight: 700; font-size: 1.1rem; color: #1E1B4B; line-height: 1.2; }
+    .merchant-addr { font-size: 0.75rem; color: #6B6394; margin-top: 3px; }
+
+    /* Perk highlight */
+    .perk-box {
+      padding: 1rem 1.25rem;
+      background: linear-gradient(135deg, rgba(139,92,246,0.15), rgba(107,193,122,0.12));
+      border: 1px solid rgba(139,92,246,0.25);
+      border-radius: 14px;
+    }
+    .perk-label {
+      font-size: 0.7rem; font-weight: 700; color: #8B5CF6;
+      letter-spacing: 0.05em; margin-bottom: 0.4rem; text-transform: uppercase;
+    }
+    .perk-title { font-size: 1rem; font-weight: 700; color: #1E1B4B; line-height: 1.3; }
+
+    /* How it works */
+    .hiw-title { font-size: 0.95rem; font-weight: 700; color: #1E1B4B; margin-bottom: 1rem; text-align: center; }
+    .steps { display: flex; flex-direction: column; gap: 0.75rem; width: 100%; max-width: 320px; }
+    .step {
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 0.85rem 1rem;
+      background: #fff; border: 1px solid rgba(91,63,165,0.1);
+      border-radius: 14px;
+    }
+    .step-num {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(139,92,246,0.2); border: 1px solid rgba(139,92,246,0.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.85rem; font-weight: 800; color: #C4B5FD; flex-shrink: 0;
+    }
+    .step-title { font-weight: 700; font-size: 0.85rem; color: #1E1B4B; }
+    .step-desc { font-size: 0.75rem; color: #6B6394; margin-top: 2px; }
+
+    /* Note */
+    .note {
+      width: 100%; max-width: 320px; padding: 0.85rem 1rem;
+      background: rgba(107,193,122,0.1); border: 1px solid rgba(107,193,122,0.3);
+      border-radius: 12px; text-align: center;
+    }
+    .note p { font-size: 0.8rem; color: #16753A; line-height: 1.5; font-weight: 500; }
+
+    /* Footer */
+    .footer { text-align: center; padding-bottom: 2rem; }
+    .footer .powered { font-size: 0.7rem; color: #9B8DC7; margin-bottom: 0.5rem; }
+    .footer .powered strong { color: #5B3FA5; }
+    .footer .links { font-size: 0.65rem; color: #9B8DC7; }
+    .footer .links a { color: #7C6BAD; text-decoration: none; }
+    .footer .links .sep { margin: 0 6px; }
+
+    /* Loading / Error */
+    .center-msg { text-align: center; padding-top: 30vh; }
+    .center-msg .icon { font-size: 2.5rem; margin-bottom: 1rem; }
+    .center-msg h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .center-msg p { color: #6B6394; font-size: 0.9rem; line-height: 1.6; }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(1.08); }
+    }
+    .pulse { animation: pulse 1.5s ease-in-out infinite; }
+  </style>
+</head>
+<body>
+  <!-- Loading state (shown by default) -->
+  <div id="state-loading" class="page">
+    <div class="center-msg">
+      <div class="icon pulse">✨</div>
+      <p>Loading store details...</p>
+    </div>
+  </div>
+
+  <!-- Error state (hidden by default) -->
+  <div id="state-error" class="page" style="display:none;">
+    <div class="center-msg">
+      <div class="icon">😕</div>
+      <h2>Oops</h2>
+      <p id="error-msg">Store not found.</p>
+      <a href="https://apps.apple.com/us/app/perkfinity-privacy-first-perks/id6759945540"
+         class="btn-appstore" style="display:inline-flex; margin-top:1.5rem; max-width:280px;">
+        Get Perkfinity App
+      </a>
+    </div>
+  </div>
+
+  <!-- Main landing page (hidden by default) -->
+  <div id="state-ready" class="page" style="display:none;">
+    <div class="content">
+
+      <!-- Header -->
+      <div class="header">
+        <img src="/assets/Perkfinity-Logo.png" alt="Perkfinity">
+        <p>Exclusive perks from your neighborhood stores</p>
+      </div>
+
+      <!-- Download Buttons (TOP) -->
+      <div class="download-btns" id="btns-top"></div>
+
+      <!-- Divider -->
+      <div class="divider">
+        <div class="divider-line"></div>
+        <span class="divider-text">ABOUT THIS PERK</span>
+        <div class="divider-line"></div>
+      </div>
+
+      <!-- Merchant Card -->
+      <div class="merchant-card">
+        <div class="merchant-row">
+          <div class="merchant-logo" id="logo-container"></div>
+          <div>
+            <div class="merchant-name" id="store-name"></div>
+            <div class="merchant-addr" id="store-addr" style="display:none;"></div>
+          </div>
+        </div>
+        <div class="perk-box" id="perk-box" style="display:none;">
+          <div class="perk-label">🎁 Your Welcome Perk</div>
+          <div class="perk-title" id="perk-title"></div>
+        </div>
+      </div>
+
+      <!-- How It Works -->
+      <div class="steps" id="steps-section">
+        <div class="hiw-title">How It Works</div>
+      </div>
+
+      <!-- Note -->
+      <div class="note">
+        <p>💡 Scan the QR code at the store to activate your perk after downloading the app.</p>
+      </div>
+
+      <!-- Download Buttons (BOTTOM) -->
+      <div class="download-btns" id="btns-bottom"></div>
+
+      <!-- Footer -->
+      <div class="footer">
+        <p class="powered">Powered by <strong>Perkfinity</strong></p>
+        <p class="links">
+          <a href="https://perkfinity.net/terms-of-use.html" target="_blank" rel="noopener">Terms</a>
+          <span class="sep">·</span>
+          <a href="https://perkfinity.net/privacy-policy.html" target="_blank" rel="noopener">Privacy</a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const APP_STORE_URL = 'https://apps.apple.com/us/app/perkfinity-privacy-first-perks/id6759945540';
+  const API_BASE = PerkfinityConfig.BACKEND_URL;
+
+  // Extract public_code from URL: /join/ABC123 or /join/?code=ABC123
+  function getPublicCode() {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('code')) return params.get('code');
+    // Try path: /join/ABC123
+    const parts = window.location.pathname.replace(/\/+$/, '').split('/');
+    const last = parts[parts.length - 1];
+    if (last && last !== 'join') return last;
+    return null;
+  }
+
+
+  // Build download buttons HTML
+  function buildButtons() {
+    return `<a href="${APP_STORE_URL}" class="btn-appstore">
+      <svg viewBox="0 0 384 512" width="18" height="18" fill="currentColor">
+        <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.1-44.6-35.9-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/>
+      </svg>
+      Download on App Store
+    </a>
+    <a href="#" onclick="event.preventDefault(); alert('🤖 Google Play version is coming soon! Stay tuned.')" class="btn-appstore" style="background:rgba(91,63,165,0.08); color:#1E1B4B; border-color:rgba(91,63,165,0.15);">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" style="flex-shrink:0;">
+        <path d="M3.609 1.814L13.792 12 3.61 22.186a.996.996 0 0 1-.61-.92V2.734a1 1 0 0 1 .609-.92zm10.89 10.893l2.302 2.302-10.937 6.333 8.635-8.635zm3.199-3.199l2.302 2.302c.612.357.612 1.023 0 1.38l-2.302 2.302-2.533-2.992 2.533-2.992zM5.864 2.658L16.8 8.99l-2.302 2.302L5.864 2.658z"/>
+      </svg>
+      Get it on Google Play
+    </a>`;
+  }
+
+  async function init() {
+    const code = getPublicCode();
+    if (!code) {
+      showError('Invalid link — no store code found.');
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/qr/resolve/${code}`);
+      const json = await res.json();
+
+      if (!json.success || !json.data) {
+        showError(json.error || 'Store not found or inactive.');
+        return;
+      }
+
+      const { merchant, location, campaigns } = json.data;
+
+      // Store name
+      document.getElementById('store-name').textContent = merchant.business_name;
+
+      // Logo
+      const logoEl = document.getElementById('logo-container');
+      if (merchant.logo_url) {
+        logoEl.classList.add('has-img');
+        logoEl.innerHTML = `<img src="${merchant.logo_url}" alt="${merchant.business_name}">`;
+      } else {
+        logoEl.classList.add('no-img');
+        const initial = (merchant.business_name || '?').charAt(0).toUpperCase();
+        logoEl.innerHTML = `<span class="initial">${initial}</span>`;
+      }
+
+      // Address
+      if (location) {
+        const parts = [location.address, location.city, location.state, location.postal_code].filter(Boolean);
+        if (parts.length) {
+          const addrEl = document.getElementById('store-addr');
+          addrEl.textContent = '📍 ' + parts.join(', ');
+          addrEl.style.display = 'block';
+        }
+      }
+
+      // Welcome perk
+      if (campaigns && campaigns.length) {
+        const activePerk = campaigns.find(c =>
+          (c.status === 'active' || c.status === 'created') &&
+          (c.discount_percentage === undefined || c.discount_percentage >= 0)
+        );
+        if (activePerk) {
+          document.getElementById('perk-title').textContent = activePerk.title;
+          document.getElementById('perk-box').style.display = 'block';
+        }
+      }
+
+      // How It Works steps
+      const storeName = merchant.business_name || 'the store';
+      const stepsContainer = document.getElementById('steps-section');
+      const steps = [
+        { num: '1', icon: '📱', title: 'Download Perkfinity', desc: 'Free — no cards, no tracking' },
+        { num: '2', icon: '🏪', title: `Visit ${storeName}`, desc: 'Look for the Perkfinity QR code' },
+        { num: '3', icon: '📷', title: 'Scan & unlock your perk', desc: 'Show it at checkout — done!' },
+      ];
+      steps.forEach(s => {
+        const div = document.createElement('div');
+        div.className = 'step';
+        div.innerHTML = `
+          <div class="step-num">${s.num}</div>
+          <div>
+            <div class="step-title">${s.icon} ${s.title}</div>
+            <div class="step-desc">${s.desc}</div>
+          </div>`;
+        stepsContainer.appendChild(div);
+      });
+
+      // Download buttons (top + bottom)
+      const btnsHtml = buildButtons();
+      document.getElementById('btns-top').innerHTML = btnsHtml;
+      document.getElementById('btns-bottom').innerHTML = btnsHtml;
+
+      // Update page title
+      document.title = `Join ${merchant.business_name} on Perkfinity`;
+
+      // Show ready state
+      document.getElementById('state-loading').style.display = 'none';
+      document.getElementById('state-ready').style.display = 'flex';
+
+    } catch (err) {
+      showError('Unable to load store details. Please try again later.');
+    }
+  }
+
+  function showError(msg) {
+    document.getElementById('error-msg').textContent = msg;
+    document.getElementById('state-loading').style.display = 'none';
+    document.getElementById('state-error').style.display = 'flex';
+  }
+
+  init();
+</script>
+</body>
+</html>
