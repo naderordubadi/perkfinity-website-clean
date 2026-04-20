@@ -284,13 +284,10 @@
 
       // Welcome perk
       if (campaigns && campaigns.length) {
-        // Filter to active campaigns, then pick the oldest (welcome offer created at signup).
-        // The API returns newest-first for unauthenticated users, so we pick the last match.
-        const activeCampaigns = campaigns.filter(c =>
-          (c.status === 'active' || c.status === 'created') &&
-          (c.discount_percentage === undefined || c.discount_percentage >= 0)
-        );
-        const welcomePerk = activeCampaigns.length ? activeCampaigns[activeCampaigns.length - 1] : null;
+        // Find the welcome offer — it has campaign_type='perk' (set at merchant signup).
+        // Targeted promotions have campaign_type='announcement' or other values.
+        const welcomePerk = campaigns.find(c => c.campaign_type === 'perk' && c.status === 'active')
+          || campaigns.find(c => (c.status === 'active' || c.status === 'created') && c.discount_percentage >= 0);
         if (welcomePerk) {
           document.getElementById('perk-title').textContent = welcomePerk.title;
           document.getElementById('perk-box').style.display = 'block';
