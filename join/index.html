@@ -284,12 +284,15 @@
 
       // Welcome perk
       if (campaigns && campaigns.length) {
-        const activePerk = campaigns.find(c =>
+        // Filter to active campaigns, then pick the oldest (welcome offer created at signup).
+        // The API returns newest-first for unauthenticated users, so we pick the last match.
+        const activeCampaigns = campaigns.filter(c =>
           (c.status === 'active' || c.status === 'created') &&
           (c.discount_percentage === undefined || c.discount_percentage >= 0)
         );
-        if (activePerk) {
-          document.getElementById('perk-title').textContent = activePerk.title;
+        const welcomePerk = activeCampaigns.length ? activeCampaigns[activeCampaigns.length - 1] : null;
+        if (welcomePerk) {
+          document.getElementById('perk-title').textContent = welcomePerk.title;
           document.getElementById('perk-box').style.display = 'block';
         }
       }
