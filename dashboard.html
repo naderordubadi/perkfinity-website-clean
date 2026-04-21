@@ -2086,8 +2086,33 @@
           <button class="btn"
             style="background:var(--purpleLight);color:var(--purpleDark);padding:8px 16px;font-size:13px;"
             onclick="document.getElementById('profileLogoUpload').click()">Replace Logo</button>
-          <button class="btn btn-purple" style="padding:8px 20px;font-size:13px;margin-left:8px;"
-            onclick="updateProfile()">💾 Save Changes</button>
+          <button id="profileDeleteLogoBtn" class="btn" style="background:#fee2e2;color:#b91c1c;padding:8px 16px;font-size:13px;margin-left:8px;display:none;"
+            onclick="deleteProfileLogo()">🗑️ Delete Logo</button>
+          <button class="btn btn-purple" id="dashboardSaveBtn" style="padding:8px 20px;font-size:13px;margin-left:8px;"
+            onclick="updateProfile()">&#x1F4BE; Save Changes</button>
+
+          <!-- QR Preview + Wide Logo Warning (dashboard) -->
+          <div id="dashboardQrPreviewBlock" style="display:none; margin-top:20px; text-align:center;">
+            <p style="font-size:13px; font-weight:700; color:var(--purpleDark); margin:0 0 10px;">How your logo appears in the QR code:</p>
+            <div style="position:relative; display:inline-block; padding:10px; background:#fff; border-radius:14px; border:2px solid var(--purpleLight); box-shadow:0 2px 8px rgba(91,63,165,0.1);">
+              <div id="dashboardQrMini" style="width:120px; height:120px;"></div>
+              <img id="dashboardQrLogoOverlay" src="" alt="logo preview" style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:28px; height:28px; border-radius:6px; object-fit:contain; background:#fff; padding:2px; box-shadow:0 1px 4px rgba(0,0,0,0.15);">
+            </div>
+            <div id="dashboardLogoWarning" style="display:none; margin-top:14px; padding:14px 16px; background:#fffbeb; border:1.5px solid #f59e0b; border-radius:12px; text-align:left;">
+              <div style="display:flex; align-items:flex-start; gap:10px; margin-bottom:12px;">
+                <span style="font-size:20px; flex-shrink:0; margin-top:1px;">⚠️</span>
+                <div>
+                  <div style="font-weight:700; font-size:14px; color:#92400e; margin-bottom:5px;">Your logo may not fit perfectly in the QR code center.</div>
+                  <div style="font-size:13px; color:#78350f; line-height:1.55;">Your logo is significantly wider than it is tall. It may appear cropped or squeezed in the QR code center. <strong>Your logo will still display normally in all other parts of the app and website.</strong></div>
+                </div>
+              </div>
+              <label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-size:13px; color:#78350f; font-weight:600;">
+                <input type="checkbox" id="dashboardLogoWarningAccepted" style="width:16px; height:16px; accent-color:#f59e0b; cursor:pointer;"
+                  onchange="['dashboardSaveBtn','btnSaveProfile'].forEach(id=>{const b=document.getElementById(id);b.disabled=!this.checked;b.style.opacity=this.checked?'':'0.5';b.style.cursor=this.checked?'':'not-allowed';});">
+                I understand and want to continue with this logo
+              </label>
+            </div>
+          </div>
         </div>
 
         <h4 style="margin:0 0 15px;color:var(--ink);border-bottom:1px solid var(--border);padding-bottom:10px;">
@@ -2344,6 +2369,13 @@
         window.location.href = 'login.html';
         return;
       }
+
+      // Secondary gate: if payment setup was never completed, redirect to resume flow
+      if (localStorage.getItem('perkfinity_setup_incomplete') === 'true') {
+        window.location.href = 'signup.html?resume=true';
+        return;
+      }
+
       apiToken = token;
       merchantId = localStorage.getItem('perkfinity_merchant_id');
 
@@ -2374,22 +2406,34 @@
       }).then(r => r.json()).then(json => {
         if (json.success && json.data) {
           const d = json.data;
+
+          // Gate: redirect to resume flow if payment was never completed
+          const setupIncomplete = (
+            !d.stripe_payment_method_id &&
+            d.subscription_tier !== 'free_for_life' &&
+            d.billing_status !== 'cancelled' &&
+            d.billing_status !== 'deleted'
+          );
+          if (setupIncomplete) {
+            localStorage.setItem('perkfinity_setup_incomplete', 'true');
+            window.location.href = 'signup.html?resume=true';
+            return;
+          }
+          localStorage.removeItem('perkfinity_setup_incomplete');
+
           const parts = [d.address, d.suite, d.city, d.state, d.postal_code].filter(Boolean);
           if (parts.length) localStorage.setItem('perkfinity_address', parts.join(', '));
-          // Cache QR public code for the join link
           if (d.qr_public_code) {
             localStorage.setItem('perkfinity_qr_public_code', d.qr_public_code);
             const joinUrl = `https://perkfinity.net/join/${d.qr_public_code}`;
             const linkEl = document.getElementById('join-link-display');
             if (linkEl) { linkEl.innerText = joinUrl; linkEl.style.display = 'block'; }
           }
-          // Sync logo from server — this is the single source of truth
           if (d.logo_url) {
             localStorage.setItem('perkfinity_logo_url', d.logo_url);
           } else {
             localStorage.removeItem('perkfinity_logo_url');
           }
-          // Update welcome header logo after sync
           const h1 = document.getElementById('welcomeTitle');
           const existingImg = h1.querySelector('img');
           if (d.logo_url && !existingImg) {
@@ -2992,15 +3036,33 @@
         document.getElementById('profileNewPassword').value = '';
         uploadedProfileLogoBase64 = null;
 
+        // Reset all unsaved logo UI state
+        document.getElementById('dashboardQrPreviewBlock').style.display = 'none';
+        document.getElementById('dashboardLogoWarning').style.display = 'none';
+        const logoWarningCb = document.getElementById('dashboardLogoWarningAccepted');
+        if (logoWarningCb) logoWarningCb.checked = false;
+        ['dashboardSaveBtn', 'btnSaveProfile'].forEach(id => {
+          const b = document.getElementById(id);
+          if (!b) return;
+          b.disabled = false;
+          b.style.opacity = '';
+          b.style.cursor = '';
+        });
+        // Clear the file input so selecting the same file re-triggers onchange
+        const fileInput = document.getElementById('profileLogoUpload');
+        if (fileInput) fileInput.value = '';
+
         const currentLogoUrl = localStorage.getItem('perkfinity_logo_url');
         if (currentLogoUrl) {
           document.getElementById('profileLogoPreview').src = currentLogoUrl;
           document.getElementById('profileLogoPreview').style.display = 'block';
           document.getElementById('profileLogoPlaceholder').style.display = 'none';
+          document.getElementById('profileDeleteLogoBtn').style.display = 'inline-block';
         } else {
           document.getElementById('profileLogoPlaceholder').innerHTML = '<span style="font-size:14px;color:var(--muted);text-align:center;">No logo<br>uploaded</span>';
           document.getElementById('profileLogoPreview').style.display = 'none';
           document.getElementById('profileLogoPlaceholder').style.display = 'flex';
+          document.getElementById('profileDeleteLogoBtn').style.display = 'none';
         }
 
         // Fetch current profile data to populate fields
@@ -3029,6 +3091,7 @@
                   document.getElementById('profileLogoPreview').src = json.data.logo_url;
                   document.getElementById('profileLogoPreview').style.display = 'block';
                   document.getElementById('profileLogoPlaceholder').style.display = 'none';
+                  document.getElementById('profileDeleteLogoBtn').style.display = 'inline-block';
                 } else {
                   localStorage.removeItem('perkfinity_logo_url');
                   document.getElementById('profileLogoPlaceholder').innerHTML = '<span style="font-size:14px;color:var(--muted);text-align:center;">No logo<br>uploaded</span>';
@@ -3480,11 +3543,20 @@
             if (serverLogo) {
               printLogoEl.src = serverLogo;
             } else {
-              // No logo: show store initial instead of Perkfinity icon
+              // No logo: render store initial on a canvas and use as img src
               const initial = (businessName || '?').charAt(0).toUpperCase();
-              printLogoEl.style.display = 'none';
-              const container = printLogoEl.parentElement;
-              container.innerHTML = `<div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#5b3fa5,#7c5cbf);color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;">${initial}</div>`;
+              const canvas = document.createElement('canvas');
+              canvas.width = 48; canvas.height = 48;
+              const ctx = canvas.getContext('2d');
+              ctx.fillStyle = '#5b3fa5';
+              ctx.fillRect(0, 0, 48, 48);
+              ctx.fillStyle = '#ffffff';
+              ctx.font = 'bold 26px sans-serif';
+              ctx.textAlign = 'center';
+              ctx.textBaseline = 'middle';
+              ctx.fillText(initial, 24, 24);
+              printLogoEl.src = canvas.toDataURL();
+              printLogoEl.style.display = 'block';
             }
 
             // Generate the physical QR Code
@@ -3760,6 +3832,85 @@
         };
         reader.readAsDataURL(file);
       }
+
+      // QR preview + wide logo check
+      const img = new Image();
+      img.onload = function () {
+        const isWide = img.naturalWidth > img.naturalHeight * 1.5;
+
+        // Show QR preview block
+        document.getElementById('dashboardQrPreviewBlock').style.display = 'block';
+        document.getElementById('dashboardQrLogoOverlay').src = uploadedProfileLogoBase64;
+
+        // Re-render mini QR using stored join URL if available
+        const publicCode = localStorage.getItem('perkfinity_qr_public_code');
+        const qrText = publicCode ? `https://perkfinity.net/join/${publicCode}` : 'https://app.perkfinity.net';
+        const qrContainer = document.getElementById('dashboardQrMini');
+        qrContainer.innerHTML = '';
+        new QRCode(qrContainer, {
+          text: qrText,
+          width: 120,
+          height: 120,
+          correctLevel: QRCode.CorrectLevel.H
+        });
+
+        // Show or hide warning and gate both Save Changes buttons
+        const warningEl = document.getElementById('dashboardLogoWarning');
+        warningEl.style.display = isWide ? 'block' : 'none';
+        warningEl.style.border = '1.5px solid #f59e0b'; // reset border
+        document.getElementById('dashboardLogoWarningAccepted').checked = false;
+        ['dashboardSaveBtn', 'btnSaveProfile'].forEach(id => {
+          const b = document.getElementById(id);
+          if (!b) return;
+          b.disabled = isWide;
+          b.style.opacity = isWide ? '0.5' : '';
+          b.style.cursor = isWide ? 'not-allowed' : '';
+        });
+      };
+      img.src = uploadedProfileLogoBase64;
+    }
+
+    async function deleteProfileLogo() {
+      if (!confirm('Remove your logo? The QR code center will show your store initials instead.')) return;
+
+      const merchantId = localStorage.getItem('perkfinity_merchant_id');
+      const apiToken = localStorage.getItem('perkfinity_token');
+      if (!merchantId || !apiToken) { alert('Session error. Please reload.'); return; }
+
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/v1/merchants/${merchantId}/logo`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiToken}` },
+          body: JSON.stringify({ logo_url: null })
+        });
+        const json = await res.json();
+        if (!res.ok || !json.success) {
+          alert('Failed to remove logo. Please try again.');
+          return;
+        }
+      } catch (e) {
+        alert('Network error. Please try again.');
+        return;
+      }
+
+      // Clear state
+      localStorage.removeItem('perkfinity_logo_url');
+      uploadedProfileLogoBase64 = null;
+
+      // Reset profile UI
+      document.getElementById('profileLogoPreview').style.display = 'none';
+      document.getElementById('profileLogoPreview').src = '';
+      document.getElementById('profileLogoPlaceholder').innerHTML = '<span style="font-size:14px;color:var(--muted);text-align:center;">No logo<br>uploaded</span>';
+      document.getElementById('profileLogoPlaceholder').style.display = 'flex';
+      document.getElementById('profileDeleteLogoBtn').style.display = 'none';
+
+      // Hide QR preview block
+      document.getElementById('dashboardQrPreviewBlock').style.display = 'none';
+
+      // Remove logo from welcome header
+      const h1 = document.getElementById('welcomeTitle');
+      const existingImg = h1 ? h1.querySelector('img') : null;
+      if (existingImg) existingImg.remove();
     }
 
     function showProfileDeleteWarning() {
@@ -3869,6 +4020,15 @@
 
           // Upload logo if one was selected
           if (uploadedProfileLogoBase64) {
+            // Guard: wide logo warning requires acknowledgement before saving
+            const warningEl = document.getElementById('dashboardLogoWarning');
+            if (warningEl && warningEl.style.display !== 'none' && !document.getElementById('dashboardLogoWarningAccepted').checked) {
+              warningEl.style.border = '1.5px solid #dc2626';
+              warningEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              msgLabel.style.color = 'orange';
+              msgLabel.innerText = 'Please confirm you understand the QR display limitation before saving the logo.';
+              return;
+            }
             try {
               const logoRes = await fetch(`${BACKEND_URL}/api/v1/merchants/${merchantId}/logo`, {
                 method: 'POST',

@@ -197,8 +197,15 @@
           } else {
             localStorage.removeItem('perkfinity_logo_url');
           }
-          
-          window.location.href = 'dashboard.html';
+
+          if (data.data.setup_incomplete) {
+            // Account created but payment info was never saved — resume signup flow
+            localStorage.setItem('perkfinity_setup_incomplete', 'true');
+            window.location.href = 'signup.html?resume=true';
+          } else {
+            localStorage.removeItem('perkfinity_setup_incomplete');
+            window.location.href = 'dashboard.html';
+          }
         } else {
           throw new Error(data.message || 'Invalid email or password');
         }
