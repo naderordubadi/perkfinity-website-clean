@@ -2407,12 +2407,12 @@
         if (json.success && json.data) {
           const d = json.data;
 
-          // Gate: redirect to resume flow if payment was never completed
+          // Gate: only block if BOTH billing_status AND stripe_payment_method_id are null
+          // Tier 1 active => billing_status='active' (passes), Old trial with card => stripe_payment_method_id set (passes)
           const setupIncomplete = (
+            !d.billing_status &&
             !d.stripe_payment_method_id &&
-            d.subscription_tier !== 'free_for_life' &&
-            d.billing_status !== 'cancelled' &&
-            d.billing_status !== 'deleted'
+            d.subscription_tier !== 'free_for_life'
           );
           if (setupIncomplete) {
             localStorage.setItem('perkfinity_setup_incomplete', 'true');
