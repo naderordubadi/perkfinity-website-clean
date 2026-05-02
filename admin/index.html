@@ -135,6 +135,7 @@
     .badge.free { background:rgba(255,255,255,0.08); color:var(--muted); }
     .badge.tier1 { background:rgba(139,92,246,0.15); color:var(--purple); }
     .badge.deleted { background:rgba(239,68,68,0.12); color:#ef4444; text-decoration:line-through; }
+    .badge.scheduled { background:rgba(56,189,248,0.15); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); }
 
     /* Badge for Free For Life */
     .badge.ffl { background:rgba(107,193,122,0.12); color:#1a6b2b; }
@@ -332,6 +333,34 @@
     .ann-attach-item button {
       background:none; border:none; color:var(--red); cursor:pointer; font-size:16px; padding:0 4px;
     }
+
+    /* ── Tag Picker (multi-select) ── */
+    .tag-picker { position:relative; }
+    .tag-picker-btn {
+      padding:8px 12px; background:rgba(255,255,255,0.06); border:1px solid var(--border);
+      border-radius:10px; color:var(--muted); font-size:13px; font-family:'Outfit',sans-serif;
+      outline:none; cursor:pointer; display:flex; align-items:center; gap:6px; white-space:nowrap;
+      transition:all 0.2s;
+    }
+    .tag-picker-btn:hover { background:rgba(255,255,255,0.1); color:#fff; }
+    .tag-picker-btn.has-selection { border-color:rgba(139,92,246,0.5); color:var(--purple); }
+    .tag-picker-btn .tp-arrow { font-size:9px; opacity:0.6; }
+    .tag-picker-panel {
+      position:absolute; top:calc(100% + 6px); left:0; z-index:500;
+      background:#1E293B; border:1px solid var(--borderLight); border-radius:10px;
+      padding:6px; min-width:180px; max-height:240px; overflow-y:auto;
+      display:none; flex-direction:column; gap:1px;
+      box-shadow:0 8px 24px rgba(0,0,0,0.4);
+    }
+    .tag-picker-panel.open { display:flex; }
+    .tag-picker-item {
+      display:flex; align-items:center; gap:8px; padding:7px 10px; border-radius:7px;
+      cursor:pointer; font-size:13px; color:rgba(255,255,255,0.75); transition:background 0.12s;
+      user-select:none;
+    }
+    .tag-picker-item:hover { background:rgba(255,255,255,0.06); color:#fff; }
+    .tag-picker-item.checked { color:#fff; background:rgba(139,92,246,0.1); }
+    .tag-picker-item input[type=checkbox] { accent-color:var(--purple); width:14px; height:14px; cursor:pointer; flex-shrink:0; }
   </style>
   <script src="/config.js"></script>
 </head>
@@ -382,7 +411,10 @@
 
       <div class="nav-section">Communicate</div>
       <div class="nav-item" onclick="showTab('announcements')">
-        <span class="icon">📢</span> Announcements
+        <span class="icon">📢</span> Compose
+      </div>
+      <div class="nav-item" onclick="showTab('ann-history')">
+        <span class="icon">📋</span> History
       </div>
 
       <div class="nav-section">Tools</div>
@@ -401,7 +433,7 @@
     </nav>
 
     <!-- Merchant Detail Overlay -->
-    <div id="merchant-detail-overlay" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:999;justify-content:center;align-items:center;">
+    <div id="merchant-detail-overlay" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:10000;justify-content:center;align-items:center;">
       <div style="width:720px;max-height:90vh;overflow-y:auto;background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.3);padding:0;position:relative;">
         <div style="position:sticky;top:0;background:#fff;padding:20px 28px 12px;border-bottom:1px solid #e2e8f0;border-radius:16px 16px 0 0;display:flex;justify-content:space-between;align-items:center;z-index:2;">
           <div style="font-size:20px;font-weight:800;color:#1a1a2e;" id="detail-title">Merchant Details</div>
@@ -510,9 +542,9 @@
           <select class="toolbar-select" id="merchant-filter-status" onchange="filterTable('merchants')">
             <option value="">All Status</option>
             <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-            <option value="pending">Pending</option>
-            <option value="cancelled">Cancelled</option>
+            <option value="blocked">Blocked</option>
+            <option value="pending_cancellation">Pending Cancel</option>
+            <option value="payment_failed">Payment Failed</option>
             <option value="deleted">Deleted</option>
           </select>
           <select class="toolbar-select" id="merchant-filter-tier" onchange="filterTable('merchants')">
@@ -520,6 +552,18 @@
             <option value="free">Free Trial</option>
             <option value="free_for_life">Free For Life</option>
             <option value="tier1">Tier 1</option>
+          </select>
+          <select class="toolbar-select" id="merchant-filter-presence" onchange="filterTable('merchants')">
+            <option value="">All Presence</option>
+            <option value="physical">📍 Local</option>
+            <option value="mobile">🚐 Mobile</option>
+            <option value="online">🌐 Online</option>
+          </select>
+          <select class="toolbar-select" id="merchant-filter-joined" onchange="filterTable('merchants')">
+            <option value="">All Time</option>
+            <option value="7">Last 7 Days</option>
+            <option value="30">Last 30 Days</option>
+            <option value="90">Last 90 Days</option>
           </select>
           <div style="flex:1;"></div>
           <button class="toolbar-btn green" onclick="exportData('merchants','csv')">📄 CSV</button>
@@ -541,7 +585,7 @@
                 <th onclick="sortTable('merchants','business_name')">Business <span class="sort-arrow">▲</span></th>
                 <th onclick="sortTable('merchants','location_city')">City <span class="sort-arrow">▲</span></th>
                 <th onclick="sortTable('merchants','location_zip')">Zip <span class="sort-arrow">▲</span></th>
-                <th onclick="sortTable('merchants','pos_system')">POS <span class="sort-arrow">▲</span></th>
+                <th onclick="sortTable('merchants','business_presence')">Presence <span class="sort-arrow">▲</span></th>
                 <th onclick="sortTable('merchants','tier')">Tier <span class="sort-arrow">▲</span></th>
                 <th onclick="sortTable('merchants','billing_status')">Status <span class="sort-arrow">▲</span></th>
                 <th onclick="sortTable('merchants','member_count')">Members <span class="sort-arrow">▲</span></th>
@@ -568,15 +612,41 @@
           </div>
         </div>
 
-        <div class="toolbar">
-          <input type="text" class="toolbar-search" id="member-search" placeholder="Search by name, email, city..." oninput="filterTable('members')"/>
+        <div class="toolbar" style="flex-wrap:wrap;row-gap:8px;">
+          <input type="text" class="toolbar-search" id="member-search" placeholder="Search name, email, city, zip..." oninput="filterTable('members')" style="min-width:200px;"/>
           <select class="toolbar-select" id="member-filter-push" onchange="filterTable('members')">
             <option value="">All Members</option>
             <option value="push">Push Enabled</option>
             <option value="nopush">No Push</option>
           </select>
-          <select class="toolbar-select" id="member-filter-city" onchange="filterTable('members')">
-            <option value="">All Cities</option>
+          <select class="toolbar-select" id="member-filter-platform" onchange="filterTable('members')">
+            <option value="">All Platforms</option>
+            <option value="ios">🍎 iOS</option>
+            <option value="android">🤖 Android</option>
+            <option value="web">🌐 Web</option>
+          </select>
+          <div class="tag-picker">
+            <button class="tag-picker-btn" id="member-filter-city-btn" data-label="Cities" onclick="event.stopPropagation();tagPickerToggle('member-filter-city')">
+              <span class="tp-label">Cities</span><span class="tp-arrow">▾</span>
+            </button>
+            <div class="tag-picker-panel" id="member-filter-city-panel"></div>
+          </div>
+          <div class="tag-picker">
+            <button class="tag-picker-btn" id="member-filter-zip-btn" data-label="ZIP Codes" onclick="event.stopPropagation();tagPickerToggle('member-filter-zip')">
+              <span class="tp-label">ZIP Codes</span><span class="tp-arrow">▾</span>
+            </button>
+            <div class="tag-picker-panel" id="member-filter-zip-panel"></div>
+          </div>
+          <select class="toolbar-select" id="member-filter-redeemed" onchange="filterTable('members')">
+            <option value="">Any Activity</option>
+            <option value="yes">Has Redeemed/Claimed</option>
+            <option value="never">Never Redeemed</option>
+          </select>
+          <select class="toolbar-select" id="member-filter-joined" onchange="filterTable('members')">
+            <option value="">All Time</option>
+            <option value="7">Last 7 Days</option>
+            <option value="30">Last 30 Days</option>
+            <option value="90">Last 90 Days</option>
           </select>
           <div style="flex:1;"></div>
           <button class="toolbar-btn green" onclick="exportData('members','csv')">📄 CSV</button>
@@ -594,7 +664,7 @@
                 <th onclick="sortTable('members','device_platform')">Platform <span class="sort-arrow">▲</span></th>
                 <th onclick="sortTable('members','merchant_count')">Merchants <span class="sort-arrow">▲</span></th>
                 <th onclick="sortTable('members','merchants_30d')">Joined 30d <span class="sort-arrow">▲</span></th>
-                <th onclick="sortTable('members','redeemed_30d')">Redeemed 30d <span class="sort-arrow">▲</span></th>
+                <th onclick="sortTable('members','redeemed_30d')">Redeemed/Claimed 30d <span class="sort-arrow">▲</span></th>
                 <th onclick="sortTable('members','created_at')">Joined <span class="sort-arrow">▲</span></th>
               </tr>
             </thead>
@@ -628,7 +698,7 @@
           </div>
           <div class="stat-card">
             <div class="stat-value amber" id="camp-redemptions">—</div>
-            <div class="stat-label">Total Redemptions</div>
+            <div class="stat-label">Total Redeemed/Claimed</div>
           </div>
           <div class="stat-card">
             <div class="stat-value green" id="camp-rate">—%</div>
@@ -636,13 +706,40 @@
           </div>
         </div>
 
-        <div class="toolbar">
-          <input type="text" class="toolbar-search" id="campaign-search" placeholder="Search by title, merchant..." oninput="filterTable('campaigns')"/>
+        <div class="toolbar" style="flex-wrap:wrap;row-gap:8px;">
+          <input type="text" class="toolbar-search" id="campaign-search" placeholder="Search by title, merchant..." oninput="filterTable('campaigns')" style="min-width:200px;"/>
           <select class="toolbar-select" id="campaign-filter-status" onchange="filterTable('campaigns')">
             <option value="">All Status</option>
             <option value="active">Active</option>
             <option value="expired">Expired</option>
             <option value="draft">Draft</option>
+          </select>
+          <select class="toolbar-select" id="campaign-filter-type" onchange="filterTable('campaigns')">
+            <option value="">All Types</option>
+            <option value="initial">Initial (Welcome)</option>
+            <option value="perk">Perk</option>
+            <option value="percent">% Off</option>
+            <option value="dollar">$ Off</option>
+            <option value="bogo">BOGO</option>
+            <option value="freeitem">Free Item</option>
+            <option value="loyalty">Loyalty</option>
+            <option value="flash">Flash Sale</option>
+            <option value="announcement">Announcement</option>
+            <option value="custom">Custom</option>
+          </select>
+          <select class="toolbar-select" id="campaign-filter-promo" onchange="filterTable('campaigns')">
+            <option value="">All Campaigns</option>
+            <option value="yes">Has Promo Code</option>
+            <option value="no">No Promo Code</option>
+          </select>
+          <select class="toolbar-select" id="campaign-filter-merchant" onchange="filterTable('campaigns')">
+            <option value="">All Merchants</option>
+          </select>
+          <select class="toolbar-select" id="campaign-filter-created" onchange="filterTable('campaigns')">
+            <option value="">All Time</option>
+            <option value="30">Last 30 Days</option>
+            <option value="90">Last 90 Days</option>
+            <option value="365">Last 12 Months</option>
           </select>
           <div style="flex:1;"></div>
           <button class="toolbar-btn green" onclick="exportData('campaigns','csv')">📄 CSV</button>
@@ -657,7 +754,7 @@
                 <th onclick="sortTable('campaigns','campaign_type')">Type <span class="sort-arrow">▲</span></th>
                 <th onclick="sortTable('campaigns','merchant_name')">Merchant <span class="sort-arrow">▲</span></th>
                 <th onclick="sortTable('campaigns','status')">Status <span class="sort-arrow">▲</span></th>
-                <th onclick="sortTable('campaigns','redemption_count')">Redeemed <span class="sort-arrow">▲</span></th>
+                <th onclick="sortTable('campaigns','redemption_count')">Redeemed/Claimed <span class="sort-arrow">▲</span></th>
                 <th onclick="sortTable('campaigns','expired_count')">Expired <span class="sort-arrow">▲</span></th>
                 <th onclick="sortTable('campaigns','total_sent')">Total <span class="sort-arrow">▲</span></th>
                 <th onclick="sortTable('campaigns','created_at')">Created <span class="sort-arrow">▲</span></th>
@@ -683,11 +780,16 @@
           </div>
         </div>
 
-        <div class="stat-grid" style="grid-template-columns:repeat(6,1fr);">
+        <div class="stat-grid" style="grid-template-columns:repeat(7,1fr);">
           <div class="stat-card">
             <div class="stat-value green" id="bill-mrr">$0</div>
             <div class="stat-label">Monthly Recurring Revenue</div>
             <div style="font-size:10px;color:var(--muted);margin-top:2px;">Pending cancel deducted</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" style="color:#22c55e;" id="bill-total-revenue">$0</div>
+            <div class="stat-label">Total Revenue</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px;">All paid invoices</div>
           </div>
           <div class="stat-card">
             <div class="stat-value purple" id="bill-paying">0</div>
@@ -702,17 +804,20 @@
             <div class="stat-value" style="color:#a78bfa;" id="bill-ffl">0</div>
             <div class="stat-label">Free For Life</div>
           </div>
-          <div class="stat-card">
+          <div class="stat-card" style="cursor:pointer;transition:background 0.2s;" onclick="billQuickFilter('pending_cancellation')" title="Click to filter">
             <div class="stat-value amber" id="bill-pending">0</div>
             <div class="stat-label">Pending Cancel</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px;">Click to filter ↓</div>
           </div>
-          <div class="stat-card">
+          <div class="stat-card" style="cursor:pointer;transition:background 0.2s;" onclick="billQuickFilter('failed')" title="Click to filter">
             <div class="stat-value red" id="bill-failed">0</div>
             <div class="stat-label">Failed Payments</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px;">Click to filter ↓</div>
           </div>
         </div>
 
         <div class="toolbar">
+          <input type="text" class="toolbar-search" id="billing-search" placeholder="Search by merchant name..." oninput="filterTable('billing')" style="min-width:200px;"/>
           <select class="toolbar-select" id="billing-filter-period" onchange="filterTable('billing')">
             <option value="all">All Time</option>
             <option value="30">Last 30 Days</option>
@@ -722,8 +827,9 @@
           <select class="toolbar-select" id="billing-filter-status" onchange="filterTable('billing')">
             <option value="">All Status</option>
             <option value="paid">Paid</option>
-            <option value="pending">Pending</option>
             <option value="failed">Failed</option>
+            <option value="pending_cancellation">Pending Cancel</option>
+            <option value="deleted">Deleted</option>
           </select>
           <div style="flex:1;"></div>
           <button class="toolbar-btn green" onclick="exportData('billing','csv')">📄 CSV</button>
@@ -819,44 +925,91 @@
             </div>
 
             <!-- Filters Row -->
-            <div id="ann-filters" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:12px;">
-              <div class="form-group" style="margin-bottom:0">
-                <label class="form-label" style="font-size:12px">City</label>
-                <select class="form-input" id="ann-city" onchange="annPreview()" style="font-size:13px;padding:8px 10px;">
-                  <option value="">All Cities</option>
-                </select>
+            <div id="ann-filters" style="margin-top:12px;">
+
+              <!-- Shared: City, ZIP, Joined — visible for merchants / members / both -->
+              <div id="ann-group-shared" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:10px;">
+                <div class="form-group" style="margin-bottom:0">
+                  <label class="form-label" style="font-size:12px">City</label>
+                  <div class="tag-picker">
+                    <button class="tag-picker-btn" id="ann-filter-city-btn" data-label="All Cities" onclick="event.stopPropagation();tagPickerToggle('ann-filter-city')" style="width:100%;justify-content:space-between;background:rgba(255,255,255,0.04);border-color:var(--border);"><span class="tp-label">All Cities</span><span class="tp-arrow">▾</span></button>
+                    <div class="tag-picker-panel" id="ann-filter-city-panel"></div>
+                  </div>
+                </div>
+                <div class="form-group" style="margin-bottom:0">
+                  <label class="form-label" style="font-size:12px">ZIP Code</label>
+                  <div class="tag-picker">
+                    <button class="tag-picker-btn" id="ann-filter-zip-btn" data-label="All ZIPs" onclick="event.stopPropagation();tagPickerToggle('ann-filter-zip')" style="width:100%;justify-content:space-between;background:rgba(255,255,255,0.04);border-color:var(--border);"><span class="tp-label">All ZIPs</span><span class="tp-arrow">▾</span></button>
+                    <div class="tag-picker-panel" id="ann-filter-zip-panel"></div>
+                  </div>
+                </div>
+                <div class="form-group" style="margin-bottom:0">
+                  <label class="form-label" style="font-size:12px">Joined</label>
+                  <select class="form-input" id="ann-joined" onchange="annPreview()" style="font-size:13px;padding:8px 10px;">
+                    <option value="">All Time</option>
+                    <option value="7">Last 7 Days</option>
+                    <option value="30">Last 30 Days</option>
+                    <option value="60">Last 60 Days</option>
+                    <option value="90">Last 90 Days</option>
+                  </select>
+                </div>
               </div>
-              <div class="form-group" style="margin-bottom:0">
-                <label class="form-label" style="font-size:12px">Zip Code</label>
-                <select class="form-input" id="ann-zip" onchange="annPreview()" style="font-size:13px;padding:8px 10px;">
-                  <option value="">All Zip Codes</option>
-                </select>
+
+              <!-- Merchant-only filters -->
+              <div id="ann-group-merchant-only" style="display:none;background:rgba(91,63,165,0.05);border:1px solid rgba(91,63,165,0.15);border-radius:10px;padding:12px;margin-bottom:10px;">
+                <div style="font-size:11px;font-weight:700;color:var(--purple);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">🏪 Merchant Filters</div>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;">
+                  <div class="form-group" style="margin-bottom:0">
+                    <label class="form-label" style="font-size:12px">Presence</label>
+                    <div class="tag-picker">
+                      <button class="tag-picker-btn" id="ann-filter-presence-btn" data-label="All Presence" onclick="event.stopPropagation();tagPickerToggle('ann-filter-presence')" style="width:100%;justify-content:space-between;background:rgba(255,255,255,0.04);border-color:var(--border);"><span class="tp-label">All Presence</span><span class="tp-arrow">▾</span></button>
+                      <div class="tag-picker-panel" id="ann-filter-presence-panel"></div>
+                    </div>
+                  </div>
+                  <div class="form-group" style="margin-bottom:0">
+                    <label class="form-label" style="font-size:12px">Status / Tier</label>
+                    <div class="tag-picker">
+                      <button class="tag-picker-btn" id="ann-filter-status-btn" data-label="All Statuses" onclick="event.stopPropagation();tagPickerToggle('ann-filter-status')" style="width:100%;justify-content:space-between;background:rgba(255,255,255,0.04);border-color:var(--border);"><span class="tp-label">All Statuses</span><span class="tp-arrow">▾</span></button>
+                      <div class="tag-picker-panel" id="ann-filter-status-panel"></div>
+                    </div>
+                  </div>
+                  <div class="form-group" style="margin-bottom:0">
+                    <label class="form-label" style="font-size:12px">Max Members ≤ <span style="font-size:10px;font-weight:400;color:var(--muted);">per merchant</span></label>
+                    <input type="number" class="form-input" id="ann-member-max" placeholder="e.g. 5" min="0" onchange="annPreview()" style="font-size:13px;padding:8px 10px;">
+                  </div>
+                </div>
               </div>
-              <div class="form-group" id="ann-status-wrap" style="margin-bottom:0">
-                <label class="form-label" style="font-size:12px">Status</label>
-                <select class="form-input" id="ann-status" onchange="annPreview()" style="font-size:13px;padding:8px 10px;">
-                  <option value="">All Statuses</option>
-                  <option value="free_trial">Free Trial</option>
-                  <option value="tier1">Tier 1 (Paying)</option>
-                  <option value="free_for_life">Free For Life</option>
-                  <option value="pending_cancellation">Pending Cancel</option>
-                  <option value="blocked">Blocked</option>
-                </select>
+
+              <!-- Member-only filters -->
+              <div id="ann-group-member-only" style="display:none;background:rgba(37,99,235,0.05);border:1px solid rgba(37,99,235,0.15);border-radius:10px;padding:12px;">
+                <div style="font-size:11px;font-weight:700;color:#3b82f6;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">👤 Member Filters</div>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;">
+                  <div class="form-group" style="margin-bottom:0">
+                    <label class="form-label" style="font-size:12px">Platform</label>
+                    <div class="tag-picker">
+                      <button class="tag-picker-btn" id="ann-filter-platform-btn" data-label="All Platforms" onclick="event.stopPropagation();tagPickerToggle('ann-filter-platform')" style="width:100%;justify-content:space-between;background:rgba(255,255,255,0.04);border-color:var(--border);"><span class="tp-label">All Platforms</span><span class="tp-arrow">▾</span></button>
+                      <div class="tag-picker-panel" id="ann-filter-platform-panel"></div>
+                    </div>
+                  </div>
+                  <div class="form-group" style="margin-bottom:0">
+                    <label class="form-label" style="font-size:12px">Push Notifications</label>
+                    <select class="form-input" id="ann-filter-push" onchange="annPreview()" style="font-size:13px;padding:8px 10px;">
+                      <option value="">All Members</option>
+                      <option value="yes">🔔 Enabled</option>
+                      <option value="no">🔕 Disabled</option>
+                    </select>
+                  </div>
+                  <div class="form-group" style="margin-bottom:0">
+                    <label class="form-label" style="font-size:12px">Has Redeemed/Claimed</label>
+                    <select class="form-input" id="ann-filter-redeemed" onchange="annPreview()" style="font-size:13px;padding:8px 10px;">
+                      <option value="">All Members</option>
+                      <option value="yes">✅ Has Redeemed</option>
+                      <option value="no">⏳ Never Redeemed</option>
+                    </select>
+                  </div>
+                </div>
               </div>
-              <div class="form-group" style="margin-bottom:0">
-                <label class="form-label" style="font-size:12px">Joined</label>
-                <select class="form-input" id="ann-joined" onchange="annPreview()" style="font-size:13px;padding:8px 10px;">
-                  <option value="">All Time</option>
-                  <option value="7">Last 7 Days</option>
-                  <option value="30">Last 30 Days</option>
-                  <option value="60">Last 60 Days</option>
-                  <option value="90">Last 90 Days</option>
-                </select>
-              </div>
-              <div class="form-group" id="ann-member-count-wrap" style="margin-bottom:0">
-                <label class="form-label" style="font-size:12px">Max Members ≤</label>
-                <input type="number" class="form-input" id="ann-member-max" placeholder="e.g. 5" min="0" onchange="annPreview()" style="font-size:13px;padding:8px 10px;">
-              </div>
+
             </div>
 
             <!-- Audience Counter -->
@@ -1020,22 +1173,48 @@
           <div id="ann-send-status" style="margin-top:12px;font-size:14px;text-align:center;"></div>
         </div>
 
-        <!-- ═══ SENT HISTORY ═══ -->
-        <div class="section-card" style="margin-top:24px;">
-          <div style="display:flex;justify-content:space-between;align-items:center;">
-            <div class="section-title">📋 Sent History</div>
-            <button class="toolbar-btn" onclick="annLoadHistory()" style="font-size:12px;">🔄 Refresh</button>
+      </div>
+
+      <!-- ═════════════════════════════════════════════════════════════ -->
+      <!-- ANNOUNCEMENT HISTORY TAB                                          -->
+      <!-- ═════════════════════════════════════════════════════════════ -->
+      <div id="tab-ann-history" class="tab-content">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Email History</div>
+            <div class="page-subtitle">All sent and scheduled email campaigns</div>
           </div>
-          <div class="table-wrap">
-            <table class="data-table">
-              <thead><tr>
-                <th>Date</th><th>Subject</th><th>Sender</th><th>Audience</th><th>Recipients</th><th>External</th><th>📎</th><th>Status</th>
-              </tr></thead>
-              <tbody id="ann-history-tbody">
-                <tr><td colspan="8" style="color:var(--muted);text-align:center;padding:32px;">Loading...</td></tr>
-              </tbody>
-            </table>
-          </div>
+          <button class="toolbar-btn" onclick="annLoadHistory()" style="font-size:13px;">🔄 Refresh</button>
+        </div>
+
+        <div class="toolbar">
+          <input type="text" class="toolbar-search" id="ann-history-search" placeholder="Search by subject..." oninput="filterAnnHistory()" style="min-width:200px;"/>
+          <select class="toolbar-select" id="ann-history-filter-type" onchange="filterAnnHistory()">
+            <option value="">All Audiences</option>
+            <option value="merchants">🏪 Merchants</option>
+            <option value="members">👤 Members</option>
+            <option value="both">🏪👤 Both</option>
+            <option value="external">📧 External</option>
+          </select>
+          <select class="toolbar-select" id="ann-history-filter-status" onchange="filterAnnHistory()">
+            <option value="">All Status</option>
+            <option value="sent">Sent</option>
+            <option value="scheduled">Scheduled</option>
+            <option value="partial">Partial</option>
+            <option value="failed">Failed</option>
+          </select>
+          <div style="flex:1;"></div>
+        </div>
+
+        <div class="table-wrap">
+          <table class="data-table" id="ann-history-table">
+            <thead><tr>
+              <th>Date</th><th>Subject</th><th>Sender</th><th>Audience</th><th>Recipients</th><th>External</th><th>📎</th><th>Scheduled For</th><th>Status</th>
+            </tr></thead>
+            <tbody id="ann-history-tbody">
+              <tr><td colspan="9" style="color:var(--muted);text-align:center;padding:40px;">Select History from the sidebar to load</td></tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
@@ -1365,8 +1544,12 @@
           ${infoRow('Contact Name', m.contact_name)}
           ${infoRow('Email', m.contact_email || m.email)}
           ${infoRow('Phone', m.phone)}
-          ${infoRow('Website', m.website)}
-          ${infoRow('Perk Offer', m.perk)}
+          ${infoRow('Presence', m.business_presence === 'online' ? '🌐 Online' : m.business_presence === 'mobile' ? '🚐 Mobile' : '📍 Local')}
+          ${m.website ? infoRow('Website', `<a href="${m.website.startsWith('http') ? m.website : 'https://' + m.website}" target="_blank" style="color:#5b3fa5;font-weight:600;">${m.website}</a>`) : infoRow('Website', '—')}
+          ${infoRow('Welcome Offer', m.welcome_offer_text || m.perk)}
+          ${m.business_presence === 'online' ? infoRow('Welcome Promo Code', `<span style="font-family:monospace;font-weight:800;color:#5b3fa5;letter-spacing:1px;">${m.welcome_promo_code || '—'}</span>`) : ''}
+          ${m.review_url ? infoRow('Review URL', `<a href="${m.review_url}" target="_blank" style="color:#5b3fa5;font-weight:600;">${m.review_url}</a>`) : ''}
+          ${m.order_url ? infoRow('Order URL', `<a href="${m.order_url}" target="_blank" style="color:#5b3fa5;font-weight:600;">${m.order_url}</a>`) : ''}
           ${infoRow('POS System', m.pos_system)}
           ${infoRow('Merchant ID', m.id)}
         </div>
@@ -1412,6 +1595,111 @@
       if (e.target === this) closeMerchantDetail();
     });
 
+    // ── Campaign Detail Panel ────────────────────────────────────
+    function showCampaignDetail(campaignId) {
+      const c = allCampaigns.find(x => x.id === campaignId);
+      if (!c) return;
+      const overlay = document.getElementById('merchant-detail-overlay');
+      overlay.style.display = 'flex';
+      document.getElementById('detail-title').textContent = c.title || 'Campaign Details';
+
+      const infoRow = (label, value) => `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9;"><span style="color:#64748b;font-weight:600;font-size:13px;">${label}</span><span style="font-weight:700;font-size:13px;color:#1a1a2e;max-width:60%;text-align:right;word-break:break-all;">${value || '\u2014'}</span></div>`;
+      const statCard = (label, value, color) => `<div style="flex:1;min-width:100px;background:${color}08;border:1px solid ${color}20;border-radius:12px;padding:12px 14px;text-align:center;"><div style="font-size:22px;font-weight:900;color:${color};">${value}</div><div style="font-size:10px;font-weight:700;color:#64748b;margin-top:3px;text-transform:uppercase;letter-spacing:0.5px;">${label}</div></div>`;
+
+      const typeLabels = { percent: '% Off', dollar: '$ Off', bogo: 'BOGO', freeitem: 'Free Item', loyalty: 'Loyalty', flash: 'Flash Sale', announcement: 'Announcement', perk: 'Initial', initial: 'Initial', custom: 'Custom' };
+      const cType = typeLabels[c.campaign_type] || c.campaign_type || 'Perk';
+      const presenceLabel = c.business_presence === 'online' ? '🌐 Online' : c.business_presence === 'mobile' ? '🚐 Mobile' : c.business_presence ? '📍 Local' : '—';
+
+      const body = document.getElementById('merchant-detail-body');
+      body.innerHTML = `
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px;">
+          ${statCard('Sent To', c.total_sent || 0, '#5b3fa5')}
+          ${statCard('Redeemed/Claimed', c.redemption_count || 0, '#16a34a')}
+          ${statCard('Expired', c.expired_count || 0, '#ef4444')}
+          ${statCard('Pending', Math.max(0,(c.total_sent||0)-(c.redemption_count||0)-(c.expired_count||0)), '#f59e0b')}
+        </div>
+        <div style="background:#f8fafc;border-radius:12px;padding:18px 20px;margin-bottom:20px;">
+          <div style="font-size:14px;font-weight:800;color:#1a1a2e;margin-bottom:10px;">🎯 Campaign Info</div>
+          ${infoRow('Title', c.title)}
+          ${infoRow('Type', cType)}
+          ${infoRow('Merchant', c.merchant_name || '—')}
+          ${infoRow('Status', c.status ? c.status.charAt(0).toUpperCase() + c.status.slice(1) : '—')}
+          ${c.promo_code ? infoRow('Promo Code', `<span style="font-family:monospace;font-weight:800;color:#5b3fa5;letter-spacing:1px;">${c.promo_code}</span>`) : ''}
+          ${infoRow('Condition', c.condition)}
+          ${c.discount_percentage > 0 ? infoRow('Discount', c.discount_percentage + '% Off') : ''}
+          ${c.discount_amount > 0 ? infoRow('Discount Amount', '$' + c.discount_amount + ' Off') : ''}
+          ${c.disclaimer ? infoRow('Disclaimer', c.disclaimer) : ''}
+        </div>
+        <div style="background:#f8fafc;border-radius:12px;padding:18px 20px;">
+          <div style="font-size:14px;font-weight:800;color:#1a1a2e;margin-bottom:10px;">📅 Timeline</div>
+          ${infoRow('Campaign ID', c.id)}
+          ${infoRow('Created', formatDate(c.created_at))}
+          ${infoRow('Expires', c.end_at ? formatDate(c.end_at) : 'Never (Ongoing)')}
+        </div>
+      `;
+    }
+
+    // ── Invoice Detail Panel ─────────────────────────────────────
+    function showInvoiceDetail(invoiceId) {
+      const inv = allBilling.find(i => i.id === invoiceId);
+      if (!inv) return;
+      const overlay = document.getElementById('merchant-detail-overlay');
+      overlay.style.display = 'flex';
+      document.getElementById('detail-title').textContent = (inv.merchant_name || 'Invoice') + ' — Invoice Detail';
+
+      const infoRow = (label, value) => `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9;"><span style="color:#64748b;font-weight:600;font-size:13px;">${label}</span><span style="font-weight:700;font-size:13px;color:#1a1a2e;max-width:60%;text-align:right;word-break:break-all;">${value || '\u2014'}</span></div>`;
+      const statCard = (label, value, color) => `<div style="flex:1;min-width:110px;background:${color}08;border:1px solid ${color}20;border-radius:12px;padding:12px 14px;text-align:center;"><div style="font-size:22px;font-weight:900;color:${color};">${value}</div><div style="font-size:10px;font-weight:700;color:#64748b;margin-top:3px;text-transform:uppercase;letter-spacing:0.5px;">${label}</div></div>`;
+
+      const amt = ((parseInt(inv.amount_cents) || 0) / 100).toFixed(2);
+      const isDeleted = inv.billing_status === 'deleted';
+      const isPendingCancel = inv.billing_status === 'pending_cancellation';
+      const statusLabel = isDeleted ? 'Deleted' : isPendingCancel ? 'Pending Cancel' : inv.status ? inv.status.charAt(0).toUpperCase() + inv.status.slice(1) : '\u2014';
+      const statusColor = inv.status === 'paid' ? '#16a34a' : inv.status === 'failed' ? '#ef4444' : '#f59e0b';
+      const tierLabel = inv.subscription_tier === 'tier1' ? 'Tier 1' : inv.subscription_tier === 'free_for_life' ? 'Free For Life' : 'Free Trial';
+
+      let period = '\u2014';
+      if (inv.period_start) {
+        const ps = new Date(inv.period_start);
+        const pe = inv.period_end ? new Date(inv.period_end) : null;
+        if (!pe || Math.abs(pe - ps) < 2 * 86400000) {
+          const monthEnd = new Date(ps);
+          monthEnd.setMonth(monthEnd.getMonth() + 1);
+          monthEnd.setDate(monthEnd.getDate() - 1);
+          period = formatDate(ps) + ' \u2014 ' + formatDate(monthEnd);
+        } else {
+          period = formatDate(ps) + ' \u2014 ' + formatDate(pe);
+        }
+      }
+
+      const body = document.getElementById('merchant-detail-body');
+      body.innerHTML = `
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px;">
+          ${statCard('Amount', '$' + amt, '#5b3fa5')}
+          ${statCard('Status', statusLabel, statusColor)}
+          ${statCard('Tier', tierLabel, '#8b5cf6')}
+        </div>
+        <div style="background:#f8fafc;border-radius:12px;padding:18px 20px;margin-bottom:20px;">
+          <div style="font-size:14px;font-weight:800;color:#1a1a2e;margin-bottom:10px;">\ud83e\uddf3 Invoice Details</div>
+          ${infoRow('Merchant', inv.merchant_name)}
+          ${infoRow('Invoice ID', inv.id)}
+          ${infoRow('Status', statusLabel)}
+          ${infoRow('Amount', '$' + amt)}
+          ${infoRow('Billing Period', period)}
+          ${infoRow('Paid At', inv.paid_at ? formatDate(inv.paid_at) : '\u2014')}
+          ${infoRow('Next Billing Date', inv.next_billing_date ? formatDate(inv.next_billing_date) : '\u2014')}
+          ${infoRow('Billing Status', inv.billing_status || '\u2014')}
+          ${inv.stripe_invoice_id ? infoRow('Stripe Invoice ID', inv.stripe_invoice_id) : ''}
+          ${infoRow('Created', formatDate(inv.created_at))}
+        </div>
+      `;
+    }
+
+    function billQuickFilter(statusValue) {
+      const sel = document.getElementById('billing-filter-status');
+      if (sel) { sel.value = statusValue; filterTable('billing'); }
+      document.getElementById('billing-table')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
     // ── Member Detail Panel ──────────────────────────────────────
     function showMemberDetail(memberId) {
       const m = allMembers.find(x => x.id === memberId);
@@ -1427,9 +1715,9 @@
       body.innerHTML = `
         <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px;">
           ${statCard('Merchants', m.merchant_count || 0, '#5b3fa5')}
-          ${statCard('Redemptions', m.redemption_count || 0, '#16a34a')}
+          ${statCard('Redeemed/Claimed', m.redemption_count || 0, '#16a34a')}
           ${statCard('Joined (30d)', m.merchants_30d || 0, '#2563eb')}
-          ${statCard('Redeemed (30d)', m.redeemed_30d || 0, '#f59e0b')}
+          ${statCard('Redeemed/Claimed (30d)', m.redeemed_30d || 0, '#f59e0b')}
         </div>
 
         <div style="background:#f8fafc;border-radius:12px;padding:18px 20px;margin-bottom:20px;">
@@ -1449,8 +1737,8 @@
           <div style="font-size:14px;font-weight:800;color:#1a1a2e;margin-bottom:10px;">📊 Activity</div>
           ${infoRow('Total Merchants Joined', m.merchant_count || 0)}
           ${infoRow('Merchants Joined (30d)', m.merchants_30d || 0)}
-          ${infoRow('Total Perks Redeemed', m.redemption_count || 0)}
-          ${infoRow('Perks Redeemed (30d)', m.redeemed_30d || 0)}
+          ${infoRow('Total Perks Redeemed/Claimed', m.redemption_count || 0)}
+          ${infoRow('Perks Redeemed/Claimed (30d)', m.redeemed_30d || 0)}
         </div>
       `;
     }
@@ -1505,6 +1793,71 @@
       }
     }
 
+    // ── Tag Picker Utility ───────────────────────────────────
+    const _tagPickers = {};
+
+    function initTagPicker(id, items, onChange) {
+      _tagPickers[id] = { selected: new Set(), onChange };
+      const panel = document.getElementById(id + '-panel');
+      if (!panel) return;
+      panel.innerHTML = items.map(item => {
+        const val = (typeof item === 'object') ? item.value : item;
+        const lbl = (typeof item === 'object') ? item.label : item;
+        return `
+          <label class="tag-picker-item" onclick="event.stopPropagation()">
+            <input type="checkbox" value="${val}" onchange="_tagPickerChange('${id}', this)">
+            ${lbl}
+          </label>`;
+      }).join('');
+    }
+
+    function _tagPickerChange(id, cb) {
+      const tp = _tagPickers[id];
+      if (!tp) return;
+      cb.checked ? tp.selected.add(cb.value) : tp.selected.delete(cb.value);
+      cb.closest('.tag-picker-item').classList.toggle('checked', cb.checked);
+      const btn = document.getElementById(id + '-btn');
+      const count = tp.selected.size;
+      if (btn) {
+        btn.querySelector('.tp-label').textContent = count > 0 ? count + ' selected' : btn.dataset.label;
+        btn.classList.toggle('has-selection', count > 0);
+      }
+      if (tp.onChange) tp.onChange();
+    }
+
+    function tagPickerToggle(id) {
+      const panel = document.getElementById(id + '-panel');
+      if (!panel) return;
+      const isOpen = panel.classList.contains('open');
+      document.querySelectorAll('.tag-picker-panel.open').forEach(p => p.classList.remove('open'));
+      if (!isOpen) panel.classList.add('open');
+    }
+
+    function tagPickerGetSelected(id) {
+      return _tagPickers[id] ? [..._tagPickers[id].selected] : [];
+    }
+
+    function tagPickerClear(id) {
+      const tp = _tagPickers[id];
+      if (!tp) return;
+      tp.selected.clear();
+      const panel = document.getElementById(id + '-panel');
+      if (panel) {
+        panel.querySelectorAll('input[type=checkbox]').forEach(cb => cb.checked = false);
+        panel.querySelectorAll('.tag-picker-item').forEach(el => el.classList.remove('checked'));
+      }
+      const btn = document.getElementById(id + '-btn');
+      if (btn) {
+        btn.querySelector('.tp-label').textContent = btn.dataset.label;
+        btn.classList.remove('has-selection');
+      }
+    }
+
+    // Close all pickers on outside click
+    document.addEventListener('click', () =>
+      document.querySelectorAll('.tag-picker-panel.open').forEach(p => p.classList.remove('open'))
+    );
+
     async function loadAllData() {
       document.getElementById('refresh-spinner').style.display = 'inline-block';
 
@@ -1525,10 +1878,11 @@
         document.getElementById('ov-members').textContent = stats.total || allMembers.length;
         document.getElementById('ov-push').textContent = stats.push_enabled || '0';
         renderTable('members');
-        // Populate city filter
+        // Populate city and ZIP tag-pickers
         const cities = [...new Set(allMembers.map(m => m.city).filter(Boolean))].sort();
-        const citySelect = document.getElementById('member-filter-city');
-        citySelect.innerHTML = '<option value="">All Cities</option>' + cities.map(c => `<option value="${c}">${c}</option>`).join('');
+        const zips = [...new Set(allMembers.map(m => m.zip_code).filter(Boolean))].sort();
+        initTagPicker('member-filter-city', cities, () => filterTable('members'));
+        initTagPicker('member-filter-zip', zips, () => filterTable('members'));
       }
 
       // Load campaigns
@@ -1543,6 +1897,10 @@
         document.getElementById('camp-rate').textContent = (stats.redemption_rate || '0') + '%';
         document.getElementById('ov-redemptions').textContent = stats.redemptions || '0';
         renderTable('campaigns');
+        // Populate campaign merchant dropdown
+        const campMerchants = [...new Set(allCampaigns.map(c => c.merchant_name || c.business_name).filter(Boolean))].sort();
+        const campMerchantSel = document.getElementById('campaign-filter-merchant');
+        if (campMerchantSel) campMerchantSel.innerHTML = '<option value="">All Merchants</option>' + campMerchants.map(n => `<option value="${n}">${n}</option>`).join('');
       }
 
       // Top merchants
@@ -1566,6 +1924,7 @@
         const bStats = billRes.data.stats || {};
         document.getElementById('ov-mrr').textContent = '$' + (bStats.mrr || '0');
         document.getElementById('bill-mrr').textContent = '$' + (bStats.mrr || '0');
+        document.getElementById('bill-total-revenue').textContent = '$' + ((bStats.total_revenue_cents || 0) / 100).toFixed(2);
         document.getElementById('bill-paying').textContent = bStats.paying_merchants || 0;
         document.getElementById('bill-eligible').textContent = bStats.upgrade_eligible || 0;
         document.getElementById('bill-ffl').textContent = bStats.ffl_merchants || 0;
@@ -1649,7 +2008,7 @@
               <td><strong>${m.business_name || '\u2014'}</strong></td>
               <td>${m.location_city || m.city || '\u2014'}</td>
               <td>${m.location_zip || '\u2014'}</td>
-              <td>${m.pos_system || '\u2014'}</td>
+              <td><span style="font-size:12px;font-weight:700;color:${m.business_presence==='online'?'#5b3fa5':m.business_presence==='mobile'?'#0891b2':'#16a34a'}">${m.business_presence==='online'?'🌐 Online':m.business_presence==='mobile'?'🚐 Mobile':'📍 Local'}</span></td>
               <td><span class="badge ${tierClass}">${tierLabel}</span></td>
               <td><span class="badge ${statusClass}">${statusLabel}</span></td>
               <td>${m.member_count || 0}</td>
@@ -1685,11 +2044,11 @@
           data = getFilteredData('campaigns');
           tbody = document.getElementById('campaigns-tbody');
           tbody.innerHTML = data.map(c => {
-            const typeLabels = { percent: '% Off', dollar: '$ Off', bogo: 'BOGO', freeitem: 'Free Item', loyalty: 'Loyalty', flash: 'Flash Sale', announcement: 'Announcement', perk: 'Initial', custom: 'Custom' };
+            const typeLabels = { percent: '% Off', dollar: '$ Off', bogo: 'BOGO', freeitem: 'Free Item', loyalty: 'Loyalty', flash: 'Flash Sale', announcement: 'Announcement', perk: 'Initial', initial: 'Initial', custom: 'Custom' };
             const cType = typeLabels[c.campaign_type] || (c.discount_percentage === -1 ? 'Announcement' : 'Perk');
             const cTypeClass = c.campaign_type === 'announcement' || c.discount_percentage === -1 ? 'ffl' : 'tier1';
             return `
-            <tr>
+            <tr style="cursor:pointer;" onclick="showCampaignDetail('${c.id}')">
               <td><strong>${c.title || '—'}</strong></td>
               <td><span class="badge ${cTypeClass}">${cType}</span></td>
               <td>${c.merchant_name || c.business_name || '—'}</td>
@@ -1731,10 +2090,12 @@
               : isPendingCancel && inv.next_billing_date
                 ? `<span style="color:#ef4444;font-weight:600;">\uD83D\uDEAB ${formatDate(inv.next_billing_date)}</span>`
                 : inv.next_billing_date ? formatDate(inv.next_billing_date) : '\u2014';
+            const tierClass = inv.subscription_tier === 'tier1' ? 'tier1' : inv.subscription_tier === 'free_for_life' ? 'ffl' : 'free';
+            const tierLabel = inv.subscription_tier === 'tier1' ? 'Tier 1' : inv.subscription_tier === 'free_for_life' ? 'FFL' : 'Free';
             return `
-            <tr>
+            <tr style="cursor:pointer;" onclick="showInvoiceDetail('${inv.id}')">
               <td><strong>${inv.merchant_name || '\u2014'}</strong></td>
-              <td><span class="badge ${inv.subscription_tier === 'tier1' ? 'tier1' : 'free'}">${inv.subscription_tier === 'tier1' ? 'Tier 1' : 'Free'}</span></td>
+              <td><span class="badge ${tierClass}">${tierLabel}</span></td>
               <td><span class="badge ${statusClass}">${statusLabel}</span></td>
               <td>$${amt}</td>
               <td>${period}</td>
@@ -1759,46 +2120,99 @@
           search = document.getElementById('merchant-search').value.toLowerCase();
           filters.status = document.getElementById('merchant-filter-status').value;
           filters.tier = document.getElementById('merchant-filter-tier').value;
+          filters.presence = document.getElementById('merchant-filter-presence').value;
+          filters.joined = document.getElementById('merchant-filter-joined').value;
           if (search) data = data.filter(m =>
             (m.business_name||'').toLowerCase().includes(search) ||
             (m.contact_email||m.email||'').toLowerCase().includes(search) ||
-            (m.city||'').toLowerCase().includes(search)
+            (m.location_city||m.city||'').toLowerCase().includes(search) ||
+            (m.location_zip||'').includes(search)
           );
-          if (filters.status) data = data.filter(m => (m.status||'active') === filters.status);
+          if (filters.status) {
+            data = data.filter(m => {
+              const bs = m.billing_status || m.status || 'active';
+              if (filters.status === 'active') return !m.account_blocked && bs !== 'deleted' && bs !== 'pending_cancellation' && bs !== 'payment_failed';
+              if (filters.status === 'blocked') return !!(m.account_blocked);
+              if (filters.status === 'payment_failed') return bs === 'payment_failed';
+              if (filters.status === 'pending_cancellation') return bs === 'pending_cancellation';
+              if (filters.status === 'deleted') return bs === 'deleted';
+              return true;
+            });
+          }
           if (filters.tier) data = data.filter(m => (m.tier||'free') === filters.tier);
+          if (filters.presence) data = data.filter(m => (m.business_presence || 'physical') === filters.presence);
+          if (filters.joined) {
+            const merchantCutoff = new Date(Date.now() - parseInt(filters.joined) * 86400000);
+            data = data.filter(m => new Date(m.created_at) >= merchantCutoff);
+          }
           break;
 
         case 'members':
           data = [...allMembers];
           search = document.getElementById('member-search').value.toLowerCase();
           const pushFilter = document.getElementById('member-filter-push').value;
-          const cityFilter = document.getElementById('member-filter-city').value;
+          const platformFilter = document.getElementById('member-filter-platform').value;
+          const redeemedFilter = document.getElementById('member-filter-redeemed').value;
+          const joinedFilter = document.getElementById('member-filter-joined').value;
+          const selectedCities = tagPickerGetSelected('member-filter-city');
+          const selectedZips = tagPickerGetSelected('member-filter-zip');
           if (search) data = data.filter(m =>
             (m.full_name||'').toLowerCase().includes(search) ||
             (m.email||'').toLowerCase().includes(search) ||
-            (m.city||'').toLowerCase().includes(search)
+            (m.city||'').toLowerCase().includes(search) ||
+            (m.zip_code||'').includes(search)
           );
           if (pushFilter === 'push') data = data.filter(m => m.push_token);
           if (pushFilter === 'nopush') data = data.filter(m => !m.push_token);
-          if (cityFilter) data = data.filter(m => m.city === cityFilter);
+          if (platformFilter) data = data.filter(m => m.device_platform === platformFilter);
+          if (selectedCities.length) data = data.filter(m => selectedCities.includes(m.city));
+          if (selectedZips.length) data = data.filter(m => selectedZips.includes(m.zip_code));
+          if (redeemedFilter === 'yes') data = data.filter(m => parseInt(m.redemption_count) > 0);
+          if (redeemedFilter === 'never') data = data.filter(m => !(parseInt(m.redemption_count) > 0));
+          if (joinedFilter) {
+            const memberCutoff = new Date(Date.now() - parseInt(joinedFilter) * 86400000);
+            data = data.filter(m => new Date(m.created_at) >= memberCutoff);
+          }
           break;
 
         case 'campaigns':
           data = [...allCampaigns];
           search = document.getElementById('campaign-search').value.toLowerCase();
           const campStatus = document.getElementById('campaign-filter-status').value;
+          const campType = document.getElementById('campaign-filter-type').value;
+          const campPromo = document.getElementById('campaign-filter-promo').value;
+          const campMerchant = document.getElementById('campaign-filter-merchant').value;
+          const campCreated = document.getElementById('campaign-filter-created').value;
           if (search) data = data.filter(c =>
             (c.title||'').toLowerCase().includes(search) ||
             (c.merchant_name||c.business_name||'').toLowerCase().includes(search)
           );
           if (campStatus) data = data.filter(c => c.status === campStatus);
+          if (campType) data = data.filter(c => c.campaign_type === campType);
+          if (campPromo === 'yes') data = data.filter(c => !!(c.promo_code));
+          if (campPromo === 'no') data = data.filter(c => !(c.promo_code));
+          if (campMerchant) data = data.filter(c => (c.merchant_name || c.business_name) === campMerchant);
+          if (campCreated) {
+            const campCutoff = new Date(Date.now() - parseInt(campCreated) * 86400000);
+            data = data.filter(c => new Date(c.created_at) >= campCutoff);
+          }
           break;
 
         case 'billing':
           data = [...allBilling];
           const billStatus = document.getElementById('billing-filter-status').value;
           const billPeriod = document.getElementById('billing-filter-period').value;
-          if (billStatus) data = data.filter(i => i.status === billStatus);
+          const billSearch = document.getElementById('billing-search')?.value.toLowerCase() || '';
+          if (billSearch) data = data.filter(i => (i.merchant_name||'').toLowerCase().includes(billSearch));
+          if (billStatus) {
+            data = data.filter(i => {
+              if (billStatus === 'paid') return i.status === 'paid';
+              if (billStatus === 'failed') return i.status === 'failed';
+              if (billStatus === 'pending_cancellation') return i.billing_status === 'pending_cancellation';
+              if (billStatus === 'deleted') return i.billing_status === 'deleted';
+              return true;
+            });
+          }
           if (billPeriod && billPeriod !== 'all') {
             const cutoff = new Date(Date.now() - parseInt(billPeriod) * 86400000);
             data = data.filter(i => new Date(i.created_at) >= cutoff);
@@ -2177,7 +2591,16 @@
             <td>${c.label || '<em style="color:var(--mutedLight)">—</em>'}</td>
             <td>${statusBadge(c.status)}</td>
             <td>${fmt(c.expires_at)}</td>
-            <td style="font-weight:700;color:var(--purple);">${c.use_count || 0}</td>
+            <td>${c.use_count > 0
+              ? `<span onclick="showCPMerchantsOverlay('${c.id}','${c.code}',${c.use_count})"
+                   style="cursor:pointer;color:#2563eb;display:inline-flex;align-items:center;gap:4px;padding:3px 9px;background:rgba(37,99,235,0.1);border:1.5px solid rgba(37,99,235,0.25);border-radius:8px;font-size:12px;font-weight:800;transition:all 0.15s;"
+                   onmouseover="this.style.background='rgba(37,99,235,0.22)'"
+                   onmouseout="this.style.background='rgba(37,99,235,0.1)'"
+                   title="View merchants who used this code">
+                 🔗 ${c.use_count} merchant${c.use_count !== 1 ? 's' : ''}
+               </span>`
+              : '<span style="color:var(--muted);font-size:12px;">0</span>'
+            }</td>
             <td>${fmt(c.created_at)}</td>
             <td>${c.status === 'available' ? `<button onclick="expireAccessCode('${c.id}','${c.code}')" style="padding:4px 10px;font-size:11px;font-weight:700;border:1.5px solid #ef4444;background:rgba(239,68,68,0.08);color:#ef4444;border-radius:8px;cursor:pointer;transition:all 0.15s;" onmouseover="this.style.background='#ef4444';this.style.color='#fff';" onmouseout="this.style.background='rgba(239,68,68,0.08)';this.style.color='#ef4444';">Expire</button>` : '<span style="color:var(--mutedLight);font-size:11px;">—</span>'}</td>
           </tr>`).join('') || '<tr><td colspan="8" style="color:var(--muted);text-align:center;padding:40px">No community promos yet</td></tr>';
@@ -2194,7 +2617,15 @@
             <td style="font-family:monospace;font-weight:800;color:var(--purple);letter-spacing:1px">${c.code}</td>
             <td>${c.label || '<em style="color:var(--mutedLight)">—</em>'}</td>
             <td>${statusBadge(c.status)}</td>
-            <td>${c.used_by_name || '\u2014'}</td>
+            <td>${c.status === 'used' && c.used_by
+              ? `<div onclick="fetchAndShowMerchantDetail('${c.used_by}')"
+                   style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;background:rgba(91,63,165,0.1);border:1.5px solid rgba(91,63,165,0.25);border-radius:8px;cursor:pointer;font-size:12px;font-weight:700;color:var(--purple);transition:all 0.15s;white-space:nowrap;"
+                   onmouseover="this.style.background='rgba(91,63,165,0.2)'"
+                   onmouseout="this.style.background='rgba(91,63,165,0.1)'">
+                 🏪 ${c.used_by_name || 'View Merchant'}
+               </div>`
+              : '<span style="color:var(--muted)">—</span>'
+            }</td>
             <td>${fmt(c.used_at)}</td>
             <td>${fmt(c.expires_at)}</td>
             <td>${fmt(c.created_at)}</td>
@@ -2207,6 +2638,86 @@
         document.getElementById('ac-stat-ffl-total').textContent = fflCodes.length;
         showToast('✅ Access Codes refreshed');
       } catch(e) { console.error('loadAccessCodes failed', e); }
+    }
+
+    async function fetchAndShowMerchantDetail(merchantId) {
+      // Try in-memory cache first (populated on dashboard load)
+      if (typeof allMerchants !== 'undefined' && allMerchants.length > 0) {
+        const found = allMerchants.find(x => x.id === merchantId);
+        if (found) { showMerchantDetail(merchantId); return; }
+      }
+      // Not cached — silently load all merchants then show
+      showToast('⏳ Loading merchant details...');
+      try {
+        const res = await adminFetch('/admin/merchants');
+        if (res.success && res.data && res.data.merchants) {
+          allMerchants = res.data.merchants;
+          showMerchantDetail(merchantId);
+        } else {
+          showToast('⚠️ Could not load merchant details');
+        }
+      } catch(e) { showToast('⚠️ Error loading merchant'); }
+    }
+
+    async function showCPMerchantsOverlay(codeId, codeName, useCount) {
+      const overlay = document.createElement('div');
+      overlay.id = 'cp-merchants-overlay';
+      overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.65);z-index:9000;display:flex;align-items:center;justify-content:center;overflow:auto;padding:24px;';
+      overlay.innerHTML = `
+        <div style="background:#1e1b3a;border-radius:16px;padding:28px;max-width:720px;width:100%;max-height:88vh;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,0.5);">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;">
+            <div>
+              <h3 style="color:#f1f5f9;margin:0;font-size:16px;">🔑 ${codeName}</h3>
+              <div style="font-size:12px;color:#94a3b8;margin-top:4px;">${useCount} merchant${useCount !== 1 ? 's' : ''} used this promo code</div>
+            </div>
+            <button onclick="document.getElementById('cp-merchants-overlay').remove()" style="background:none;border:none;color:#94a3b8;font-size:22px;cursor:pointer;line-height:1;padding:0;">✕</button>
+          </div>
+          <div id="cp-merchants-list"><div style="text-align:center;padding:40px;color:#94a3b8;">⏳ Loading...</div></div>
+        </div>`;
+      overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+      document.body.appendChild(overlay);
+
+      try {
+        const res = await adminFetch(`/admin/access-codes/${codeId}/merchants`);
+        const listEl = document.getElementById('cp-merchants-list');
+        if (!listEl) return;
+        if (!res.success || !res.data || res.data.length === 0) {
+          listEl.innerHTML = '<div style="text-align:center;padding:40px;color:#94a3b8;">No merchants have used this code yet.</div>';
+          return;
+        }
+        const presLabel = p => p === 'online' ? '🌐 Online' : p === 'mobile' ? '🚐 Mobile' : '📍 Local';
+        const tierBadge = t => t === 'tier1' ? '<span class="badge tier1">Tier 1</span>' : t === 'free_for_life' ? '<span class="badge ffl">FFL</span>' : '<span class="badge free">Free Trial</span>';
+        listEl.innerHTML = `
+          <table style="width:100%;border-collapse:collapse;">
+            <thead>
+              <tr style="border-bottom:1px solid rgba(255,255,255,0.1);">
+                <th style="text-align:left;padding:8px 12px;font-size:11px;color:#94a3b8;text-transform:uppercase;font-weight:700;">Business</th>
+                <th style="text-align:left;padding:8px 12px;font-size:11px;color:#94a3b8;text-transform:uppercase;font-weight:700;">City</th>
+                <th style="text-align:left;padding:8px 12px;font-size:11px;color:#94a3b8;text-transform:uppercase;font-weight:700;">Presence</th>
+                <th style="text-align:left;padding:8px 12px;font-size:11px;color:#94a3b8;text-transform:uppercase;font-weight:700;">Tier</th>
+                <th style="text-align:left;padding:8px 12px;font-size:11px;color:#94a3b8;text-transform:uppercase;font-weight:700;">Members</th>
+                <th style="text-align:left;padding:8px 12px;font-size:11px;color:#94a3b8;text-transform:uppercase;font-weight:700;">Joined</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${res.data.map(m => `
+                <tr onclick="fetchAndShowMerchantDetail('${m.id}')"
+                    style="cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.06);transition:background 0.15s;"
+                    onmouseover="this.style.background='rgba(255,255,255,0.05)'"
+                    onmouseout="this.style.background='transparent'">
+                  <td style="padding:10px 12px;font-weight:700;font-size:13px;color:#f1f5f9;">${m.business_name}</td>
+                  <td style="padding:10px 12px;font-size:12px;color:#94a3b8;">${m.location_city || '—'}</td>
+                  <td style="padding:10px 12px;font-size:12px;color:#94a3b8;">${presLabel(m.business_presence)}</td>
+                  <td style="padding:10px 12px;">${tierBadge(m.subscription_tier)}</td>
+                  <td style="padding:10px 12px;font-size:13px;font-weight:700;color:#5b3fa5;">${m.member_count || 0}</td>
+                  <td style="padding:10px 12px;font-size:12px;color:#94a3b8;">${new Date(m.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</td>
+                </tr>`).join('')}
+            </tbody>
+          </table>`;
+      } catch(e) {
+        const listEl = document.getElementById('cp-merchants-list');
+        if (listEl) listEl.innerHTML = `<div style="text-align:center;padding:40px;color:#ef4444;">⚠️ Error: ${e.message}</div>`;
+      }
     }
 
     async function expireAccessCode(codeId, codeName) {
@@ -2353,14 +2864,14 @@
       _annType = type;
       document.querySelectorAll('.ann-type-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      // Show/hide filters
+      // Show/hide entire filters section
       const filters = document.getElementById('ann-filters');
-      filters.style.display = type === 'external' ? 'none' : 'grid';
-      // Show/hide merchant-only filters (status and member count only apply to merchants)
-      const statusWrap = document.getElementById('ann-status-wrap');
-      const mcWrap = document.getElementById('ann-member-count-wrap');
-      statusWrap.style.display = (type === 'merchants') ? 'block' : 'none';
-      mcWrap.style.display = (type === 'merchants') ? 'block' : 'none';
+      filters.style.display = type === 'external' ? 'none' : 'block';
+      // Show/hide type-specific groups
+      const merchantGroup = document.getElementById('ann-group-merchant-only');
+      const memberGroup = document.getElementById('ann-group-member-only');
+      if (merchantGroup) merchantGroup.style.display = (type === 'merchants') ? 'block' : 'none';
+      if (memberGroup) memberGroup.style.display = (type === 'members') ? 'block' : 'none';
       // Reset filters and rebuild dropdowns for this type
       annClearFilters();
       annUpdateDropdowns();
@@ -2368,11 +2879,18 @@
     }
 
     function annClearFilters() {
-      document.getElementById('ann-city').value = '';
-      document.getElementById('ann-zip').value = '';
-      document.getElementById('ann-status').value = '';
+      tagPickerClear('ann-filter-city');
+      tagPickerClear('ann-filter-zip');
+      tagPickerClear('ann-filter-presence');
+      tagPickerClear('ann-filter-status');
+      tagPickerClear('ann-filter-platform');
+      const pushEl = document.getElementById('ann-filter-push');
+      if (pushEl) pushEl.value = '';
+      const redeemedEl = document.getElementById('ann-filter-redeemed');
+      if (redeemedEl) redeemedEl.value = '';
       document.getElementById('ann-joined').value = '';
-      document.getElementById('ann-member-max').value = '';
+      const maxEl = document.getElementById('ann-member-max');
+      if (maxEl) maxEl.value = '';
       document.getElementById('ann-preview-count').textContent = '—';
       document.getElementById('ann-preview-sample').textContent = '';
     }
@@ -2388,13 +2906,34 @@
 
     // Load audience filter options from DB
     async function annLoadOptions() {
+      annInitStaticPickers();
       const res = await adminFetch('/admin/audience-options');
       if (!res.success) return;
       _annOptions = res.data;
       annUpdateDropdowns();
     }
 
-    // Rebuild city/zip dropdowns based on selected audience type
+    function annInitStaticPickers() {
+      initTagPicker('ann-filter-presence', [
+        { value: 'physical', label: '📍 Local' },
+        { value: 'mobile', label: '🚐 Mobile' },
+        { value: 'online', label: '🌐 Online' }
+      ], () => annPreview());
+      initTagPicker('ann-filter-status', [
+        { value: 'free_trial', label: '🆕 Free Trial' },
+        { value: 'tier1', label: '💳 Tier 1' },
+        { value: 'free_for_life', label: '♾️ Free For Life' },
+        { value: 'pending_cancellation', label: '⏸️ Pending Cancel' },
+        { value: 'blocked', label: '🚫 Blocked' }
+      ], () => annPreview());
+      initTagPicker('ann-filter-platform', [
+        { value: 'ios', label: '🍎 iOS' },
+        { value: 'android', label: '🤖 Android' },
+        { value: 'web', label: '🌐 Web' }
+      ], () => annPreview());
+    }
+
+    // Rebuild city/zip tag-pickers based on selected audience type
     function annUpdateDropdowns() {
       if (!_annOptions) return;
       const d = _annOptions;
@@ -2408,15 +2947,13 @@
         cities = d.member_cities || [];
         zips = d.member_zips || [];
       } else {
-        // both or external — combine
+        // both — combine
         cities = [...new Set([...(d.merchant_cities || []), ...(d.member_cities || [])])].sort();
         zips = [...new Set([...(d.merchant_zips || []), ...(d.member_zips || [])])].sort();
       }
 
-      const cityEl = document.getElementById('ann-city');
-      cityEl.innerHTML = '<option value="">All Cities</option>' + cities.map(c => `<option value="${c}">${c}</option>`).join('');
-      const zipEl = document.getElementById('ann-zip');
-      zipEl.innerHTML = '<option value="">All Zip Codes</option>' + zips.map(z => `<option value="${z}">${z}</option>`).join('');
+      initTagPicker('ann-filter-city', cities, () => annPreview());
+      initTagPicker('ann-filter-zip', zips, () => annPreview());
     }
 
     // Live audience preview
@@ -2450,16 +2987,24 @@
     }
 
     function annBuildAudience() {
-      const city = document.getElementById('ann-city').value;
-      const zip = document.getElementById('ann-zip').value;
-      const status = document.getElementById('ann-status').value;
+      const cities = tagPickerGetSelected('ann-filter-city');
+      const zips = tagPickerGetSelected('ann-filter-zip');
+      const presences = tagPickerGetSelected('ann-filter-presence');
+      const statuses = tagPickerGetSelected('ann-filter-status');
+      const platforms = tagPickerGetSelected('ann-filter-platform');
+      const push = document.getElementById('ann-filter-push')?.value || '';
+      const redeemed = document.getElementById('ann-filter-redeemed')?.value || '';
       const joined = document.getElementById('ann-joined').value;
-      const memberMax = document.getElementById('ann-member-max').value;
+      const memberMax = document.getElementById('ann-member-max')?.value || '';
       return {
         type: _annType,
-        cities: city ? [city] : [],
-        zip_codes: zip ? [zip] : [],
-        statuses: status ? [status] : [],
+        cities,
+        zip_codes: zips,
+        presences,
+        statuses,
+        platforms,
+        push_enabled: push || null,
+        has_redeemed: redeemed || null,
         joined_days: joined ? parseInt(joined) : null,
         member_count_max: memberMax !== '' ? parseInt(memberMax) : null
       };
@@ -2632,27 +3177,57 @@
     }
 
     async function annLoadHistory() {
-      const res = await adminFetch('/admin/announcement-history');
       const tbody = document.getElementById('ann-history-tbody');
+      if (tbody) tbody.innerHTML = '<tr><td colspan="9" style="color:var(--muted);text-align:center;padding:40px;">⏳ Loading...</td></tr>';
+      const res = await adminFetch('/admin/announcement-history');
       if (!res.success || !res.data || res.data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8" style="color:var(--muted);text-align:center;padding:32px;">No campaigns sent yet</td></tr>';
+        if (tbody) tbody.innerHTML = '<tr><td colspan="9" style="color:var(--muted);text-align:center;padding:40px;">No campaigns sent yet</td></tr>';
+        window._annHistory = [];
         return;
       }
-      const typeLabels = { merchants: '🏪 Merchants', members: '👤 Members', both: '🏪👤 Both', external: '📧 External', custom: '📧 Custom' };
-      tbody.innerHTML = res.data.map((h, i) => `
-        <tr style="cursor:pointer;" onclick="annShowDetail(${i})" title="Click to view details">
-          <td>${formatDate(h.created_at)}</td>
-          <td><strong>${h.subject}</strong></td>
-          <td style="font-size:12px;">${h.sender}</td>
-          <td>${typeLabels[h.audience_type] || h.audience_type || '—'}</td>
-          <td>${h.recipient_count}</td>
-          <td>${h.external_count || 0}</td>
-          <td>${h.has_attachments ? '📎' : '—'}</td>
-          <td><span class="badge ${h.status === 'sent' ? 'active' : h.status === 'partial' ? 'pending' : 'inactive'}">${h.status}</span></td>
-        </tr>
-      `).join('');
-      // Store for detail view
       window._annHistory = res.data;
+      renderAnnHistory(res.data);
+    }
+
+    function renderAnnHistory(data) {
+      const tbody = document.getElementById('ann-history-tbody');
+      if (!tbody) return;
+      const typeLabels = { merchants: '🏪 Merchants', members: '👤 Members', both: '🏪👤 Both', external: '📧 External', custom: '📧 Custom' };
+      if (!data || data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="9" style="color:var(--muted);text-align:center;padding:40px;">No matching campaigns</td></tr>';
+        return;
+      }
+      tbody.innerHTML = data.map((h, i) => {
+        const origIdx = window._annHistory.indexOf(h);
+        const badgeClass = h.status === 'sent' ? 'active' : h.status === 'partial' ? 'pending' : h.status === 'scheduled' ? 'scheduled' : 'inactive';
+        const scheduledFor = h.scheduled_at ? formatDate(h.scheduled_at) : '—';
+        return `
+          <tr style="cursor:pointer;" onclick="annShowDetail(${origIdx})" title="Click to view details">
+            <td>${formatDate(h.created_at)}</td>
+            <td><strong>${h.subject}</strong></td>
+            <td style="font-size:12px;">${h.sender}</td>
+            <td>${typeLabels[h.audience_type] || h.audience_type || '—'}</td>
+            <td>${h.recipient_count}</td>
+            <td>${h.external_count || 0}</td>
+            <td>${h.has_attachments ? '📎' : '—'}</td>
+            <td style="font-size:12px;">${scheduledFor}</td>
+            <td><span class="badge ${badgeClass}">${h.status}</span></td>
+          </tr>`;
+      }).join('');
+    }
+
+    function filterAnnHistory() {
+      if (!window._annHistory) return;
+      const search = (document.getElementById('ann-history-search')?.value || '').toLowerCase();
+      const typeFilter = document.getElementById('ann-history-filter-type')?.value || '';
+      const statusFilter = document.getElementById('ann-history-filter-status')?.value || '';
+      const filtered = window._annHistory.filter(h => {
+        if (search && !(h.subject || '').toLowerCase().includes(search)) return false;
+        if (typeFilter && h.audience_type !== typeFilter) return false;
+        if (statusFilter && h.status !== statusFilter) return false;
+        return true;
+      });
+      renderAnnHistory(filtered);
     }
 
     function annShowDetail(idx) {
@@ -2663,28 +3238,38 @@
       let filterInfo = '';
       if (filters.cities && filters.cities.length) filterInfo += `<div>🏙️ Cities: ${filters.cities.join(', ')}</div>`;
       if (filters.zip_codes && filters.zip_codes.length) filterInfo += `<div>📮 Zips: ${filters.zip_codes.join(', ')}</div>`;
+      if (filters.presences && filters.presences.length) filterInfo += `<div>📍 Presence: ${filters.presences.join(', ')}</div>`;
       if (filters.statuses && filters.statuses.length) filterInfo += `<div>📋 Status: ${filters.statuses.join(', ')}</div>`;
+      if (filters.platforms && filters.platforms.length) filterInfo += `<div>📱 Platform: ${filters.platforms.join(', ')}</div>`;
+      if (filters.push_enabled) filterInfo += `<div>🔔 Push: ${filters.push_enabled}</div>`;
+      if (filters.has_redeemed) filterInfo += `<div>🏷️ Has Redeemed: ${filters.has_redeemed}</div>`;
       if (filters.joined_days) filterInfo += `<div>📅 Joined: Last ${filters.joined_days} days</div>`;
       if (filters.member_count_max != null) filterInfo += `<div>👥 Max Members: ≤ ${filters.member_count_max}</div>`;
-      if (!filterInfo) filterInfo = '<div style="color:var(--muted);">No filters (all recipients)</div>';
+      if (!filterInfo) filterInfo = '<div style="color:#999;">No filters (all recipients)</div>';
 
+      const badgeClass = h.status === 'sent' ? 'active' : h.status === 'partial' ? 'pending' : h.status === 'scheduled' ? 'scheduled' : 'inactive';
       const overlay = document.createElement('div');
+      overlay.id = 'ann-detail-overlay-temp';
       overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;overflow:auto;padding:24px;';
       overlay.innerHTML = `
         <div style="background:#ffffff;border-radius:16px;padding:28px;max-width:640px;width:100%;max-height:90vh;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
             <h3 style="color:#1a1a2e;margin:0;">📧 Campaign Details</h3>
-            <button onclick="this.closest('div[style]').parentElement.remove()" style="background:none;border:none;color:#999;font-size:20px;cursor:pointer;">✕</button>
+            <button onclick="document.getElementById('ann-detail-overlay-temp').remove()" style="background:none;border:none;color:#999;font-size:20px;cursor:pointer;line-height:1;">✕</button>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;">
             <div style="background:#f8f8fc;padding:12px;border-radius:10px;">
-              <div style="font-size:11px;color:#999;text-transform:uppercase;">Date</div>
+              <div style="font-size:11px;color:#999;text-transform:uppercase;">Sent / Created</div>
               <div style="font-weight:600;color:#1a1a2e;">${formatDate(h.created_at)}</div>
             </div>
             <div style="background:#f8f8fc;padding:12px;border-radius:10px;">
               <div style="font-size:11px;color:#999;text-transform:uppercase;">Status</div>
-              <div><span class="badge ${h.status === 'sent' ? 'active' : 'pending'}">${h.status}</span></div>
+              <div><span class="badge ${badgeClass}">${h.status}</span></div>
             </div>
+            ${h.scheduled_at ? `<div style="background:#e0f2fe;padding:12px;border-radius:10px;grid-column:span 2;">
+              <div style="font-size:11px;color:#0284c7;text-transform:uppercase;">Scheduled For</div>
+              <div style="font-weight:700;color:#0284c7;">${new Date(h.scheduled_at).toLocaleString()}</div>
+            </div>` : ''}
             <div style="background:#f8f8fc;padding:12px;border-radius:10px;">
               <div style="font-size:11px;color:#999;text-transform:uppercase;">Sender</div>
               <div style="font-weight:600;color:#1a1a2e;">${h.sender}</div>
@@ -2708,7 +3293,7 @@
           </div>
           <div style="font-size:12px;color:#999;text-transform:uppercase;margin-bottom:6px;">Subject: ${h.subject}</div>
           <div style="background:#fff;border:1px solid #eee;border-radius:12px;padding:4px;max-height:400px;overflow:auto;">
-            ${h.html_body || '<div style="padding:24px;text-align:center;color:#999;">Email preview not available (sent before this feature)</div>'}
+            ${h.html_body || '<div style="padding:24px;text-align:center;color:#999;">Email preview not available</div>'}
           </div>
         </div>`;
       overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
@@ -2723,9 +3308,10 @@
         annGoStep(1);
         annLoadOptions();
         annPreview();
-        annLoadHistory();
-        // Clear compose fields for fresh start
         document.getElementById('ann-send-status').innerHTML = '';
+      }
+      if (name === 'ann-history') {
+        annLoadHistory();
       }
     };
 

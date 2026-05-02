@@ -284,9 +284,10 @@
 
       // Welcome perk
       if (campaigns && campaigns.length) {
-        // Find the welcome offer — it has campaign_type='perk' (set at merchant signup).
+        // Find the welcome/initial offer — campaign_type='initial' (new) or 'perk' (legacy).
         // Targeted promotions have campaign_type='announcement' or other values.
-        const welcomePerk = campaigns.find(c => c.campaign_type === 'perk' && c.status === 'active')
+        const welcomePerk = campaigns.find(c => c.campaign_type === 'initial' && c.status === 'active')
+          || campaigns.find(c => c.campaign_type === 'perk' && c.status === 'active')
           || campaigns.find(c => (c.status === 'active' || c.status === 'created') && c.discount_percentage >= 0);
         if (welcomePerk) {
           document.getElementById('perk-title').textContent = welcomePerk.title;

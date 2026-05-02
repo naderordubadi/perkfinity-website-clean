@@ -937,6 +937,15 @@
               style="width:100%; padding:10px 14px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; outline:none; box-sizing:border-box; resize:vertical; font-family:inherit;"></textarea>
             <div id="promo-disclaimer-count" style="text-align:right; font-size:11px; color:var(--muted); margin-top:4px;">0/200</div>
           </div>
+          <!-- Promo code field — online merchants only -->
+          <div id="promo-code-row" style="display:none; margin-bottom:16px; margin-top:8px; padding:14px 16px; background:rgba(91,63,165,0.06); border:1.5px solid rgba(91,63,165,0.2); border-radius:12px;">
+            <label style="display:block; font-weight:600; font-size:14px; margin-bottom:4px;">Discount Code <span style="color:red;">*</span></label>
+            <p style="font-size:12px; color:var(--muted); margin:0 0 10px;">Members will see and copy this code in the app to use at your online checkout.</p>
+            <input type="text" id="promo-campaign-code" placeholder="e.g. MEMBER20"
+              oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9_-]/g,'')"
+              maxlength="50"
+              style="width:100%; padding:10px 14px; border:1.5px solid var(--border); border-radius:10px; font-size:15px; font-weight:700; font-family:monospace; outline:none; box-sizing:border-box; letter-spacing:1px;">
+          </div>
           <div style="margin-bottom:16px; margin-top:8px;">
             <label id="promo-expiry-label"
               style="display:block; font-weight:600; font-size:14px; margin-bottom:8px;">Offer Expires On *</label>
@@ -1162,14 +1171,12 @@
                     <div id="promo-digest-address" style="font-size:11px;color:#aaa;margin-top:3px;"></div>
                     <div id="promo-digest-expiry" style="font-size:11px;color:#B45309;margin-top:3px;font-weight:600;"></div>
                     <div id="promo-digest-disclaimer" style="font-size:10px;color:#aaa;margin-top:3px;font-style:italic;display:none;"></div>
+                    <div id="promo-digest-cta" style="font-size:11px;margin-top:5px;font-weight:500;"></div>
                   </div>
                 </div>
                 <div id="promo-digest-announce-body" style="display:none; padding:14px 16px; background:#f9fafb; border-radius:12px; border:1px solid #f0f0f0;">
                   <div id="promo-digest-announce-store" style="font-size:14px;font-weight:700;color:#1a1a2e;margin-bottom:6px;"></div>
                   <div id="promo-digest-announce-msg" style="font-size:13px;color:#555;line-height:1.5;"></div>
-                </div>
-                <div style="background:rgba(107,193,122,0.12); border:1px solid rgba(107,193,122,0.3); border-radius:10px; padding:12px 18px; text-align:center; margin-top:14px;">
-                  <p style="font-size:13px; color:#1a6b2b; margin:0; font-weight:500;">Scan the Perkfinity QR code in-store to activate your perks!</p>
                 </div>
               </div>
               <div style="padding:14px 24px; border-top:1px solid #f0f0f0; text-align:center;">
@@ -1258,11 +1265,12 @@
             <thead>
               <tr style="border-bottom:2px solid var(--border); color:var(--muted);">
                 <th style="padding:10px;">Title</th>
+                <th style="padding:10px;">Code</th>
                 <th style="padding:10px;">Type</th>
                 <th style="padding:10px;">Audience</th>
                 <th style="padding:10px;">Delivery</th>
                 <th style="padding:10px;">Assigned</th>
-                <th style="padding:10px;">Redeemed</th>
+                <th style="padding:10px;">Redeemed/Claimed</th>
                 <th style="padding:10px;">Rate</th>
                 <th style="padding:10px;">Created</th>
                 <th style="padding:10px;">Expires</th>
@@ -1271,7 +1279,7 @@
             </thead>
             <tbody id="promoHistoryBody">
               <tr>
-                <td colspan="10" style="padding:20px; text-align:center; color:var(--muted);">Loading history...</td>
+                <td colspan="11" style="padding:20px; text-align:center; color:var(--muted);">Loading history...</td>
               </tr>
             </tbody>
           </table>
@@ -2124,7 +2132,7 @@
         </div>
 
         <div style="margin-bottom:20px;">
-          <label style="display:block; margin-bottom:8px; font-weight:600; font-size:14px;">Website (Optional)</label>
+          <label id="websiteLabel" style="display:block; margin-bottom:8px; font-weight:600; font-size:14px;">Website (Optional)</label>
           <input type="url" id="profileWebsite" placeholder="https://"
             style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; outline:none;">
         </div>
@@ -2158,6 +2166,37 @@
             <input type="text" id="profileZip" placeholder="ZIP"
               style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; outline:none; box-sizing:border-box;">
           </div>
+        </div>
+
+
+        <!-- Welcome Offer Section (new fields) -->
+        <h4 style="margin:30px 0 15px;color:var(--ink);border-bottom:1px solid var(--border);padding-bottom:10px;">Welcome Offer &amp; Online Settings</h4>
+        <div style="margin-bottom:20px;display:flex;align-items:center;gap:12px">
+          <label style="font-weight:600;font-size:14px;margin:0;min-width:130px">Business Type</label>
+          <span id="profilePresenceBadge" style="display:inline-block;padding:5px 14px;border-radius:20px;font-size:13px;font-weight:700;background:rgba(91,63,165,.1);color:var(--purpleDark);border:1px solid rgba(91,63,165,.25)">—</span>
+        </div>
+        <div style="margin-bottom:20px;">
+          <label style="display:block;margin-bottom:8px;font-weight:600;font-size:14px;">Welcome Offer Description</label>
+          <input type="text" id="profileWelcomeOfferText" placeholder="e.g. 10% off your first purchase" style="width:100%;padding:12px;border:1px solid var(--border);border-radius:8px;outline:none;">
+          <p style="margin:6px 0 0;font-size:12px;color:var(--muted)">Shown to members when they join your store in the Perkfinity app.</p>
+        </div>
+        <div id="profilePromoCodeRow" style="display:none;margin-bottom:20px">
+          <label style="display:block;margin-bottom:8px;font-weight:600;font-size:14px;">Welcome Promo Code <span style="font-size:11px;font-weight:400;color:var(--muted)">(auto-generated, cannot be changed)</span></label>
+          <div style="display:flex;align-items:center;gap:10px">
+            <input type="text" id="profilePromoCode" readonly style="flex:1;padding:12px;border:1px solid var(--border);border-radius:8px;outline:none;background:#f9f9f9;font-family:monospace;font-weight:700;font-size:16px;color:var(--purple);letter-spacing:2px">
+            <button type="button" onclick="navigator.clipboard.writeText(document.getElementById('profilePromoCode').value).then(()=>{this.innerText='Copied!';setTimeout(()=>this.innerText='Copy',2000)})" style="padding:10px 16px;background:var(--purple);color:#fff;border:none;border-radius:8px;font-size:13px;cursor:pointer;white-space:nowrap">Copy</button>
+          </div>
+          <p style="margin:6px 0 0;font-size:12px;color:var(--muted)">Members tap <strong>Claim &amp; Copy</strong> in the app to reveal this code. Set it up in your Shopify / WooCommerce platform.</p>
+        </div>
+        <div style="margin-bottom:20px;">
+          <label style="display:block;margin-bottom:8px;font-weight:600;font-size:14px;">Review Page URL <span style="font-size:11px;font-weight:400;color:var(--muted)">(optional)</span></label>
+          <input type="url" id="profileReviewUrl" placeholder="https://g.page/your-business/review" style="width:100%;padding:12px;border:1px solid var(--border);border-radius:8px;outline:none;">
+          <p style="margin:6px 0 0;font-size:12px;color:var(--muted)">Google, Yelp, or Trustpilot link - shown to members in-app to encourage reviews.</p>
+        </div>
+        <div style="margin-bottom:20px;">
+          <label style="display:block;margin-bottom:8px;font-weight:600;font-size:14px;">Online Order / Menu URL <span style="font-size:11px;font-weight:400;color:var(--muted)">(optional)</span></label>
+          <input type="url" id="profileOrderUrl" placeholder="https://yourstore.com/order" style="width:100%;padding:12px;border:1px solid var(--border);border-radius:8px;outline:none;">
+          <p style="margin:6px 0 0;font-size:12px;color:var(--muted)">Link to your ordering page, menu, or shop - shown as a button in the consumer app.</p>
         </div>
 
         <h4 style="margin:0 0 15px;color:var(--ink);border-bottom:1px solid var(--border);padding-bottom:10px;">Account
@@ -2407,10 +2446,10 @@
         if (json.success && json.data) {
           const d = json.data;
 
-          // Gate: only block if BOTH billing_status AND stripe_payment_method_id are null
-          // Tier 1 active => billing_status='active' (passes), Old trial with card => stripe_payment_method_id set (passes)
+          // Gate: block if billing_status is null/none AND no stripe_payment_method_id
+          // billing_status='none' is the DB column DEFAULT for new merchants — treat same as null
           const setupIncomplete = (
-            !d.billing_status &&
+            (!d.billing_status || d.billing_status === 'none') &&
             !d.stripe_payment_method_id &&
             d.subscription_tier !== 'free_for_life'
           );
@@ -2421,8 +2460,16 @@
           }
           localStorage.removeItem('perkfinity_setup_incomplete');
 
+          // Cache business_presence immediately so the campaign wizard promo code
+          // field is visible without requiring a Profile tab visit first.
+          window._merchantPresence = d.business_presence || 'physical';
+
           const parts = [d.address, d.suite, d.city, d.state, d.postal_code].filter(Boolean);
           if (parts.length) localStorage.setItem('perkfinity_address', parts.join(', '));
+          // Cache website; online merchants don't show an address in previews
+          if (d.website) localStorage.setItem('perkfinity_website', d.website);
+          else localStorage.removeItem('perkfinity_website');
+          if (d.business_presence === 'online') localStorage.removeItem('perkfinity_address');
           if (d.qr_public_code) {
             localStorage.setItem('perkfinity_qr_public_code', d.qr_public_code);
             const joinUrl = `https://perkfinity.net/join/${d.qr_public_code}`;
@@ -2510,6 +2557,9 @@
       hideAllPromoErrs();
       document.querySelectorAll('.promo-step').forEach(el => el.style.display = 'none');
       document.getElementById('promo-s' + step).style.display = 'block';
+      // Show promo code row in step 2 for online merchants only
+      const codeRow = document.getElementById('promo-code-row');
+      if (codeRow) codeRow.style.display = (step === 2 && window._merchantPresence === 'online' && _promoType !== 'announcement') ? 'block' : 'none';
       document.getElementById('promo-step-label').innerText = `Step ${step} of 6`;
       document.getElementById('promo-progress-bar').style.width = _promoPercents[step - 1] + '%';
       _promoSteps.forEach((id, i) => {
@@ -2589,6 +2639,17 @@
       if (_promoType === 'dollar' && !document.getElementById('promo-dollar').value) { err.style.display = 'block'; return false; }
       if (_promoType === 'freeitem' && !document.getElementById('promo-free-item').value.trim()) { err.style.display = 'block'; return false; }
       if ((_promoType === 'loyalty' || _promoType === 'flash') && !document.getElementById('promo-custom-desc').value.trim()) { err.style.display = 'block'; return false; }
+      // Online merchants must provide a promo code
+      const codeRow = document.getElementById('promo-code-row');
+      if (codeRow && codeRow.style.display !== 'none') {
+        const codeVal = document.getElementById('promo-campaign-code').value.trim();
+        if (!codeVal) {
+          err.innerText = 'Please enter a discount code for your online offer.';
+          err.style.display = 'block';
+          return false;
+        }
+      }
+      err.innerText = 'Please fill in all required fields.';
       return true;
     }
 
@@ -2750,6 +2811,9 @@
     function buildPromoPreview() {
       const storeName = localStorage.getItem('perkfinity_business_name') || 'Your Store';
       const storeAddr = localStorage.getItem('perkfinity_address') || '';
+      const website = localStorage.getItem('perkfinity_website') || '';
+      const isOnline = (window._merchantPresence || 'physical') === 'online';
+      const isMobile = (window._merchantPresence || 'physical') === 'mobile';
       const logoUrl = localStorage.getItem('perkfinity_logo_url') || '';
       const expiry = document.getElementById('promo-expiry').value;
       const headline = buildPromoHeadline();
@@ -2767,8 +2831,12 @@
         const isAnnouncement = _promoType === 'announcement';
         document.getElementById('promo-push-title').innerText = isAnnouncement ? `📢 ${headline} — ${storeName}` : `🎉 ${headline} — ${storeName}`;
         document.getElementById('promo-push-body').innerText = condLine || headline;
-        const pushAddr = localStorage.getItem('perkfinity_address') || '';
-        document.getElementById('promo-push-address').innerText = pushAddr ? '📍 ' + pushAddr : '';
+        const pushDisplay = isOnline
+          ? (website ? '🌐 ' + website.replace(/^https?:\/\//, '') : '')
+          : (isMobile && website)
+            ? '🌐 ' + website.replace(/^https?:\/\//, '')
+            : (storeAddr ? '📍 ' + storeAddr : '');
+        document.getElementById('promo-push-address').innerText = pushDisplay;
       }
 
       // Common digest fields
@@ -2797,8 +2865,24 @@
         announceBody.style.display = 'none';
         document.getElementById('promo-digest-title').innerText = headline;
         document.getElementById('promo-digest-cond').innerText = condLine;
-        const storeAddr = localStorage.getItem('perkfinity_address') || '';
-        document.getElementById('promo-digest-address').innerText = storeAddr ? '📍 ' + storeAddr : '';
+        if (isOnline || (isMobile && website)) {
+          const websiteDisplay = website ? website.replace(/^https?:\/\//, '') : '';
+          document.getElementById('promo-digest-address').innerHTML = websiteDisplay
+            ? `🌐 <a href="${website.startsWith('http') ? website : 'https://' + website}" style="color:#5B3FA5;text-decoration:none;">${websiteDisplay}</a>`
+            : '';
+        } else {
+          document.getElementById('promo-digest-address').innerText = storeAddr ? '📍 ' + storeAddr : '';
+        }
+        const ctaEl = document.getElementById('promo-digest-cta');
+        if (ctaEl) {
+          if (isOnline) {
+            ctaEl.innerHTML = `<span style="color:#5B3FA5;">🛍️ Open the Perkfinity app → find ${storeName} → Reveal &amp; Copy your code</span>`;
+          } else if (isMobile) {
+            ctaEl.innerHTML = `<span style="color:#dc2626;">🚐 Find us and scan the Perkfinity QR to activate</span>`;
+          } else {
+            ctaEl.innerHTML = `<span style="color:#dc2626;">📍 Visit the store and scan the Perkfinity QR to activate</span>`;
+          }
+        }
         document.getElementById('promo-digest-expiry').innerText = expiryStr ? 'Expires: ' + expiryStr : '';
       }
 
@@ -2860,6 +2944,7 @@
       const condLine = buildPromoCondLine();
       const expiry = document.getElementById('promo-expiry').value;
 
+      const promoCodeInput = document.getElementById('promo-campaign-code');
       const payload = {
         type: _promoType,
         title: headline,
@@ -2874,6 +2959,7 @@
         audience_zips: _promoAud === 'by_location' ? [..._selectedZips] : [],
         expires_at: expiry ? new Date(expiry + 'T23:59:59').toISOString() : null,
         disclaimer: (document.getElementById('promo-disclaimer') || {}).value || null,
+        promo_code: promoCodeInput ? (promoCodeInput.value.trim() || null) : null,
       };
 
       try {
@@ -2934,21 +3020,21 @@
 
     async function loadPromoHistory() {
       const tbody = document.getElementById('promoHistoryBody');
-      tbody.innerHTML = '<tr><td colspan="8" style="padding:20px;text-align:center;color:var(--muted);">Loading...</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="11" style="padding:20px;text-align:center;color:var(--muted);">Loading...</td></tr>';
       try {
         const res = await fetch(`${BACKEND_URL}/api/v1/merchants/${merchantId}/promotions/history`, {
           headers: { 'Authorization': `Bearer ${apiToken}` }
         });
         const json = await res.json();
         if (!res.ok) {
-          tbody.innerHTML = `<tr><td colspan="8" style="padding:20px;text-align:center;color:red;">API Error ${res.status}: ${json.error || JSON.stringify(json)}</td></tr>`;
+          tbody.innerHTML = `<tr><td colspan="11" style="padding:20px;text-align:center;color:red;">API Error ${res.status}: ${json.error || JSON.stringify(json)}</td></tr>`;
           console.error('[History] API error:', res.status, json);
           return;
         }
         const rows = json.data || [];
         _historyCache = rows;
         if (!rows.length) {
-          tbody.innerHTML = '<tr><td colspan="8" style="padding:20px;text-align:center;color:var(--muted);">No campaigns yet.</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="11" style="padding:20px;text-align:center;color:var(--muted);">No campaigns yet.</td></tr>';
           return;
         }
         const audienceLabels = { all: 'All Members', redeemed_30: 'Redeemed (30d)', expired_30: 'Expired (30d)', never_redeemed: 'Never Redeemed', redeemed_90: 'Redeemed (90d)' };
@@ -2957,19 +3043,24 @@
           const raw = r.metadata;
           const m = raw ? (typeof raw === 'string' ? JSON.parse(raw) : raw) : {};
           const assigned = parseInt(m.assigned_count ?? 0);
-          const redeemed = parseInt(r.redeemed_count ?? 0);
-          const rate = assigned > 0 ? ((redeemed / assigned) * 100).toFixed(1) : '—';
-          const rateColor = assigned === 0 ? '#999' : (redeemed / assigned >= 0.5 ? 'var(--green)' : redeemed / assigned >= 0.2 ? '#f59e0b' : '#ef4444');
+          const isOnline = !!r.promo_code;
+          const actionCount = isOnline ? parseInt(r.claimed_count ?? 0) : parseInt(r.redeemed_count ?? 0);
+          const rate = assigned > 0 ? ((actionCount / assigned) * 100).toFixed(1) : '—';
+          const rateColor = assigned === 0 ? '#999' : (actionCount / assigned >= 0.5 ? 'var(--green)' : actionCount / assigned >= 0.2 ? '#f59e0b' : '#ef4444');
           const created = r.created_at ? new Date(r.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '-';
           const expires = r.end_at ? new Date(r.end_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '-';
           const statusColor = r.status === 'active' ? 'var(--green)' : r.status === 'expired' ? '#ef4444' : '#999';
+          const codeCell = r.promo_code
+            ? `<span style="font-family:monospace;font-size:12px;background:rgba(139,92,246,0.12);color:#8B5CF6;padding:2px 8px;border-radius:6px;font-weight:700;">${r.promo_code}</span>`
+            : `<span style="color:var(--muted);">—</span>`;
           return `<tr style="border-bottom:1px solid var(--border);">
             <td style="padding:11px 10px; font-weight:600;">${r.title || '-'}</td>
+            <td style="padding:11px 10px;">${codeCell}</td>
             <td style="padding:11px 10px;">${typeLabels[m.type] || m.type || '-'}</td>
             <td style="padding:11px 10px;">${audienceLabels[m.audience] || m.audience || '-'}</td>
             <td style="padding:11px 10px;">${m.delivery || '-'}</td>
             <td style="padding:11px 10px; font-weight:700; color:var(--purple);">${assigned || '-'}</td>
-            <td style="padding:11px 10px; font-weight:700;">${redeemed}</td>
+            <td style="padding:11px 10px; font-weight:700;">${actionCount}</td>
             <td style="padding:11px 10px;"><span style="background:${rateColor}22;color:${rateColor};padding:3px 8px;border-radius:20px;font-weight:700;font-size:12px;">${rate === '—' ? '—' : rate + '%'}</span></td>
             <td style="padding:11px 10px;">${created}</td>
             <td style="padding:11px 10px;">${expires}</td>
@@ -2978,7 +3069,7 @@
         }).join('');
       } catch (e) {
         console.error('[History] JS error:', e);
-        tbody.innerHTML = `<tr><td colspan="10" style="padding:20px;text-align:center;color:red;">Error: ${e.message}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="11" style="padding:20px;text-align:center;color:red;">Error: ${e.message}</td></tr>`;
       }
     }
 
@@ -2989,16 +3080,17 @@
       if (!rows || !rows.length) { alert('No history data to export. Refresh first.'); return; }
       const audienceLabels = { all: 'All Members', redeemed_30: 'Redeemed (30d)', expired_30: 'Expired (30d)', never_redeemed: 'Never Redeemed', redeemed_90: 'Redeemed (90d)' };
       const typeLabels = { percent: '% Off', dollar: '$ Off', bogo: 'Buy X Get Y', freeitem: 'Free Item', loyalty: 'Loyalty Reward', flash: 'Flash Sale' };
-      const headers = ['Title', 'Type', 'Audience', 'Delivery', 'Assigned', 'Redeemed', 'Rate', 'Created', 'Expires', 'Status'];
+      const headers = ['Title', 'Code', 'Type', 'Audience', 'Delivery', 'Assigned', 'Redeemed/Claimed', 'Rate', 'Created', 'Expires', 'Status'];
       const dataRows = rows.map(r => {
         const raw = r.metadata;
         const m = raw ? (typeof raw === 'string' ? JSON.parse(raw) : raw) : {};
         const assigned = parseInt(m.assigned_count ?? 0);
-        const redeemed = parseInt(r.redeemed_count ?? 0);
-        const rate = assigned > 0 ? ((redeemed / assigned) * 100).toFixed(1) + '%' : '—';
+        const isOnline = !!r.promo_code;
+        const actionCount = isOnline ? parseInt(r.claimed_count ?? 0) : parseInt(r.redeemed_count ?? 0);
+        const rate = assigned > 0 ? ((actionCount / assigned) * 100).toFixed(1) + '%' : '—';
         const created = r.created_at ? new Date(r.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '-';
         const expires = r.end_at ? new Date(r.end_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '-';
-        return [r.title || '', typeLabels[m.type] || m.type || '', audienceLabels[m.audience] || m.audience || '', m.delivery || '', assigned, redeemed, rate, created, expires, r.status || ''];
+        return [r.title || '', r.promo_code || '', typeLabels[m.type] || m.type || '', audienceLabels[m.audience] || m.audience || '', m.delivery || '', assigned, actionCount, rate, created, expires, r.status || ''];
       });
       let content, type, ext;
       if (fmt === 'csv') {
@@ -3019,7 +3111,28 @@
       a.click();
     }
 
+    // ── Profile unsaved-changes guard ────────────────────────────
+    let _profileDirty = false;
+
+    // Mark dirty whenever any profile field changes
+    document.getElementById('tab-profile').addEventListener('input',  () => { _profileDirty = true; });
+    document.getElementById('tab-profile').addEventListener('change', () => { _profileDirty = true; });
+
+    function _confirmLeaveProfile(onConfirm) {
+      const modal = document.getElementById('unsavedChangesModal');
+      modal.style.display = 'flex';
+      document.getElementById('unsavedStayBtn').onclick   = () => { modal.style.display = 'none'; };
+      document.getElementById('unsavedLeaveBtn').onclick  = () => { modal.style.display = 'none'; _profileDirty = false; onConfirm(); };
+    }
+
     function switchTab(tabId) {
+      // If leaving profile tab with unsaved changes, warn first
+      const profileTabVisible = document.getElementById('tab-profile').style.display !== 'none';
+      if (profileTabVisible && _profileDirty && tabId !== 'profile') {
+        _confirmLeaveProfile(() => switchTab(tabId));
+        return;
+      }
+
       document.querySelectorAll('.empty-state, #tab-members, #tab-profile, #tab-print-sign, #tab-promotion, #tab-billing').forEach(el => el.style.display = 'none');
       document.querySelectorAll('.nav-tabs a').forEach(el => el.classList.remove('active'));
 
@@ -3074,6 +3187,11 @@
             if (json.success && json.data) {
               document.getElementById('profileStoreName').value = json.data.business_name || '';
               document.getElementById('profileWebsite').value = json.data.website || '';
+              // Update website label based on presence
+              const websiteLabel = document.getElementById('websiteLabel');
+              if (websiteLabel && window._merchantPresence === 'online') {
+                websiteLabel.innerHTML = 'Website <span style="color:#ef4444;">*</span> <span style="font-size:11px; font-weight:400; color:#6b7280;">(Required for online merchants)</span>';
+              }
               document.getElementById('profileAddress').value = json.data.address || '';
               document.getElementById('profileSuite').value = json.data.suite || '';
               document.getElementById('profileCity').value = json.data.city || '';
@@ -3081,6 +3199,24 @@
               document.getElementById('profileZip').value = json.data.postal_code || '';
               document.getElementById('profileContactName').value = json.data.contact_name || '';
               document.getElementById('profilePhone').value = json.data.phone || '';
+
+              // New presence/offer fields
+              const presence = json.data.business_presence || 'physical';
+              window._merchantPresence = presence; // make available to campaign wizard
+              const presenceLabels = { physical: '🏪 Physical Store', mobile: '🚐 Mobile / Pop-Up', online: '🌐 Online Only' };
+              document.getElementById('profilePresenceBadge').innerText = presenceLabels[presence] || presence;
+              document.getElementById('profileWelcomeOfferText').value = json.data.welcome_offer_text || '';
+              document.getElementById('profileReviewUrl').value = json.data.review_url || '';
+              document.getElementById('profileOrderUrl').value = json.data.order_url || '';
+              // Show the locked promo code row only for online merchants
+              const promoRow = document.getElementById('profilePromoCodeRow');
+              if (presence === 'online' && json.data.welcome_promo_code) {
+                document.getElementById('profilePromoCode').value = json.data.welcome_promo_code;
+                promoRow.style.display = 'block';
+              } else {
+                promoRow.style.display = 'none';
+              }
+
               // Store full address in localStorage so promotion preview can display it
               const addrParts = [json.data.address, json.data.suite, json.data.city, json.data.state, json.data.postal_code].filter(Boolean);
               if (addrParts.length) localStorage.setItem('perkfinity_address', addrParts.join(', '));
@@ -3235,6 +3371,11 @@
           let count = d.member_count || 0;
           let diff = limit - count;
           sceneName = (diff <= 2 && diff >= 0) ? 'trial-near-20' : 'trial-20';
+        } else if (d.tier === 'tier1' && !d.has_stripe) {
+          // Tier 1 merchant who never completed payment — redirect to finish signup
+          localStorage.setItem('perkfinity_setup_incomplete', 'true');
+          window.location.href = 'signup.html?resume=true';
+          return;
         }
 
         // Hide all scenes
@@ -3516,7 +3657,13 @@
     }
 
     function generateSignFromDashboard() {
+      // Guard: warn if profile has unsaved changes
+      if (_profileDirty) {
+        _confirmLeaveProfile(() => generateSignFromDashboard());
+        return;
+      }
       // Switch tab visually to our new print view
+
       document.querySelectorAll('.empty-state, #tab-members, #tab-profile, #tab-print-sign, #tab-billing').forEach(el => el.style.display = 'none');
       document.querySelectorAll('.nav-tabs a').forEach(el => el.classList.remove('active'));
       document.getElementById('tab-print-sign').style.display = 'block';
@@ -3972,6 +4119,9 @@
       const zip = document.getElementById('profileZip').value;
       const contact_name = document.getElementById('profileContactName').value;
       const phone = document.getElementById('profilePhone').value;
+      const welcome_offer_text = document.getElementById('profileWelcomeOfferText').value;
+      const review_url = document.getElementById('profileReviewUrl').value || null;
+      const order_url = document.getElementById('profileOrderUrl').value || null;
 
       const current_password = document.getElementById('profileCurrentPassword').value;
       const new_password = document.getElementById('profileNewPassword').value;
@@ -4001,7 +4151,7 @@
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${apiToken}`
           },
-          body: JSON.stringify({ email, current_password, new_password, business_name, website, address, suite, city, state, zip, contact_name, phone })
+          body: JSON.stringify({ email, current_password, new_password, business_name, website, address, suite, city, state, zip, contact_name, phone, welcome_offer_text, review_url, order_url })
         });
         const json = await res.json();
 
@@ -4018,7 +4168,16 @@
             localStorage.setItem('perkfinity_business_name', json.new_business_name);
           }
 
+          // Sync updated offer to the print sign immediately (no reload needed)
+          if (welcome_offer_text) {
+            localStorage.setItem('perkfinity_member_perk', welcome_offer_text);
+            const posterPerkEl = document.getElementById('poster-perk');
+            if (posterPerkEl) posterPerkEl.innerText = welcome_offer_text;
+          }
+          _profileDirty = false; // reset dirty flag after successful save
+
           // Upload logo if one was selected
+
           if (uploadedProfileLogoBase64) {
             // Guard: wide logo warning requires acknowledgement before saving
             const warningEl = document.getElementById('dashboardLogoWarning');
@@ -4102,6 +4261,7 @@
               proms.forEach(p => {
                 let ts_raw = null;
                 if (p.status === 'Redeemed' && p.redeemed_at) ts_raw = new Date(p.redeemed_at);
+                else if (p.status === 'Claimed' && p.claimed_at) ts_raw = new Date(p.claimed_at);
                 else if (p.status === 'Expired' && p.expires_at) ts_raw = new Date(p.expires_at);
                 else if (p.status === 'Created' && p.issued_at) ts_raw = new Date(p.issued_at);
                 else if (p.status === 'Announcement' && p.issued_at) ts_raw = new Date(p.issued_at);
@@ -4244,6 +4404,21 @@
       a.click();
     }
   </script>
+
+  <!-- Unsaved Profile Changes Modal -->
+  <div id="unsavedChangesModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9999;align-items:center;justify-content:center;padding:20px">
+    <div style="background:#fff;border-radius:20px;padding:32px 28px;max-width:420px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.2);text-align:center">
+      <div style="font-size:44px;margin-bottom:12px">⚠️</div>
+      <h3 style="margin:0 0 10px;font-size:20px;color:#1e1b4b">Unsaved Changes</h3>
+      <p style="margin:0 0 24px;font-size:14px;color:#6b7280;line-height:1.6">You've made changes to your profile that haven't been saved yet.<br>If you leave now, your changes will be lost.</p>
+      <div style="display:flex;gap:12px;justify-content:center">
+        <button id="unsavedLeaveBtn" style="padding:11px 24px;border:1.5px solid #e5e7eb;border-radius:10px;background:#fff;color:#374151;font-size:14px;font-weight:600;cursor:pointer">Leave Anyway</button>
+        <button id="unsavedStayBtn" style="padding:11px 24px;border:none;border-radius:10px;background:var(--purple);color:#fff;font-size:14px;font-weight:600;cursor:pointer">Stay &amp; Save</button>
+      </div>
+    </div>
+  </div>
+
 </body>
+
 
 </html>
