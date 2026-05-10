@@ -1918,6 +1918,17 @@
             </div>
           </div>
         </div>
+        <!-- Member usage bar — shown for Starter/Growth only, hidden by JS for Scale -->
+        <div id="oa-usage-section" class="billing-section" style="padding-top:0;display:none">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <span style="font-size:13px;font-weight:600;color:var(--muted)">Member Usage</span>
+            <span class="usage-count" style="font-size:13px;font-weight:700;color:var(--purpleDark)">0 <span style="font-weight:400;color:var(--muted)">/ —</span></span>
+          </div>
+          <div class="usage-bar">
+            <div class="usage-fill" style="width:0%;transition:width 0.6s ease"></div>
+          </div>
+          <div class="oa-usage-note" style="font-size:12px;margin-top:6px;text-align:right"></div>
+        </div>
         <div class="info-grid">
           <div class="info-item">
             <div class="label">Billing Status</div>
@@ -4255,6 +4266,32 @@
                 if (oaUpgradeBtn) oaUpgradeBtn.onclick = () => doUpgrade(upgradeInfo.next, 'upgrade-warning-online');
               } else {
                 oaUpgradeLink.style.display = 'none';
+              }
+            }
+            // Show usage bar for Starter/Growth; hide for Scale (unlimited)
+            const oaUsageSection = document.getElementById('oa-usage-section');
+            if (oaUsageSection) {
+              if (ti.limitNum) {
+                oaUsageSection.style.display = '';
+                const _spotsLeft = Math.max(0, ti.limitNum - (d.member_count || 0));
+                const _spotsNote = oaUsageSection.querySelector('.oa-usage-note');
+                if (_spotsNote) {
+                  if (_spotsLeft === 0) {
+                    _spotsNote.textContent = '🚫 Plan is full — new members are being turned away. Upgrade now.';
+                    _spotsNote.style.color = 'var(--red)';
+                    _spotsNote.style.fontWeight = '700';
+                  } else if (_spotsLeft <= Math.ceil(ti.limitNum * 0.1)) {
+                    _spotsNote.textContent = `⚠️ Only ${_spotsLeft.toLocaleString()} spots left — consider upgrading soon`;
+                    _spotsNote.style.color = '#d97706';
+                    _spotsNote.style.fontWeight = '600';
+                  } else {
+                    _spotsNote.textContent = `${_spotsLeft.toLocaleString()} of ${ti.limit} member spots available`;
+                    _spotsNote.style.color = 'var(--muted)';
+                    _spotsNote.style.fontWeight = '500';
+                  }
+                }
+              } else {
+                oaUsageSection.style.display = 'none';
               }
             }
           }
