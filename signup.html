@@ -33,53 +33,59 @@
         box-sizing: border-box;
       }
     }
+  /* ── Step progress bar (matches apply.html) ─────────────────── */
+  :root{--step-active:#5B3FA5;--step-done:#6BC17A}
+  .steps-bar{display:flex;align-items:center;justify-content:center;gap:0;margin-bottom:32px}
+  .s-dot{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font-size:13px;font-weight:900;border:2px solid #e2e2f0;background:#fff;color:#aaa;flex-shrink:0;position:relative;z-index:1;transition:all .3s}
+  .s-dot.active{border-color:var(--step-active);background:var(--step-active);color:#fff}
+  .s-dot.done{border-color:var(--step-done);background:var(--step-done);color:#fff}
+  .s-line{flex:1;height:2px;background:#e2e2f0;transition:background .3s}
+  .s-line.done{background:var(--step-done)}
   </style>
   <script src="/config.js"></script>
 </head>
 
 <body>
-  <header class="header">
+  <header style="position:sticky;top:0;z-index:100;background:rgba(45,21,112,0.97);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.08);">
     <div class="container header-inner">
       <a class="brand" href="index.html" aria-label="Perkfinity home">
         <img src="assets/Perkfinity-Logo.png" alt="Perkfinity logo">
       </a>
-      <nav class="nav" aria-label="Primary navigation">
-        <a href="members.html">For Members</a>
-        <a href="merchants.html">For Merchants</a>
-
-        <a href="signup.html" aria-current="page">Merchant Sign Up / Sign In</a>
-        <a href="how-it-works.html">How it Works</a>
+      <nav class="nav" aria-label="Business navigation" style="gap:4px">
+        <a href="merchants.html" style="color:rgba(255,255,255,0.6);font-size:13px">← For Businesses</a>
+        <a href="login.html" style="color:rgba(255,255,255,0.7)">Sign In</a>
       </nav>
-      <a class="btn btn-green" href="mailto:hello@perkfinity.net" aria-label="Contact Us">
-        <span aria-hidden="true"
-          style="display:inline-grid;place-items:center;width:20px;height:20px;border-radius:7px;background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.22);">✉</span>
-        Contact Us
-      </a>
     </div>
   </header>
 
-  <main style="padding-top: 60px;">
+  <main>
 
     <!-- ===== MERCHANT ONBOARDING WIZARD ===== -->
     <section class="merchant-form-section" id="merchant-interest">
       <div class="container">
-        <div id="onboarding-headers">
-          <h2>Merchant Form</h2>
-          <p class="form-sub">Complete your profile to generate your countertop display.</p>
-          <p style="text-align:center;font-size:14px;color:rgba(255,255,255,.78);font-weight:850;margin-top:8px">
-            Already have an account? <a href="login.html"
-              style="color:#fff;font-weight:900;text-decoration:underline;">Sign In here</a>
-          </p>
+
+        <!-- Pill badge + subtitle — text updated by JS based on ?type= param -->
+        <div style="text-align:center;margin-bottom:28px">
+          <div class="section-label" id="page-label" style="margin:0 auto 12px;display:inline-flex">🏪 Physical Store Sign Up</div>
+          <div id="page-subheading" style="color:rgba(255,255,255,.72);font-size:15px;font-weight:700">Complete all 5 steps to finish your QR code set up and start capturing local members.</div>
         </div>
 
         <div class="merchant-form-panel" id="wizard-panel">
+          <!-- 5-step progress bar -->
+          <div class="steps-bar" id="signup-steps-bar">
+            <div class="s-dot active" id="ssd1">1</div><div class="s-line" id="ssl1"></div>
+            <div class="s-dot" id="ssd2">2</div><div class="s-line" id="ssl2"></div>
+            <div class="s-dot" id="ssd3">3</div><div class="s-line" id="ssl3"></div>
+            <div class="s-dot" id="ssd4">4</div><div class="s-line" id="ssl4"></div>
+            <div class="s-dot" id="ssd5">5</div>
+          </div>
 
           <!-- STEP 1: Details -->
           <div id="step-1" class="wizard-step active">
-            <h3 style="margin-top:0;margin-bottom:20px;color:var(--purpleDark)">Step 1: Store/Business Details</h3>
+            <h3 style="margin-top:0;margin-bottom:20px;color:var(--purpleDark)">Step 1: Business Details</h3>
 
             <!-- Business Type -->
-            <div class="form-row" style="margin-bottom:20px">
+            <div class="form-row" id="presence-type-row" style="margin-bottom:20px">
               <label style="font-weight:600;font-size:14px">Choose Your Business Type *
                 <select id="business_presence" onchange="onPresenceChange(this.value)"
                   style="border:1.5px solid var(--border);border-radius:12px;padding:12px 16px;background:#fff;color:var(--ink);font-size:15px;width:100%;outline:none;font-family:inherit;appearance:auto;margin-top:6px">
@@ -91,7 +97,7 @@
 
 
             <div class="form-row">
-              <label>Store/Business Name *<input type="text" id="store_name" required></label>
+              <label>Business Name *<input type="text" id="store_name" required></label>
             </div>
             <div id="street_row" class="form-row form-row-2">
               <label>Street Address *<input type="text" id="street_address"></label>
@@ -200,12 +206,9 @@
             <div
               style="margin:30px 0 20px;padding:20px;background:rgba(107,193,122,.1);border:1px solid rgba(107,193,122,.3);border-radius:16px;">
               <h4 style="margin:0 0 10px;color:var(--greenDark)">Welcome Offer for New Members</h4>
-              <p style="margin:0 0 15px;font-size:14px;color:var(--muted)" id="perk_hint_physical">To attract your first
-                app users, we recommend a strong initial offer. Your countertop sign will prominently feature this
-                perk.</p>
+              <p style="margin:0 0 15px;font-size:14px;color:var(--muted)" id="perk_hint_physical">A strong welcome offer is one of the fastest ways to grow your member list. Your countertop QR sign will feature this perk prominently — make it compelling enough that customers want to scan and join on the spot. You can update your welcome offer anytime from your dashboard.</p>
               <p style="margin:0 0 15px;font-size:14px;color:var(--muted)" id="perk_hint_online" style="display:none">
-                This is the offer members see when they join your store on Perkfinity. They will need to tap
-                <strong>Claim & Copy</strong> in the app to reveal the promo code and use it at checkout.</p>
+                Members discover your store and tap <strong>Claim & Reveal</strong> in the app to unlock this perk. Once revealed, the code is theirs to use at checkout — and they instantly become your member. You can update your welcome offer anytime from your dashboard.</p>
               <div class="form-row" style="margin:0">
                 <label style="font-weight:600;font-size:14px">Welcome Offer *
                   <select id="welcome_offer_select" onchange="onOfferChange(this.value)"
@@ -268,10 +271,10 @@
 
               <div class="tier-select-card" onclick="selectTier(this, 'tier1')"
                 style="border:2px solid var(--border);padding:20px;border-radius:16px;cursor:pointer">
-                <h4 style="margin:0 0 10px">Tier 1</h4>
+                <h4 style="margin:0 0 10px">Connect</h4>
                 <div style="font-size:24px;font-weight:900;color:var(--purple);margin-bottom:10px">$29.99<span
                     style="font-size:14px;color:var(--muted)">/mo</span></div>
-                <p style="font-size:14px;margin:0;color:var(--muted)">Unlimited digital coupons & weekly newsletter
+                <p style="font-size:14px;margin:0;color:var(--muted)">Unlimited digital coupons & Daily Digest
                   inclusions.</p>
               </div>
 
@@ -377,7 +380,7 @@
               <div>
                 <strong>Please complete this step to activate your account.</strong><br>
                 Your account has been created but won't be active until payment info is connected. If this step isn't
-                completed within 15 minutes, you'll need to start the sign up process again.
+                completed within 15 minutes, you'll need to sign in and complete this step.
               </div>
             </div>
 
@@ -386,14 +389,9 @@
               style="display:none;padding:14px 18px;background:rgba(107,193,122,.12);border:1px solid rgba(107,193,122,.4);border-radius:12px;margin-bottom:18px;font-size:14px;color:#1a6b2b">
               🟢 <strong>No charge today!</strong> You're on the <strong>Trial Plan</strong>. We collect your payment
               info now, but <strong>you won't be billed until you reach <span id="trial-limit-text">10</span> active
-                members</strong>, which then you will be upgraded to Tier 1.
+                members</strong>, which then you will be upgraded to Connect.
             </div>
-            <!-- Tier 1 notice -->
-            <div id="tier1-bank-notice"
-              style="display:none;padding:14px 18px;background:rgba(91,63,165,.06);border:1px solid rgba(91,63,165,.2);border-radius:12px;margin-bottom:18px;font-size:14px;color:var(--purpleDark)">
-              💳 Your <strong>$29.99/mo Tier 1</strong> subscription will begin once your card is connected. No hidden
-              fees.
-            </div>
+
 
             <!-- STRIPE CARD FORM (Trial — Setup Intent) -->
             <div id="stripe-card-section"
@@ -418,22 +416,6 @@
               </button>
             </div>
 
-            <!-- STRIPE CHECKOUT REDIRECT (Tier 1) -->
-            <div id="stripe-checkout-section"
-              style="display:none;padding:40px 20px;border:1px solid var(--border);border-radius:16px;margin-bottom:20px;background:#FAFAFA;text-align:center;">
-              <div
-                style="width:60px;height:60px;background:var(--purpleLight);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px">
-                <span style="font-size:24px">💳</span>
-              </div>
-              <h4 style="margin:0 0 10px;color:var(--ink)">Complete Your Payment</h4>
-              <p style="margin:0 0 20px;font-size:14px;color:var(--muted)">You'll be redirected to Stripe's secure
-                checkout to pay <strong>$29.99</strong> for your first month.</p>
-
-              <button class="btn btn-purple" id="btnCheckout" style="padding:15px 30px;font-size:16px"
-                onclick="handleStripeCheckout()">
-                💳 Pay $29.99 & Continue →
-              </button>
-            </div>
 
             <!-- 🛡️ Payment security banner -->
             <div
@@ -468,17 +450,17 @@
               <p style="font-size:15px;color:var(--muted);max-width:400px;margin:0 auto 8px;line-height:1.6;">No worries
                 — your information was not saved for your security.</p>
               <p style="font-size:15px;color:var(--muted);max-width:400px;margin:0 auto 28px;line-height:1.6;">Please
-                start the signup process again.</p>
-              <button class="btn btn-purple" onclick="window.location.reload()"
+                sign in to continue where you left off.</p>
+              <button class="btn btn-purple" onclick="window.location.href='login.html'"
                 style="padding:15px 36px;font-size:16px;">
-                Start Over →
+                Sign In & Continue →
               </button>
             </div>
           </div>
 
           <!-- STEP 5: Customize Storefront -->
           <div id="step-5-logo" class="wizard-step" style="display:none;">
-            <h3 style="margin-top:0;margin-bottom:12px;color:var(--purpleDark)">Step 5: Customize Your Store/Business
+            <h3 style="margin-top:0;margin-bottom:12px;color:var(--purpleDark)">Step 5: Customize Your Business
             </h3>
             <p style="font-size:14px;color:var(--muted);margin-bottom:24px">Upload your store or business logo. This
               will appear on your dashboard, consumer app, and your printable countertop QR sign. <span
@@ -505,8 +487,11 @@
               <div id="logoPreviewContainer" style="display:none; margin-bottom: 20px;">
                 <img id="logoPreviewBtn" src=""
                   style="width: 120px; height: 120px; object-fit: contain; border-radius: 16px; border: 2px solid var(--purpleLight); margin: 0 auto; display: block; background: #fff;">
-                <p style="font-size: 13px; color: var(--purple); margin-top: 10px; cursor: pointer;"
-                  onclick="document.getElementById('logoUpload').click()">Change Logo</p>
+                <div style="display:flex;justify-content:center;align-items:center;gap:16px;margin-top:10px">
+                  <p style="font-size: 13px; color: var(--purple); margin: 0; cursor: pointer;"
+                    onclick="document.getElementById('logoUpload').click()">Change Logo</p>
+                  <button onclick="removeSignupLogo()" style="font-size:13px;color:#dc2626;background:none;border:none;cursor:pointer;font-weight:700;font-family:inherit;padding:0">✕ Remove</button>
+                </div>
               </div>
 
               <div id="logoUploadPrompt" style="display:block">
@@ -517,15 +502,17 @@
                 <button class="btn"
                   style="background:var(--purpleLight);color:var(--purpleDark);padding:10px 20px;font-size:14px;"
                   onclick="document.getElementById('logoUpload').click()">Choose Image File</button>
+                <p id="signup-logo-note" style="margin:12px 0 0;font-size:12px;color:rgba(31,32,48,.5);font-weight:600">🔤 No logo? The first letter of your business name will appear in the QR code center.</p>
               </div>
             </div>
 
             <!-- QR Preview + Wide Logo Warning -->
             <div id="signupQrPreviewBlock" style="display:none; margin-bottom:20px; text-align:center;">
-              <p style="font-size:13px; font-weight:700; color:var(--purpleDark); margin:0 0 10px;">How your logo appears in the QR code:</p>
+              <p style="font-size:13px; font-weight:700; color:var(--purpleDark); margin:0 0 10px;">How your QR code will look:</p>
               <div style="position:relative; display:inline-block; padding:10px; background:#fff; border-radius:14px; border:2px solid var(--purpleLight); box-shadow:0 2px 8px rgba(91,63,165,0.1);">
                 <div id="signupQrMini" style="width:120px; height:120px;"></div>
-                <img id="signupQrLogoOverlay" src="" alt="logo preview" style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:28px; height:28px; border-radius:6px; object-fit:contain; background:#fff; padding:2px; box-shadow:0 1px 4px rgba(0,0,0,0.15);">
+                <img id="signupQrLogoOverlay" src="" alt="logo preview" style="display:none;position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:28px; height:28px; border-radius:6px; object-fit:contain; background:#fff; padding:2px; box-shadow:0 1px 4px rgba(0,0,0,0.15);">
+                <div id="signupQrLetterOverlay" style="display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:28px;height:28px;border-radius:6px;background:#5B3FA5;color:#fff;align-items:center;justify-content:center;font-size:13px;font-weight:900;font-family:inherit;box-shadow:0 1px 4px rgba(0,0,0,0.2)"></div>
               </div>
               <div id="signupLogoWarning" style="display:none; margin-top:14px; padding:14px 16px; background:#fffbeb; border:1.5px solid #f59e0b; border-radius:12px; text-align:left;">
                 <div style="display:flex; align-items:flex-start; gap:10px; margin-bottom:12px;">
@@ -543,12 +530,19 @@
               </div>
             </div>
 
+
+            <!-- Profile note -->
+            <div style="margin-top:20px;margin-bottom:8px;padding:14px 16px;background:#f8f6ff;border:1.5px solid rgba(91,63,165,.2);border-radius:12px;font-size:13px;color:#5B3FA5;font-weight:600">
+              ℹ️ You can view and update your business details in your <strong>Profile</strong> from the dashboard after setup.
+            </div>
+
+
             <div style="display:flex;gap:15px">
               <button class="btn"
                 style="background:#e2e8f0;color:#334155;flex:1;padding:15px;font-weight:600;border:1px solid #cbd5e1;"
                 onclick="nextStep(4)">← Go Back</button>
               <button class="btn btn-purple" id="btnFinish" style="flex:2;padding:15px"
-                onclick="finishAndGenerate()">Finish & Generate Sign →</button>
+                onclick="finishAndGenerate()">Finish Setup →</button>
             </div>
           </div>
         </div>
@@ -640,6 +634,7 @@
       let currentPlaidToken = null;
       let currentQrUrl = null;
       let uploadedLogoBase64 = null;
+      let isSignupEditMode = false;
       const BACKEND_URL = PerkfinityConfig.BACKEND_URL;
       const STRIPE_PK = PerkfinityConfig.STRIPE_PK;
 
@@ -879,6 +874,29 @@
 
         // Handle return from Stripe Checkout (Tier 1)
         const urlParams = new URLSearchParams(window.location.search);
+
+        // ── Pre-set business type from ?type= param (Physical / Mobile) ──
+        const typeParam = urlParams.get('type');
+        if (typeParam === 'physical' || typeParam === 'mobile') {
+          const sel = document.getElementById('business_presence');
+          if (sel) { sel.value = typeParam; onPresenceChange(typeParam); }
+          // Hide selector — merchant already chose on get-started
+          const typeRow = document.getElementById('presence-type-row');
+          if (typeRow) typeRow.style.display = 'none';
+          // Update page title and heading
+          const subheading = document.getElementById('page-subheading');
+          const label = document.getElementById('page-label');
+          if (typeParam === 'physical') {
+            document.title = 'Perkfinity — Physical Store Sign Up';
+            if (label) label.innerHTML = '🏪 Physical Store Sign Up';
+            if (subheading) subheading.textContent = 'Complete all 5 steps to finish your QR code set up and start capturing local members.';
+          } else {
+            document.title = 'Perkfinity — Mobile / Pop-Up Sign Up';
+            if (label) label.innerHTML = '🚐 Mobile Business Sign Up';
+            if (subheading) subheading.textContent = 'Complete all 5 steps to finish your QR code set up and capture members wherever you go.';
+          }
+        }
+
         const paymentStatus = urlParams.get('payment');
         const returnMerchantId = urlParams.get('merchant_id');
 
@@ -908,25 +926,26 @@
           // If logo already on file, skip Step 5 and go straight to QR sign
           const existingLogo = localStorage.getItem('perkfinity_logo_url');
           document.querySelectorAll('.wizard-step').forEach(el => el.style.display = 'none');
+          updateSignupStepBar(5);
           if (existingLogo) {
             generateSign();
           } else {
             document.getElementById('step-5-logo').style.display = 'block';
+            buildSignupSummary();
           }
         } else if (paymentStatus === 'cancelled' && returnMerchantId) {
-          // User cancelled checkout — show Step 4 with an error
+          // User cancelled checkout — show Step 4 with card form
           currentMerchantId = returnMerchantId;
           currentAccessToken = localStorage.getItem('perkfinity_token');
           selectedTier = 'tier1';
 
           document.querySelectorAll('.wizard-step').forEach(el => el.style.display = 'none');
           document.getElementById('step-4-bank').style.display = 'block';
-          document.getElementById('tier1-bank-notice').style.display = 'block';
-          document.getElementById('stripe-card-section').style.display = 'none';
-          document.getElementById('stripe-checkout-section').style.display = 'block';
+          updateSignupStepBar(4);
+          showPaymentStep();
 
           const errEl = document.getElementById('signupError');
-          errEl.innerText = 'Payment was cancelled. Please try again to activate your account.';
+          errEl.innerText = 'Payment was not completed. Please try again.';
           errEl.style.display = 'block';
 
           window.history.replaceState({}, document.title, window.location.pathname);
@@ -958,24 +977,63 @@
             const d = json.data;
             const tier = d.subscription_tier || 'trial';
             window._resumeHasLogo = !!d.logo_url;
+            window._resumeOnboardingComplete = !!d.onboarding_complete;
             if (d.logo_url) localStorage.setItem('perkfinity_logo_url', d.logo_url);
             if (d.business_name) localStorage.setItem('perkfinity_business_name', d.business_name);
             if (d.perk) localStorage.setItem('perkfinity_member_perk', d.perk);
             if (d.qr_url) currentQrUrl = d.qr_url;
 
-            if (tier === 'tier1') {
-              selectedTier = 'tier1';
-              document.getElementById('tier1-bank-notice').style.display = 'block';
-              document.getElementById('stripe-card-section').style.display = 'none';
-              document.getElementById('stripe-checkout-section').style.display = 'block';
-            } else {
-              document.getElementById('trial-bank-notice').style.display = 'block';
-              createSetupIntent();
-            }
+            // All tiers: use inline card form
+            selectedTier = tier;
+            document.getElementById('trial-bank-notice').style.display = tier === 'trial' ? 'block' : 'none';
+            createSetupIntent();
+
+            // Show Step 4 here — after _resumeHasLogo is set — so the payment
+            // form never appears before we know the merchant's logo/tier state.
+            document.querySelectorAll('.wizard-step').forEach(el => el.style.display = 'none');
+            step4El.style.display = 'block';
+            updateSignupStepBar(4);
           }).catch(() => { window.location.href = 'login.html'; });
 
+          // NOTE: Step 4 is shown INSIDE the .then() above after tier is detected.
+          // Do NOT show it here — doing so before the fetch resolves causes the
+          // _resumeHasLogo race condition (Issue 3).
+          window.history.replaceState({}, document.title, window.location.pathname);
+
+        } else if (urlParams.get('resume') === 'step5') {
+          // ── Resume at Step 5: payment done, logo/QR step was skipped ─────────
+          currentMerchantId = localStorage.getItem('perkfinity_merchant_id');
+          currentAccessToken = localStorage.getItem('perkfinity_token');
+
+          if (!currentMerchantId || !currentAccessToken) {
+            window.location.href = 'login.html';
+            return;
+          }
+
+          // Fetch profile to restore QR URL and logo state
+          fetch(`${BACKEND_URL}/api/v1/merchants/${currentMerchantId}/profile`, {
+            headers: { 'Authorization': `Bearer ${currentAccessToken}` }
+          }).then(r => r.json()).then(d => {
+            if (!d.success) { window.location.href = 'login.html'; return; }
+            if (d.data.logo_url) {
+              localStorage.setItem('perkfinity_logo_url', d.data.logo_url);
+              uploadedLogoBase64 = d.data.logo_url;
+            }
+            if (d.data.business_name) localStorage.setItem('perkfinity_business_name', d.data.business_name);
+            if (d.data.perk) localStorage.setItem('perkfinity_member_perk', d.data.perk);
+            if (d.data.qr_url) currentQrUrl = d.data.qr_url;
+          }).catch(() => { window.location.href = 'login.html'; });
+
+          // Show Step 5 with welcome-back banner
+          const step5El = document.getElementById('step-5-logo');
+          const step5Banner = document.createElement('div');
+          step5Banner.style.cssText = 'padding:14px 18px;background:linear-gradient(135deg,#fef3c7,#fde68a);border:2px solid #f59e0b;border-radius:12px;margin-bottom:18px;font-size:14px;color:#92400e;display:flex;align-items:flex-start;gap:10px;';
+          step5Banner.innerHTML = '<span style="font-size:20px;flex-shrink:0;margin-top:1px;">&#x1F501;</span><div><strong>Almost there! Your account and payment are set up.</strong><br>Upload your logo and generate your QR sign to complete setup.</div>';
+          step5El.insertBefore(step5Banner, step5El.firstChild);
+
           document.querySelectorAll('.wizard-step').forEach(el => el.style.display = 'none');
-          step4El.style.display = 'block';
+          step5El.style.display = 'block';
+          updateSignupStepBar(5);
           window.history.replaceState({}, document.title, window.location.pathname);
         }
       });
@@ -1078,6 +1136,13 @@
             return;
           }
 
+          // Normalize website URL for all types (www. → https://www.)
+          const websiteEl = document.getElementById('website');
+          if (websiteEl) {
+            const wv = websiteEl.value.trim();
+            if (wv && !/^https?:\/\//i.test(wv)) websiteEl.value = 'https://' + wv;
+          }
+
           // Presence-specific validations
           if (presence === 'physical') {
             const sAddress = document.getElementById('street_address').value.trim();
@@ -1093,7 +1158,8 @@
             if (!sCity || !sState || !sZip) { showErr('Please fill in City, State, and ZIP Code.'); return; }
             if (!/^\d{5}$/.test(sZip)) { showErr('Please enter a valid 5-digit ZIP code.'); return; }
           } else if (presence === 'online') {
-            const sWebsite = document.getElementById('website').value.trim();
+            let sWebsite = document.getElementById('website').value.trim();
+            if (sWebsite && !/^https?:\/\//i.test(sWebsite)) { sWebsite = 'https://' + sWebsite; document.getElementById('website').value = sWebsite; }
             if (!sWebsite) { showErr('Website URL is required for online businesses.'); return; }
           }
 
@@ -1110,6 +1176,18 @@
           }
 
           document.getElementById('step1Error').style.display = 'none';
+
+          // Edit mode: skip ahead back to Step 5 review instead of going to Step 2
+          if (isSignupEditMode) {
+            isSignupEditMode = false;
+            const btn1 = document.getElementById('btnStep1');
+            if (btn1) btn1.innerText = 'Continue to Tier Selection →';
+            buildSignupSummary();
+            document.querySelectorAll('.wizard-step').forEach(el => el.style.display = 'none');
+            document.getElementById('step-5-logo').style.display = 'block';
+            updateSignupStepBar(5);
+            return;
+          }
         }
 
         // When advancing to Step 3, populate the email display
@@ -1120,6 +1198,25 @@
 
         document.querySelectorAll('.wizard-step').forEach(el => el.style.display = 'none');
         document.getElementById('step-' + step).style.display = 'block';
+        updateSignupStepBar(step); // step 2 = dot 2, step 3 = dot 3
+      }
+
+      // ── Step progress bar updater ──────────────────────────────────
+      function updateSignupStepBar(n) {
+        for (let i = 1; i <= 5; i++) {
+          const dot = document.getElementById('ssd' + i);
+          if (!dot) continue;
+          dot.classList.remove('active', 'done');
+          if (i < n) dot.classList.add('done');
+          else if (i === n) dot.classList.add('active');
+        }
+        for (let i = 1; i <= 4; i++) {
+          const line = document.getElementById('ssl' + i);
+          if (!line) continue;
+          line.classList.remove('done');
+          if (n > i) line.classList.add('done');
+        }
+        if (n === 5) initSignupQrPreview();
       }
 
 
@@ -1243,15 +1340,17 @@
           if (data.data?.skip_stripe === true) {
             document.querySelectorAll('.wizard-step').forEach(el => el.style.display = 'none');
             document.getElementById('step-5-logo').style.display = 'block';
+            updateSignupStepBar(5);
+            buildSignupSummary();
           } else {
             // ALL other tiers collect payment info
             currentPlaidToken = data.data?.plaid_link_token;
             document.querySelectorAll('.wizard-step').forEach(el => el.style.display = 'none');
             document.getElementById('step-4-bank').style.display = 'block';
+            updateSignupStepBar(4);
 
             // Show the correct notice banner for the selected tier
             document.getElementById('trial-bank-notice').style.display = selectedTier === 'trial' ? 'block' : 'none';
-            document.getElementById('tier1-bank-notice').style.display = selectedTier === 'tier1' ? 'block' : 'none';
 
             // Initialize Stripe UI for this tier
             showPaymentStep();
@@ -1269,16 +1368,9 @@
 
       // Show correct payment UI based on tier
       function showPaymentStep() {
-        if (selectedTier === 'tier1') {
-          // Tier 1: Show checkout redirect button
-          document.getElementById('stripe-card-section').style.display = 'none';
-          document.getElementById('stripe-checkout-section').style.display = 'block';
-        } else {
-          // Trial: Show inline card form — need to create Setup Intent first
-          document.getElementById('stripe-card-section').style.display = 'block';
-          document.getElementById('stripe-checkout-section').style.display = 'none';
-          createSetupIntent();
-        }
+        // Always use inline card form for all tiers (Trial and Tier 1)
+        document.getElementById('stripe-card-section').style.display = 'block';
+        createSetupIntent();
 
         // Update trial limit text based on promo code
         const promoCode = document.getElementById('promo_code').value.trim().toUpperCase();
@@ -1318,6 +1410,8 @@
           setTimeout(() => {
             document.querySelectorAll('.wizard-step').forEach(el => el.style.display = 'none');
             document.getElementById('step-5-logo').style.display = 'block';
+            updateSignupStepBar(5);
+            buildSignupSummary();
           }, 1000); // Fake a 1 second network delay
           return;
         }
@@ -1349,18 +1443,23 @@
               await fetch(`${BACKEND_URL}/api/v1/stripe/confirm-setup`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${currentAccessToken}` },
-                body: JSON.stringify({ merchant_id: currentMerchantId, payment_method_id: setupIntent.payment_method })
+                body: JSON.stringify({ merchant_id: currentMerchantId, payment_method_id: setupIntent.payment_method, tier: selectedTier })
               });
             } catch (e) { console.error('confirm-setup failed:', e); }
 
             // Gate is now lifted — clear setup_incomplete flag
             localStorage.removeItem('perkfinity_setup_incomplete');
             document.querySelectorAll('.wizard-step').forEach(el => el.style.display = 'none');
-            if (window._resumeMode && window._resumeHasLogo) {
+            if (window._resumeMode && window._resumeOnboardingComplete) {
+              // Already fully onboarded — only came back to re-add a deleted card.
+              // Skip QR sign screen and go straight to dashboard.
+              window.location.href = 'dashboard.html';
+            } else if (window._resumeMode && window._resumeHasLogo) {
               // Resume mode: logo already on file — skip Step 5, go straight to QR sign
               generateSign();
             } else {
               document.getElementById('step-5-logo').style.display = 'block';
+              buildSignupSummary();
             }
           }
         } catch (e) {
@@ -1439,6 +1538,8 @@
         document.getElementById('logoPreviewBtn').src = uploadedLogoBase64;
         document.getElementById('logoPreviewContainer').style.display = 'block';
         document.getElementById('logoUploadPrompt').style.display = 'none';
+        const logoNote = document.getElementById('signup-logo-note');
+        if (logoNote) logoNote.style.display = 'none';
         document.getElementById('printLogoImg').src = uploadedLogoBase64;
 
         // QR preview + wide logo check
@@ -1446,9 +1547,12 @@
         img.onload = function () {
           const isWide = img.naturalWidth > img.naturalHeight * 1.5;
 
-          // Show QR preview block
+          // Show QR preview block — swap to logo overlay
           document.getElementById('signupQrPreviewBlock').style.display = 'block';
           document.getElementById('signupQrLogoOverlay').src = uploadedLogoBase64;
+          document.getElementById('signupQrLogoOverlay').style.display = 'block';
+          const letterOverlay = document.getElementById('signupQrLetterOverlay');
+          if (letterOverlay) letterOverlay.style.display = 'none';
 
           // Re-render mini QR
           const qrContainer = document.getElementById('signupQrMini');
@@ -1475,8 +1579,103 @@
             finishBtn.style.opacity = '';
             finishBtn.style.cursor = '';
           }
-        };
+        }
         img.src = uploadedLogoBase64;
+        buildSignupSummary();
+      }
+
+      function removeSignupLogo() {
+        uploadedLogoBase64 = null;
+        document.getElementById('logoPreviewBtn').src = '';
+        document.getElementById('logoPreviewContainer').style.display = 'none';
+        document.getElementById('logoUploadPrompt').style.display = 'block';
+        const logoNote = document.getElementById('signup-logo-note');
+        if (logoNote) logoNote.style.display = 'block';
+        // Keep QR visible but swap back to letter overlay
+        document.getElementById('signupQrLogoOverlay').src = '';
+        document.getElementById('signupQrLogoOverlay').style.display = 'none';
+        const letterOverlay = document.getElementById('signupQrLetterOverlay');
+        const storeName = document.getElementById('store_name')?.value?.trim() || '';
+        const letter = (storeName.charAt(0) || '?').toUpperCase();
+        if (letterOverlay) { letterOverlay.textContent = letter; letterOverlay.style.display = 'flex'; }
+        const warningEl = document.getElementById('signupLogoWarning');
+        if (warningEl) warningEl.style.display = 'none';
+        const accepted = document.getElementById('signupLogoWarningAccepted');
+        if (accepted) accepted.checked = false;
+        const finishBtn = document.getElementById('btnFinish');
+        if (finishBtn) { finishBtn.disabled = false; finishBtn.style.opacity = ''; finishBtn.style.cursor = ''; }
+        const printImg = document.getElementById('printLogoImg');
+        if (printImg) printImg.src = '';
+        document.getElementById('logoUpload').value = '';
+      }
+
+      function initSignupQrPreview() {
+        const name = document.getElementById('store_name')?.value?.trim() || '';
+        const letter = (name.charAt(0) || '?').toUpperCase();
+        const letterEl = document.getElementById('signupQrLetterOverlay');
+        const logoImg = document.getElementById('signupQrLogoOverlay');
+        const qrContainer = document.getElementById('signupQrMini');
+        if (qrContainer && qrContainer.innerHTML === '') {
+          new QRCode(qrContainer, { text: 'https://app.perkfinity.net', width: 120, height: 120, correctLevel: QRCode.CorrectLevel.H });
+        }
+        if (uploadedLogoBase64) {
+          if (logoImg) { logoImg.src = uploadedLogoBase64; logoImg.style.display = 'block'; }
+          if (letterEl) letterEl.style.display = 'none';
+        } else {
+          if (letterEl) { letterEl.textContent = letter; letterEl.style.display = 'flex'; }
+          if (logoImg) logoImg.style.display = 'none';
+        }
+        document.getElementById('signupQrPreviewBlock').style.display = 'block';
+      }
+
+      function buildSignupSummary() {
+        // Review table removed — merchants edit details via dashboard Profile.
+        return;
+        const presenceLabel = presence === 'mobile' ? '🚐 Mobile / Pop-Up' : '🏪 Fixed Location';
+        const storeName = document.getElementById('store_name')?.value?.trim() || '—';
+        const offer = (function() {
+          const sel = document.getElementById('welcome_offer_select')?.value;
+          if (!sel || sel === '__custom__') return document.getElementById('welcome_offer_text')?.value?.trim() || '—';
+          return sel;
+        })();
+        const tier = (function() {
+          const t = selectedTier;
+          if (t === 'trial') return 'Trial (free to 100 members)';
+          if (t === 'tier1') return 'Connect — $29.99/mo';
+          if (t === 'free_for_life') return 'Free For Life';
+          return t;
+        })();
+        const city = document.getElementById('city')?.value?.trim() || '';
+        const state = document.getElementById('state')?.value?.trim() || '';
+        const location = (presence === 'mobile') ? `${city}${state ? ', ' + state : ''} (service area)` : (function() {
+          const addr = document.getElementById('street_address')?.value?.trim() || '';
+          return [addr, city, state].filter(Boolean).join(', ') || '—';
+        })();
+        const email = document.getElementById('email')?.value?.trim() || '—';
+        const editBadge = `<button onclick="editSignupSection()" style="margin-left:auto;padding:3px 10px;border:1.5px solid rgba(91,63,165,.4);border-radius:8px;font-size:11px;font-weight:800;color:#5B3FA5;background:#fff;cursor:pointer;font-family:inherit">Edit</button>`;
+        const row = (l, v) => `<div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(230,230,240,.95);font-size:14px"><span style="font-weight:700;color:rgba(31,32,48,.6)">${l}</span><span style="font-weight:900;color:#1F2030;text-align:right;max-width:60%">${v || '—'}</span></div>`;
+        let html = `<div style="border:1.5px solid rgba(230,230,240,.95);border-radius:14px;overflow:hidden;margin-bottom:4px">`;
+        html += `<div style="background:#f8f6ff;padding:10px 14px;display:flex;align-items:center;font-size:12px;font-weight:900;color:#3F2B8A;letter-spacing:.04em">YOUR DETAILS ${editBadge}</div>`;
+        html += `<div style="padding:0 14px">`;
+        html += row('Type', presenceLabel);
+        html += row('Business', storeName);
+        html += row('Location', location);
+        html += row('Offer', offer);
+        html += row('Plan', tier);
+        html += row('Email', email);
+        html += row('Payment', currentMerchantId ? '✓ Connected' : '—');
+        html += row('Logo', uploadedLogoBase64 ? '✓ Uploaded' : 'Not uploaded (can add later)');
+        html += `</div></div>`;
+        const el = document.getElementById('signup-summary-rows');
+        if (el) el.innerHTML = html;
+      }
+
+      function editSignupSection() {
+        isSignupEditMode = true;
+        const btn1 = document.getElementById('btnStep1');
+        if (btn1) btn1.innerText = 'Update & Back to Review →';
+        document.querySelectorAll('.wizard-step').forEach(el => el.style.display = 'none');
+        document.getElementById('step-1').style.display = 'block';
       }
 
       async function finishAndGenerate() {
@@ -1490,7 +1689,30 @@
 
         const btn = document.getElementById('btnFinish');
         btn.disabled = true;
-        btn.innerText = "Saving profile...";
+        btn.innerText = 'Saving profile...';
+
+        // Push any edited Step 1 fields back to the backend
+        if (currentMerchantId && currentAccessToken) {
+          const presence = document.getElementById('business_presence')?.value;
+          const profilePayload = {
+            name: document.getElementById('store_name')?.value?.trim() || undefined,
+            welcome_offer_text: (() => { const sel = document.getElementById('welcome_offer_select')?.value; return sel === '__custom__' ? document.getElementById('welcome_offer_text')?.value?.trim() : sel; })() || undefined,
+            address: presence === 'physical' ? (document.getElementById('street_address')?.value?.trim() || undefined) : undefined,
+            suite: presence === 'physical' ? (document.getElementById('suite')?.value?.trim() || undefined) : undefined,
+            city: document.getElementById('city')?.value?.trim() || undefined,
+            state: document.getElementById('state')?.value?.trim() || undefined,
+            zip: document.getElementById('zip')?.value?.trim() || undefined,
+          };
+          // Remove undefined keys
+          Object.keys(profilePayload).forEach(k => profilePayload[k] === undefined && delete profilePayload[k]);
+          try {
+            await fetch(`${BACKEND_URL}/api/v1/merchants/${currentMerchantId}/update-profile`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${currentAccessToken}` },
+              body: JSON.stringify(profilePayload)
+            });
+          } catch(e) { console.warn('update-profile failed (non-fatal):', e); }
+        }
 
         if (uploadedLogoBase64 && currentAccessToken) {
           try {
@@ -1514,32 +1736,49 @@
       }
 
       function generateSign() {
-        // Hide standard headers and wizard logic
-        document.getElementById('onboarding-headers').style.display = 'none';
-        document.getElementById('wizard-panel').style.display = 'none';
+        // Fire-and-forget: mark onboarding complete in backend
+        // so next login goes directly to dashboard (not step5 resume)
+        if (currentMerchantId && currentAccessToken) {
+          fetch(`${BACKEND_URL}/api/v1/merchants/${currentMerchantId}/mark-onboarded`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${currentAccessToken}` }
+          }).catch(e => console.warn('mark-onboarded failed (non-fatal):', e));
+        }
 
-        // Show success poster
-        document.getElementById('step-4-success').style.display = 'block';
+        // Hide wizard panel
+        const wizardPanel = document.getElementById('wizard-panel');
+        if (wizardPanel) wizardPanel.style.display = 'none';
 
-        // Inject dynamic values directly into poster
-        const storeName = localStorage.getItem('perkfinity_business_name') || document.getElementById('store_name').value;
-        const perk = localStorage.getItem('perkfinity_member_perk') || document.getElementById('member_perk').value;
+        // Hide the page header labels above the wizard (pill badge + subtitle)
+        const pageHeaderArea = document.querySelector('#merchant-interest > .container > div:first-child');
+        if (pageHeaderArea) pageHeaderArea.style.display = 'none';
 
-        document.getElementById('poster-store').innerText = storeName;
-        document.getElementById('poster-perk').innerText = perk;
-        // Notice we do NOT print address/phone on the final sign!
+        // Show the printable QR sign (physical and mobile only — this form does not serve online/hybrid)
+        const successEl = document.getElementById('step-4-success');
+        if (successEl) successEl.style.display = 'block';
+
+        // Inject dynamic values into poster
+        const storeName = localStorage.getItem('perkfinity_business_name') || document.getElementById('store_name')?.value || '';
+        const perk = localStorage.getItem('perkfinity_member_perk') || document.getElementById('member_perk')?.value || '';
+
+        const posterStore = document.getElementById('poster-store');
+        const posterPerk = document.getElementById('poster-perk');
+        if (posterStore) posterStore.innerText = storeName;
+        if (posterPerk) posterPerk.innerText = perk;
 
         // Generate the physical QR Code using client-side library
-        // Pointing to the actual dynamic merchant URL returned by the backend
-        document.getElementById('qr-canvas-target').innerHTML = '';
-        new QRCode(document.getElementById("qr-canvas-target"), {
-          text: currentQrUrl || "https://app.perkfinity.net",
-          width: 260,
-          height: 260,
-          colorDark: "#1F2030",
-          colorLight: "#ffffff",
-          correctLevel: QRCode.CorrectLevel.H // High error correction so our overlay logo works
-        });
+        const qrTarget = document.getElementById('qr-canvas-target');
+        if (qrTarget) {
+          qrTarget.innerHTML = '';
+          new QRCode(qrTarget, {
+            text: currentQrUrl || 'https://app.perkfinity.net',
+            width: 260,
+            height: 260,
+            colorDark: '#1F2030',
+            colorLight: '#ffffff',
+            correctLevel: QRCode.CorrectLevel.H
+          });
+        }
 
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }

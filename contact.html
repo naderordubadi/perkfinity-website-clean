@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Contact Us — Perkfinity</title>
+  <meta name="description" content="Have a question, partnership idea, or press inquiry? Send us a message and we'll get back to you within 1–2 business days." />
+  <link rel="icon" href="assets/Perkfinity-App-Icon.png" />
+  <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <script src="/config.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; margin: 0; background: #fff; color: #1a1a2e; }
+
+    /* ── NAV ── */
+    .site-header { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.97); backdrop-filter: blur(12px); border-bottom: 1px solid #f0eeff; }
+    .nav-inner { max-width: 1100px; margin: 0 auto; padding: 0 24px; height: 64px; display: flex; align-items: center; }
+    .nav-brand { display: flex; align-items: center; margin-right: auto; }
+    .nav-brand img { height: 32px; }
+    .nav-links { display: flex; align-items: center; gap: 4px; }
+    .nav-links a { font-size: 14px; font-weight: 600; color: #444; text-decoration: none; padding: 8px 14px; border-radius: 10px; transition: background 0.15s, color 0.15s; }
+    .nav-links a:hover { background: #f5f3ff; color: #5b3fa5; }
+    .nav-sep { width: 1px; height: 20px; background: #e5e7eb; margin: 0 8px; }
+    .nav-signin { font-size: 14px; font-weight: 700; color: #5b3fa5 !important; border: 1.5px solid #5b3fa5 !important; padding: 7px 18px !important; border-radius: 10px !important; }
+    .nav-signin:hover { background: #5b3fa5 !important; color: #fff !important; }
+    .nav-mobile-btn { display: none; background: none; border: none; cursor: pointer; padding: 8px; color: #444; font-size: 20px; }
+    @media (max-width: 680px) {
+      .nav-links { display: none; }
+      .nav-mobile-btn { display: block; margin-left: auto; }
+      .nav-links.open { display: flex; flex-direction: column; position: absolute; top: 64px; left: 0; right: 0; background: #fff; border-bottom: 1px solid #f0eeff; padding: 12px 16px; gap: 4px; z-index: 99; }
+      .nav-links.open .nav-sep { display: none; }
+    }
+
+    /* ── HERO ── */
+    .page-hero { background: linear-gradient(135deg, #1a1a2e 0%, #2d1b69 100%); padding: 72px 24px 80px; text-align: center; }
+    .hero-eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.55); margin-bottom: 16px; }
+    .hero-headline { font-size: clamp(32px, 5vw, 50px); font-weight: 900; color: #fff; margin: 0 0 16px; letter-spacing: -1px; line-height: 1.1; }
+    .hero-headline span { color: #a78bfa; }
+    .hero-sub { font-size: 17px; color: rgba(255,255,255,0.7); line-height: 1.75; margin: 0 auto; max-width: 540px; }
+
+    /* ── FORM CARD ── */
+    .form-wrap { max-width: 680px; margin: -40px auto 80px; padding: 0 24px; }
+    .form-card { background: #fff; border-radius: 20px; box-shadow: 0 20px 60px rgba(91,63,165,0.12); padding: 40px 44px; border: 1px solid #f0eeff; }
+    @media (max-width: 600px) { .form-card { padding: 28px 22px; } .form-wrap { margin-top: -28px; } }
+
+    /* ── FORM FIELDS ── */
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    @media (max-width: 560px) { .field-row { grid-template-columns: 1fr; } }
+    .field { margin-bottom: 20px; }
+    .field label { display: block; font-size: 13px; font-weight: 700; color: #444; margin-bottom: 7px; }
+    .field label span { color: #ef4444; margin-left: 2px; }
+    .field input, .field select, .field textarea {
+      width: 100%; padding: 12px 16px; border: 1.5px solid #e5e0f8; border-radius: 11px;
+      font-family: 'Inter', sans-serif; font-size: 14px; color: #1a1a2e; background: #fff;
+      transition: border-color 0.2s, box-shadow 0.2s; outline: none; -webkit-appearance: none;
+    }
+    .field input:focus, .field select:focus, .field textarea:focus {
+      border-color: #5b3fa5; box-shadow: 0 0 0 3px rgba(91,63,165,0.1);
+    }
+    .field textarea { resize: vertical; min-height: 140px; line-height: 1.6; }
+    .field select { cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23888' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
+    .field input::placeholder, .field textarea::placeholder { color: #bbb; }
+
+    /* ── ATTACHMENT ── */
+    .attach-zone {
+      border: 2px dashed #ddd8f8; border-radius: 12px; padding: 22px; text-align: center;
+      cursor: pointer; transition: border-color 0.2s, background 0.2s; position: relative;
+    }
+    .attach-zone:hover, .attach-zone.drag-over { border-color: #5b3fa5; background: #f8f7ff; }
+    .attach-zone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+    .attach-icon { font-size: 28px; margin-bottom: 8px; }
+    .attach-label { font-size: 13px; font-weight: 600; color: #5b3fa5; }
+    .attach-hint { font-size: 12px; color: #aaa; margin-top: 4px; }
+    .attach-chosen { display: none; align-items: center; gap: 10px; font-size: 13px; font-weight: 600; color: #1a1a2e; margin-top: 12px; background: #f5f3ff; padding: 10px 14px; border-radius: 9px; }
+    .attach-chosen .remove-file { margin-left: auto; font-size: 16px; cursor: pointer; color: #aaa; background: none; border: none; }
+
+    /* ── HONEYPOT ── */
+    .hp-field { position: absolute; left: -9999px; top: -9999px; opacity: 0; pointer-events: none; }
+
+    /* ── SUBMIT ── */
+    .submit-btn {
+      width: 100%; padding: 15px; background: linear-gradient(135deg, #5b3fa5, #7c5cbf);
+      color: #fff; border: none; border-radius: 12px; font-family: 'Inter', sans-serif;
+      font-size: 16px; font-weight: 800; cursor: pointer; transition: opacity 0.2s, transform 0.2s;
+      display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 8px;
+    }
+    .submit-btn:hover:not(:disabled) { opacity: 0.92; transform: translateY(-1px); }
+    .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .spinner { width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.4); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── ERROR MSG ── */
+    .form-error { display: none; background: #fef2f2; border: 1px solid #fecaca; border-radius: 10px; padding: 12px 16px; font-size: 13px; font-weight: 600; color: #dc2626; margin-bottom: 18px; }
+
+    /* ── SUCCESS STATE ── */
+    .success-state { display: none; text-align: center; padding: 20px 0; }
+    .success-icon { font-size: 56px; margin-bottom: 16px; }
+    .success-title { font-size: 24px; font-weight: 900; color: #1a1a2e; margin: 0 0 12px; }
+    .success-body { font-size: 15px; color: #555; line-height: 1.7; margin: 0 0 28px; }
+    .success-back { display: inline-block; padding: 12px 28px; background: linear-gradient(135deg,#5b3fa5,#7c5cbf); color: #fff; font-weight: 700; font-size: 14px; border-radius: 10px; text-decoration: none; transition: opacity 0.2s; }
+    .success-back:hover { opacity: 0.88; }
+
+    /* ── FOOTER ── */
+    .site-footer { background: #f8f7ff; border-top: 1px solid #ede9fe; padding: 32px 24px; }
+    .footer-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+    .footer-brand { font-size: 16px; font-weight: 800; color: #5b3fa5; }
+    .footer-links { display: flex; gap: 20px; flex-wrap: wrap; }
+    .footer-links a { font-size: 13px; color: #666; text-decoration: none; }
+    .footer-links a:hover { color: #5b3fa5; }
+    .footer-copy { font-size: 12px; color: #aaa; width: 100%; text-align: center; margin-top: 8px; }
+  </style>
+</head>
+<body>
+
+  <!-- ===== HEADER / NAV ===== -->
+  <header class="site-header">
+    <div class="nav-inner">
+      <a class="nav-brand" href="index.html" aria-label="Perkfinity home">
+        <img src="assets/Perkfinity-Logo.png" alt="Perkfinity" />
+      </a>
+      <button class="nav-mobile-btn" onclick="this.nextElementSibling.classList.toggle('open')" aria-label="Toggle menu">☰</button>
+      <nav class="nav-links" aria-label="Primary navigation">
+        <a href="codes.html">Promo Codes</a>
+        <a href="localperks.html">Nearby Deals</a>
+        <div class="nav-sep" aria-hidden="true"></div>
+        <a href="merchants.html">For Businesses</a>
+        <a href="about.html">About Us</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- ===== HERO ===== -->
+    <section class="page-hero">
+      <div class="hero-eyebrow">We'd love to hear from you</div>
+      <h1 class="hero-headline">Get in <span>Touch</span></h1>
+      <p class="hero-sub">Questions, partnerships, press inquiries, or just want to say hello — drop us a message and we'll get back to you within 1–2 business days.</p>
+    </section>
+
+    <!-- ===== CONTACT FORM ===== -->
+    <section class="form-wrap">
+      <div class="form-card">
+
+        <!-- Success state (hidden until submit) -->
+        <div class="success-state" id="successState">
+          <div class="success-icon">✅</div>
+          <h2 class="success-title">Message Sent!</h2>
+          <p class="success-body">Thanks for reaching out. We've received your message and will get back to you at <strong id="successEmail"></strong> within 1–2 business days.</p>
+          <a href="index.html" class="success-back">← Back to Perkfinity</a>
+        </div>
+
+        <!-- Form (hidden after submit) -->
+        <form id="contactForm" novalidate>
+
+          <!-- Honeypot (hidden from real users, bots fill it) -->
+          <div class="hp-field" aria-hidden="true">
+            <input type="text" name="website_url" id="hp" tabindex="-1" autocomplete="off" />
+          </div>
+
+          <div id="formError" class="form-error" role="alert"></div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="contactName">Full Name <span>*</span></label>
+              <input type="text" id="contactName" name="name" placeholder="Jane Smith" autocomplete="name" required />
+            </div>
+            <div class="field">
+              <label for="contactEmail">Email Address <span>*</span></label>
+              <input type="email" id="contactEmail" name="email" placeholder="jane@example.com" autocomplete="email" required />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="contactSubject">Subject <span>*</span></label>
+            <select id="contactSubject" name="subject" required>
+              <option value="" disabled selected>Select a topic…</option>
+              <option value="General Inquiry">General Inquiry</option>
+              <option value="Partnership Opportunity">Partnership Opportunity</option>
+              <option value="Enterprise / Large Brand">Enterprise / Large Brand</option>
+              <option value="Press / Media">Press / Media</option>
+              <option value="Technical Support">Technical Support</option>
+              <option value="Billing Question">Billing Question</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="contactMessage">Message <span>*</span></label>
+            <textarea id="contactMessage" name="message" placeholder="Tell us how we can help…" required></textarea>
+          </div>
+
+          <div class="field">
+            <label>Attachment <span style="font-weight:500;color:#aaa">(optional · max 5 MB)</span></label>
+            <div class="attach-zone" id="attachZone">
+              <input type="file" id="attachFile" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt,.csv,.zip"
+                     onchange="handleFileSelect(this.files[0])"
+                     ondragover="this.parentElement.classList.add('drag-over')"
+                     ondragleave="this.parentElement.classList.remove('drag-over')" />
+              <div class="attach-icon">📎</div>
+              <div class="attach-label">Click to attach a file</div>
+              <div class="attach-hint">Images, PDF, Word, Excel, ZIP — up to 5 MB</div>
+            </div>
+            <div class="attach-chosen" id="attachChosen">
+              <span>📄</span>
+              <span id="attachName"></span>
+              <button type="button" class="remove-file" onclick="clearFile()" aria-label="Remove attachment">✕</button>
+            </div>
+          </div>
+
+          <button type="submit" class="submit-btn" id="submitBtn">
+            <span id="btnLabel">Send Message</span>
+          </button>
+
+        </form>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <span class="footer-brand">Perkfinity</span>
+      <nav class="footer-links" aria-label="Footer navigation">
+        <a href="about.html">About Us</a>
+        <a href="merchants.html">For Businesses</a>
+        <a href="privacy-policy.html">Privacy Policy</a>
+        <a href="terms-of-use.html">Terms of Use</a>
+        <a href="faq.html">FAQ</a>
+        <a href="contact.html" aria-current="page">Contact</a>
+      </nav>
+      <div class="footer-copy">© 2026 Perkfinity · perkfinity.net · by SafeBox Financial Technologies</div>
+    </div>
+  </footer>
+
+  <script>
+    // ── Config ───────────────────────────────────────────────────
+    const BACKEND = (typeof PerkfinityConfig !== 'undefined' && PerkfinityConfig.BACKEND_URL)
+      ? PerkfinityConfig.BACKEND_URL
+      : (location.hostname === 'localhost' || location.hostname === '127.0.0.1'
+          ? 'http://localhost:3001'
+          : 'https://perkfinity-backend.vercel.app');
+
+    // ── Attachment handling ──────────────────────────────────────
+    let _attachData = null;
+
+    function handleFileSelect(file) {
+      document.getElementById('attachZone').classList.remove('drag-over');
+      if (!file) return;
+      if (file.size > 5 * 1024 * 1024) {
+        showError('Attachment is too large. Please keep files under 5 MB.');
+        clearFile(); return;
+      }
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        // Strip the data URL prefix (e.g. "data:image/png;base64,")
+        const b64 = e.target.result.split(',')[1];
+        _attachData = { name: file.name, content: b64 };
+        document.getElementById('attachName').textContent = file.name;
+        document.getElementById('attachChosen').style.display = 'flex';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function clearFile() {
+      _attachData = null;
+      document.getElementById('attachFile').value = '';
+      document.getElementById('attachChosen').style.display = 'none';
+    }
+
+    // ── Error helper ─────────────────────────────────────────────
+    function showError(msg) {
+      const el = document.getElementById('formError');
+      el.textContent = msg;
+      el.style.display = 'block';
+      el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+    function clearError() {
+      const el = document.getElementById('formError');
+      el.style.display = 'none';
+      el.textContent = '';
+    }
+
+    // ── Form submit ──────────────────────────────────────────────
+    document.getElementById('contactForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      clearError();
+
+      const name    = document.getElementById('contactName').value.trim();
+      const email   = document.getElementById('contactEmail').value.trim();
+      const subject = document.getElementById('contactSubject').value;
+      const message = document.getElementById('contactMessage').value.trim();
+      const hp      = document.getElementById('hp').value;
+
+      // Client-side validation
+      if (!name || !email || !subject || !message) {
+        showError('Please fill in all required fields.'); return;
+      }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        showError('Please enter a valid email address.'); return;
+      }
+
+      // Loading state
+      const btn = document.getElementById('submitBtn');
+      const lbl = document.getElementById('btnLabel');
+      btn.disabled = true;
+      lbl.innerHTML = '';
+      btn.insertAdjacentHTML('beforeend', '<div class="spinner"></div><span>Sending…</span>');
+
+      try {
+        const payload = { name, email, subject, message, hp };
+        if (_attachData) payload.attachment = _attachData;
+
+        const res = await fetch(BACKEND + '/api/v1/contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const json = await res.json();
+
+        if (!res.ok || json.success === false) {
+          throw new Error(json.error || 'Something went wrong. Please try again.');
+        }
+
+        // Success
+        document.getElementById('successEmail').textContent = email;
+        document.getElementById('contactForm').style.display = 'none';
+        const s = document.getElementById('successState');
+        s.style.display = 'block';
+        s.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+      } catch (err) {
+        showError(err.message || 'Failed to send. Please try again or email us at hello@perkfinity.net.');
+        btn.disabled = false;
+        lbl.textContent = 'Send Message';
+        const spinner = btn.querySelector('.spinner');
+        const sending = btn.querySelector('span:last-child');
+        if (spinner) spinner.remove();
+        if (sending && sending !== lbl) sending.remove();
+      }
+    });
+  </script>
+
+</body>
+</html>

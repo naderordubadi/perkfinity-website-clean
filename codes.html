@@ -1,0 +1,713 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Perkfinity — Promo Codes &amp; Online Deals</title>
+  <meta name="description" content="Discover exclusive promo codes from top online brands and Claim &amp; Visit deals from hybrid merchants. Download Perkfinity to unlock your perk." />
+  <link rel="icon" href="assets/Perkfinity-App-Icon.png" />
+  <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <script src="/config.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; }
+
+    /* ── Shared nav (mirrors index.html) ── */
+    .site-header { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.97); backdrop-filter: blur(12px); border-bottom: 1px solid #f0eeff; }
+    .nav-inner { max-width: 1100px; margin: 0 auto; padding: 0 24px; height: 64px; display: flex; align-items: center; }
+    .nav-brand { display: flex; align-items: center; margin-right: auto; }
+    .nav-brand img { height: 32px; }
+    .nav-links { display: flex; align-items: center; gap: 4px; }
+    .nav-links a { font-size: 14px; font-weight: 600; color: #444; text-decoration: none; padding: 8px 14px; border-radius: 10px; transition: background 0.15s, color 0.15s; }
+    .nav-links a:hover { background: #f5f3ff; color: #5b3fa5; }
+    .nav-links a[aria-current] { background: #f5f3ff; color: #5b3fa5; font-weight: 700; }
+    .nav-sep { width: 1px; height: 20px; background: #e5e7eb; margin: 0 8px; }
+    .nav-signin { font-size: 14px; font-weight: 700; color: #5b3fa5 !important; border: 1.5px solid #5b3fa5 !important; padding: 7px 18px !important; border-radius: 10px !important; }
+    .nav-signin:hover { background: #5b3fa5 !important; color: #fff !important; }
+    .nav-mobile-btn { display: none; background: none; border: none; cursor: pointer; padding: 8px; color: #444; font-size: 20px; }
+    @media (max-width: 680px) {
+      .nav-links { display: none; }
+      .nav-mobile-btn { display: block; margin-left: auto; }
+      .nav-links.open { display: flex; flex-direction: column; position: absolute; top: 64px; left: 0; right: 0; background: #fff; border-bottom: 1px solid #f0eeff; padding: 12px 16px; gap: 4px; z-index: 99; }
+      .nav-links.open .nav-sep { display: none; }
+    }
+
+    /* ── Page hero ── */
+    .codes-hero {
+      background: linear-gradient(140deg, #2d1570 0%, #4a2e9c 50%, #1e5c38 100%);
+      padding: 72px 0 56px;
+      position: relative;
+      overflow: hidden;
+    }
+    .codes-hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(800px 400px at 80% 60%, rgba(107,193,122,.20), transparent 60%),
+                  radial-gradient(600px 300px at 10% 20%, rgba(107,193,122,.15), transparent 60%);
+      pointer-events: none;
+    }
+    .codes-hero .container { position: relative; z-index: 1; text-align: center; }
+    .codes-hero h1 { color: #fff; margin: 0 0 12px; font-size: clamp(32px, 4vw, 52px); }
+    .codes-hero p  { color: rgba(255,255,255,.75); font-size: 17px; font-weight: 700; margin: 0 0 36px; }
+
+    /* ── Search + Sort bar ── */
+    .search-sort-bar {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .brand-search {
+      flex: 1;
+      min-width: 220px;
+      max-width: 340px;
+      padding: 10px 16px 10px 38px;
+      border-radius: 999px;
+      border: 1.5px solid rgba(255,255,255,.35);
+      background: rgba(255,255,255,.15);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      outline: none;
+      transition: background .15s, border-color .15s;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.7)' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: 12px center;
+    }
+    .brand-search::placeholder { color: rgba(255,255,255,.6); }
+    .brand-search:focus { background-color: rgba(255,255,255,.22); border-color: rgba(255,255,255,.6); }
+    .sort-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 16px;
+      border-radius: 999px;
+      border: 1.5px solid rgba(255,255,255,.35);
+      background: rgba(255,255,255,.12);
+      color: rgba(255,255,255,.9);
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: background .15s, border-color .15s;
+      white-space: nowrap;
+    }
+    .sort-toggle:hover { background: rgba(255,255,255,.22); border-color: rgba(255,255,255,.6); }
+    .sort-toggle.az-active { background: rgba(255,255,255,.25); border-color: #fff; color: #fff; }
+
+    /* ── Category filter bar ── */
+    .filter-bar {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 48px;
+    }
+    .filter-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 18px;
+      border-radius: 999px;
+      border: 1.5px solid var(--border);
+      background: rgba(255,255,255,.92);
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--muted);
+      cursor: pointer;
+      transition: background .15s, border-color .15s, color .15s, transform .15s;
+    }
+    .filter-chip:hover {
+      background: #fff;
+      border-color: var(--purple);
+      color: var(--purple);
+      transform: translateY(-1px);
+    }
+    .filter-chip.active {
+      background: linear-gradient(135deg, var(--purple), var(--purple2));
+      border-color: transparent;
+      color: #fff;
+    }
+
+    /* ── Grid ── */
+    .brands-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 20px;
+      padding-bottom: 60px;
+    }
+
+    /* ── Brand card ── */
+    .brand-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      box-shadow: var(--shadow2);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .brand-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow);
+    }
+    .brand-card-top {
+      padding: 24px 24px 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .brand-logo {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      object-fit: contain;
+      background: var(--cream);
+      border: 1px solid var(--border);
+      padding: 4px;
+      flex-shrink: 0;
+    }
+    .brand-logo-placeholder {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(91,63,165,.15), rgba(107,193,122,.15));
+      border: 1px solid var(--border);
+      display: grid;
+      place-items: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+    .brand-name {
+      font-size: 16px;
+      font-weight: 900;
+      color: var(--ink);
+      margin: 0 0 3px;
+    }
+    .brand-cat-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--purple);
+      background: rgba(91,63,165,.08);
+      border-radius: 999px;
+      padding: 2px 8px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    .brand-card-body {
+      padding: 16px 24px 20px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .brand-offer {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--purpleDark);
+      line-height: 1.45;
+      flex: 1;
+    }
+    .brand-offer::before {
+      content: "🎁 ";
+    }
+    .reveal-btn {
+      width: 100%;
+      padding: 12px;
+      border-radius: 12px;
+      border: none;
+      background: linear-gradient(135deg, var(--purple), var(--purple2));
+      color: #fff;
+      font-size: 14px;
+      font-weight: 900;
+      cursor: pointer;
+      transition: transform .15s, box-shadow .15s, filter .15s;
+      font-family: inherit;
+    }
+    .reveal-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 22px rgba(91,63,165,.35);
+      filter: saturate(1.1);
+    }
+
+    /* ── Hybrid "Claim & Visit" badge ── */
+    .hybrid-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 800;
+      color: #92400e;
+      background: #fef3c7;
+      border: 1px solid #fde68a;
+      border-radius: 999px;
+      padding: 2px 8px;
+      margin-left: 6px;
+    }
+
+    /* ── "Get the App" CTA banner ── */
+    .app-cta-banner {
+      background: linear-gradient(135deg, #1a1a2e, #2d1b69);
+      border-radius: 20px;
+      padding: 40px 36px;
+      text-align: center;
+      margin: 0 0 60px;
+    }
+    .app-cta-banner h3 { color: #fff; font-size: 20px; font-weight: 900; margin: 0 0 8px; }
+    .app-cta-banner p  { color: rgba(255,255,255,.75); font-size: 14px; margin: 0 0 24px; }
+    .app-cta-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .app-cta-btn { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,.12); border: 1.5px solid rgba(255,255,255,.3); border-radius: 12px; padding: 12px 20px; text-decoration: none; transition: background .2s; }
+    .app-cta-btn:hover { background: rgba(255,255,255,.22); }
+    .app-cta-btn-text .sub  { font-size: 9px; color: rgba(255,255,255,.7); font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
+    .app-cta-btn-text .main { font-size: 15px; font-weight: 800; color: #fff; }
+
+    /* ── Footer (mirrors index.html) ── */
+    .site-footer-new { background: #f8f7ff; border-top: 1px solid #ede9fe; padding: 32px 24px; }
+    .footer-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+    .footer-brand { font-size: 16px; font-weight: 800; color: #5b3fa5; }
+    .footer-links { display: flex; gap: 20px; flex-wrap: wrap; }
+    .footer-links a { font-size: 13px; color: #666; text-decoration: none; }
+    .footer-links a:hover { color: #5b3fa5; }
+    .footer-copy { font-size: 12px; color: #aaa; width: 100%; text-align: center; margin-top: 8px; }
+
+    /* ── Empty/loading states ── */
+    .state-box {
+      text-align: center;
+      padding: 80px 24px;
+      color: var(--muted);
+    }
+    .state-box .state-icon { font-size: 56px; margin-bottom: 16px; }
+    .state-box h3 { margin: 0 0 8px; font-size: 20px; color: var(--purpleDark); }
+    .state-box p  { margin: 0; font-size: 15px; font-weight: 700; }
+    .spinner {
+      width: 36px; height: 36px;
+      border: 3px solid rgba(91,63,165,.2);
+      border-top-color: var(--purple);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      margin: 0 auto 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Popup overlay ── */
+    .popup-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.55);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      backdrop-filter: blur(4px);
+    }
+    .popup-overlay.open { display: flex; }
+    .popup-box {
+      background: #fff;
+      border-radius: 28px;
+      padding: 36px 32px 28px;
+      max-width: 420px;
+      width: 100%;
+      position: relative;
+      box-shadow: 0 32px 80px rgba(0,0,0,.3);
+      animation: popIn .25s cubic-bezier(.34,1.56,.64,1);
+    }
+    @keyframes popIn {
+      from { transform: scale(.88); opacity: 0; }
+      to   { transform: scale(1);   opacity: 1; }
+    }
+    .popup-close {
+      position: absolute;
+      top: 16px;
+      right: 18px;
+      background: none;
+      border: none;
+      font-size: 22px;
+      cursor: pointer;
+      color: var(--muted);
+      padding: 4px 8px;
+      border-radius: 8px;
+      transition: background .15s;
+    }
+    .popup-close:hover { background: var(--cream); }
+    .popup-brand-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+    .popup-brand-logo {
+      width: 54px;
+      height: 54px;
+      border-radius: 14px;
+      object-fit: contain;
+      background: var(--cream);
+      border: 1px solid var(--border);
+      padding: 4px;
+      flex-shrink: 0;
+    }
+    .popup-brand-logo-placeholder {
+      width: 54px;
+      height: 54px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(91,63,165,.15), rgba(107,193,122,.15));
+      border: 1px solid var(--border);
+      display: grid;
+      place-items: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+    .popup-brand-name { font-size: 18px; font-weight: 900; color: var(--ink); margin: 0 0 4px; }
+    .popup-offer-text { font-size: 14px; font-weight: 700; color: var(--muted); margin: 0; }
+    .popup-qr-wrap {
+      background: var(--cream);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 20px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .popup-qr-wrap canvas, .popup-qr-wrap img { display: block; margin: 0 auto 10px; border-radius: 8px; }
+    .popup-qr-url {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      word-break: break-all;
+      margin: 0;
+    }
+    .popup-paths {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .popup-path {
+      background: var(--cream);
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 16px;
+    }
+    .popup-path-title {
+      font-size: 12px;
+      font-weight: 900;
+      color: var(--purple);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: 6px;
+    }
+    .popup-path p {
+      margin: 0;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+    .popup-disclaimer {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 700;
+      text-align: center;
+      line-height: 1.5;
+      border-top: 1px solid var(--border);
+      padding-top: 14px;
+    }
+    .popup-disclaimer a { color: var(--purple); }
+
+    @media (max-width: 640px) {
+      .brands-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="nav-inner">
+      <a class="nav-brand" href="index.html" aria-label="Perkfinity home">
+        <img src="assets/Perkfinity-Logo.png" alt="Perkfinity" />
+      </a>
+      <button class="nav-mobile-btn" onclick="this.nextElementSibling.classList.toggle('open')" aria-label="Toggle menu">☰</button>
+      <nav class="nav-links" aria-label="Primary navigation">
+        <a href="codes.html" aria-current="page">Promo Codes</a>
+        <a href="localperks.html">Nearby Deals</a>
+        <div class="nav-sep" aria-hidden="true"></div>
+        <a href="merchants.html">For Businesses</a>
+        <a href="about.html">About Us</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero -->
+    <section class="codes-hero">
+      <div class="container">
+        <div class="section-label" style="margin:0 auto 18px;">🏷️ Promo Codes</div>
+        <h1>Online &amp; In-Store Deals</h1>
+        <p>Exclusive promo codes from top online brands — plus Claim &amp; Visit deals you find here and redeem in store.</p>
+
+        <!-- Search + Sort -->
+        <div class="search-sort-bar">
+          <input
+            class="brand-search"
+            id="brand-search"
+            type="search"
+            placeholder="Search by name…"
+            aria-label="Search brands by name"
+            oninput="applyFilters()"
+          />
+          <button
+            class="sort-toggle"
+            id="sort-toggle"
+            aria-pressed="false"
+            onclick="toggleSort(this)"
+          >A–Z</button>
+        </div>
+
+        <!-- Category filter -->
+        <div class="filter-bar" id="filter-bar">
+          <button class="filter-chip active" data-cat="all" onclick="filterCat(this)">✦ All</button>
+          <button class="filter-chip" data-cat="Fashion" onclick="filterCat(this)">👗 Fashion</button>
+          <button class="filter-chip" data-cat="Beauty" onclick="filterCat(this)">💄 Beauty</button>
+          <button class="filter-chip" data-cat="Food" onclick="filterCat(this)">🍔 Food</button>
+          <button class="filter-chip" data-cat="Home" onclick="filterCat(this)">🏠 Home</button>
+          <button class="filter-chip" data-cat="Sports" onclick="filterCat(this)">⚽ Sports</button>
+          <button class="filter-chip" data-cat="Tech" onclick="filterCat(this)">💻 Tech</button>
+          <button class="filter-chip" data-cat="Health" onclick="filterCat(this)">🌿 Health</button>
+          <button class="filter-chip" data-cat="Other" onclick="filterCat(this)">🛍️ Other</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Brands grid -->
+    <section style="background: var(--cream); padding: 48px 0;">
+      <div class="container">
+        <div id="brands-grid" class="brands-grid"></div>
+        <div id="brands-state" class="state-box">
+          <div class="spinner"></div>
+          <p>Loading brand deals…</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- App Download CTA -->
+    <section style="background: var(--cream); padding: 0 0 60px;">
+      <div class="container">
+        <div class="app-cta-banner">
+          <h3>📱 Don't have the app yet?</h3>
+          <p>Download Perkfinity for free — Tap <strong>Join Member List</strong> in the app or scan a QR code in store to join and reveal your exclusive perk.</p>
+          <div class="app-cta-btns">
+            <a href="https://apps.apple.com/us/app/perkfinity-privacy-first-perks/id6759945540" target="_blank" rel="noopener noreferrer" class="app-cta-btn" aria-label="Download on the App Store">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+              <div class="app-cta-btn-text">
+                <div class="sub">Download on the</div>
+                <div class="main">App Store</div>
+              </div>
+            </a>
+            <a href="https://play.google.com/store/apps/details?id=net.perkfinity.app" target="_blank" rel="noopener noreferrer" class="app-cta-btn" aria-label="Get it on Google Play">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M3.18 23.76c.3.17.64.22.98.14l12.38-7.15-2.9-2.9-10.46 9.91zm-1.18-19.5v15.48c0 .52.28.97.73 1.22l10.58-10.58-3.47-3.47L2 4.26zM20.52 9.4L17.6 7.74 14.4 11l3.2 3.2 2.94-1.7c.84-.48.84-1.62-.02-2.1zM4.16.14L14.4 10.4l-3.2-3.2L2.18.38C2.47.14 2.86.04 3.25.14z"/></svg>
+              <div class="app-cta-btn-text">
+                <div class="sub">Get it on</div>
+                <div class="main">Google Play</div>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Reveal popup -->
+  <div class="popup-overlay" id="reveal-popup" role="dialog" aria-modal="true" aria-label="Get This Perk">
+    <div class="popup-box">
+      <button class="popup-close" onclick="closePopup()" aria-label="Close">✕</button>
+      <div class="popup-brand-row">
+        <div id="popup-logo-wrap"></div>
+        <div>
+          <div class="popup-brand-name" id="popup-brand-name">Brand</div>
+          <p class="popup-offer-text" id="popup-offer-text"></p>
+        </div>
+      </div>
+      <div class="popup-qr-wrap">
+        <div id="popup-qr" style="width:160px;height:160px;margin:0 auto 10px;"></div>
+        <p class="popup-qr-url" id="popup-qr-url"></p>
+      </div>
+      <div class="popup-paths">
+        <div class="popup-path">
+          <div class="popup-path-title">📱 Don't have the app?</div>
+          <p>Open your phone's camera → Scan the QR code → Download Perkfinity → Join the store → Your promo code is revealed in the app.</p>
+        </div>
+        <div class="popup-path">
+          <div class="popup-path-title">✅ Already have the app?</div>
+          <p>Open Perkfinity → Tap <strong>Scan</strong> → Scan this QR code → Join the store → View your exclusive promo code.</p>
+        </div>
+      </div>
+      <p class="popup-disclaimer">
+        By joining, you agree to our
+        <a href="terms-of-use.html" target="_blank">Terms of Use</a> and
+        <a href="privacy-policy.html" target="_blank">Privacy Policy</a>.
+        Your promo code is revealed only inside the app after joining.
+      </p>
+    </div>
+  </div>
+
+  <footer class="site-footer-new">
+    <div class="footer-inner">
+      <span class="footer-brand">Perkfinity</span>
+      <nav class="footer-links" aria-label="Footer navigation">
+        <a href="about.html">About Us</a>
+        <a href="merchants.html">For Businesses</a>
+        <a href="privacy-policy.html">Privacy Policy</a>
+        <a href="terms-of-use.html">Terms of Use</a>
+        <a href="mailto:hello@perkfinity.net">Contact</a>
+      </nav>
+      <div class="footer-copy">© 2025 Perkfinity · perkfinity.net · by SafeBox Financial Technologies</div>
+    </div>
+  </footer>
+
+  <!-- QR library -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+  <script>
+    const BACKEND = (typeof PerkfinityConfig !== 'undefined') ? PerkfinityConfig.BACKEND_URL : 'https://perkfinity-backend.vercel.app';
+    const catIcons = { Fashion:'👗', Beauty:'💄', Food:'🍔', Home:'🏠', Sports:'⚽', Tech:'💻', Health:'🌿', Other:'🛍️' };
+    let allBrands = [];
+    let activeCategory = 'all';
+
+    async function loadBrands(cat) {
+      const grid  = document.getElementById('brands-grid');
+      const state = document.getElementById('brands-state');
+      grid.innerHTML = '';
+      state.innerHTML = '<div class="spinner"></div><p>Loading brand deals…</p>';
+      state.style.display = 'block';
+      try {
+        const qs = (cat && cat !== 'all') ? `?category=${encodeURIComponent(cat)}` : '';
+        const res = await fetch(`${BACKEND}/api/v1/public/online-merchants${qs}`);
+        const json = await res.json();
+        allBrands = json.data || [];
+        renderBrands(allBrands);
+      } catch (e) {
+        state.innerHTML = '<div class="state-icon">😕</div><h3>Couldn\'t load deals</h3><p>Please try again in a moment.</p>';
+      }
+    }
+
+    function renderBrands(brands, searchQuery) {
+      const grid  = document.getElementById('brands-grid');
+      const state = document.getElementById('brands-state');
+      grid.innerHTML = '';
+      if (!brands.length) {
+        if (searchQuery) {
+          state.innerHTML = `<div class="state-icon">🤔</div>
+            <h3>We don’t have “${searchQuery}” yet!</h3>
+            <p>Looks like that brand hasn’t joined Perkfinity yet — but they should!<br>
+            Think they’d be a great fit? Send them our way — ask them to visit<br>
+            <a href="merchants.html" style="color:var(--purple);font-weight:900;">perkfinity.net → For Businesses</a>.<br>
+            The more brands that join, the more deals you get! 🎁</p>`;
+        } else {
+          state.innerHTML = `<div class="state-icon">📦</div>
+            <h3>No brands in this category yet!</h3>
+            <p>More brands are joining every week — check back soon!<br><br>
+            Know a brand that belongs here? Tell them to sign up at<br>
+            <a href="merchants.html" style="color:var(--purple);font-weight:900;">perkfinity.net → For Businesses</a>. 🎉</p>`;
+        }
+        state.style.display = 'block';
+        return;
+      }
+      state.style.display = 'none';
+      brands.forEach(b => {
+        const initials = b.business_name.split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
+        const logoHtml = b.logo_url
+          ? `<img class="brand-logo" src="${b.logo_url}" alt="${b.business_name} logo" onerror="this.style.display='none';this.nextElementSibling.style.display='grid';"><div class="brand-logo-placeholder" style="display:none;font-size:16px;font-weight:900;color:var(--purple);background:rgba(91,63,165,.1);">${initials}</div>`
+          : `<div class="brand-logo-placeholder" style="font-size:16px;font-weight:900;color:var(--purple);background:rgba(91,63,165,.1);">${initials}</div>`;
+        const isHybrid = b.business_presence === 'hybrid';
+        const hybridBadge = isHybrid
+          ? `<span class="hybrid-badge">📱 Claim &amp; Visit</span>`
+          : '';
+        const card = document.createElement('article');
+        card.className = 'brand-card';
+        card.innerHTML = `
+          <div class="brand-card-top">
+            ${logoHtml}
+            <div>
+              <div class="brand-name">${b.business_name}</div>
+              <div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px;margin-top:3px;">
+                <span class="brand-cat-badge">${catIcons[b.business_category] || ''} ${b.business_category || 'Brand'}</span>
+                ${hybridBadge}
+              </div>
+            </div>
+          </div>
+          <div class="brand-card-body">
+            <div class="brand-offer">${b.welcome_offer_text || 'Exclusive member perk'}</div>
+            ${isHybrid ? `<p style="font-size:12px;color:#92400e;background:#fef3c7;border-radius:8px;padding:7px 10px;margin:0;font-weight:700;">📍 Reveal your code here, then visit a location to redeem.</p>` : ''}
+            <button class="reveal-btn" onclick='openPopup(${JSON.stringify(b)})' id="reveal-${b.id}">
+              Get This Perk →
+            </button>
+          </div>`;
+        grid.appendChild(card);
+      });
+    }
+
+    let sortAZ = false;
+
+    function applyFilters() {
+      const q = (document.getElementById('brand-search')?.value || '').toLowerCase().trim();
+      let list = allBrands.filter(b => !q || b.business_name.toLowerCase().includes(q));
+      if (sortAZ) list = [...list].sort((a, b) => a.business_name.localeCompare(b.business_name));
+      renderBrands(list, q || null);
+    }
+
+    function toggleSort(btn) {
+      sortAZ = !sortAZ;
+      btn.classList.toggle('az-active', sortAZ);
+      btn.setAttribute('aria-pressed', String(sortAZ));
+      btn.textContent = sortAZ ? 'A–Z ✓' : 'A–Z';
+      applyFilters();
+    }
+
+    function filterCat(btn) {
+      document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+      btn.classList.add('active');
+      activeCategory = btn.dataset.cat;
+      loadBrands(activeCategory);
+    }
+
+    function openPopup(brand) {
+      document.getElementById('popup-brand-name').textContent = brand.business_name;
+      document.getElementById('popup-offer-text').textContent = brand.welcome_offer_text || 'Exclusive member perk';
+
+      const logoWrap = document.getElementById('popup-logo-wrap');
+      const initials = brand.business_name.split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
+      logoWrap.innerHTML = brand.logo_url
+        ? `<img class="popup-brand-logo" src="${brand.logo_url}" alt="${brand.business_name} logo" onerror="this.style.display='none';this.nextElementSibling.style.display='grid';"><div class="popup-brand-logo-placeholder" style="display:none;font-size:20px;font-weight:900;color:var(--purple);background:rgba(91,63,165,.1);">${initials}</div>`
+        : `<div class="popup-brand-logo-placeholder" style="font-size:20px;font-weight:900;color:var(--purple);background:rgba(91,63,165,.1);">${initials}</div>`;
+
+      const joinUrl = `https://perkfinity.net/join/${brand.qr_public_code}`;
+      document.getElementById('popup-qr-url').textContent = joinUrl;
+      const qrEl = document.getElementById('popup-qr');
+      qrEl.innerHTML = '';
+      QRCode.toCanvas(document.createElement('canvas'), joinUrl, { width: 160, margin: 1 }, (err, canvas) => {
+        if (!err) { qrEl.innerHTML = ''; qrEl.appendChild(canvas); }
+      });
+
+      document.getElementById('reveal-popup').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closePopup() {
+      document.getElementById('reveal-popup').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    document.getElementById('reveal-popup').addEventListener('click', function(e) {
+      if (e.target === this) closePopup();
+    });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closePopup(); });
+
+    loadBrands('all');
+  </script>
+</body>
+</html>

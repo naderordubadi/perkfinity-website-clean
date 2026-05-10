@@ -1,0 +1,544 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Enterprise Inquiry — Perkfinity</title>
+<meta name="description" content="Start your Perkfinity Enterprise inquiry. Tailor-made loyalty solutions for multi-location brands and franchise networks."/>
+<link rel="icon" href="assets/Perkfinity-App-Icon.png"/>
+<link rel="stylesheet" href="styles.css"/>
+<script src="/config.js"></script>
+<style>
+:root{--eg:#1e5c38;--eg2:#2e7d4f;--eg3:#4caf73;--egl:#e8f5ee;--egs:#22c55e;--egtx:#0f4422;--egmid:#1a6b3a}
+.ent-wrap{min-height:100vh;background:linear-gradient(140deg,#0a3d20,#1a6b3a 55%,#2d8653);padding:60px 0 80px}
+.ent-panel{background:#fff;border-radius:28px;max-width:700px;margin:0 auto;padding:40px;box-shadow:0 24px 56px rgba(10,61,32,.28)}
+.steps-bar{display:flex;align-items:center;justify-content:center;gap:0;margin-bottom:36px}
+.s-dot{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font-size:13px;font-weight:900;border:2px solid #e2e2f0;background:#fff;color:#aaa;flex-shrink:0;z-index:1;transition:all .3s}
+.s-dot.active{border-color:var(--eg);background:var(--eg);color:#fff}
+.s-dot.done{border-color:var(--egs);background:var(--egs);color:#fff}
+.s-line{flex:1;height:2px;background:#e2e2f0;transition:background .3s}
+.s-line.done{background:var(--egs)}
+.step-title{font-size:22px;font-weight:1000;color:var(--egtx);margin:0 0 6px;letter-spacing:-.02em}
+.step-sub{font-size:14px;color:rgba(15,68,34,.6);font-weight:700;margin:0 0 24px}
+.step-pane{display:none}.step-pane.active{display:block}
+.field{margin-bottom:18px}
+.field label{display:block;font-size:13px;font-weight:900;color:#1a2e22;margin-bottom:7px}
+.field input,.field select,.field textarea{width:100%;padding:12px 16px;border:1.5px solid rgba(200,220,210,.95);border-radius:12px;font-size:15px;font-family:inherit;outline:none;background:#fff;color:#1a2e22;transition:border-color .18s,box-shadow .18s;box-sizing:border-box}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:rgba(30,92,56,.45);box-shadow:0 0 0 4px rgba(30,92,56,.10)}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.field-row3{display:grid;grid-template-columns:2fr 1fr 1fr;gap:14px}
+.nav-row{display:flex;gap:12px;margin-top:28px}
+.btn-back{flex:1;padding:14px;border-radius:12px;border:1.5px solid rgba(200,220,210,.95);background:#fff;color:#1a2e22;font-size:15px;font-weight:900;cursor:pointer;font-family:inherit;transition:background .15s}
+.btn-back:hover{background:var(--egl)}
+.btn-next{flex:2;padding:14px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--eg),var(--eg2));color:#fff;font-size:15px;font-weight:900;cursor:pointer;font-family:inherit;transition:transform .15s,box-shadow .15s}
+.btn-next:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 22px rgba(30,92,56,.35)}
+.btn-next:disabled{opacity:.55;cursor:not-allowed}
+.err-msg{color:#dc2626;font-size:13px;font-weight:800;margin-top:10px;min-height:18px}
+.rc-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px}
+.rc-grid.cols3{grid-template-columns:1fr 1fr 1fr}
+.rc{border:2px solid rgba(200,220,210,.95);border-radius:14px;padding:14px 16px;cursor:pointer;transition:all .2s;background:#fff}
+.rc:hover{border-color:var(--eg2);background:var(--egl)}
+.rc.active{border-color:var(--eg);background:rgba(30,92,56,.06)}
+.rc-title{font-size:14px;font-weight:900;color:var(--egtx);margin-bottom:4px}
+.rc-desc{font-size:12px;font-weight:600;color:rgba(15,68,34,.6);line-height:1.45}
+.sec-hd{font-size:14px;font-weight:900;color:var(--egtx);margin:20px 0 10px;padding-bottom:6px;border-bottom:2px solid var(--egl)}
+.check-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:6px}
+.check-chip{display:flex;align-items:center;gap:6px;padding:7px 12px;border:1.5px solid rgba(200,220,210,.95);border-radius:10px;cursor:pointer;font-size:13px;font-weight:700;color:#1a2e22;background:#fff;transition:all .2s;user-select:none}
+.check-chip input{width:14px;height:14px;accent-color:var(--eg);cursor:pointer}
+.check-chip:has(input:checked){border-color:var(--eg);background:var(--egl);color:var(--egtx)}
+.summary-row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--egl);font-size:13px}
+.summary-row:last-child{border-bottom:none}
+.summary-label{font-weight:700;color:rgba(15,68,34,.6)}
+.summary-val{font-weight:900;color:#1a2e22;text-align:right;max-width:62%}
+.confirm-box{text-align:center;padding:40px 0}
+.agree-row{display:flex;align-items:flex-start;gap:10px;margin-bottom:18px;font-size:13px;font-weight:700;color:rgba(15,68,34,.7);line-height:1.5}
+.agree-row input{margin-top:2px;flex-shrink:0;accent-color:var(--eg)}
+.agree-row a{color:var(--eg)}
+@media(max-width:640px){.rc-grid,.rc-grid.cols3,.field-row,.field-row3{grid-template-columns:1fr}.ent-panel{padding:24px 16px}}
+</style>
+</head><body>
+<header style="position:sticky;top:0;z-index:100;background:rgba(10,61,32,0.97);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.08);">
+  <div class="container header-inner">
+    <a class="brand" href="index.html" aria-label="Perkfinity home"><img src="assets/Perkfinity-Logo.png" alt="Perkfinity logo"></a>
+    <nav class="nav" aria-label="Business navigation" style="gap:4px">
+      <a href="get-started.html" style="color:rgba(255,255,255,0.6);font-size:13px">← Business Types</a>
+      <a href="login.html" style="color:rgba(255,255,255,0.7)">Sign In</a>
+    </nav>
+  </div>
+</header>
+<main class="ent-wrap">
+<div class="container">
+<div style="text-align:center;margin-bottom:28px">
+  <div class="section-label" style="margin:0 auto 12px;display:inline-flex;background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.25);color:#fff">🏢 Enterprise Inquiry</div>
+  <div style="color:rgba(255,255,255,.75);font-size:15px;font-weight:700">Complete all 5 steps and we'll be in touch within 3–5 business days.</div>
+</div>
+<div class="ent-panel">
+<!-- Progress bar -->
+<div class="steps-bar" id="steps-bar">
+<div class="s-dot active" id="sd1">1</div><div class="s-line" id="sl1"></div>
+<div class="s-dot" id="sd2">2</div><div class="s-line" id="sl2"></div>
+<div class="s-dot" id="sd3">3</div><div class="s-line" id="sl3"></div>
+<div class="s-dot" id="sd4">4</div><div class="s-line" id="sl4"></div>
+<div class="s-dot" id="sd5">5</div>
+</div>
+
+<!-- ══ STEP 1: Company & Brand ══ -->
+<div class="step-pane active" id="step1">
+<div class="step-title">Company & Brand</div>
+<div class="step-sub">Tell us who you are and where your headquarters is located.</div>
+<div class="field"><label>Company Legal Name *</label><input type="text" id="f-legal-name" placeholder="e.g. Bella Group Inc."></div>
+<div class="field"><label>Trade / Brand Name <span style="font-weight:600;color:#aaa">(if different from legal name)</span></label><input type="text" id="f-brand-name" placeholder="e.g. Bella Botanicals"></div>
+<div class="field"><label>Industry *</label>
+<select id="f-industry" onchange="toggleIndustryOther()">
+<option value="">— Select industry —</option>
+<option value="Retail">Retail</option>
+<option value="Food & Beverage">Food & Beverage</option>
+<option value="Health & Wellness">Health & Wellness</option>
+<option value="Hospitality & Entertainment">Hospitality & Entertainment</option>
+<option value="Professional Services">Professional Services</option>
+<option value="Automotive">Automotive</option>
+<option value="Education">Education</option>
+<option value="Technology">Technology</option>
+<option value="Other">Other</option>
+</select></div>
+<div class="field" id="industry-other-wrap" style="display:none"><label>Describe Your Industry *</label><input type="text" id="f-industry-other" placeholder="e.g. Pet Care & Services"></div>
+<div class="field"><label>Company Website *</label><input type="url" id="f-website" placeholder="https://yourcompany.com"></div>
+<div class="sec-hd">🏛 HQ Address</div>
+<div class="field"><label>Street Address *</label><input type="text" id="f-hq-street" placeholder="123 Main St"></div>
+<div class="field-row">
+<div class="field"><label>City *</label><input type="text" id="f-hq-city" placeholder="City"></div>
+<div class="field"><label>State *</label><input type="text" id="f-hq-state" placeholder="CA" maxlength="2"></div>
+</div>
+<div class="field-row">
+<div class="field"><label>ZIP Code *</label><input type="text" id="f-hq-zip" placeholder="90210" maxlength="10"></div>
+<div class="field"><label>Country *</label><input type="text" id="f-hq-country" placeholder="USA" value="USA"></div>
+</div>
+<div class="err-msg" id="err1"></div>
+<div class="nav-row"><button class="btn-next" style="flex:1" onclick="next(1)">Next →</button></div>
+</div>
+
+<!-- ══ STEP 2: Scale & Operations ══ -->
+<div class="step-pane" id="step2">
+<div class="step-title">Scale & Operations</div>
+<div class="step-sub">Help us understand the size and structure of your business.</div>
+<div class="field-row">
+<div class="field"><label>Number of Locations *</label><input type="number" id="f-num-locs" min="1" placeholder="e.g. 45"></div>
+<div class="field"><label>Location Types *</label>
+<select id="f-loc-types">
+<option value="">— Select —</option>
+<option value="All Physical">All Physical Stores</option>
+<option value="Mix Physical + Online">Mix of Physical + Online</option>
+<option value="Online Only">Online Only</option>
+</select></div>
+</div>
+<div class="field"><label>Geographic Reach *</label>
+<div class="rc-grid cols3">
+<div class="rc" id="gr-single" onclick="selectRC(this,'geographic_reach','Single State')"><div class="rc-title">📍 Single State</div></div>
+<div class="rc" id="gr-multi" onclick="selectRC(this,'geographic_reach','Multi-State')"><div class="rc-title">🗺️ Multi-State</div></div>
+<div class="rc" id="gr-nation" onclick="selectRC(this,'geographic_reach','Nationwide')"><div class="rc-title">🇺🇸 Nationwide</div></div>
+<div class="rc" id="gr-global" onclick="selectRC(this,'geographic_reach','Global')"><div class="rc-title">🌐 Global</div></div>
+</div></div>
+<div class="field"><label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="f-same-brand" checked style="width:16px;height:16px;accent-color:var(--eg)"> All locations operate under the same brand name</label>
+<div id="brand-note-wrap" style="display:none;margin-top:10px"><label>Describe the brand structure *</label><input type="text" id="f-brand-note" placeholder="e.g. Main brand + 3 sub-brands by region"></div></div>
+<div class="field" id="same-brand-field">
+<script>document.getElementById('f-same-brand').onchange=function(){document.getElementById('brand-note-wrap').style.display=this.checked?'none':'block';}</script>
+</div>
+<div class="sec-hd">🏗 Operational Structure *</div>
+<div class="rc-grid">
+<div class="rc" onclick="selectRC(this,'operation_structure','Franchise')"><div class="rc-title">🏪 Franchise</div><div class="rc-desc">Each location has a separate owner/operator</div></div>
+<div class="rc" onclick="selectRC(this,'operation_structure','Corporate')"><div class="rc-title">🏢 Corporate</div><div class="rc-desc">Company-owned, manager-run, no separate ownership</div></div>
+<div class="rc" onclick="selectRC(this,'operation_structure','Mixed')"><div class="rc-title">🔀 Mixed</div><div class="rc-desc">Some franchise locations, some corporate-owned</div></div>
+<div class="rc" onclick="selectRC(this,'operation_structure','Other');document.getElementById('op-other-wrap').style.display='block'"><div class="rc-title">✏️ Other</div><div class="rc-desc">Describe below</div></div>
+</div>
+<div class="field" id="op-other-wrap" style="display:none"><label>Describe your structure *</label><input type="text" id="f-op-other" placeholder="e.g. Cooperative model"></div>
+<div class="sec-hd">🎯 Decision Authority on Offers & Campaigns *</div>
+<div class="rc-grid">
+<div class="rc" onclick="selectRC(this,'decision_authority','HQ controls all')"><div class="rc-title">🔒 HQ Controls All</div><div class="rc-desc">Corporate sets all offers. Franchise/managers cannot create their own.</div></div>
+<div class="rc" onclick="selectRC(this,'decision_authority','HQ base + local supplement')"><div class="rc-title">⚖️ HQ Base + Local Add-ons</div><div class="rc-desc">HQ sets baseline offers. Franchise owners can add local supplemental offers on top.</div></div>
+<div class="rc" onclick="selectRC(this,'decision_authority','Full local autonomy')"><div class="rc-title">🔓 Full Local Autonomy</div><div class="rc-desc">Each location owner/manager fully controls their own offers independently.</div></div>
+<div class="rc" onclick="selectRC(this,'decision_authority','Other');document.getElementById('da-other-wrap').style.display='block'"><div class="rc-title">✏️ Other</div><div class="rc-desc">Describe below</div></div>
+</div>
+<div class="field" id="da-other-wrap" style="display:none"><label>Describe decision authority *</label><input type="text" id="f-da-other" placeholder="e.g. Regional managers decide"></div>
+<div class="err-msg" id="err2"></div>
+<div class="nav-row"><button class="btn-back" onclick="goTo(1)">← Back</button><button class="btn-next" onclick="next(2)">Next →</button></div>
+</div>
+
+<!-- ══ STEP 3: Current Technology Stack ══ -->
+<div class="step-pane" id="step3">
+<div class="step-title">Current Technology Stack</div>
+<div class="step-sub">Tell us about the systems your business currently uses.</div>
+<div class="field"><label>POS System *</label>
+<select id="f-pos" onchange="togglePosOther()">
+<option value="">— Select your POS —</option>
+<option>Salesforce Commerce Cloud</option><option>Oracle Retail / MICROS</option>
+<option>NCR</option><option>SAP</option><option>Toast</option>
+<option>Square</option><option>Clover</option><option>Lightspeed</option>
+<option>Shopify POS</option><option>None</option><option>Other</option>
+</select></div>
+<div class="field" id="pos-other-wrap" style="display:none"><label>Describe your POS *</label><input type="text" id="f-pos-other" placeholder="e.g. Custom-built in-house system"></div>
+<div class="sec-hd">🎁 Loyalty / Rewards Program</div>
+<div class="field"><label>Do you currently run a loyalty or rewards program? *</label>
+<div class="rc-grid">
+<div class="rc" id="loyalty-yes" onclick="selectRC(this,'has_loyalty','yes');document.getElementById('loyalty-detail').style.display='block'"><div class="rc-title">✅ Yes</div></div>
+<div class="rc" id="loyalty-no" onclick="selectRC(this,'has_loyalty','no');document.getElementById('loyalty-detail').style.display='none'"><div class="rc-title">❌ No</div></div>
+</div></div>
+<div id="loyalty-detail" style="display:none">
+<div class="field"><label>Program Name *</label><input type="text" id="f-loyalty-name" placeholder="e.g. Bella Rewards"></div>
+<div class="field"><label>Program Type(s) * <span style="font-weight:600;color:#aaa">(select all that apply)</span></label>
+<div class="check-row">
+<label class="check-chip"><input type="checkbox" value="Points" name="ltype"> Points-based</label>
+<label class="check-chip"><input type="checkbox" value="Visits" name="ltype"> Visit / Punch card</label>
+<label class="check-chip"><input type="checkbox" value="Direct Discount" name="ltype"> Direct Discount</label>
+<label class="check-chip"><input type="checkbox" value="Cashback" name="ltype"> Cashback</label>
+<label class="check-chip"><input type="checkbox" value="Tiered Membership" name="ltype"> Tiered Membership</label>
+<label class="check-chip"><input type="checkbox" value="Surprise & Delight" name="ltype"> Surprise & Delight</label>
+<label class="check-chip"><input type="checkbox" value="Other" name="ltype" onchange="document.getElementById('ltype-other-wrap').style.display=this.checked?'block':'none'"> Other</label>
+</div>
+<div class="field" id="ltype-other-wrap" style="display:none"><input type="text" id="f-ltype-other" placeholder="Describe your program type"></div>
+</div></div>
+<div class="sec-hd">🛒 Digital Deal / Coupon Presence</div>
+<div class="field"><label>Are you currently active on any digital deal or coupon platforms? *</label>
+<div class="check-row">
+<label class="check-chip"><input type="checkbox" value="Groupon" name="ddeal"> Groupon</label>
+<label class="check-chip"><input type="checkbox" value="LivingSocial" name="ddeal"> LivingSocial</label>
+<label class="check-chip"><input type="checkbox" value="RetailMeNot" name="ddeal"> RetailMeNot</label>
+<label class="check-chip"><input type="checkbox" value="Own App" name="ddeal"> Own Mobile App</label>
+<label class="check-chip"><input type="checkbox" value="None" name="ddeal"> None</label>
+<label class="check-chip"><input type="checkbox" value="Other" name="ddeal" onchange="document.getElementById('ddeal-other-wrap').style.display=this.checked?'block':'none'"> Other</label>
+</div>
+<div class="field" id="ddeal-other-wrap" style="display:none"><input type="text" id="f-ddeal-other" placeholder="e.g. Honey, Ibotta"></div>
+</div>
+<div class="field"><label>Are any of these systems integrated with each other? *</label>
+<div class="rc-grid">
+<div class="rc" onclick="selectRC(this,'systems_integrated','yes');document.getElementById('integration-note-wrap').style.display='block'"><div class="rc-title">✅ Yes</div></div>
+<div class="rc" onclick="selectRC(this,'systems_integrated','no');document.getElementById('integration-note-wrap').style.display='none'"><div class="rc-title">❌ No</div></div>
+</div>
+<div class="field" id="integration-note-wrap" style="display:none;margin-top:10px"><label>Describe the integration *</label><textarea id="f-integration-note" rows="2" placeholder="e.g. Our POS syncs with Shopify and our loyalty app"></textarea></div>
+</div>
+<div class="field"><label>Approximate Customer / Member Database Size *</label>
+<select id="f-db-size">
+<option value="">— Select —</option>
+<option value="Under 10K">Under 10,000</option>
+<option value="10K–100K">10,000 – 100,000</option>
+<option value="100K–500K">100,000 – 500,000</option>
+<option value="500K+">500,000+</option>
+</select></div>
+<div class="err-msg" id="err3"></div>
+<div class="nav-row"><button class="btn-back" onclick="goTo(2)">← Back</button><button class="btn-next" onclick="next(3)">Next →</button></div>
+</div>
+
+<!-- ══ STEP 4: Requirements & Vision ══ -->
+<div class="step-pane" id="step4">
+<div class="step-title">Requirements & Vision</div>
+<div class="step-sub">Help us understand how you want Perkfinity to work for your business.</div>
+<div class="field"><div class="sec-hd" style="margin-top:0">👥 How would you like Perkfinity to capture members across your locations? *</div>
+<div class="rc-grid">
+<div class="rc" onclick="selectRC(this,'member_capture','Centralized')"><div class="rc-title">🎯 Centralized</div><div class="rc-desc">All member sign-ups flow into one main account regardless of location. One unified member database. Best for brands wanting a single customer view.</div></div>
+<div class="rc" onclick="selectRC(this,'member_capture','Distributed')"><div class="rc-title">🏪 Distributed</div><div class="rc-desc">Each store captures members into its own independent list. Members are tied to the specific location they visited. Best for franchise models with local ownership.</div></div>
+<div class="rc" onclick="selectRC(this,'member_capture','Hybrid')"><div class="rc-title">🔀 Hybrid</div><div class="rc-desc">Online presence and designated locations feed the main account; other locations maintain their own lists. Requires custom configuration.</div></div>
+</div></div>
+<div class="field"><label>Do you want to bring your existing customers into Perkfinity? *</label>
+<div class="rc-grid">
+<div class="rc" onclick="selectRC(this,'wants_import','yes');document.getElementById('import-detail').style.display='block'"><div class="rc-title">✅ Yes</div></div>
+<div class="rc" onclick="selectRC(this,'wants_import','no');document.getElementById('import-detail').style.display='none'"><div class="rc-title">❌ No</div></div>
+</div>
+<div id="import-detail" style="display:none;margin-top:10px">
+<div class="field-row">
+<div class="field"><label>Approx. Number of Existing Members</label><input type="text" id="f-import-count" placeholder="e.g. 50,000"></div>
+<div class="field"><label>Format</label><select id="f-import-format"><option value="">— Select —</option><option>CSV</option><option>CRM Export</option><option>POS Export</option><option>Other</option></select></div>
+</div></div></div>
+<div class="sec-hd">📣 Campaign Management *</div>
+<div class="rc-grid">
+<div class="rc" onclick="selectRC(this,'campaign_mgmt','Centralized (Head Office)')"><div class="rc-title">🔒 Centralized (Head Office)</div><div class="rc-desc">HQ creates and distributes all campaigns — online and all physical locations. Store managers have no campaign access. Best for strict brand control.</div></div>
+<div class="rc" onclick="selectRC(this,'campaign_mgmt','Hybrid (HQ + Franchise)')"><div class="rc-title">⚖️ Hybrid (HQ + Franchise)</div><div class="rc-desc">HQ manages all online campaigns and corporate-owned locations. Franchise owners independently manage campaigns for their own stores.</div></div>
+<div class="rc" onclick="selectRC(this,'campaign_mgmt','Distributed (Per Location)')"><div class="rc-title">🔓 Distributed (Per Location)</div><div class="rc-desc">Each location manages its own campaigns independently. HQ has view-only access across all locations.</div></div>
+</div>
+<div class="sec-hd">📊 Data Visibility *</div>
+<div class="rc-grid">
+<div class="rc" onclick="selectRC(this,'data_visibility','Head Office Only')"><div class="rc-title">🔒 Head Office Only</div><div class="rc-desc">Only the main account can view member data and analytics. Individual stores have no dashboard access.</div></div>
+<div class="rc" onclick="selectRC(this,'data_visibility','Main + Per Store')"><div class="rc-title">👁️ Main + Per Store</div><div class="rc-desc">Each store accesses their own data. Main account sees aggregated data across all locations.</div></div>
+</div>
+<div class="field" style="margin-top:20px"><label>Additional Requirements / Notes <span style="font-weight:600;color:#aaa">(optional)</span></label><textarea id="f-notes" rows="4" placeholder="Anything else we should know — specific integrations, timeline, unique requirements..."></textarea></div>
+<div class="err-msg" id="err4"></div>
+<div class="nav-row"><button class="btn-back" onclick="goTo(3)">← Back</button><button class="btn-next" onclick="next(4)">Next →</button></div>
+</div>
+
+<!-- ══ STEP 5: Contact & Logo ══ -->
+<div class="step-pane" id="step5">
+<div class="step-title">Contact & Logo</div>
+<div class="step-sub">Who should we reach out to? Upload your logo and review your submission.</div>
+<div class="field-row">
+<div class="field"><label>Primary Contact Name *</label><input type="text" id="f-contact-name" placeholder="Jane Smith"></div>
+<div class="field"><label>Title / Role *</label><input type="text" id="f-contact-title" placeholder="VP of Marketing"></div>
+</div>
+<div class="field-row">
+<div class="field"><label>Email Address *</label><input type="email" id="f-contact-email" placeholder="jane@yourcompany.com"></div>
+<div class="field"><label>Phone *</label><input type="tel" id="f-contact-phone" placeholder="xxx-xxx-xxxx" oninput="formatPhone(this)" maxlength="12"></div>
+</div>
+<!-- Logo upload -->
+<div style="margin-bottom:22px;padding:18px;background:var(--egl);border-radius:16px;border:1.5px solid rgba(30,92,56,.15)">
+<p style="font-size:13px;font-weight:900;color:var(--egtx);margin:0 0 12px">Company Logo <span style="font-weight:600;color:#aaa">(optional)</span></p>
+<div style="display:flex;align-items:center;gap:16px">
+<img id="logo-preview" src="" style="width:72px;height:72px;border-radius:50%;object-fit:contain;border:3px solid var(--eg3);display:none;background:#fff">
+<div id="logo-placeholder" style="width:72px;height:72px;border-radius:50%;background:rgba(30,92,56,.12);color:var(--eg);display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0">🏢</div>
+<div style="display:flex;flex-direction:column;gap:8px">
+<input type="file" id="logo-file" accept="image/png,image/jpeg,image/webp" style="display:none" onchange="previewLogo(event)">
+<button class="btn-back" style="display:inline-block;padding:10px 18px;font-size:13px" onclick="document.getElementById('logo-file').click()">Upload Logo</button>
+<button id="remove-logo-btn" style="display:none;padding:7px 14px;font-size:12px;font-weight:700;background:#fff;border:1.5px solid #dc2626;border-radius:10px;color:#dc2626;cursor:pointer;font-family:inherit" onclick="removeLogo()">✕ Remove</button>
+</div></div></div>
+<!-- Summary -->
+<div style="border:1.5px solid rgba(30,92,56,.2);border-radius:14px;overflow:hidden;margin-bottom:18px">
+<div style="background:var(--egl);padding:12px 16px;font-size:13px;font-weight:900;color:var(--egtx)">📋 Review Your Submission</div>
+<div style="padding:0 16px" id="summary-body"></div>
+</div>
+<div class="agree-row"><input type="checkbox" id="f-terms"><label for="f-terms">I agree to the <a href="terms-of-use.html" target="_blank">Terms of Use</a> and <a href="privacy-policy.html" target="_blank">Privacy Policy</a>.</label></div>
+<div class="err-msg" id="err5"></div>
+<div class="nav-row"><button class="btn-back" onclick="goTo(4)">← Back</button><button class="btn-next" id="btn-submit" onclick="submitInquiry()">Submit Inquiry →</button></div>
+</div>
+
+<!-- ══ Confirmation ══ -->
+<div class="step-pane" id="step-confirm">
+<div class="confirm-box">
+<div style="font-size:64px;margin-bottom:20px">🎉</div>
+<div style="font-size:26px;font-weight:1100;color:var(--egtx);margin:0 0 12px">Inquiry Submitted!</div>
+<p style="font-size:15px;font-weight:700;color:rgba(15,68,34,.65);line-height:1.6;margin:0 0 8px">Thank you for your interest in Perkfinity Enterprise.</p>
+<p style="font-size:15px;font-weight:700;color:rgba(15,68,34,.65);line-height:1.6;margin:0 0 28px">We'll review your submission and be in touch within <strong>3–5 business days</strong>.</p>
+<a href="index.html" style="display:inline-flex;padding:14px 28px;background:linear-gradient(135deg,var(--eg),var(--eg2));color:#fff;border-radius:12px;font-weight:900;font-size:15px;text-decoration:none">← Back to Home</a>
+</div>
+</div>
+
+</div><!-- end ent-panel -->
+</div>
+</main>
+<footer class="site-footer">
+<div class="container"><div class="row">
+<a href="mailto:hello@perkfinity.net" style="text-decoration:none;color:inherit">✉ <strong>hello@perkfinity.net</strong></a>
+<span class="sep">|</span><a href="privacy-policy.html" style="text-decoration:none;color:inherit">Privacy Policy</a>
+<span class="sep">|</span><a href="terms-of-use.html" style="text-decoration:none;color:inherit">Terms of Use</a>
+</div></div>
+</footer>
+<script>
+const BACKEND=(typeof PerkfinityConfig!=='undefined')
+  ? PerkfinityConfig.BACKEND_URL
+  : (window.location.hostname==='localhost'||window.location.protocol==='file:'
+      ? 'http://localhost:3001'
+      : 'https://perkfinity-backend.vercel.app');
+const TOTAL_STEPS=5;
+let currentStep=1;
+let uploadedLogoBase64=null;
+const fd={}; // form data accumulator
+function formatPhone(el){let x=el.value.replace(/\D/g,'').match(/(\d{0,3})(\d{0,3})(\d{0,4})/);el.value=!x[2]?x[1]:x[1]+'-'+x[2]+(x[3]?'-'+x[3]:'');}
+
+// ── Radio card selection ──
+const _otherWrapIds={operation_structure:'op-other-wrap',decision_authority:'da-other-wrap'};
+function selectRC(el,field,value){
+  el.closest('.rc-grid').querySelectorAll('.rc').forEach(r=>r.classList.remove('active'));
+  el.classList.add('active');
+  fd[field]=value;
+  const wrapId=_otherWrapIds[field];
+  if(wrapId){
+    const wrap=document.getElementById(wrapId);
+    if(wrap) wrap.style.display=(value==='Other')?'block':'none';
+  }
+}
+
+function toggleIndustryOther(){
+  const v=document.getElementById('f-industry').value;
+  document.getElementById('industry-other-wrap').style.display=v==='Other'?'block':'none';
+}
+function togglePosOther(){
+  const v=document.getElementById('f-pos').value;
+  document.getElementById('pos-other-wrap').style.display=v==='Other'?'block':'none';
+}
+
+// ── Navigation ──
+function goTo(n){
+  document.querySelectorAll('.step-pane').forEach(p=>p.classList.remove('active'));
+  if(n==='confirm'){document.getElementById('step-confirm').classList.add('active');return;}
+  document.getElementById('step'+n)?.classList.add('active');
+  currentStep=n;
+  updateBar(n);
+  if(n===5) buildSummary();
+  window.scrollTo({top:document.querySelector('.ent-panel').offsetTop-80,behavior:'smooth'});
+}
+function updateBar(n){
+  for(let i=1;i<=TOTAL_STEPS;i++){
+    const d=document.getElementById('sd'+i);
+    if(!d)continue;
+    d.className='s-dot'+(i<n?' done':i===n?' active':'');
+  }
+  for(let i=1;i<TOTAL_STEPS;i++){
+    const l=document.getElementById('sl'+i);
+    if(l)l.className='s-line'+(i<n?' done':'');
+  }
+}
+
+// ── Validators ──
+function validate1(){
+  const ln=document.getElementById('f-legal-name').value.trim();
+  const ind=document.getElementById('f-industry').value;
+  let web=document.getElementById('f-website').value.trim();
+  if(web && !/^https?:\/\//i.test(web)){web='https://'+web;document.getElementById('f-website').value=web;}
+  const st=document.getElementById('f-hq-street').value.trim();
+  const cy=document.getElementById('f-hq-city').value.trim();
+  const sta=document.getElementById('f-hq-state').value.trim();
+  const zip=document.getElementById('f-hq-zip').value.trim();
+  if(!ln)return'Company legal name is required.';
+  if(!ind)return'Please select an industry.';
+  if(ind==='Other'&&!document.getElementById('f-industry-other').value.trim())return'Please describe your industry.';
+  if(!web||!web.startsWith('http'))return'Please enter a valid website URL.';
+  if(!st||!cy||!sta||!zip)return'Please fill in the full HQ address.';
+  fd.company_legal_name=ln;
+  fd.brand_name=document.getElementById('f-brand-name').value.trim();
+  fd.industry=ind==='Other'?document.getElementById('f-industry-other').value.trim():ind;
+  fd.website=web;
+  fd.hq_street=st;fd.hq_city=cy;fd.hq_state=sta;fd.hq_zip=zip;
+  fd.hq_country=document.getElementById('f-hq-country').value.trim()||'USA';
+  return'';
+}
+function validate2(){
+  const nl=document.getElementById('f-num-locs').value;
+  const lt=document.getElementById('f-loc-types').value;
+  if(!nl||parseInt(nl)<1)return'Please enter the number of locations.';
+  if(!lt)return'Please select location types.';
+  if(!fd.geographic_reach)return'Please select geographic reach.';
+  if(!fd.operation_structure)return'Please select an operational structure.';
+  if(fd.operation_structure==='Other'&&!document.getElementById('f-op-other').value.trim())return'Please describe your operational structure.';
+  if(!fd.decision_authority)return'Please select a decision authority model.';
+  if(fd.decision_authority==='Other'&&!document.getElementById('f-da-other').value.trim())return'Please describe your decision authority.';
+  fd.num_locations=parseInt(nl);
+  fd.location_types=lt;
+  const sameBrand=document.getElementById('f-same-brand').checked;
+  fd.same_brand_name=sameBrand;
+  fd.brand_note=sameBrand?'':document.getElementById('f-brand-note').value.trim();
+  if(!sameBrand&&!fd.brand_note)return'Please describe the brand structure if locations operate under different brands.';
+  if(fd.operation_structure==='Other')fd.operation_structure_note=document.getElementById('f-op-other').value.trim();
+  if(fd.decision_authority==='Other')fd.decision_authority_note=document.getElementById('f-da-other').value.trim();
+  return'';
+}
+function validate3(){
+  const pos=document.getElementById('f-pos').value;
+  if(!pos)return'Please select your POS system.';
+  if(pos==='Other'&&!document.getElementById('f-pos-other').value.trim())return'Please describe your POS system.';
+  const ddealChecked=[...document.querySelectorAll('input[name="ddeal"]:checked')].map(c=>c.value);
+  if(!ddealChecked.length)return'Please select at least one digital deal/coupon option (or "None").';
+  const dbsize=document.getElementById('f-db-size').value;
+  if(!dbsize)return'Please select your approximate database size.';
+  fd.pos_system=pos==='Other'?document.getElementById('f-pos-other').value.trim():pos;
+  if(!fd.has_loyalty)return'Please indicate whether you currently run a loyalty or rewards program.';
+  if(fd.has_loyalty==='yes'){
+    fd.loyalty_name=document.getElementById('f-loyalty-name').value.trim();
+    fd.loyalty_types=[...document.querySelectorAll('input[name="ltype"]:checked')].map(c=>c.value).join(', ');
+    if(!fd.loyalty_name)return'Please enter your loyalty program name.';
+    if(!fd.loyalty_types)return'Please select at least one loyalty program type.';
+  }
+  fd.digital_deal=ddealChecked.join(', ');
+  if(ddealChecked.includes('Other'))fd.digital_deal_other=document.getElementById('f-ddeal-other').value.trim();
+  if(!fd.systems_integrated)return'Please indicate whether your systems are integrated with each other.';
+  if(fd.systems_integrated==='yes')fd.integration_note=document.getElementById('f-integration-note').value.trim();
+  fd.member_db_size=dbsize;
+  return'';
+}
+function validate4(){
+  if(!fd.member_capture)return'Please select a member capture model.';
+  if(!fd.campaign_mgmt)return'Please select a campaign management model.';
+  if(!fd.data_visibility)return'Please select a data visibility option.';
+  if(!fd.wants_import)return'Please indicate whether you want to bring existing customers into Perkfinity.';
+  if(fd.wants_import==='yes'){fd.import_count=document.getElementById('f-import-count').value.trim();fd.import_format=document.getElementById('f-import-format').value;}
+  fd.notes=document.getElementById('f-notes').value.trim();
+  return'';
+}
+function validate5(){
+  const cn=document.getElementById('f-contact-name').value.trim();
+  const ct=document.getElementById('f-contact-title').value.trim();
+  const ce=document.getElementById('f-contact-email').value.trim();
+  const cp=document.getElementById('f-contact-phone').value.trim();
+  if(!cn)return'Contact name is required.';
+  if(!ct)return'Title/Role is required.';
+  if(!ce||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(ce))return'Please enter a valid email address.';
+  if(!cp)return'Phone number is required.';
+  if(!/^\d{3}-\d{3}-\d{4}$/.test(cp))return'Please enter phone in xxx-xxx-xxxx format.';
+  if(!document.getElementById('f-terms').checked)return'Please agree to the Terms of Use and Privacy Policy.';
+  fd.contact_name=cn;fd.contact_title=ct;fd.contact_email=ce;fd.contact_phone=cp;
+  return'';
+}
+
+async function next(from){
+  const errEl=document.getElementById('err'+from);
+  errEl.textContent='';
+  let msg='';
+  if(from===1)msg=validate1();
+  else if(from===2)msg=validate2();
+  else if(from===3)msg=validate3();
+  else if(from===4)msg=validate4();
+  if(msg){errEl.textContent=msg;return;}
+  goTo(from+1);
+}
+
+// ── Logo ──
+function compressImage(file,maxSize,quality){
+  return new Promise((resolve,reject)=>{
+    const img=new Image();
+    img.onload=()=>{
+      const canvas=document.createElement('canvas');
+      let w=img.width,h=img.height;
+      if(w>maxSize||h>maxSize){if(w>h){h=Math.round(h*maxSize/w);w=maxSize;}else{w=Math.round(w*maxSize/h);h=maxSize;}}
+      canvas.width=w;canvas.height=h;
+      const ctx=canvas.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,w,h);ctx.drawImage(img,0,0,w,h);
+      resolve(canvas.toDataURL('image/jpeg',quality));
+    };
+    img.onerror=reject;img.src=URL.createObjectURL(file);
+  });
+}
+async function previewLogo(e){
+  const file=e.target.files[0];if(!file)return;
+  try{uploadedLogoBase64=await compressImage(file,200,0.7);}
+  catch(_){const r=new FileReader();r.onload=ev=>{uploadedLogoBase64=ev.target.result;updateLogoUI();};r.readAsDataURL(file);return;}
+  updateLogoUI();
+}
+function updateLogoUI(){
+  const prev=document.getElementById('logo-preview'),ph=document.getElementById('logo-placeholder');
+  prev.src=uploadedLogoBase64;prev.style.display='block';ph.style.display='none';
+  document.getElementById('remove-logo-btn').style.display='inline-block';
+}
+function removeLogo(){
+  uploadedLogoBase64=null;
+  const prev=document.getElementById('logo-preview'),ph=document.getElementById('logo-placeholder');
+  prev.src='';prev.style.display='none';ph.style.display='flex';
+  document.getElementById('remove-logo-btn').style.display='none';
+  document.getElementById('logo-file').value='';
+}
+
+// ── Summary ──
+function buildSummary(){
+  const row=(l,v)=>v?`<div class="summary-row"><span class="summary-label">${l}</span><span class="summary-val">${v}</span></div>`:'';
+  let h=row('Company',fd.company_legal_name+(fd.brand_name?` (${fd.brand_name})`:''));
+  h+=row('Industry',fd.industry);h+=row('Website',fd.website);
+  h+=row('HQ',`${fd.hq_street}, ${fd.hq_city}, ${fd.hq_state} ${fd.hq_zip}`);
+  h+=row('Locations',fd.num_locations+' · '+fd.location_types);h+=row('Geographic Reach',fd.geographic_reach);
+  h+=row('Structure',fd.operation_structure+(fd.operation_structure_note?' — '+fd.operation_structure_note:''));
+  h+=row('Decision Authority',fd.decision_authority+(fd.decision_authority_note?' — '+fd.decision_authority_note:''));
+  h+=row('POS',fd.pos_system);h+=row('Loyalty Program',fd.has_loyalty==='yes'?fd.loyalty_name+' ('+fd.loyalty_types+')':'None');
+  h+=row('Digital Deals',fd.digital_deal);h+=row('Member Database',fd.member_db_size);
+  h+=row('Member Capture',fd.member_capture);h+=row('Member Import',fd.wants_import==='yes'?(fd.import_count||'')+(fd.import_format?' via '+fd.import_format:''):'No');
+  h+=row('Campaign Management',fd.campaign_mgmt);h+=row('Data Visibility',fd.data_visibility);
+  if(fd.notes)h+=row('Notes',fd.notes);
+  document.getElementById('summary-body').innerHTML=h;
+}
+
+// ── Submit ──
+async function submitInquiry(){
+  const errEl=document.getElementById('err5');errEl.textContent='';
+  const msg=validate5();if(msg){errEl.textContent=msg;return;}
+  const btn=document.getElementById('btn-submit');
+  btn.disabled=true;btn.textContent='Submitting…';
+  try{
+    const payload={...fd,logo_base64:uploadedLogoBase64||null};
+    const r=await fetch(`${BACKEND}/api/v1/enterprise/inquiry`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    const j=await r.json();
+    if(!j.success)throw new Error(j.error||'Submission failed.');
+    goTo('confirm');
+  }catch(e){
+    errEl.textContent=e.message||'Submission failed. Please try again.';
+    btn.disabled=false;btn.textContent='Submit Inquiry →';
+  }
+}
+</script>
+</body></html>

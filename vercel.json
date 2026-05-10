@@ -3,7 +3,11 @@
     { "source": "/(.*)", "headers": [{ "key": "Cache-Control", "value": "no-store" }] }
   ],
   "rewrites": [
-    { "source": "/join/:code", "destination": "/join/index.html" }
+    { "source": "/join/:code", "destination": "/join/index.html" },
+    { "source": "/codes", "destination": "/codes.html" },
+    { "source": "/localperks", "destination": "/localperks.html" },
+    { "source": "/apply", "destination": "/apply.html" },
+    { "source": "/get-started", "destination": "/get-started.html" }
   ],
   "redirects": [
     { "source": "/beta-test", "destination": "/beta-test/part1.html", "permanent": false }

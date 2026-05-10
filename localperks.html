@@ -1,0 +1,628 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Perkfinity — Nearby Deals &amp; Local Businesses</title>
+  <meta name="description" content="Search for local stores, mobile businesses, pop-ups, and food trucks offering exclusive Perkfinity perks near you." />
+  <link rel="icon" href="assets/Perkfinity-App-Icon.png" />
+  <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <script src="/config.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; }
+
+    /* ── Shared nav (mirrors index.html) ── */
+    .site-header { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.97); backdrop-filter: blur(12px); border-bottom: 1px solid #f0eeff; }
+    .nav-inner { max-width: 1100px; margin: 0 auto; padding: 0 24px; height: 64px; display: flex; align-items: center; }
+    .nav-brand { display: flex; align-items: center; margin-right: auto; }
+    .nav-brand img { height: 32px; }
+    .nav-links { display: flex; align-items: center; gap: 4px; }
+    .nav-links a { font-size: 14px; font-weight: 600; color: #444; text-decoration: none; padding: 8px 14px; border-radius: 10px; transition: background 0.15s, color 0.15s; }
+    .nav-links a:hover { background: #f5f3ff; color: #5b3fa5; }
+    .nav-links a[aria-current] { background: #f5f3ff; color: #5b3fa5; font-weight: 700; }
+    .nav-sep { width: 1px; height: 20px; background: #e5e7eb; margin: 0 8px; }
+    .nav-signin { font-size: 14px; font-weight: 700; color: #5b3fa5 !important; border: 1.5px solid #5b3fa5 !important; padding: 7px 18px !important; border-radius: 10px !important; }
+    .nav-signin:hover { background: #5b3fa5 !important; color: #fff !important; }
+    .nav-mobile-btn { display: none; background: none; border: none; cursor: pointer; padding: 8px; color: #444; font-size: 20px; }
+    @media (max-width: 680px) {
+      .nav-links { display: none; }
+      .nav-mobile-btn { display: block; margin-left: auto; }
+      .nav-links.open { display: flex; flex-direction: column; position: absolute; top: 64px; left: 0; right: 0; background: #fff; border-bottom: 1px solid #f0eeff; padding: 12px 16px; gap: 4px; z-index: 99; }
+      .nav-links.open .nav-sep { display: none; }
+    }
+
+    /* ── Hero ── */
+    .lp-hero {
+      background: linear-gradient(140deg, #0f1f12 0%, #1a3320 40%, #0d1a35 100%);
+      padding: 72px 0 56px;
+      position: relative;
+      overflow: hidden;
+    }
+    .lp-hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(700px 400px at 80% 60%, rgba(107,193,122,.20), transparent 60%),
+                  radial-gradient(600px 300px at 10% 20%, rgba(107,193,122,.15), transparent 60%);
+      pointer-events: none;
+    }
+    .lp-hero .container { position: relative; z-index: 1; text-align: center; }
+    .lp-hero h1 { color: #fff; margin: 0 0 12px; font-size: clamp(32px, 4vw, 52px); }
+    .lp-hero p  { color: rgba(255,255,255,.75); font-size: 17px; font-weight: 700; margin: 0 0 32px; }
+
+    /* ── Search / Filter area ── */
+    .search-panel {
+      background: rgba(255,255,255,.10);
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 20px;
+      padding: 24px;
+      max-width: 820px;
+      margin: 0 auto;
+      backdrop-filter: blur(10px);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    /* Row 1: Name | City | ZIP | Search */
+    .search-main-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .search-input {
+      flex: 1;
+      padding: 13px 16px;
+      border-radius: 12px;
+      border: 1.5px solid rgba(255,255,255,.22);
+      background: rgba(255,255,255,.14);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      font-family: inherit;
+      outline: none;
+      min-width: 0;
+      transition: border-color .18s;
+    }
+    .search-input.sm { flex: 0 0 130px; }
+    .search-input::placeholder { color: rgba(255,255,255,.45); }
+    .search-input:focus { border-color: var(--green); }
+    .search-btn {
+      padding: 13px 22px;
+      border-radius: 12px;
+      border: none;
+      background: linear-gradient(135deg, var(--green), var(--greenDark));
+      color: #fff;
+      font-size: 14px;
+      font-weight: 900;
+      cursor: pointer;
+      font-family: inherit;
+      transition: transform .15s, box-shadow .15s;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .search-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(107,193,122,.40); }
+    .clear-btn {
+      padding: 13px 16px;
+      border-radius: 12px;
+      border: 1.5px solid rgba(255,255,255,.25);
+      background: transparent;
+      color: rgba(255,255,255,.70);
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all .15s;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .clear-btn:hover { background: rgba(255,255,255,.10); color: #fff; border-color: rgba(255,255,255,.45); }
+    /* Row 2: Presence chips */
+    .presence-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .presence-label {
+      font-size: 12px;
+      font-weight: 800;
+      color: rgba(255,255,255,.50);
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      flex-shrink: 0;
+    }
+    .pres-chip {
+      padding: 7px 14px;
+      border-radius: 999px;
+      border: 1.5px solid rgba(255,255,255,.20);
+      background: rgba(255,255,255,.10);
+      color: rgba(255,255,255,.65);
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .pres-chip.active {
+      background: rgba(255,255,255,.22);
+      border-color: rgba(255,255,255,.50);
+      color: #fff;
+    }
+    /* Multi-value tags (optional power feature) */
+    .active-tags {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .tag-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(107,193,122,.22);
+      border: 1px solid rgba(107,193,122,.40);
+      font-size: 12px;
+      font-weight: 800;
+      color: #a8e8b4;
+      cursor: pointer;
+    }
+    .tag-pill:hover { background: rgba(255,100,100,.18); border-color: rgba(255,100,100,.35); color: #fca5a5; }
+
+    /* ── Results ── */
+    .results-section { background: var(--cream); padding: 48px 0 64px; }
+    .results-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 28px;
+    }
+    .results-count {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--muted);
+    }
+    .merchants-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .merchant-row {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      box-shadow: var(--shadow2);
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      transition: transform .2s, box-shadow .2s;
+      cursor: pointer;
+    }
+    .merchant-row:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow);
+    }
+    .merch-logo {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      object-fit: contain;
+      background: var(--cream);
+      border: 1px solid var(--border);
+      padding: 4px;
+      flex-shrink: 0;
+    }
+    .merch-logo-placeholder {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(107,193,122,.15), rgba(91,63,165,.10));
+      border: 1px solid var(--border);
+      display: grid;
+      place-items: center;
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+    .merch-info { flex: 1; min-width: 0; }
+    .merch-name {
+      font-size: 16px;
+      font-weight: 900;
+      color: var(--ink);
+      margin: 0 0 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .merch-location {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--muted);
+      margin: 0 0 6px;
+    }
+    .merch-offer {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--purpleDark);
+    }
+    .merch-offer::before { content: "🎁 "; }
+    .pres-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+    .pres-badge.physical { background: rgba(91,63,165,.10); color: var(--purple); }
+    .pres-badge.mobile   { background: rgba(96,165,250,.12); color: #2563eb; }
+    .pres-badge.hybrid   { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+    .join-btn {
+      padding: 10px 20px;
+      border-radius: 10px;
+      border: none;
+      background: linear-gradient(135deg, var(--green), var(--greenDark));
+      color: #fff;
+      font-size: 13px;
+      font-weight: 900;
+      cursor: pointer;
+      font-family: inherit;
+      white-space: nowrap;
+      transition: transform .15s, box-shadow .15s;
+      flex-shrink: 0;
+    }
+    .join-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(107,193,122,.40); }
+
+    /* ── Empty/loading ── */
+    .state-box { text-align: center; padding: 80px 24px; color: var(--muted); }
+    .state-box .state-icon { font-size: 56px; margin-bottom: 16px; }
+    .state-box h3 { margin: 0 0 8px; font-size: 20px; color: var(--purpleDark); }
+    .state-box p  { margin: 0; font-size: 15px; font-weight: 700; }
+    .spinner {
+      width: 36px; height: 36px;
+      border: 3px solid rgba(91,63,165,.2);
+      border-top-color: var(--purple);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      margin: 0 auto 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Shared popup (same as codes.html) ── */
+    .popup-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,.55); z-index: 1000;
+      justify-content: center; align-items: center;
+      padding: 20px; backdrop-filter: blur(4px);
+    }
+    .popup-overlay.open { display: flex; }
+    .popup-box {
+      background: #fff; border-radius: 28px;
+      padding: 36px 32px 28px; max-width: 420px; width: 100%;
+      position: relative; box-shadow: 0 32px 80px rgba(0,0,0,.3);
+      animation: popIn .25s cubic-bezier(.34,1.56,.64,1);
+    }
+    @keyframes popIn { from { transform: scale(.88); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .popup-close {
+      position: absolute; top: 16px; right: 18px;
+      background: none; border: none; font-size: 22px; cursor: pointer;
+      color: var(--muted); padding: 4px 8px; border-radius: 8px;
+    }
+    .popup-close:hover { background: var(--cream); }
+    .popup-brand-row { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
+    .popup-logo-ph {
+      width: 54px; height: 54px; border-radius: 14px;
+      background: linear-gradient(135deg,rgba(91,63,165,.15),rgba(107,193,122,.15));
+      border: 1px solid var(--border); display: grid; place-items: center; font-size: 22px; flex-shrink: 0;
+    }
+    .popup-logo-img { width: 54px; height: 54px; border-radius: 14px; object-fit: contain; background: var(--cream); border: 1px solid var(--border); padding: 4px; flex-shrink: 0; }
+    .popup-brand-name { font-size: 18px; font-weight: 900; color: var(--ink); margin: 0 0 4px; }
+    .popup-offer-text { font-size: 14px; font-weight: 700; color: var(--muted); margin: 0; }
+    .popup-qr-wrap { background: var(--cream); border: 1px solid var(--border); border-radius: 18px; padding: 20px; margin-bottom: 20px; text-align: center; }
+    .popup-qr-wrap canvas { display: block; margin: 0 auto 10px; border-radius: 8px; }
+    .popup-qr-url { font-size: 11px; font-weight: 700; color: var(--muted); word-break: break-all; margin: 0; }
+    .popup-paths { display: flex; flex-direction: column; gap: 12px; margin-bottom: 18px; }
+    .popup-path { background: var(--cream); border: 1.5px solid var(--border); border-radius: 14px; padding: 14px 16px; }
+    .popup-path-title { font-size: 12px; font-weight: 900; color: var(--purple); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 6px; }
+    .popup-path p { margin: 0; font-size: 13px; font-weight: 700; color: var(--muted); line-height: 1.55; }
+    .popup-disclaimer { font-size: 12px; color: var(--muted); font-weight: 700; text-align: center; line-height: 1.5; border-top: 1px solid var(--border); padding-top: 14px; }
+    .popup-disclaimer a { color: var(--purple); }
+
+    /* ── Footer (mirrors index.html) ── */
+    .site-footer-new { background: #f8f7ff; border-top: 1px solid #ede9fe; padding: 32px 24px; }
+    .footer-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+    .footer-brand { font-size: 16px; font-weight: 800; color: #5b3fa5; }
+    .footer-links { display: flex; gap: 20px; flex-wrap: wrap; }
+    .footer-links a { font-size: 13px; color: #666; text-decoration: none; }
+    .footer-links a:hover { color: #5b3fa5; }
+    .footer-copy { font-size: 12px; color: #aaa; width: 100%; text-align: center; margin-top: 8px; }
+
+    @media (max-width: 680px) {
+      .search-main-row { flex-wrap: wrap; }
+      .search-input.sm { flex: 1 1 100px; }
+      .merchant-row { flex-wrap: wrap; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="nav-inner">
+      <a class="nav-brand" href="index.html" aria-label="Perkfinity home">
+        <img src="assets/Perkfinity-Logo.png" alt="Perkfinity" />
+      </a>
+      <button class="nav-mobile-btn" onclick="this.nextElementSibling.classList.toggle('open')" aria-label="Toggle menu">☰</button>
+      <nav class="nav-links" aria-label="Primary navigation">
+        <a href="codes.html">Promo Codes</a>
+        <a href="localperks.html" aria-current="page">Nearby Deals</a>
+        <div class="nav-sep" aria-hidden="true"></div>
+        <a href="merchants.html">For Businesses</a>
+        <a href="about.html">About Us</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero + Search -->
+    <section class="lp-hero">
+      <div class="container">
+        <div class="section-label" style="margin:0 auto 18px;">📍 Local &amp; Mobile Deals</div>
+        <h1>Local Stores, Food Trucks<br>&amp; Mobile Businesses</h1>
+        <p>Find exclusive perks from shops, restaurants, pop-ups, and mobile businesses near you.<br>Scan their QR and your perk is claimed instantly.</p>
+
+        <div class="search-panel">
+          <!-- Row 1: Name | City | ZIP | Search -->
+          <div class="search-main-row">
+            <input type="text" class="search-input" id="search-q"
+              placeholder="Business name…"
+              onkeydown="if(event.key==='Enter')doSearch()">
+            <input type="text" class="search-input sm" id="city-input"
+              placeholder="City…"
+              onkeydown="if(event.key==='Enter')doSearch()">
+            <input type="text" class="search-input sm" id="zip-input"
+              placeholder="ZIP…"
+              onkeydown="if(event.key==='Enter')doSearch()">
+            <button class="search-btn" onclick="doSearch()">Search →</button>
+            <button class="clear-btn" onclick="clearSearch()" title="Clear search">✕ Clear</button>
+          </div>
+
+          <!-- Row 2: Presence filter chips -->
+          <div class="presence-row">
+            <span class="presence-label">Show:</span>
+            <button class="pres-chip active" data-pres="all"      onclick="setPres(this)">All</button>
+            <button class="pres-chip"        data-pres="physical" onclick="setPres(this)">🏪 Stores</button>
+            <button class="pres-chip"        data-pres="mobile"   onclick="setPres(this)">🚐 Mobile / Pop-up</button>
+            <button class="pres-chip"        data-pres="hybrid"   onclick="setPres(this)">📱 Claim &amp; Visit</button>
+          </div>
+
+          <!-- Multi-value tags (shown when user adds more cities/zips) -->
+          <div class="active-tags" id="active-tags"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Results -->
+    <section class="results-section">
+      <div class="container">
+        <div class="results-header">
+          <div class="results-count" id="results-count"></div>
+        </div>
+        <div id="merchants-list" class="merchants-list"></div>
+        <div id="lp-state" class="state-box" style="display:none;"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Popup -->
+  <div class="popup-overlay" id="reveal-popup" role="dialog" aria-modal="true" aria-label="Get This Perk">
+    <div class="popup-box">
+      <button class="popup-close" onclick="closePopup()" aria-label="Close">✕</button>
+      <div class="popup-brand-row">
+        <div id="popup-logo-wrap"></div>
+        <div>
+          <div class="popup-brand-name" id="popup-brand-name">Business</div>
+          <p class="popup-offer-text" id="popup-offer-text"></p>
+        </div>
+      </div>
+      <div class="popup-qr-wrap">
+        <div id="popup-qr" style="width:160px;height:160px;margin:0 auto 10px;"></div>
+        <p class="popup-qr-url" id="popup-qr-url"></p>
+      </div>
+      <div class="popup-paths">
+        <div class="popup-path">
+          <div class="popup-path-title">📱 Don't have the app?</div>
+          <p>Open your phone's camera → Scan the QR code → Download Perkfinity → Join the merchant → Visit the store to activate your perk.</p>
+        </div>
+        <div class="popup-path">
+          <div class="popup-path-title">✅ Already have the app?</div>
+          <p>Open Perkfinity → Tap <strong>Scan</strong> → Scan this QR code → Join the merchant → Visit the store and scan again to activate.</p>
+        </div>
+      </div>
+      <p class="popup-disclaimer">
+        Note: This is <strong>not</strong> an online promo code. You must visit the store in person to activate your perk.
+        See our <a href="terms-of-use.html" target="_blank">Terms</a> &
+        <a href="privacy-policy.html" target="_blank">Privacy Policy</a>.
+      </p>
+    </div>
+  </div>
+
+  <footer class="site-footer-new">
+    <div class="footer-inner">
+      <span class="footer-brand">Perkfinity</span>
+      <nav class="footer-links" aria-label="Footer navigation">
+        <a href="about.html">About Us</a>
+        <a href="merchants.html">For Businesses</a>
+        <a href="privacy-policy.html">Privacy Policy</a>
+        <a href="terms-of-use.html">Terms of Use</a>
+        <a href="mailto:hello@perkfinity.net">Contact</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+  <script>
+    const BACKEND = (typeof PerkfinityConfig !== 'undefined') ? PerkfinityConfig.BACKEND_URL : 'https://perkfinity-backend.vercel.app';
+    // Multi-value tag arrays (optional power feature — add multiple cities/zips)
+    const extraCities = [], extraZips = [];
+    let activePresence = 'all';
+
+    function clearSearch() {
+      document.getElementById('search-q').value = '';
+      document.getElementById('city-input').value = '';
+      document.getElementById('zip-input').value = '';
+      extraCities.length = 0;
+      extraZips.length = 0;
+      renderTags();
+      doSearch();
+    }
+
+    function removeTag(type, val) {
+      const arr = type === 'city' ? extraCities : extraZips;
+      const idx = arr.indexOf(val);
+      if (idx > -1) arr.splice(idx, 1);
+      renderTags();
+    }
+
+    function renderTags() {
+      const wrap = document.getElementById('active-tags');
+      wrap.innerHTML = [
+        ...extraCities.map(c => `<span class="tag-pill" title="Click to remove" onclick="removeTag('city','${c}')">🏙 ${c} ✕</span>`),
+        ...extraZips.map(z =>   `<span class="tag-pill" title="Click to remove" onclick="removeTag('zip','${z}')">📮 ${z} ✕</span>`)
+      ].join('');
+    }
+
+    function setPres(btn) {
+      document.querySelectorAll('.pres-chip').forEach(c => c.classList.remove('active'));
+      btn.classList.add('active');
+      activePresence = btn.dataset.pres;
+      // Re-filter immediately if results are already showing
+      if (document.getElementById('merchants-list').children.length > 0) doSearch();
+    }
+
+    async function doSearch() {
+      // Read direct inputs — works without needing +Add
+      const q       = document.getElementById('search-q').value.trim();
+      const cityVal = document.getElementById('city-input').value.trim();
+      const zipVal  = document.getElementById('zip-input').value.trim();
+
+      const listEl  = document.getElementById('merchants-list');
+      const stateEl = document.getElementById('lp-state');
+      const countEl = document.getElementById('results-count');
+
+      listEl.innerHTML = '';
+      stateEl.innerHTML = '<div class="spinner"></div><p>Searching…</p>';
+      stateEl.style.display = 'block';
+
+      try {
+        const qs = new URLSearchParams();
+        if (q) qs.append('q', q);
+
+        // Merge direct input value + any extra tags added
+        const allCities = cityVal ? [cityVal, ...extraCities] : [...extraCities];
+        const allZips   = zipVal  ? [zipVal,  ...extraZips]  : [...extraZips];
+        allCities.forEach(c => qs.append('city', c));
+        allZips.forEach(z => qs.append('zip', z));
+
+        const res  = await fetch(`${BACKEND}/api/v1/public/local-merchants?${qs.toString()}`);
+        const json = await res.json();
+        let results = json.data || [];
+
+        // Client-side presence filter
+        if (activePresence !== 'all') {
+          results = results.filter(m => m.business_presence === activePresence);
+        }
+
+        results = results.sort((a, b) => a.business_name.localeCompare(b.business_name));
+
+        stateEl.style.display = 'none';
+        const hasFilters = q || cityVal || zipVal || allCities.length || allZips.length;
+        countEl.textContent = results.length === 0
+          ? 'No deals found'
+          : hasFilters
+            ? `${results.length} deal${results.length !== 1 ? 's' : ''} found — sorted A–Z`
+            : `${results.length} nearby deal${results.length !== 1 ? 's' : ''} — sorted A–Z`;
+
+        if (!results.length) {
+          const hasLocation = cityVal || zipVal || allCities.length || allZips.length;
+          stateEl.innerHTML = hasLocation
+            ? `<div class="state-icon">😕</div>
+               <h3>No businesses near you yet!</h3>
+               <p>Looks like local businesses in this area haven't joined Perkfinity yet.<br>
+               Know a shop, restaurant, or food truck you love? Tell them to sign up!<br><br>
+               Ask them to visit <a href="merchants.html" style="color:var(--purple);font-weight:900;">perkfinity.net → For Businesses</a> — it's quick and easy.<br>
+               The more they join, the more perks <em>you</em> get! 🎉</p>`
+            : `<div class="state-icon">🔍</div><h3>No merchants found</h3><p>Try a different name, city, or ZIP code.</p>`;
+          stateEl.style.display = 'block';
+          return;
+        }
+
+        results.forEach(m => {
+          const initials = m.business_name.split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
+          const logoHtml = m.logo_url
+            ? `<img class="merch-logo" src="${m.logo_url}" alt="${m.business_name} logo" onerror="this.style.display='none';this.nextElementSibling.style.display='grid';"><div class="merch-logo-placeholder" style="display:none;font-size:16px;font-weight:900;color:var(--purple);background:rgba(91,63,165,.1);">${initials}</div>`
+            : `<div class="merch-logo-placeholder" style="font-size:16px;font-weight:900;color:var(--purple);background:rgba(91,63,165,.1);">${initials}</div>`;
+          const presLabel = m.business_presence === 'mobile'
+            ? '<span class="pres-badge mobile">🚐 Mobile</span>'
+            : m.business_presence === 'hybrid'
+            ? '<span class="pres-badge hybrid">📱 Claim &amp; Visit</span>'
+            : '<span class="pres-badge physical">🏪 Store</span>';
+          const loc = [m.city, m.state, m.postal_code].filter(Boolean).join(', ');
+          const row = document.createElement('article');
+          row.className = 'merchant-row';
+          row.onclick = () => openPopup(m);
+          row.innerHTML = `
+            ${logoHtml}
+            <div class="merch-info">
+              <div class="merch-name">${m.business_name}</div>
+              ${loc ? `<div class="merch-location">📍 ${loc}</div>` : ''}
+              <div class="merch-offer">${m.welcome_offer_text || 'Exclusive member perk'}</div>
+            </div>
+            ${presLabel}
+            <button class="join-btn" onclick="event.stopPropagation();openPopup(${JSON.stringify(m).replace(/"/g,'&quot;')})">Get Perk →</button>`;
+          listEl.appendChild(row);
+        });
+      } catch (e) {
+        stateEl.innerHTML = '<div class="state-icon">😕</div><h3>Search failed</h3><p>Please try again in a moment.</p>';
+        stateEl.style.display = 'block';
+      }
+    }
+
+    function openPopup(merchant) {
+      document.getElementById('popup-brand-name').textContent = merchant.business_name;
+      document.getElementById('popup-offer-text').textContent = merchant.welcome_offer_text || 'Exclusive member perk';
+
+      const logoWrap = document.getElementById('popup-logo-wrap');
+      const initials = merchant.business_name.split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
+      logoWrap.innerHTML = merchant.logo_url
+        ? `<img class="popup-logo-img" src="${merchant.logo_url}" alt="${merchant.business_name} logo" onerror="this.style.display='none';this.nextElementSibling.style.display='grid';"><div class="popup-logo-ph" style="display:none;font-size:20px;font-weight:900;color:var(--purple);background:rgba(91,63,165,.1);">${initials}</div>`
+        : `<div class="popup-logo-ph" style="font-size:20px;font-weight:900;color:var(--purple);background:rgba(91,63,165,.1);">${initials}</div>`;
+
+      const joinUrl = `https://perkfinity.net/join/${merchant.qr_public_code}`;
+      document.getElementById('popup-qr-url').textContent = joinUrl;
+      const qrEl = document.getElementById('popup-qr');
+      qrEl.innerHTML = '';
+      QRCode.toCanvas(document.createElement('canvas'), joinUrl, { width: 160, margin: 1 }, (err, canvas) => {
+        if (!err) { qrEl.innerHTML = ''; qrEl.appendChild(canvas); }
+      });
+
+      document.getElementById('reveal-popup').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closePopup() {
+      document.getElementById('reveal-popup').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    document.getElementById('reveal-popup').addEventListener('click', function(e) {
+      if (e.target === this) closePopup();
+    });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closePopup(); });
+
+    // Auto-load all merchants on page open
+    doSearch();
+  </script>
+</body>
+</html>

@@ -22,22 +22,19 @@
   </style>
 </head>
 <body>
-  <header class="header">
-    <div class="container header-inner">
-      <a class="brand" href="index.html" aria-label="Perkfinity home">
-        <img src="assets/Perkfinity-Logo.png" alt="Perkfinity logo">
+  <header class="site-header">
+    <div class="nav-inner">
+      <a class="nav-brand" href="index.html" aria-label="Perkfinity home">
+        <img src="assets/Perkfinity-Logo.png" alt="Perkfinity" />
       </a>
-      <nav class="nav" aria-label="Primary navigation">
-        <a href="members.html">For Members</a>
-        <a href="merchants.html">For Merchants</a>
-        
-        <a href="signup.html">Merchant Sign Up / Sign In</a>
-        <a href="how-it-works.html">How it Works</a>
+      <button class="nav-mobile-btn" onclick="this.nextElementSibling.classList.toggle('open')" aria-label="Toggle menu">☰</button>
+      <nav class="nav-links" aria-label="Primary navigation">
+        <a href="codes.html">Promo Codes</a>
+        <a href="localperks.html">Nearby Deals</a>
+        <div class="nav-sep" aria-hidden="true"></div>
+        <a href="merchants.html">For Businesses</a>
+        <a href="about.html">About Us</a>
       </nav>
-      <a class="btn btn-green" href="mailto:hello@perkfinity.net" aria-label="Contact Us">
-        <span aria-hidden="true" style="display:inline-grid;place-items:center;width:20px;height:20px;border-radius:7px;background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.22);">✉</span>
-        Contact Us
-      </a>
     </div>
   </header>
 
@@ -46,16 +43,16 @@
       <div class="container" style="max-width:780px;">
 
         <h1>📋 Terms of Use</h1>
-        <p class="legal-meta">Effective Date: March 23, 2025 &nbsp;|&nbsp; Last Updated: March 23, 2025</p>
+        <p class="legal-meta">Effective Date: March 23, 2025 &nbsp;|&nbsp; Last Updated: May 5, 2026</p>
 
         <h2>1. Acceptance of Terms</h2>
         <p>By accessing or using the Perkfinity website (<strong>www.perkfinity.net</strong>), the Perkfinity mobile application (iOS and Android), or any related services (collectively, the "Services"), you agree to be bound by these Terms of Use. If you do not agree with these terms, please do not use our Services.</p>
 
         <h2>2. Description of Services</h2>
-        <p>Perkfinity is a digital perks and rewards platform that connects local businesses ("Merchants") with consumers ("Members") through:</p>
+        <p>Perkfinity is a digital perks and rewards platform that connects local and online businesses ("Merchants") with consumers ("Members") through:</p>
         <ul>
-          <li><strong>For Members:</strong> A mobile app to discover, claim, activate, and redeem digital perks and rewards at participating local businesses via QR code scanning.</li>
-          <li><strong>For Merchants:</strong> A web-based dashboard to create and manage digital campaigns, perks, and announcements, manage member engagement, and track perk redemptions.</li>
+          <li><strong>For Members:</strong> A mobile app and website to discover, claim, and redeem digital perks — including QR code scanning at physical locations and promo code reveals for online merchants — at participating businesses.</li>
+          <li><strong>For Merchants:</strong> A web-based dashboard to create and manage digital campaigns, perks, and announcements, manage member engagement, and track perk redemptions. Merchants participate as one of four business types: Physical Store, Online Brand, Online + Physical (Hybrid), or Mobile / Pop-Up.</li>
         </ul>
 
         <h2>3. Account Registration</h2>
@@ -71,9 +68,10 @@
         <h3>B. Merchant Accounts</h3>
         <ul>
           <li>You must be authorized to represent the business you are registering.</li>
-          <li>You must provide accurate business information including name, address, and contact details.</li>
+          <li>You must provide accurate business information. The specific information required depends on your business type: physical address for Physical Store and Hybrid merchants; website URL for Online Brand merchants; operating city and ZIP area for Mobile / Pop-Up merchants.</li>
           <li>You are responsible for all activity that occurs under your merchant account.</li>
           <li>Perkfinity reserves the right to verify business information and suspend accounts that provide false or misleading information.</li>
+          <li><strong>Application & Review (Online Brand and Hybrid merchants):</strong> Merchants registering as an Online Brand or Online + Physical (Hybrid) business are subject to a review and approval process. Perkfinity typically reviews applications within 1–2 business days. Perkfinity reserves the right to approve or reject any application at its sole discretion. Submitting an application does not guarantee approval or activate billing.</li>
         </ul>
 
         <h2>4. Member Terms</h2>
@@ -81,18 +79,18 @@
         <h3>A. Using Perks and Rewards</h3>
         <ul>
           <li>Perks are digital offers provided by participating Merchants and are subject to each Merchant's terms and conditions.</li>
-          <li>Perks must be activated in-store by scanning the Merchant's Perkfinity QR code.</li>
-          <li>Activated perks have a time limit for redemption. If not redeemed within the allotted time, the perk expires and returns to your available perks.</li>
-          <li>Each perk may only be redeemed once per issuance.</li>
+          <li><strong>Physical and Mobile merchants:</strong> Perks are activated in-store by scanning the Merchant's Perkfinity QR code. Once activated, a timed redemption window applies. If not redeemed within the allotted time, the perk expires and returns to your available perks.</li>
+          <li><strong>Online Brand and Hybrid merchants:</strong> Perks are claimed by revealing a promo code on the Perkfinity platform (app or website). The code can then be entered at the merchant's online checkout or presented in-store. No QR scan or in-store visit is required to claim the code.</li>
+          <li>Each QR-activated perk may only be redeemed once per issuance. For promo code perks, usage limits at the merchant's checkout are subject to the merchant's own platform settings (e.g., Shopify, WooCommerce).</li>
           <li>Perkfinity is not responsible for the quality, safety, or fulfillment of products or services offered by Merchants.</li>
         </ul>
 
         <h3>B. Communications</h3>
         <ul>
           <li>By creating an account, you agree to receive transactional emails (account verification, password resets).</li>
-          <li>You may receive campaign emails from Merchants about their offers. These emails are sent by Perkfinity on behalf of the Merchant — your email is never shared directly with the Merchant.</li>
-          <li>You may opt out of campaign emails at any time via the unsubscribe link.</li>
-          <li>If you enable push notifications, you may receive alerts about new perks and expiring offers. You can disable these in your device settings.</li>
+          <li>You may receive a <strong>Daily Digest email</strong> from Perkfinity aggregating active deals from multiple participating merchants. This digest is sent by Perkfinity — your email is never shared with individual merchants.</li>
+          <li>You may opt out of Daily Digest emails at any time via the unsubscribe link in any digest email, or by contacting us at hello@perkfinity.net.</li>
+          <li>If you enable push notifications, you may receive alerts about new perks, expiring offers, and location announcements from Mobile / Pop-Up merchants you follow. You can disable these in your device settings.</li>
         </ul>
 
         <h2>5. Merchant Terms</h2>
@@ -100,26 +98,28 @@
         <h3>A. Campaigns and Perks</h3>
         <ul>
           <li>You are solely responsible for the accuracy and legality of the perks, offers, and announcements you create.</li>
-          <li>You must honor active perks presented by Members through the Perkfinity app.</li>
+          <li>You must honor active perks presented by Members through the Perkfinity app or website.</li>
           <li>You may not create misleading, fraudulent, or deceptive offers.</li>
-          <li>Campaign emails are sent by Perkfinity's email service on your behalf to qualifying members.</li>
+          <li>Active campaigns from your store may be included in Perkfinity's Daily Digest email, which is sent to qualifying members by Perkfinity. Individual campaign emails are not sent on behalf of merchants.</li>
         </ul>
 
         <h3>B. Subscription and Billing</h3>
         <ul>
-          <li>Perkfinity offers a Free Trial tier and paid subscription tiers ('Tier 1', 'Tier 2') to accommodate scaling businesses.</li>
-          <li>Free trial accounts are <strong>automatically upgraded</strong> to a paid Tier 1 subscription when they reach their allocated member limit. By default, the trial allows up to 10 active members. If you signed up using a promotional offer, your limit may be extended to 15 or 20 active members.</li>
-          <li>Once your specific limit is reached, your account will instantly transition to a monthly or annual paid subscription to support further member growth, and the payment method on file will be charged.</li>
-          <li><strong>No Downgrades Allowed:</strong> Once your account has been converted to a paid tier, it will permanently remain on a paid subscription. Dropping below your initial member limit—whether by manually removing members, or if members unilaterally decide to leave your list by deleting their own accounts—will <strong>not</strong> downgrade your account back to a free tier or pause recurring billing.</li>
-          <li><strong>Prohibition of Free Trial Abuse:</strong> Canceling a merchant account and subsequently registering a new account for the same business entity, location, or ownership in an attempt to circumvent billing thresholds and repeatedly benefit from the Free Trial is strictly prohibited. Perkfinity actively monitors for circumvention. Any accounts identified as engaging in this behavior will be automatically and immediately transitioned to a paid subscription, and the associated payment method on file will be charged accordingly without prior notice.</li>
+          <li>Perkfinity offers a <strong>Free Trial</strong> tier and a paid <strong>Connect</strong> subscription to accommodate growing businesses. Enterprise plans are available separately (see below).</li>
+          <li><strong>Physical Store and Mobile / Pop-Up merchants:</strong> Free trial accounts are <strong>automatically upgraded</strong> to a paid Connect subscription when they reach their allocated member limit. By default, the trial allows up to 10 active members. If you signed up using a promotional offer, your limit may be extended to 15 or 20 active members.</li>
+          <li><strong>Online Brand and Hybrid merchants:</strong> Billing begins after your application is reviewed and approved by Perkfinity. No charges are made during the application review period. The payment method provided at sign-up will be charged upon approval.</li>
+          <li>Once your specific trial limit is reached (for Physical/Mobile merchants), your account will instantly transition to a monthly paid subscription and the payment method on file will be charged.</li>
+          <li><strong>No Downgrades Allowed:</strong> Once your account has been converted to a paid tier, it will permanently remain on a paid subscription. Dropping below your initial member limit — whether by manually removing members or if members delete their accounts — will <strong>not</strong> downgrade your account back to a free tier or pause recurring billing.</li>
+          <li><strong>Prohibition of Free Trial Abuse:</strong> Canceling a merchant account and subsequently registering a new account for the same business entity, location, or ownership in an attempt to circumvent billing thresholds is strictly prohibited. Perkfinity actively monitors for circumvention. Any accounts identified as engaging in this behavior will be automatically transitioned to a paid subscription without prior notice.</li>
           <li>Paid subscriptions are billed automatically at the start of each billing cycle.</li>
           <li>You may cancel your subscription at any time via your merchant dashboard. Cancellation takes effect at the end of the current billing period without pro-rated refunds for partial months or unused limits.</li>
+          <li><strong>Enterprise Plans:</strong> Businesses with large-scale, multi-location, or custom requirements may contact Perkfinity to discuss an Enterprise plan. Enterprise pricing and terms are agreed upon individually and are not subject to the standard trial or Connect structure. Contact <a href="mailto:hello@perkfinity.net" style="color:var(--purple);">hello@perkfinity.net</a> for details.</li>
         </ul>
 
         <h3>C. Member Privacy</h3>
         <ul>
           <li>You acknowledge that you do <strong>not</strong> receive Members' personal contact information (email, phone) through the Perkfinity platform.</li>
-          <li>You receive only aggregated, anonymized data about perk usage and member engagement.</li>
+          <li>You receive only aggregated, anonymized data about perk usage and member engagement — including promo code reveal counts for online campaigns — without any personally identifying information.</li>
           <li>You may not attempt to identify, contact, or solicit individual Members outside of the Perkfinity platform.</li>
         </ul>
 
@@ -134,6 +134,8 @@
           <li>Interfere with the proper functioning of the Services.</li>
           <li>Reverse engineer, decompile, or disassemble any part of the Services.</li>
           <li>Upload or transmit viruses, malware, or other harmful content.</li>
+          <li>Share, publish, or distribute Perkfinity promo codes on third-party coupon sites, social media, or any publicly accessible channel in a manner that allows non-members to use them.</li>
+          <li>Claim or reveal promo codes for merchants you have not legitimately joined as a member on the Perkfinity platform.</li>
         </ul>
 
         <h2>7. Intellectual Property</h2>
@@ -171,7 +173,7 @@
 
         <h2>11. Termination</h2>
         <ul>
-          <li><strong>Members:</strong> May permanently terminate their accounts and wipe their PII instantly via the mobile application (Profile -> Delete Account).</li>
+          <li><strong>Members:</strong> May permanently terminate their accounts and wipe their PII instantly via the mobile application (Profile → Delete Account).</li>
           <li><strong>Merchants (Cancellation):</strong> May cancel their auto-renewing billing agreements via the merchant dashboard. Upon cancellation, the merchant retains full operational access to the Services until the conclusion of their current, fully-paid subscription cycle. Once the period expires, the merchant enters an automatic <strong>6-month Grace Period</strong> where inactive data is retained purely for seamless reactivation.</li>
           <li><strong>Merchants (Account Deletion):</strong> Merchants maintain the right to bypass the aforementioned grace period and permanently wipe their Personal Identifiable Information immediately via the manual deletion tool located within the Billing dashboard. <strong>If a merchant initiates a manual Account Deletion prior to the natural expiration of an active subscription period, all rights to access and use the Services shall cease immediately. No prorated refunds or credits will be issued for the remainder of the billing cycle.</strong></li>
           <li><strong>Involuntary Termination:</strong> Perkfinity reserves the right to suspend or terminate your account if you violate these Terms or engage in prohibited conduct. Upon involuntary termination, your right to use the Services ceases immediately.</li>

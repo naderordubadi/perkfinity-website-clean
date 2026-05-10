@@ -421,6 +421,14 @@
       <div class="nav-item" onclick="showTab('access-codes')">
         <span class="icon">🔑</span> Access Codes
       </div>
+      <div class="nav-item" onclick="showTab('enterprise')" id="nav-enterprise">
+        <span class="icon">🏢</span> Enterprise
+        <span id="ent-new-badge" style="display:none;margin-left:auto;background:#16a34a;color:#fff;font-size:10px;font-weight:800;padding:2px 7px;border-radius:999px;">0</span>
+      </div>
+      <div class="nav-item" onclick="showTab('applications')" id="nav-applications">
+        <span class="icon">📝</span> Applications
+        <span id="apps-pending-badge" style="display:none;margin-left:auto;background:#ef4444;color:#fff;font-size:10px;font-weight:800;padding:2px 7px;border-radius:999px;">0</span>
+      </div>
 
       <div style="flex:1;"></div>
       <div class="nav-item" onclick="adminSignOut()" style="color:#ef4444;margin-bottom:4px;cursor:pointer;">
@@ -437,7 +445,11 @@
       <div style="width:720px;max-height:90vh;overflow-y:auto;background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.3);padding:0;position:relative;">
         <div style="position:sticky;top:0;background:#fff;padding:20px 28px 12px;border-bottom:1px solid #e2e8f0;border-radius:16px 16px 0 0;display:flex;justify-content:space-between;align-items:center;z-index:2;">
           <div style="font-size:20px;font-weight:800;color:#1a1a2e;" id="detail-title">Merchant Details</div>
-          <button onclick="closeMerchantDetail()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#999;padding:4px 8px;">✕</button>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <button onclick="adminPrintDetail('detail-title','merchant-detail-body')" style="padding:6px 14px;font-size:12px;font-weight:700;border:1.5px solid #e2e8f0;border-radius:8px;background:#f8fafc;cursor:pointer;color:#475569;font-family:inherit;">🖨️ Print</button>
+            <button onclick="adminExportCSV('detail-title','merchant-detail-body')" style="padding:6px 14px;font-size:12px;font-weight:700;border:1.5px solid #e2e8f0;border-radius:8px;background:#f8fafc;cursor:pointer;color:#475569;font-family:inherit;">📥 CSV</button>
+            <button onclick="closeMerchantDetail()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#999;padding:4px 8px;">✕</button>
+          </div>
         </div>
         <div id="merchant-detail-body" style="padding:24px 28px 28px;"></div>
       </div>
@@ -1360,6 +1372,123 @@
         </div>
       </div>
 
+      <!-- ═══ ENTERPRISE INQUIRIES TAB ═══ -->
+      <div id="tab-enterprise" class="tab-content">
+        <div class="page-header">
+          <div>
+            <div class="page-title">🏢 Enterprise Inquiries</div>
+            <div class="page-subtitle">Tailor-made Enterprise plan leads — manage status and track conversations.</div>
+          </div>
+          <button class="toolbar-btn" onclick="loadEnterpriseInquiries()">🔄 Refresh</button>
+        </div>
+        <div class="toolbar">
+          <input type="text" class="toolbar-search" id="ent-search" placeholder="Search company, contact, industry..." oninput="filterEntTable()"/>
+          <select class="toolbar-select" id="ent-filter-status" onchange="loadEnterpriseInquiries()">
+            <option value="all">All Status</option>
+            <option value="new">🆕 New</option>
+            <option value="in_discussion">💬 In Discussion</option>
+            <option value="proposal_sent">📄 Proposal Sent</option>
+            <option value="signed">✅ Signed</option>
+            <option value="declined">❌ Declined</option>
+          </select>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr>
+              <th>Company</th><th>Industry</th><th>Locations</th>
+              <th>Contact</th><th>Email</th><th>Submitted</th><th>Status</th>
+            </tr></thead>
+            <tbody id="tbody-enterprise">
+              <tr><td colspan="7" style="padding:40px;text-align:center;color:var(--muted)">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Enterprise Detail Overlay -->
+      <div id="ent-detail-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:10001;align-items:center;justify-content:center">
+        <div style="width:760px;max-height:92vh;overflow-y:auto;background:#fff;border-radius:18px;box-shadow:0 24px 64px rgba(0,0,0,0.4);position:relative">
+          <div style="position:sticky;top:0;background:#fff;padding:20px 28px 14px;border-bottom:1px solid #e2e8f0;border-radius:18px 18px 0 0;display:flex;justify-content:space-between;align-items:center;z-index:2">
+            <div style="font-size:19px;font-weight:800;color:#0f4422" id="ent-detail-title">Enterprise Inquiry</div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <button onclick="adminPrintDetail('ent-detail-title','ent-detail-body')" style="padding:6px 14px;font-size:12px;font-weight:700;border:1.5px solid #d1fae5;border-radius:8px;background:#f0fdf4;cursor:pointer;color:#166534;font-family:inherit;">🖨️ Print</button>
+              <button onclick="adminExportCSV('ent-detail-title','ent-detail-body')" style="padding:6px 14px;font-size:12px;font-weight:700;border:1.5px solid #d1fae5;border-radius:8px;background:#f0fdf4;cursor:pointer;color:#166534;font-family:inherit;">📥 CSV</button>
+              <button onclick="closeEntDetail()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#999">✕</button>
+            </div>
+          </div>
+          <div id="ent-detail-body" style="padding:24px 28px 28px;font-family:'Outfit',sans-serif;font-size:14px;color:#1a2e22"></div>
+        </div>
+      </div>
+
+      <!-- ═══ ONLINE BRAND APPLICATIONS TAB ═══ -->
+      <div id="tab-applications" class="tab-content">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Brand Applications (Online &amp; Hybrid)</div>
+            <div class="page-subtitle">Review, approve, or decline applications from online businesses.</div>
+          </div>
+          <button class="toolbar-btn" onclick="loadApplications()">🔄 Refresh</button>
+        </div>
+
+        <!-- Search + filter toolbar -->
+        <div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;align-items:center;">
+          <input type="text" id="app-search" placeholder="🔍  Search brand, email, website…"
+            oninput="applyApplicationFilters()"
+            style="flex:1;min-width:220px;padding:8px 14px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,0.04);color:var(--text);font-size:13px;font-family:inherit;outline:none;">
+          <select class="toolbar-select" id="app-filter-type" onchange="applyApplicationFilters()">
+            <option value="">All Types</option>
+            <option value="online">🌐 Online</option>
+            <option value="hybrid">🔀 Hybrid</option>
+          </select>
+          <select class="toolbar-select" id="app-filter-plan" onchange="applyApplicationFilters()">
+            <option value="">All Plans</option>
+            <option value="online_starter">Starter ($149)</option>
+            <option value="online_growth">Growth ($299)</option>
+            <option value="online_scale">Scale ($499)</option>
+            <option value="free_for_life">🎖️ Free For Life</option>
+          </select>
+          <select class="toolbar-select" id="app-filter-date" onchange="applyApplicationFilters()">
+            <option value="">All Time</option>
+            <option value="7">Last 7 Days</option>
+            <option value="30">Last 30 Days</option>
+            <option value="90">Last 90 Days</option>
+          </select>
+          <div style="flex:1;"></div>
+          <button class="toolbar-btn green" onclick="exportData('applications','csv')">📄 CSV</button>
+          <button class="toolbar-btn" onclick="exportData('applications','txt')">📋 TXT</button>
+        </div>
+
+        <!-- Status filter buttons -->
+        <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
+          <button class="toolbar-btn" id="app-filter-all" onclick="filterApps('all',this)" style="background:rgba(139,92,246,0.15);border-color:var(--purple);color:var(--purple);">All</button>
+          <button class="toolbar-btn" id="app-filter-pending" onclick="filterApps('pending',this)">⏳ Pending</button>
+          <button class="toolbar-btn" id="app-filter-approved" onclick="filterApps('approved',this)">✅ Approved</button>
+          <button class="toolbar-btn" id="app-filter-declined" onclick="filterApps('declined',this)">❌ Declined</button>
+        </div>
+
+        <div class="section-card" style="padding:0;overflow:hidden;">
+          <table style="width:100%;border-collapse:collapse;font-size:13px;">
+            <thead>
+              <tr style="border-bottom:1px solid var(--border);">
+                <th onclick="sortApps('business_name')" style="padding:14px 16px;text-align:left;color:var(--mutedLight);font-weight:700;cursor:pointer;user-select:none;">Brand <span class="sort-arrow">▲</span></th>
+                <th onclick="sortApps('business_category')" style="padding:14px 12px;text-align:left;color:var(--mutedLight);font-weight:700;cursor:pointer;user-select:none;">Category <span class="sort-arrow">▲</span></th>
+                <th onclick="sortApps('business_presence')" style="padding:14px 12px;text-align:left;color:var(--mutedLight);font-weight:700;cursor:pointer;user-select:none;">Type <span class="sort-arrow">▲</span></th>
+                <th onclick="sortApps('subscription_tier')" style="padding:14px 12px;text-align:left;color:var(--mutedLight);font-weight:700;cursor:pointer;user-select:none;">Plan <span class="sort-arrow">▲</span></th>
+                <th onclick="sortApps('member_count')" style="padding:14px 12px;text-align:left;color:var(--mutedLight);font-weight:700;cursor:pointer;user-select:none;">Members <span class="sort-arrow">▲</span></th>
+                <th onclick="sortApps('billing_starts_at_member_count')" style="padding:14px 12px;text-align:left;color:var(--mutedLight);font-weight:700;cursor:pointer;user-select:none;">Billing Starts <span class="sort-arrow">▲</span></th>
+                <th onclick="sortApps('application_status')" style="padding:14px 12px;text-align:left;color:var(--mutedLight);font-weight:700;cursor:pointer;user-select:none;">Status <span class="sort-arrow">▲</span></th>
+                <th onclick="sortApps('created_at')" style="padding:14px 12px;text-align:left;color:var(--mutedLight);font-weight:700;cursor:pointer;user-select:none;">Applied <span class="sort-arrow">▲</span></th>
+                <th style="padding:14px 12px;text-align:center;color:var(--mutedLight);font-weight:700;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-applications">
+              <tr><td colspan="9" style="padding:40px;text-align:center;color:var(--muted);">Loading applications…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <!-- ═══ END APPLICATIONS TAB ═══ -->
+
     </div>
   </div>
 
@@ -1544,10 +1673,10 @@
           ${infoRow('Contact Name', m.contact_name)}
           ${infoRow('Email', m.contact_email || m.email)}
           ${infoRow('Phone', m.phone)}
-          ${infoRow('Presence', m.business_presence === 'online' ? '🌐 Online' : m.business_presence === 'mobile' ? '🚐 Mobile' : '📍 Local')}
+          ${infoRow('Presence', m.business_presence === 'online' ? '🌐 Online' : m.business_presence === 'hybrid' ? '📱 Hybrid (Online + Physical)' : m.business_presence === 'mobile' ? '🚐 Mobile' : '📍 Local')}
           ${m.website ? infoRow('Website', `<a href="${m.website.startsWith('http') ? m.website : 'https://' + m.website}" target="_blank" style="color:#5b3fa5;font-weight:600;">${m.website}</a>`) : infoRow('Website', '—')}
           ${infoRow('Welcome Offer', m.welcome_offer_text || m.perk)}
-          ${m.business_presence === 'online' ? infoRow('Welcome Promo Code', `<span style="font-family:monospace;font-weight:800;color:#5b3fa5;letter-spacing:1px;">${m.welcome_promo_code || '—'}</span>`) : ''}
+          ${(m.business_presence === 'online' || m.business_presence === 'hybrid') ? infoRow('Welcome Promo Code', `<span style="font-family:monospace;font-weight:800;color:#5b3fa5;letter-spacing:1px;">${m.welcome_promo_code || '—'}</span>`) : ''}
           ${m.review_url ? infoRow('Review URL', `<a href="${m.review_url}" target="_blank" style="color:#5b3fa5;font-weight:600;">${m.review_url}</a>`) : ''}
           ${m.order_url ? infoRow('Order URL', `<a href="${m.order_url}" target="_blank" style="color:#5b3fa5;font-weight:600;">${m.order_url}</a>`) : ''}
           ${infoRow('POS System', m.pos_system)}
@@ -1595,6 +1724,126 @@
       if (e.target === this) closeMerchantDetail();
     });
 
+    // ── Application Detail Panel ─────────────────────────────────
+    async function openApplicationDetail(id) {
+      const a = _allApplications.find(x => x.id === id);
+      if (!a) return;
+
+      const overlay = document.getElementById('merchant-detail-overlay');
+      overlay.style.display = 'flex';
+      document.getElementById('detail-title').textContent = (a.business_name || 'Application') + ' — Application Details';
+
+      const infoRow = (label, value) => `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f1f5f9;"><span style="color:#64748b;font-weight:600;font-size:13px;">${label}</span><span style="font-weight:700;font-size:13px;color:#1a1a2e;text-align:right;max-width:65%;word-break:break-all;">${value || '—'}</span></div>`;
+
+      const scMap = { pending:'#f59e0b', approved:'#22c55e', declined:'#ef4444', followup:'#3b82f6' };
+      const slMap = { pending:'⏳ Pending Review', approved:'✅ Approved', declined:'❌ Declined', followup:'💬 Follow Up' };
+      const sc = scMap[a.application_status] || '#666';
+      const sl = slMap[a.application_status] || a.application_status;
+      const tierLabel = { online_starter:'Starter ($149/mo)', online_growth:'Growth ($299/mo)', online_scale:'Scale ($499/mo)' }[a.subscription_tier] || a.subscription_tier;
+
+      const body = document.getElementById('merchant-detail-body');
+      body.innerHTML = `
+        <!-- Status Banner -->
+        <div style="display:flex;align-items:center;gap:16px;background:${sc}10;border:1px solid ${sc}30;border-radius:12px;padding:14px 18px;margin-bottom:20px;">
+          <div style="font-size:36px;line-height:1;">${a.logo_url ? `<img src="${a.logo_url}" style="width:48px;height:48px;border-radius:10px;object-fit:cover;">` : '🏢'}</div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:17px;font-weight:900;color:#1a1a2e;">${a.business_name}</div>
+            <div style="font-size:13px;color:#64748b;margin-top:2px;">${a.contact_email || ''}</div>
+          </div>
+          <span style="padding:6px 16px;border-radius:999px;font-size:13px;font-weight:800;background:${sc}20;color:${sc};white-space:nowrap;">${sl}</span>
+        </div>
+
+        <!-- Brand Info -->
+        <div style="background:#f8fafc;border-radius:12px;padding:18px 20px;margin-bottom:16px;">
+          <div style="font-size:14px;font-weight:800;color:#1a1a2e;margin-bottom:10px;">🏢 Brand Information</div>
+          ${infoRow('Business Name', a.business_name)}
+          ${a.contact_name ? infoRow('Contact Name', a.contact_name) : ''}
+          ${infoRow('Email', a.contact_email)}
+          ${a.phone ? infoRow('Phone', a.phone) : ''}
+          ${infoRow('Category', a.business_category)}
+          ${infoRow('Website', a.website ? `<a href="${a.website.startsWith('http') ? a.website : 'https://'+a.website}" target="_blank" style="color:#5b3fa5;font-weight:600;">${a.website}</a>` : '—')}
+          ${infoRow('Applied On', new Date(a.created_at).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}))}
+          ${infoRow('Merchant ID', `<span style="font-family:monospace;font-size:11px;">${a.id}</span>`)}
+        </div>
+
+        <!-- Welcome Offer -->
+        <div style="background:#f8fafc;border-radius:12px;padding:18px 20px;margin-bottom:16px;">
+          <div style="font-size:14px;font-weight:800;color:#1a1a2e;margin-bottom:10px;">🎁 Welcome Offer & Promo</div>
+          ${infoRow('Welcome Offer Text', a.welcome_offer_text)}
+          ${infoRow('Promo Code Used', a.promo_code ? `<span style="font-family:monospace;font-weight:800;color:#5b3fa5;letter-spacing:1px;">${a.promo_code}</span>` : 'None')}
+          ${infoRow('Welcome Promo Code', `<span style="font-family:monospace;font-weight:800;color:#5b3fa5;letter-spacing:1px;">${a.welcome_promo_code || '—'}</span>`)}
+          ${infoRow('Billing Starts At', a.billing_starts_at_member_count ? a.billing_starts_at_member_count + ' members' : 'On approval (no promo)')}
+        </div>
+
+        <!-- Plan & Billing -->
+        <div style="background:#f8fafc;border-radius:12px;padding:18px 20px;margin-bottom:16px;">
+          <div style="font-size:14px;font-weight:800;color:#1a1a2e;margin-bottom:10px;">💳 Plan & Billing</div>
+          ${infoRow('Selected Plan', tierLabel)}
+          ${infoRow('Billing Status', a.billing_status)}
+          ${infoRow('Members Joined', a.member_count || 0)}
+          ${infoRow('Stripe Customer ID', a.stripe_customer_id ? `<span style="font-family:monospace;font-size:11px;">${a.stripe_customer_id}</span>` : 'None')}
+          ${infoRow('Payment Method ID', a.stripe_payment_method_id ? `<span style="font-family:monospace;font-size:11px;">${a.stripe_payment_method_id}</span>` : 'None')}
+          ${infoRow('Stripe Subscription', a.stripe_subscription_id ? `<span style="font-family:monospace;font-size:11px;">${a.stripe_subscription_id}</span>` : 'None (pending)')}
+        </div>
+
+        ${a.application_notes ? `
+        <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:12px;padding:14px 18px;margin-bottom:16px;">
+          <div style="font-size:13px;font-weight:800;color:#92400e;margin-bottom:6px;">📝 Admin Notes</div>
+          <div style="font-size:13px;color:#78350f;">${a.application_notes}</div>
+        </div>` : ''}
+
+        <!-- Status History placeholder (populated async below) -->
+        <div id="app-detail-history" style="margin-bottom:16px;">
+          <div style="font-size:14px;font-weight:800;color:#1a1a2e;margin-bottom:10px;">📋 Status History</div>
+          <div style="color:#94a3b8;font-size:13px;">Loading history…</div>
+        </div>
+
+        ${['pending','followup'].includes(a.application_status) ? `
+        <div style="display:flex;gap:10px;justify-content:flex-end;padding-top:4px;flex-wrap:wrap;">
+          <button onclick="closeMerchantDetail();declineApp('${a.id}');" style="padding:10px 20px;border-radius:10px;border:1px solid rgba(239,68,68,0.4);background:rgba(239,68,68,0.08);color:#ef4444;font-size:13px;font-weight:800;cursor:pointer;">❌ Decline</button>
+          <button onclick="closeMerchantDetail();followUpApp('${a.id}');" style="padding:10px 20px;border-radius:10px;border:1px solid rgba(59,130,246,0.4);background:rgba(59,130,246,0.08);color:#3b82f6;font-size:13px;font-weight:800;cursor:pointer;">💬 Follow Up</button>
+          <button onclick="closeMerchantDetail();approveApp('${a.id}');" style="padding:10px 20px;border-radius:10px;border:none;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-size:13px;font-weight:800;cursor:pointer;">✅ Approve</button>
+        </div>` : ''}
+      `;
+
+      // Fetch and render status history asynchronously
+      try {
+        const hJson = await adminFetch('/admin/online-applications/' + a.id + '/history');
+        const historyEl = document.getElementById('app-detail-history');
+        if (!historyEl) return;
+        const entries = hJson.data || [];
+        const statusColors = { pending:'#f59e0b', approved:'#22c55e', declined:'#ef4444', followup:'#3b82f6' };
+        const statusLabels = { pending:'Pending', approved:'Approved', declined:'Declined', followup:'Follow Up' };
+        if (entries.length === 0) {
+          historyEl.innerHTML = `
+            <div style="font-size:14px;font-weight:800;color:#1a1a2e;margin-bottom:10px;">📋 Status History</div>
+            <div style="color:#94a3b8;font-size:13px;font-style:italic;">No history recorded yet.</div>`;
+        } else {
+          historyEl.innerHTML = `
+            <div style="font-size:14px;font-weight:800;color:#1a1a2e;margin-bottom:12px;">📋 Status History</div>
+            ${entries.map(h => {
+              const c = statusColors[h.status] || '#666';
+              const lbl = statusLabels[h.status] || h.status;
+              const dt = new Date(h.changed_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'});
+              return `<div style="display:flex;gap:12px;margin-bottom:14px;align-items:flex-start;">
+                <div style="width:10px;height:10px;border-radius:50%;background:${c};margin-top:4px;flex-shrink:0;"></div>
+                <div>
+                  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                    <span style="font-size:13px;font-weight:800;color:${c};">${lbl}</span>
+                    <span style="font-size:11px;color:#94a3b8;">${dt}</span>
+                  </div>
+                  ${h.note ? `<div style="font-size:12px;color:#64748b;margin-top:3px;">${h.note}</div>` : ''}
+                </div>
+              </div>`;
+            }).join('')}`;
+        }
+      } catch(e) {
+        const historyEl = document.getElementById('app-detail-history');
+        if (historyEl) historyEl.innerHTML = '<div style="color:#94a3b8;font-size:12px;">Could not load history.</div>';
+      }
+    }
+
+
     // ── Campaign Detail Panel ────────────────────────────────────
     function showCampaignDetail(campaignId) {
       const c = allCampaigns.find(x => x.id === campaignId);
@@ -1608,7 +1857,7 @@
 
       const typeLabels = { percent: '% Off', dollar: '$ Off', bogo: 'BOGO', freeitem: 'Free Item', loyalty: 'Loyalty', flash: 'Flash Sale', announcement: 'Announcement', perk: 'Initial', initial: 'Initial', custom: 'Custom' };
       const cType = typeLabels[c.campaign_type] || c.campaign_type || 'Perk';
-      const presenceLabel = c.business_presence === 'online' ? '🌐 Online' : c.business_presence === 'mobile' ? '🚐 Mobile' : c.business_presence ? '📍 Local' : '—';
+      const presenceLabel = c.business_presence === 'online' ? '🌐 Online' : c.business_presence === 'hybrid' ? '📱 Hybrid' : c.business_presence === 'mobile' ? '🚐 Mobile' : c.business_presence ? '📍 Local' : '—';
 
       const body = document.getElementById('merchant-detail-body');
       body.innerHTML = `
@@ -1757,6 +2006,254 @@
       document.getElementById('tab-' + name).classList.add('active');
       event.target.closest('.nav-item').classList.add('active');
       if (name === 'access-codes') loadAccessCodes();
+      if (name === 'applications') loadApplications();
+      if (name === 'enterprise') loadEnterpriseInquiries();
+    }
+
+    // ══════════════════════════════════════════
+    // ENTERPRISE INQUIRY FUNCTIONS
+    // ══════════════════════════════════════════
+    let _allEntInquiries = [];
+
+    async function loadEnterpriseInquiries() {
+      const tbody = document.getElementById('tbody-enterprise');
+      const statusFilter = document.getElementById('ent-filter-status').value;
+      tbody.innerHTML = '<tr><td colspan="7" style="padding:40px;text-align:center;color:var(--muted)">Loading…</td></tr>';
+      try {
+        const json = await adminFetch('/admin/enterprise-inquiries?status=' + statusFilter);
+        _allEntInquiries = json.data || [];
+        // Update badge
+        const newCount = _allEntInquiries.filter(r => r.status === 'new').length;
+        const badge = document.getElementById('ent-new-badge');
+        if (badge) { badge.textContent = newCount; badge.style.display = newCount > 0 ? 'inline' : 'none'; }
+        renderEntTable(_allEntInquiries);
+      } catch(e) {
+        tbody.innerHTML = '<tr><td colspan="7" style="padding:40px;text-align:center;color:var(--red)">Error loading inquiries.</td></tr>';
+      }
+    }
+
+    function renderEntTable(rows) {
+      const tbody = document.getElementById('tbody-enterprise');
+      if (!rows.length) {
+        tbody.innerHTML = '<tr><td colspan="7" style="padding:40px;text-align:center;color:var(--muted)">No inquiries found.</td></tr>';
+        return;
+      }
+      const statusBadge = (s) => {
+        const map = { new:'background:#166534;color:#bbf7d0', in_discussion:'background:#1d4ed8;color:#bfdbfe',
+          proposal_sent:'background:#854d0e;color:#fef9c3', signed:'background:#065f46;color:#a7f3d0',
+          declined:'background:#7f1d1d;color:#fecaca' };
+        const label = { new:'🆕 New', in_discussion:'💬 In Discussion', proposal_sent:'📄 Proposal Sent',
+          signed:'✅ Signed', declined:'❌ Declined' };
+        return `<span style="display:inline-block;padding:3px 10px;border-radius:8px;font-size:11px;font-weight:700;${map[s]||''}">${label[s]||s}</span>`;
+      };
+      tbody.innerHTML = rows.map(r => `
+        <tr style="cursor:pointer" onclick="openEntDetail('${r.id}')">
+          <td><strong>${r.company_legal_name||'—'}</strong>${r.brand_name?'<br><span style="font-size:11px;color:#888">'+r.brand_name+'</span>':''}</td>
+          <td>${r.industry||'—'}</td>
+          <td>${r.num_locations||'—'} · ${r.geographic_reach||'—'}</td>
+          <td>${r.contact_name||'—'}<br><span style="font-size:11px;color:#888">${r.contact_title||''}</span></td>
+          <td>${r.contact_email||'—'}</td>
+          <td>${r.submitted_at ? new Date(r.submitted_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—'}</td>
+          <td>${statusBadge(r.status)}</td>
+        </tr>`).join('');
+    }
+
+    function filterEntTable() {
+      const q = (document.getElementById('ent-search').value || '').toLowerCase();
+      if (!q) { renderEntTable(_allEntInquiries); return; }
+      renderEntTable(_allEntInquiries.filter(r =>
+        (r.company_legal_name||'').toLowerCase().includes(q) ||
+        (r.brand_name||'').toLowerCase().includes(q) ||
+        (r.industry||'').toLowerCase().includes(q) ||
+        (r.contact_name||'').toLowerCase().includes(q) ||
+        (r.contact_email||'').toLowerCase().includes(q)
+      ));
+    }
+
+    function openEntDetail(id) {
+      const r = _allEntInquiries.find(x => x.id === id);
+      if (!r) return;
+      document.getElementById('ent-detail-title').textContent = r.company_legal_name + (r.brand_name ? ' — ' + r.brand_name : '');
+      const row = (l,v) => v ? `<tr><td style="padding:7px 0;color:#666;width:38%;vertical-align:top;font-weight:600">${l}</td><td style="padding:7px 0;font-weight:700;color:#1a2e22">${v}</td></tr>` : '';
+      const statusOptions = ['new','in_discussion','proposal_sent','signed','declined'];
+      const statusLabels = { new:'🆕 New', in_discussion:'💬 In Discussion', proposal_sent:'📄 Proposal Sent', signed:'✅ Signed', declined:'❌ Declined' };
+      document.getElementById('ent-detail-body').innerHTML = `
+        <table style="width:100%;border-collapse:collapse;margin-bottom:20px">
+          ${row('Company (Legal)',r.company_legal_name)}
+          ${row('Brand Name',r.brand_name)}
+          ${row('Industry',r.industry)}
+          ${row('Website',r.website?`<a href="${r.website}" target="_blank" style="color:#1e5c38">${r.website}</a>`:'')}
+          ${row('HQ',[r.hq_street,r.hq_city,r.hq_state,r.hq_zip,r.hq_country].filter(Boolean).join(', '))}
+          ${row('Locations',`${r.num_locations} · ${r.location_types||''} · ${r.geographic_reach||''}`)}
+          ${row('Same Brand Name',r.same_brand_name?'Yes':'No'+(r.brand_note?' — '+r.brand_note:''))}
+          ${row('Operational Structure',r.operation_structure+(r.operation_structure_note?' — '+r.operation_structure_note:''))}
+          ${row('Decision Authority',r.decision_authority+(r.decision_authority_note?' — '+r.decision_authority_note:''))}
+          ${row('POS System',r.pos_system)}
+          ${row('Loyalty Program',r.has_loyalty==='yes'?(r.loyalty_name||'')+(r.loyalty_types?' ('+r.loyalty_types+')':''):'None')}
+          ${row('Digital Deals',r.digital_deal+(r.digital_deal_other?' / '+r.digital_deal_other:''))}
+          ${row('Systems Integrated',r.systems_integrated==='yes'?('Yes'+(r.integration_note?' — '+r.integration_note:'')):'No')}
+          ${row('Member Database',r.member_db_size)}
+          ${row('Member Capture',r.member_capture)}
+          ${row('Wants Import',r.wants_import==='yes'?((r.import_count||'')+(r.import_format?' via '+r.import_format:'')):'No')}
+          ${row('Campaign Management',r.campaign_mgmt)}
+          ${row('Data Visibility',r.data_visibility)}
+          ${r.notes ? row('Notes',r.notes) : ''}
+          ${row('Contact',`${r.contact_name} — ${r.contact_title||''}`)}
+          ${row('Email',`<a href="mailto:${r.contact_email}" style="color:#1e5c38">${r.contact_email}</a>`)}
+          ${row('Phone',r.contact_phone)}
+          ${row('Submitted',r.submitted_at ? new Date(r.submitted_at).toLocaleString() : '—')}
+        </table>
+
+        <!-- Status History Timeline -->
+        <div id="ent-history-wrap" style="border-top:2px solid #e8f5ee;padding-top:18px;margin-bottom:4px">
+          <div style="font-size:14px;font-weight:800;color:#0f4422;margin-bottom:14px">📋 Status History</div>
+          <div id="ent-history-list" style="color:#888;font-size:13px">Loading history…</div>
+        </div>
+
+        <div style="border-top:2px solid #e8f5ee;padding-top:20px">
+          <div style="font-size:14px;font-weight:800;color:#0f4422;margin-bottom:12px">⚙️ Admin Actions</div>
+          <div style="display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap">
+            <div style="flex:1;min-width:200px">
+              <label style="font-size:12px;font-weight:700;color:#666;display:block;margin-bottom:6px">Status</label>
+              <select id="ent-status-sel" style="width:100%;padding:10px 12px;border:1.5px solid #d1fae5;border-radius:10px;font-family:Outfit,sans-serif;font-size:14px;color:#1a2e22;background:#fff">
+                ${statusOptions.map(s => `<option value="${s}"${r.status===s?' selected':''}>${statusLabels[s]}</option>`).join('')}
+              </select>
+            </div>
+            <div style="flex:2;min-width:280px">
+              <label style="font-size:12px;font-weight:700;color:#666;display:block;margin-bottom:6px">Admin Notes <span style="font-weight:500">(internal only)</span></label>
+              <textarea id="ent-notes-txt" rows="4" style="width:100%;padding:10px 12px;border:1.5px solid #d1fae5;border-radius:10px;font-family:Outfit,sans-serif;font-size:13px;color:#1a2e22;resize:vertical">${r.admin_notes||''}</textarea>
+            </div>
+          </div>
+          <div style="margin-top:12px;display:flex;gap:10px;align-items:center">
+            <button onclick="saveEntDetail('${r.id}')" style="padding:10px 22px;background:linear-gradient(135deg,#1e5c38,#2e7d4f);color:#fff;border:none;border-radius:10px;font-weight:800;font-size:14px;cursor:pointer;font-family:Outfit,sans-serif">Save Changes</button>
+            <span id="ent-save-msg" style="font-size:13px;font-weight:700;color:#16a34a;display:none">✓ Saved</span>
+          </div>
+        </div>`;
+      const ov = document.getElementById('ent-detail-overlay');
+      ov.style.display = 'flex';
+      // Fetch and render history async
+      loadEntHistory(r.id);
+    }
+
+    function closeEntDetail() {
+      document.getElementById('ent-detail-overlay').style.display = 'none';
+    }
+
+    async function saveEntDetail(id) {
+      const status = document.getElementById('ent-status-sel').value;
+      const admin_notes = document.getElementById('ent-notes-txt').value;
+      const btn = document.querySelector('#ent-detail-body ~ div button, [onclick*="saveEntDetail"]') || {};
+      try {
+        const token = sessionStorage.getItem('perkfinity_admin_token');
+        const res = await fetch(API_BASE + '/admin/enterprise-inquiries/' + id, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({ status, admin_notes })
+        });
+        const j = await res.json();
+        if (!res.ok || j.success === false) throw new Error(j.error || 'Save failed (HTTP ' + res.status + ')');
+        const msg = document.getElementById('ent-save-msg');
+        msg.style.display = 'inline';
+        setTimeout(() => msg.style.display = 'none', 2500);
+        // Update local copy and re-render table
+        const r = _allEntInquiries.find(x => x.id === id);
+        if (r) { r.status = status; r.admin_notes = admin_notes; }
+        renderEntTable(_allEntInquiries);
+        // Reload history timeline
+        loadEntHistory(id);
+      } catch(e) {
+        const msg = document.getElementById('ent-save-msg');
+        msg.style.cssText = 'display:inline;color:#ef4444;font-size:13px;font-weight:700;';
+        msg.textContent = '✗ ' + (e.message || 'Save failed');
+        setTimeout(() => { msg.style.cssText = ''; msg.textContent = '✓ Saved'; msg.style.display = 'none'; }, 4000);
+      }
+    }
+
+    async function loadEntHistory(inquiryId) {
+      const el = document.getElementById('ent-history-list');
+      if (!el) return;
+      try {
+        const json = await adminFetch('/admin/enterprise-inquiries/' + inquiryId + '/history');
+        const entries = json.data || [];
+        if (!entries.length) { el.innerHTML = '<span style="color:#aaa;font-size:13px">No history yet.</span>'; return; }
+        const statusColors = { new:'#16a34a', in_discussion:'#1d4ed8', proposal_sent:'#92400e', signed:'#065f46', declined:'#b91c1c' };
+        const statusLabelsH = { new:'🆕 New', in_discussion:'💬 In Discussion', proposal_sent:'📄 Proposal Sent', signed:'✅ Signed', declined:'❌ Declined' };
+        el.innerHTML = entries.map((e, i) => `
+          <div style="display:flex;gap:12px;align-items:flex-start;padding-bottom:${i<entries.length-1?'14':'4'}px;${i<entries.length-1?'border-bottom:1px solid #f0fdf4;margin-bottom:14px':''}">
+            <div style="flex-shrink:0;width:10px;height:10px;border-radius:50%;background:${statusColors[e.status]||'#888'};margin-top:4px"></div>
+            <div style="flex:1">
+              <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+                <span style="font-size:13px;font-weight:800;color:${statusColors[e.status]||'#333'}">${statusLabelsH[e.status]||e.status}</span>
+                <span style="font-size:11px;color:#999;font-weight:500">${new Date(e.changed_at).toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit',hour12:true})}</span>
+              </div>
+              ${e.note ? `<div style="font-size:12px;color:#555;margin-top:4px;line-height:1.5">${e.note}</div>` : ''}
+            </div>
+          </div>`).join('');
+      } catch(err) {
+        el.innerHTML = '<span style="color:#aaa;font-size:13px">Could not load history.</span>';
+      }
+    }
+
+    // ── Print / Export CSV Utilities ────────────────────────────
+    function adminPrintDetail(titleId, bodyId) {
+      const title = document.getElementById(titleId)?.textContent || 'Detail';
+      const body = document.getElementById(bodyId);
+      if (!body) return;
+      const win = window.open('', '_blank', 'width=820,height=720');
+      win.document.write(`<!DOCTYPE html><html><head>
+        <title>${title}</title>
+        <style>
+          *{box-sizing:border-box}
+          body{font-family:system-ui,-apple-system,sans-serif;padding:32px 36px;color:#1a1a2e;max-width:720px;margin:0 auto}
+          h1{font-size:18px;font-weight:800;color:#1a1a2e;margin:0 0 24px;padding-bottom:14px;border-bottom:2px solid #e2e8f0}
+          table{width:100%;border-collapse:collapse;margin-bottom:16px}
+          td{padding:8px 12px;border-bottom:1px solid #f1f5f9;font-size:13px;vertical-align:top}
+          td:first-child{color:#64748b;font-weight:600;width:40%}
+          td:last-child{font-weight:700}
+          a{color:inherit;text-decoration:none}
+          select,textarea{display:none!important}
+          button:not(.print-btn){display:none!important}
+          .print-btn{margin-top:28px;padding:10px 24px;background:#1a1a2e;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;display:block}
+          @media print{.print-btn{display:none!important}}
+        </style>
+      </head><body>
+        <h1>${title}</h1>
+        ${body.innerHTML}
+        <button class="print-btn" onclick="window.print()">🖨️ Print this page</button>
+      </body></html>`);
+      win.document.close();
+      win.focus();
+      setTimeout(() => { try { win.print(); } catch(e){} }, 700);
+    }
+
+    function adminExportCSV(titleId, bodyId) {
+      const title = document.getElementById(titleId)?.textContent || 'Export';
+      const body = document.getElementById(bodyId);
+      if (!body) return;
+      const rows = [[title, ''], ['', '']];
+      // Table rows (Enterprise-style: <tr><td>label</td><td>value</td></tr>)
+      body.querySelectorAll('tr').forEach(tr => {
+        const tds = tr.querySelectorAll('td');
+        if (tds.length >= 2) rows.push([tds[0].innerText.trim(), tds[1].innerText.trim()]);
+      });
+      // Flex info rows (Merchant/Member/Campaign/Application-style: <div><span>label</span><span>value</span></div>)
+      body.querySelectorAll('div').forEach(div => {
+        const ch = div.children;
+        if (ch.length === 2 && ch[0].tagName === 'SPAN' && ch[1].tagName === 'SPAN') {
+          const lbl = ch[0].innerText.trim(), val = ch[1].innerText.trim();
+          if (lbl && val && lbl !== val) rows.push([lbl, val]);
+        }
+      });
+      if (rows.length <= 2) { alert('No exportable data found.'); return; }
+      const csv = '\uFEFF' + rows.map(r => r.map(c => '"' + (c||'').replace(/"/g,'""') + '"').join(',')).join('\r\n');
+      const filename = title.replace(/[^a-z0-9]/gi,'_').replace(/_+/g,'_') + '.csv';
+      const a = document.createElement('a');
+      a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+      a.download = filename;
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => document.body.removeChild(a), 1000);
     }
 
     // ── Time Display ────────────────────────────────────────────
@@ -1985,8 +2482,18 @@
           data = getFilteredData('merchants');
           tbody = document.getElementById('merchants-tbody');
           tbody.innerHTML = data.map(m => {
-            const tierLabel = m.tier === 'tier1' ? 'Tier 1' : m.tier === 'free_for_life' ? 'Free For Life' : 'Free Trial';
-            const tierClass = m.tier === 'tier1' ? 'tier1' : m.tier === 'free_for_life' ? 'ffl' : 'free';
+            const tierLabel = m.tier === 'tier1' ? 'Connect'
+              : m.tier === 'free_for_life' ? 'Free For Life'
+              : m.tier === 'online_starter' ? 'Starter'
+              : m.tier === 'online_growth' ? 'Growth'
+              : m.tier === 'online_scale' ? 'Scale'
+              : m.tier === 'enterprise' ? 'Enterprise'
+              : 'Free Trial';
+            const tierClass = m.tier === 'tier1' ? 'tier1'
+              : m.tier === 'free_for_life' ? 'ffl'
+              : m.tier === 'enterprise' ? 'tier1'
+              : ['online_starter','online_growth','online_scale'].includes(m.tier) ? 'tier1'
+              : 'free';
             const bs = m.billing_status || m.status || 'active';
             let statusLabel, statusClass;
             if (bs === 'deleted') { statusLabel = 'Deleted'; statusClass = 'deleted'; }
@@ -2008,7 +2515,7 @@
               <td><strong>${m.business_name || '\u2014'}</strong></td>
               <td>${m.location_city || m.city || '\u2014'}</td>
               <td>${m.location_zip || '\u2014'}</td>
-              <td><span style="font-size:12px;font-weight:700;color:${m.business_presence==='online'?'#5b3fa5':m.business_presence==='mobile'?'#0891b2':'#16a34a'}">${m.business_presence==='online'?'🌐 Online':m.business_presence==='mobile'?'🚐 Mobile':'📍 Local'}</span></td>
+              <td><span style="font-size:12px;font-weight:700;color:${m.business_presence==='online'?'#5b3fa5':m.business_presence==='hybrid'?'#7c3aed':m.business_presence==='mobile'?'#0891b2':'#16a34a'}">${m.business_presence==='online'?'🌐 Online':m.business_presence==='hybrid'?'📱 Hybrid':m.business_presence==='mobile'?'🚐 Mobile':'📍 Local'}</span></td>
               <td><span class="badge ${tierClass}">${tierLabel}</span></td>
               <td><span class="badge ${statusClass}">${statusLabel}</span></td>
               <td>${m.member_count || 0}</td>
@@ -2091,7 +2598,7 @@
                 ? `<span style="color:#ef4444;font-weight:600;">\uD83D\uDEAB ${formatDate(inv.next_billing_date)}</span>`
                 : inv.next_billing_date ? formatDate(inv.next_billing_date) : '\u2014';
             const tierClass = inv.subscription_tier === 'tier1' ? 'tier1' : inv.subscription_tier === 'free_for_life' ? 'ffl' : 'free';
-            const tierLabel = inv.subscription_tier === 'tier1' ? 'Tier 1' : inv.subscription_tier === 'free_for_life' ? 'FFL' : 'Free';
+            const tierLabel = inv.subscription_tier === 'tier1' ? 'Connect' : inv.subscription_tier === 'free_for_life' ? 'FFL' : 'Free';
             return `
             <tr style="cursor:pointer;" onclick="showInvoiceDetail('${inv.id}')">
               <td><strong>${inv.merchant_name || '\u2014'}</strong></td>
@@ -2102,7 +2609,7 @@
               <td>${nextBilling}</td>
               <td>${inv.paid_at ? formatDate(inv.paid_at) : '\u2014'}</td>
             </tr>`;
-          }).join('') || emptyRow(7, 'No invoices yet \u2014 billing starts when merchants upgrade to Tier 1');
+          }).join('') || emptyRow(7, 'No invoices yet \u2014 billing starts when merchants upgrade to Connect');
           break;
       }
     }
@@ -2217,6 +2724,10 @@
             const cutoff = new Date(Date.now() - parseInt(billPeriod) * 86400000);
             data = data.filter(i => new Date(i.created_at) >= cutoff);
           }
+          break;
+
+        case 'applications':
+          data = applyApplicationFilters(true);
           break;
       }
       return data;
@@ -2568,6 +3079,301 @@
       });
     }
 
+    // ── Online Brand Applications ────────────────────────────────
+    let _allApplications = [];
+    let _appFilter = 'all';
+    let _appSortField = 'created_at';
+    let _appSortDir = 'desc';
+
+    async function loadApplications() {
+      const tbody = document.getElementById('tbody-applications');
+      if (!tbody) return;
+      tbody.innerHTML = '<tr><td colspan="9" style="padding:40px;text-align:center;color:var(--muted);">Loading…</td></tr>';
+      try {
+        // adminFetch already returns parsed JSON — do NOT call .json() again
+        const json = await adminFetch('/admin/online-applications');
+        _allApplications = json.data || [];
+        applyApplicationFilters();
+        // Update pending badge
+        const pending = _allApplications.filter(a => a.application_status === 'pending').length;
+        const badge = document.getElementById('apps-pending-badge');
+        if (badge) { badge.textContent = pending; badge.style.display = pending > 0 ? 'inline' : 'none'; }
+      } catch(e) {
+        console.error('loadApplications error:', e);
+        tbody.innerHTML = '<tr><td colspan="9" style="padding:40px;text-align:center;color:#ef4444;">Failed to load. Check console.</td></tr>';
+      }
+    }
+
+    function renderApplications(apps) {
+      const tbody = document.getElementById('tbody-applications');
+      if (!apps.length) {
+        tbody.innerHTML = '<tr><td colspan="9" style="padding:40px;text-align:center;color:var(--muted);">No applications found.</td></tr>';
+        return;
+      }
+      const statusBadge = s => {
+        const map = { pending:'#f59e0b', approved:'#22c55e', declined:'#ef4444', followup:'#3b82f6' };
+        const label = { pending:'⏳ Pending', approved:'✅ Approved', declined:'❌ Declined', followup:'💬 Follow Up' };
+        return `<span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:800;background:${map[s]||'#666'}22;color:${map[s]||'#666'};">${label[s]||s}</span>`;
+      };
+      const tierLabel = t => ({
+        online_starter: '<span class="badge tier1">Starter ($149)</span>',
+        online_growth:  '<span class="badge tier1">Growth ($299)</span>',
+        online_scale:     '<span class="badge tier1">Scale ($499)</span>',
+        free_for_life:  '<span class="badge ffl">🎖️ Free For Life</span>',
+      }[t] || `<span style="font-size:11px;color:var(--muted);">${t||'—'}</span>`);
+      tbody.innerHTML = apps.map(a => `
+        <tr style="border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.15s;" onclick="openApplicationDetail('${a.id}')" onmouseenter="this.style.background='rgba(91,63,165,0.04)'" onmouseleave="this.style.background=''">
+          <td style="padding:14px 16px;">
+            <div style="font-weight:800;color:var(--text);">${a.business_name}</div>
+            <div style="font-size:11px;color:var(--mutedLight);">${a.contact_email||''}</div>
+            ${a.website ? `<a href="${a.website}" target="_blank" style="font-size:11px;color:var(--purple);">${a.website.replace('https://','')}</a>` : ''}
+          </td>
+          <td style="padding:14px 12px;color:var(--muted);">${a.business_category||'—'}</td>
+          <td style="padding:14px 12px;">${a.business_presence==='hybrid'
+            ? `<span style="display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:800;background:rgba(234,179,8,0.12);color:#ca8a04;">🔀 Hybrid</span>`
+            : `<span style="display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:800;background:rgba(20,184,166,0.15);color:#14b8a6;">🌐 Online</span>`
+          }</td>
+          <td style="padding:14px 12px;color:var(--muted);">${tierLabel(a.subscription_tier)}</td>
+          <td style="padding:14px 12px;color:var(--muted);">${a.member_count||0}</td>
+          <td style="padding:14px 12px;color:var(--muted);">${a.billing_starts_at_member_count ? a.billing_starts_at_member_count + ' members' : 'On approval'}</td>
+          <td style="padding:14px 12px;">${statusBadge(a.application_status)}</td>
+          <td style="padding:14px 12px;color:var(--muted);font-size:12px;">${new Date(a.created_at).toLocaleDateString()}</td>
+          <td style="padding:14px 12px;text-align:center;">
+            ${a.application_status === 'pending' || a.application_status === 'followup' ? `
+              <button onclick="event.stopPropagation();approveApp('${a.id}')" style="padding:6px 12px;border-radius:8px;border:none;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-size:11px;font-weight:800;cursor:pointer;margin-right:4px;">Approve</button>
+              <button onclick="event.stopPropagation();followUpApp('${a.id}')" style="padding:6px 12px;border-radius:8px;border:none;background:rgba(59,130,246,0.15);color:#3b82f6;font-size:11px;font-weight:800;cursor:pointer;border:1px solid rgba(59,130,246,0.3);margin-right:4px;">💬 Follow Up</button>
+              <button onclick="event.stopPropagation();declineApp('${a.id}')" style="padding:6px 12px;border-radius:8px;border:none;background:rgba(239,68,68,0.12);color:#ef4444;font-size:11px;font-weight:800;cursor:pointer;border:1px solid rgba(239,68,68,0.3);">Decline</button>
+            ` : `<span style="font-size:12px;color:var(--mutedLight);">${a.application_status}</span>`}
+          </td>
+        </tr>`).join('');
+    }
+
+    function filterApps(status, btn) {
+      _appFilter = status;
+      document.querySelectorAll('[id^="app-filter-"]').forEach(b => {
+        if (b.tagName === 'BUTTON') { b.style.background = ''; b.style.borderColor = ''; b.style.color = ''; }
+      });
+      btn.style.background = 'rgba(139,92,246,0.15)';
+      btn.style.borderColor = 'var(--purple)';
+      btn.style.color = 'var(--purple)';
+      applyApplicationFilters();
+    }
+
+    function applyApplicationFilters(returnOnly) {
+      let data = [..._allApplications];
+
+      // Status pill filter
+      if (_appFilter !== 'all') data = data.filter(a => a.application_status === _appFilter);
+
+      // Search
+      const search = (document.getElementById('app-search')?.value || '').toLowerCase();
+      if (search) data = data.filter(a =>
+        (a.business_name||'').toLowerCase().includes(search) ||
+        (a.contact_email||'').toLowerCase().includes(search) ||
+        (a.website||'').toLowerCase().includes(search)
+      );
+
+      // Type dropdown
+      const typeF = document.getElementById('app-filter-type')?.value || '';
+      if (typeF) data = data.filter(a => a.business_presence === typeF);
+
+      // Plan dropdown
+      const planF = document.getElementById('app-filter-plan')?.value || '';
+      if (planF) data = data.filter(a => a.subscription_tier === planF);
+
+      // Date dropdown
+      const dateF = document.getElementById('app-filter-date')?.value || '';
+      if (dateF) {
+        const cutoff = new Date(Date.now() - parseInt(dateF) * 86400000);
+        data = data.filter(a => new Date(a.created_at) >= cutoff);
+      }
+
+      // Sort
+      data.sort((a, b) => {
+        let va = a[_appSortField] ?? '', vb = b[_appSortField] ?? '';
+        if (!isNaN(Number(va)) && !isNaN(Number(vb)) && va !== '' && vb !== '') { va = Number(va); vb = Number(vb); }
+        else { va = String(va).toLowerCase(); vb = String(vb).toLowerCase(); }
+        if (va < vb) return _appSortDir === 'asc' ? -1 : 1;
+        if (va > vb) return _appSortDir === 'asc' ? 1 : -1;
+        return 0;
+      });
+
+      if (returnOnly) return data;
+      renderApplications(data);
+    }
+
+    function sortApps(field) {
+      _appSortDir = (_appSortField === field && _appSortDir === 'asc') ? 'desc' : 'asc';
+      _appSortField = field;
+      applyApplicationFilters();
+    }
+
+
+    async function approveApp(id) {
+      const app = (_allApplications || []).find(a => a.id === id);
+      const brandName = app?.business_name || 'this application';
+      const confirmed = await new Promise(resolve => {
+        const overlay = document.createElement('div');
+        overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.65);z-index:9999;display:flex;align-items:center;justify-content:center;';
+        overlay.innerHTML = `
+          <div style="background:#1a1a2e;border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:32px;max-width:440px;width:90%;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,0.5);">
+            <div style="font-size:40px;margin-bottom:16px;">✅</div>
+            <h3 style="color:#fff;margin:0 0 8px;font-size:18px;font-weight:800;">Approve Application</h3>
+            <p style="color:#aaa;margin:0 0 24px;font-size:14px;line-height:1.5;">Approve <strong style="color:#fff;">${brandName}</strong>?<br>Their account will be activated and a subscription started (unless promo delay applies).</p>
+            <div style="display:flex;gap:12px;justify-content:center;">
+              <button id="appr-cancel" style="padding:10px 24px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:transparent;color:#aaa;font-size:14px;cursor:pointer;font-weight:600;">Cancel</button>
+              <button id="appr-confirm" style="padding:10px 24px;border-radius:8px;border:none;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-weight:800;font-size:14px;cursor:pointer;">✅ Approve</button>
+            </div>
+          </div>`;
+        document.body.appendChild(overlay);
+        document.getElementById('appr-cancel').onclick  = () => { overlay.remove(); resolve(false); };
+        document.getElementById('appr-confirm').onclick = () => { overlay.remove(); resolve(true); };
+        overlay.onclick = (e) => { if (e.target === overlay) { overlay.remove(); resolve(false); } };
+      });
+      if (!confirmed) return;
+      try {
+        // Use fetch + getAdminHeaders directly — adminFetch does not support method/body options
+        const res = await fetch(API_BASE + '/admin/online-applications/' + id + '/approve', {
+          method: 'PUT',
+          headers: getAdminHeaders(),
+        });
+        const json = await res.json();
+        if (json.success) {
+          if (json.billing_warning) {
+            // Merchant is approved but billing failed — show persistent amber alert
+            loadApplications();
+            const stripeCustUrl = json.stripe_customer_id
+              ? `https://dashboard.stripe.com/customers/${json.stripe_customer_id}`
+              : 'https://dashboard.stripe.com/customers';
+            const alertOverlay = document.createElement('div');
+            alertOverlay.id = 'billing-warn-overlay';
+            alertOverlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.72);z-index:99999;display:flex;align-items:center;justify-content:center;padding:24px;';
+            alertOverlay.innerHTML = `
+              <div style="background:#1a1a2e;border:2px solid #f59e0b;border-radius:18px;padding:32px;max-width:480px;width:100%;box-shadow:0 24px 64px rgba(0,0,0,0.6);">
+                <div style="font-size:40px;text-align:center;margin-bottom:12px;">⚠️</div>
+                <h3 style="color:#f59e0b;margin:0 0 8px;font-size:18px;font-weight:800;text-align:center;">Application Approved — Billing Needs Attention</h3>
+                <p style="color:#cbd5e1;font-size:14px;line-height:1.6;margin:0 0 16px;text-align:center;">
+                  The merchant's account is now active, but <strong style="color:#fbbf24;">the Stripe subscription could not be created automatically.</strong>
+                </p>
+                <div style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:10px;padding:14px 16px;margin-bottom:20px;">
+                  <div style="font-size:11px;font-weight:800;color:#f59e0b;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Reason</div>
+                  <div style="font-size:13px;color:#e2e8f0;line-height:1.5;">${json.billing_warning}</div>
+                </div>
+                <p style="color:#94a3b8;font-size:13px;margin:0 0 20px;text-align:center;">
+                  Please create the subscription manually in the Stripe Dashboard for this merchant, then update their <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px;">billing_status</code> in the database.
+                </p>
+                <div style="display:flex;gap:12px;justify-content:center;">
+                  <a href="${stripeCustUrl}" target="_blank"
+                     style="padding:10px 22px;border-radius:10px;border:none;background:linear-gradient(135deg,#635bff,#4f46e5);color:#fff;font-size:14px;font-weight:800;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px;">
+                    🔗 Open in Stripe
+                  </a>
+                  <button onclick="document.getElementById('billing-warn-overlay').remove()"
+                          style="padding:10px 22px;border-radius:10px;border:1px solid rgba(255,255,255,0.15);background:transparent;color:#94a3b8;font-size:14px;font-weight:600;cursor:pointer;">
+                    Dismiss
+                  </button>
+                </div>
+              </div>`;
+            document.body.appendChild(alertOverlay);
+            alertOverlay.addEventListener('click', e => { if (e.target === alertOverlay) alertOverlay.remove(); });
+          } else {
+            showToast('✅ Application approved — subscription active!');
+            loadApplications();
+          }
+        }
+        else showToast('Error: ' + (json.error || 'Failed'), true);
+      } catch(e) { showToast('Request failed', true); }
+    }
+
+    async function declineApp(id) {
+      const app = (_allApplications || []).find(a => a.id === id);
+      const brandName = app?.business_name || 'this application';
+      const result = await new Promise(resolve => {
+        const overlay = document.createElement('div');
+        overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.65);z-index:9999;display:flex;align-items:center;justify-content:center;';
+        overlay.innerHTML = `
+          <div style="background:#1a1a2e;border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:32px;max-width:440px;width:90%;box-shadow:0 24px 64px rgba(0,0,0,0.5);">
+            <div style="font-size:40px;margin-bottom:16px;text-align:center;">❌</div>
+            <h3 style="color:#fff;margin:0 0 8px;font-size:18px;font-weight:800;text-align:center;">Decline Application</h3>
+            <p style="color:#aaa;margin:0 0 16px;font-size:14px;text-align:center;line-height:1.5;">Declining <strong style="color:#fff;">${brandName}</strong>.<br>Their saved card will be removed.</p>
+            <textarea id="decline-reason" placeholder="Optional: reason sent to the applicant…" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:8px;color:#fff;padding:10px 12px;font-size:13px;resize:vertical;min-height:80px;margin-bottom:20px;font-family:inherit;outline:none;"></textarea>
+            <div style="display:flex;gap:12px;justify-content:center;">
+              <button id="decl-cancel" style="padding:10px 24px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:transparent;color:#aaa;font-size:14px;cursor:pointer;font-weight:600;">Cancel</button>
+              <button id="decl-confirm" style="padding:10px 24px;border-radius:8px;border:none;background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;font-weight:800;font-size:14px;cursor:pointer;">❌ Decline</button>
+            </div>
+          </div>`;
+        document.body.appendChild(overlay);
+        document.getElementById('decl-cancel').onclick  = () => { overlay.remove(); resolve(null); };
+        document.getElementById('decl-confirm').onclick = () => {
+          const notes = document.getElementById('decline-reason').value.trim();
+          overlay.remove();
+          resolve(notes);
+        };
+        overlay.onclick = (e) => { if (e.target === overlay) { overlay.remove(); resolve(null); } };
+      });
+      if (result === null) return; // user cancelled
+      try {
+        // Use fetch + getAdminHeaders directly — adminFetch does not support method/body options
+        const res = await fetch(API_BASE + '/admin/online-applications/' + id + '/decline', {
+          method: 'PUT',
+          headers: getAdminHeaders({ 'Content-Type': 'application/json' }),
+          body: JSON.stringify({ notes: result }),
+        });
+        const json = await res.json();
+        if (json.success) { showToast('Application declined.'); loadApplications(); }
+        else showToast('Error: ' + (json.error || 'Failed'), true);
+      } catch(e) { showToast('Request failed', true); }
+    }
+
+    async function followUpApp(id) {
+      const app = (_allApplications || []).find(a => a.id === id);
+      const brandName = app?.business_name || 'this application';
+      const result = await new Promise(resolve => {
+        const overlay = document.createElement('div');
+        overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.65);z-index:9999;display:flex;align-items:center;justify-content:center;';
+        overlay.innerHTML = `
+          <div style="background:#1a1a2e;border:1px solid rgba(59,130,246,0.3);border-radius:16px;padding:32px;max-width:440px;width:90%;box-shadow:0 24px 64px rgba(0,0,0,0.5);">
+            <div style="font-size:40px;margin-bottom:16px;text-align:center;">💬</div>
+            <h3 style="color:#fff;margin:0 0 8px;font-size:18px;font-weight:800;text-align:center;">Request Follow Up</h3>
+            <p style="color:#aaa;margin:0 0 16px;font-size:14px;text-align:center;line-height:1.5;">We'll email <strong style="color:#fff;">${brandName}</strong> and ask them to reach out before a final decision is made.</p>
+            <textarea id="followup-message" placeholder="Optional: include a specific question or what you'd like to discuss…" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(59,130,246,0.25);border-radius:8px;color:#fff;padding:10px 12px;font-size:13px;resize:vertical;min-height:80px;margin-bottom:20px;font-family:inherit;outline:none;"></textarea>
+            <div style="display:flex;gap:12px;justify-content:center;">
+              <button id="fu-cancel" style="padding:10px 24px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:transparent;color:#aaa;font-size:14px;cursor:pointer;font-weight:600;">Cancel</button>
+              <button id="fu-confirm" style="padding:10px 24px;border-radius:8px;border:none;background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;font-weight:800;font-size:14px;cursor:pointer;">💬 Send Follow Up</button>
+            </div>
+          </div>`;
+        document.body.appendChild(overlay);
+        document.getElementById('fu-cancel').onclick  = () => { overlay.remove(); resolve(null); };
+        document.getElementById('fu-confirm').onclick = () => {
+          const message = document.getElementById('followup-message').value.trim();
+          overlay.remove();
+          resolve(message);
+        };
+        overlay.onclick = (e) => { if (e.target === overlay) { overlay.remove(); resolve(null); } };
+      });
+      if (result === null) return;
+      try {
+        const res = await fetch(API_BASE + '/admin/online-applications/' + id + '/followup', {
+          method: 'PUT',
+          headers: getAdminHeaders({ 'Content-Type': 'application/json' }),
+          body: JSON.stringify({ message: result }),
+        });
+        const json = await res.json();
+        if (json.success) { showToast('💬 Follow up email sent to ' + brandName + '.'); loadApplications(); }
+        else showToast('Error: ' + (json.error || 'Failed'), true);
+      } catch(e) { showToast('Request failed', true); }
+    }
+
+    // Poll pending count on load (updates badge without opening tab)
+    async function pollPendingApplications() {
+      try {
+        // adminFetch already returns parsed JSON — do NOT call .json() again
+        const json = await adminFetch('/admin/online-applications?status=pending');
+        const pending = (json.data || []).length;
+        const badge = document.getElementById('apps-pending-badge');
+        if (badge) { badge.textContent = pending; badge.style.display = pending > 0 ? 'inline' : 'none'; }
+      } catch(e) {}
+    }
+
     async function loadAccessCodes() {
       try {
         const res = await fetch(API_BASE + '/admin/access-codes', {
@@ -2686,7 +3492,7 @@
           return;
         }
         const presLabel = p => p === 'online' ? '🌐 Online' : p === 'mobile' ? '🚐 Mobile' : '📍 Local';
-        const tierBadge = t => t === 'tier1' ? '<span class="badge tier1">Tier 1</span>' : t === 'free_for_life' ? '<span class="badge ffl">FFL</span>' : '<span class="badge free">Free Trial</span>';
+        const tierBadge = t => t === 'tier1' ? '<span class="badge tier1">Connect</span>' : t === 'free_for_life' ? '<span class="badge ffl">FFL</span>' : '<span class="badge free">Free Trial</span>';
         listEl.innerHTML = `
           <table style="width:100%;border-collapse:collapse;">
             <thead>
@@ -2921,7 +3727,7 @@
       ], () => annPreview());
       initTagPicker('ann-filter-status', [
         { value: 'free_trial', label: '🆕 Free Trial' },
-        { value: 'tier1', label: '💳 Tier 1' },
+        { value: 'tier1', label: '💳 Connect' },
         { value: 'free_for_life', label: '♾️ Free For Life' },
         { value: 'pending_cancellation', label: '⏸️ Pending Cancel' },
         { value: 'blocked', label: '🚫 Blocked' }
@@ -3314,6 +4120,9 @@
         annLoadHistory();
       }
     };
+
+    // Poll for pending application badge on load
+    pollPendingApplications();
 
   </script>
 

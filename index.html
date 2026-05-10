@@ -1,403 +1,295 @@
 <!doctype html>
 <html lang="en">
-
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Perkfinity — Perks Done Right</title>
-  <meta name="description"
-    content="Perkfinity connects people and local businesses through perks & rewards — privacy-first and simple QR signup." />
+  <title>Perkfinity — Perks from Brands You Love. Businesses Around You.</title>
+  <meta name="description" content="Discover exclusive promo codes from online brands and find local businesses offering perks near you. Download the Perkfinity app — free, privacy-first." />
   <link rel="icon" href="assets/Perkfinity-App-Icon.png" />
   <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; margin: 0; background: #fff; color: #1a1a2e; }
+
+    /* ── NAV ── */
+    .site-header { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.97); backdrop-filter: blur(12px); border-bottom: 1px solid #f0eeff; }
+    .nav-inner { max-width: 1100px; margin: 0 auto; padding: 0 24px; height: 64px; display: flex; align-items: center; gap: 0; }
+    .nav-brand { display: flex; align-items: center; margin-right: auto; }
+    .nav-brand img { height: 32px; }
+    .nav-links { display: flex; align-items: center; gap: 4px; }
+    .nav-links a { font-size: 14px; font-weight: 600; color: #444; text-decoration: none; padding: 8px 14px; border-radius: 10px; transition: background 0.15s, color 0.15s; }
+    .nav-links a:hover { background: #f5f3ff; color: #5b3fa5; }
+    .nav-links .nav-sep { width: 1px; height: 20px; background: #e5e7eb; margin: 0 8px; }
+    .nav-signin { font-size: 14px; font-weight: 700; color: #5b3fa5 !important; border: 1.5px solid #5b3fa5 !important; padding: 7px 18px !important; border-radius: 10px !important; }
+    .nav-signin:hover { background: #5b3fa5 !important; color: #fff !important; }
+    .nav-mobile-btn { display: none; background: none; border: none; cursor: pointer; padding: 8px; color: #444; }
+    @media (max-width: 680px) {
+      .nav-links { display: none; }
+      .nav-mobile-btn { display: block; margin-left: auto; }
+      .nav-links.open { display: flex; flex-direction: column; position: absolute; top: 64px; left: 0; right: 0; background: #fff; border-bottom: 1px solid #f0eeff; padding: 12px 16px; gap: 4px; }
+      .nav-links.open .nav-sep { display: none; }
+    }
+
+    /* ── HERO ── */
+    .hero { background: linear-gradient(160deg, #f5f3ff 0%, #fff 60%); padding: 72px 24px 56px; }
+    .hero-inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
+    .hero-eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #7c3aed; margin-bottom: 16px; }
+    .hero-headline { font-size: clamp(32px, 5vw, 52px); font-weight: 900; line-height: 1.1; color: #1a1a2e; margin: 0 0 20px; letter-spacing: -1px; }
+    .hero-headline span { color: #5b3fa5; }
+    .hero-sub { font-size: 17px; color: #555; line-height: 1.7; margin: 0 0 36px; }
+    .path-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .path-card { display: flex; flex-direction: column; gap: 8px; padding: 20px; border-radius: 16px; text-decoration: none; transition: transform 0.2s, box-shadow 0.2s; }
+    .path-card:hover { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(91,63,165,0.15); }
+    .path-card.online { background: linear-gradient(135deg, #5b3fa5, #7c5cbf); }
+    .path-card.local  { background: linear-gradient(135deg, #1e5c38, #2e7d4f); }
+    .path-icon { font-size: 28px; }
+    .path-label { font-size: 15px; font-weight: 800; color: #fff; line-height: 1.3; }
+    .path-hint { font-size: 12px; color: rgba(255,255,255,0.75); }
+    .path-arrow { font-size: 18px; color: rgba(255,255,255,0.6); margin-top: 4px; }
+    .hero-visual { position: relative; border-radius: 24px; overflow: hidden; aspect-ratio: 4/3; box-shadow: 0 24px 64px rgba(91,63,165,0.18); }
+    .hero-visual img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 1s; }
+    .hero-visual img.active { opacity: 1; }
+    @media (max-width: 768px) {
+      .hero-inner { grid-template-columns: 1fr; gap: 36px; }
+      .hero-visual { order: -1; aspect-ratio: 16/9; }
+    }
+
+    /* ── HOW IT WORKS ── */
+    .section { padding: 72px 24px; }
+    .section-inner { max-width: 1100px; margin: 0 auto; }
+    .section-label { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #7c3aed; margin-bottom: 12px; text-align: center; }
+    .section-title { font-size: clamp(24px, 4vw, 36px); font-weight: 900; color: #1a1a2e; text-align: center; margin: 0 0 8px; }
+    .section-sub { font-size: 16px; color: #666; text-align: center; margin: 0 0 48px; }
+    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
+    .step { text-align: center; }
+    .step-num { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg,#5b3fa5,#7c5cbf); color: #fff; font-size: 20px; font-weight: 900; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
+    .step h3 { font-size: 17px; font-weight: 800; color: #1a1a2e; margin: 0 0 8px; }
+    .step p { font-size: 14px; color: #666; line-height: 1.6; margin: 0; }
+    @media (max-width: 600px) { .steps { grid-template-columns: 1fr; gap: 28px; } }
+
+    /* ── DEAL TYPES ── */
+    .deal-types-bg { background: #f8f7ff; }
+    .deal-type-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .deal-type-card { background: #fff; border-radius: 18px; padding: 28px; border: 1.5px solid #ede9fe; }
+    .dt-icon { font-size: 32px; margin-bottom: 12px; }
+    .dt-badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; margin-bottom: 12px; }
+    .dt-badge.online { background: #ede9fe; color: #5b3fa5; }
+    .dt-badge.hybrid { background: #fef3c7; color: #92400e; }
+    .dt-badge.local  { background: #dcfce7; color: #166534; }
+    .dt-title { font-size: 16px; font-weight: 800; color: #1a1a2e; margin-bottom: 8px; }
+    .dt-desc { font-size: 13px; color: #555; line-height: 1.6; }
+    @media (max-width: 700px) { .deal-type-grid { grid-template-columns: 1fr; } }
+
+    /* ── DOWNLOAD ── */
+    .download-section { background: linear-gradient(135deg, #5b3fa5, #7c5cbf); }
+    .download-inner { max-width: 900px; margin: 0 auto; padding: 72px 24px; text-align: center; }
+    .download-inner h2 { font-size: clamp(26px, 4vw, 40px); font-weight: 900; color: #fff; margin: 0 0 12px; }
+    .download-inner p { font-size: 17px; color: rgba(255,255,255,0.8); margin: 0 0 40px; }
+    .app-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+    .app-btn { display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.12); border: 1.5px solid rgba(255,255,255,0.3); border-radius: 14px; padding: 14px 24px; text-decoration: none; transition: background 0.2s; }
+    .app-btn:hover { background: rgba(255,255,255,0.22); }
+    .app-btn-text { text-align: left; }
+    .app-btn-text .sub { font-size: 10px; color: rgba(255,255,255,0.7); font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
+    .app-btn-text .main { font-size: 17px; font-weight: 800; color: #fff; }
+
+    /* ── FOR BUSINESSES TEASER ── */
+    .biz-teaser { background: #fff; }
+    .biz-teaser-box { max-width: 820px; margin: 0 auto; background: linear-gradient(135deg, #1a1a2e, #2d1b69); border-radius: 24px; padding: 56px 48px; text-align: center; }
+    .biz-teaser-box h2 { font-size: clamp(22px,3.5vw,34px); font-weight: 900; color: #fff; margin: 0 0 14px; }
+    .biz-teaser-box p { font-size: 16px; color: rgba(255,255,255,0.75); line-height: 1.7; margin: 0 0 32px; }
+    .biz-type-chips { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 32px; }
+    .biz-chip { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 50px; padding: 7px 18px; font-size: 13px; font-weight: 600; color: #fff; }
+    .biz-cta { display: inline-flex; align-items: center; gap: 8px; background: #fff; color: #2d1b69; font-weight: 800; font-size: 15px; padding: 15px 32px; border-radius: 12px; text-decoration: none; transition: transform 0.2s; }
+    .biz-cta:hover { transform: translateY(-2px); }
+    @media (max-width: 600px) { .biz-teaser-box { padding: 40px 24px; } }
+
+    /* ── FOOTER ── */
+    .site-footer { background: #f8f7ff; border-top: 1px solid #ede9fe; padding: 32px 24px; }
+    .footer-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+    .footer-brand { font-size: 16px; font-weight: 800; color: #5b3fa5; }
+    .footer-links { display: flex; gap: 20px; flex-wrap: wrap; }
+    .footer-links a { font-size: 13px; color: #666; text-decoration: none; }
+    .footer-links a:hover { color: #5b3fa5; }
+    .footer-copy { font-size: 12px; color: #aaa; width: 100%; text-align: center; margin-top: 8px; }
+  </style>
 </head>
-
 <body>
-  <header class="header">
-    <div class="container header-inner">
-      <a class="brand" href="index.html" aria-label="Perkfinity home">
-        <img src="assets/Perkfinity-Logo.png" alt="Perkfinity logo">
+
+  <!-- ===== HEADER / NAV ===== -->
+  <header class="site-header">
+    <div class="nav-inner">
+      <a class="nav-brand" href="index.html" aria-label="Perkfinity home">
+        <img src="assets/Perkfinity-Logo.png" alt="Perkfinity" />
       </a>
-
-      <nav class="nav" aria-label="Primary navigation">
-        <a href="members.html">For Members</a>
-        <a href="merchants.html">For Merchants</a>
-
-        <a href="signup.html">Merchant Sign Up / Sign In</a>
-        <a href="how-it-works.html">How it Works</a>
+      <button class="nav-mobile-btn" onclick="this.nextElementSibling.classList.toggle('open')" aria-label="Toggle menu">☰</button>
+      <nav class="nav-links" aria-label="Primary navigation">
+        <a href="codes.html">Promo Codes</a>
+        <a href="localperks.html">Nearby Deals</a>
+        <div class="nav-sep" aria-hidden="true"></div>
+        <a href="merchants.html">For Businesses</a>
+        <a href="about.html">About Us</a>
       </nav>
-
-      <a class="btn btn-green" href="mailto:hello@perkfinity.net" aria-label="Contact Us">
-        <span aria-hidden="true"
-          style="display:inline-grid;place-items:center;width:20px;height:20px;border-radius:7px;background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.22);">✉</span>
-        Contact Us
-      </a>
     </div>
   </header>
 
-  <main id="top">
-    <!-- ===== HERO SECTION ===== -->
+  <main>
+
+    <!-- ===== HERO ===== -->
     <section class="hero">
-      <div class="container hero-grid">
-        <div class="hero-content">
-          <h1>Perks Done Right.</h1>
-          <p class="lede" style="text-align:left;line-height:1.5">
-            Creating Stronger Communities by<br>
-            Connecting People and Local Businesses Through<br>
-            <strong>Perks &amp; Coupons</strong>
-          </p>
-
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:8px;">
-
-            <!-- LEFT: MEMBER CHIPS + BUTTON -->
-            <div style="display:flex; flex-direction:column; gap:8px;">
-              <div class="chip">
-                <span class="ico" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="none">
-                    <path d="M7 11V8a5 5 0 0 1 10 0v3" stroke="#5B3FA5" stroke-width="2" />
-                    <rect x="6" y="11" width="12" height="10" rx="3" stroke="#6BC17A" stroke-width="2" fill="#fff" />
-                  </svg>
-                </span>
-                Privacy-First
-              </div>
-              <div class="chip">
-                <span class="ico" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="none">
-                    <path d="M13 3h8v8l-10 10L3 13 13 3z" stroke="#6BC17A" stroke-width="2" fill="#fff"
-                      stroke-linejoin="round" />
-                    <circle cx="17" cy="7" r="1.6" fill="#5B3FA5" />
-                  </svg>
-                </span>
-                Digital Coupons
-              </div>
-              <div class="chip">
-                <span class="ico" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="none">
-                    <path d="M4 4h7v7H4V4zm9 0h7v7h-7V4zM4 13h7v7H4v-7z" stroke="#5B3FA5" stroke-width="2" />
-                    <path d="M14 14h2v2h-2v-2z" fill="#6BC17A" />
-                  </svg>
-                </span>
-                Simple QR Code
-              </div>
-              <a href="members.html" class="btn btn-purple"
-                style="font-size:15px;padding:14px 24px;margin-top:4px;text-align:center">I am a Member</a>
-            </div>
-
-            <!-- RIGHT: MERCHANT CHIPS + BUTTON -->
-            <div style="display:flex; flex-direction:column; gap:8px;">
-              <div class="chip">
-                <span class="ico" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="none">
-                    <path d="M9 12l2 2 4-4" stroke="#6BC17A" stroke-width="2" stroke-linecap="round" />
-                    <rect x="3" y="3" width="18" height="18" rx="4" stroke="#5B3FA5" stroke-width="2" />
-                  </svg>
-                </span>
-                No Hardware Needed
-              </div>
-              <div class="chip">
-                <span class="ico" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="none">
-                    <path d="M5 12h14M13 6l6 6-6 6" stroke="#5B3FA5" stroke-width="2" stroke-linecap="round"
-                      stroke-linejoin="round" />
-                  </svg>
-                </span>
-                Frictionless Check Outs
-              </div>
-              <div class="chip">
-                <span class="ico" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="none">
-                    <circle cx="12" cy="8" r="4" stroke="#5B3FA5" stroke-width="2" />
-                    <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="#6BC17A" stroke-width="2" stroke-linecap="round" />
-                  </svg>
-                </span>
-                No Employee Training
-              </div>
-              <a href="merchants.html" class="btn btn-green"
-                style="font-size:15px;padding:14px 24px;margin-top:4px;text-align:center">I am a Merchant</a>
-            </div>
-
-          </div>
-        </div>
-
-        <div class="hero-visual hero-slider">
-          <img src="assets/homepage-hero-tailor.png" alt="Artisan Tailor Shop" class="active">
-          <img src="assets/homepage-hero-plants.png" alt="Modern Plant Boutique">
-          <img src="assets/homepage-hero-spa.png" alt="High-End Wellness Spa">
-        </div>
-      </div>
-
-      <div class="wave" aria-hidden="true">
-        <svg viewBox="0 0 1440 160" preserveAspectRatio="none">
-          <path d="M0,100 C240,160 480,55 720,110 C960,160 1200,70 1440,105 L1440,160 L0,160 Z" fill="#ffffff"></path>
-        </svg>
-      </div>
-    </section>
-
-    <!-- ===== ZIP CODE SEARCH =====
-         TO RE-ENABLE: Remove the "display:none" style from the section tag below.
-         Feature is fully functional — hide only while merchant network is growing.
-    -->
-    <section style="display:none; background:#fff; padding:56px 0; border-bottom:1px solid #f0eeff;">
-      <div class="container" style="text-align:center;">
-        <div
-          style="display:inline-block; background:linear-gradient(135deg,rgba(91,63,165,0.08),rgba(107,193,122,0.08)); border:1.5px solid rgba(91,63,165,0.15); border-radius:20px; padding:40px 48px; max-width:600px; width:100%;">
-          <div style="font-size:36px; margin-bottom:12px;">📍</div>
-          <h2 style="margin:0 0 8px; font-size:clamp(20px,4vw,28px); color:#1a1a2e; font-weight:800;">Find Perks Around
-            You!</h2>
-          <p style="color:#666; font-size:15px; margin:0 0 24px;">See which stores and businesses near you are offering
-            exclusive perks &amp; rewards.</p>
-          <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
-            <input type="text" id="homeZipInput" placeholder="Enter ZIP Code" maxlength="5" inputmode="numeric"
-              style="flex:1; min-width:150px; max-width:220px; padding:14px 20px; border:1.5px solid rgba(91,63,165,0.3); border-radius:14px; font-size:17px; font-weight:700; outline:none; letter-spacing:2px; text-align:center; transition:border-color 0.2s;"
-              onfocus="this.style.borderColor='#5B3FA5'" onblur="this.style.borderColor='rgba(91,63,165,0.3)'"
-              onkeydown="if(event.key==='Enter') searchPerks()">
-            <button onclick="searchPerks()" class="btn btn-purple"
-              style="padding:14px 28px; font-size:16px; border-radius:14px;">
-              Search Perks →
-            </button>
-          </div>
-        </div>
-      </div>
-    </section>
-    <script>
-      function searchPerks() {
-        const zip = document.getElementById('homeZipInput').value.trim();
-        if (!/^\d{5}$/.test(zip)) { alert('Please enter a valid 5-digit ZIP code.'); return; }
-        window.location.href = 'merchants-search.html?zip=' + zip;
-      }
-    </script>
-
-    <!-- ===== ENTRY POINTS + MISSION (UNIFIED) ===== -->
-    <section class="info-section bg-white" style="padding-top:40px; padding-bottom:48px;">
-      <div class="container">
-
-        <!-- THREE CARDS -->
-        <div class="triple-inner" style="gap:20px" id="three-cards">
-          <a href="members.html" class="step-card" style="text-decoration:none">
-            <div class="step-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none">
-                <circle cx="10" cy="9" r="3.5" stroke="#5B3FA5" stroke-width="2" />
-                <path d="M3.5 20c1.3-4 11.2-4 12.5 0" stroke="#5B3FA5" stroke-width="2" />
-              </svg>
-            </div>
-            <h3>For Members</h3>
-            <p>Discover local perks &amp; digital coupons effortlessly.</p>
-            <span style="color:var(--purple);font-weight:1000;font-size:14px;margin-top:12px;display:block">Learn More
-              →</span>
-          </a>
-
-          <a href="merchants.html" class="step-card" style="text-decoration:none">
-            <div class="step-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none">
-                <path d="M6 10l1.5-4h9L18 10" stroke="#5B3FA5" stroke-width="2" />
-                <path d="M7 10v9h10v-9" stroke="#5B3FA5" stroke-width="2" />
-              </svg>
-            </div>
-            <h3>For Merchants</h3>
-            <p>Grow your business with instant perks and new foot traffic.</p>
-            <span style="color:var(--purple);font-weight:1000;font-size:14px;margin-top:12px;display:block">Learn More
-              →</span>
-          </a>
-
-          <div class="step-card">
-            <div class="step-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none">
-                <path d="M12 21s-8-4.5-8-10a4.6 4.6 0 0 1 8-2.7A4.6 4.6 0 0 1 20 11c0 5.5-8 10-8 10z" fill="#5B3FA5"
-                  fill-opacity="0.9" />
-              </svg>
-            </div>
-            <h3>For Communities</h3>
-            <p>Support local shops and strengthen your neighborhood.</p>
-            <span style="color:var(--muted);font-weight:1000;font-size:14px;margin-top:12px;display:block">Support
-              Local</span>
-          </div>
-        </div>
-
-        <!-- SVG CONNECTOR LINES: smooth bezier curves converging from each card to mission box -->
-        <div style="position:relative; height:64px; width:100%; margin:0;">
-          <svg viewBox="0 0 900 64" preserveAspectRatio="none"
-            style="position:absolute; top:0; left:0; width:100%; height:100%;">
-            <!-- Left card curves inward to center -->
-            <path d="M 150 0 C 150 48 450 16 450 64" fill="none" stroke="#5B3FA5" stroke-width="3" opacity="0.35" />
-            <!-- Center card drops straight down -->
-            <path d="M 450 0 L 450 64" fill="none" stroke="#5B3FA5" stroke-width="3" opacity="0.35" />
-            <!-- Right card curves inward to center -->
-            <path d="M 750 0 C 750 48 450 16 450 64" fill="none" stroke="#5B3FA5" stroke-width="3" opacity="0.35" />
-          </svg>
-        </div>
-
-        <!-- FULL-WIDTH MISSION BOX (styled to match step-cards) -->
-        <div class="step-card" style="text-align:center; width:100%; box-sizing:border-box;">
-          <div class="step-icon" aria-hidden="true" style="margin:0 auto 16px;">
-            <svg viewBox="0 0 24 24" fill="none">
-              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#5B3FA5" stroke-width="2"
-                stroke-linejoin="round" />
-            </svg>
-          </div>
-          <h3>Perkfinity's Mission</h3>
-          <p>To build stronger neighborhoods by making it effortless for people to discover and support local
-            businesses. Through our privacy-first platform, we provide merchants the tools to launch instant perks,
-            attract new foot traffic, and grow alongside neighboring stores—creating a thriving, connected community.
-          </p>
-        </div>
-
-      </div>
-    </section>
-
-
-    <!-- ===== DUAL CTA: MEMBERS + MERCHANTS ===== -->
-    <section style="background:#f8f6ff; padding:72px 24px;">
-      <div class="container"
-        style="display:grid; grid-template-columns:1fr 1fr; gap:32px; max-width:1000px; margin:0 auto;">
-
-        <!-- LEFT: MEMBERS -->
-        <div
-          style="background:linear-gradient(145deg,#5B3FA5,#7c5cbf); border-radius:24px; padding:48px 36px; display:flex; flex-direction:column; align-items:flex-start; gap:20px; box-shadow:0 12px 40px rgba(91,63,165,0.25);">
-          <span
-            style="font-size:12px; font-weight:800; letter-spacing:3px; text-transform:uppercase; color:rgba(255,255,255,0.65);">For
-            Members</span>
-          <h2 style="font-size:clamp(22px,3vw,32px); font-weight:900; color:#fff; margin:0; line-height:1.25;">Download
-            the App.<br>Start Saving Today.</h2>
-          <p style="color:rgba(255,255,255,0.82); font-size:15px; line-height:1.65; margin:0;">Discover exclusive perks
-            at local businesses in your neighborhood. Free to join, privacy-first, no plastic cards needed.</p>
-          <div style="display:flex; flex-direction:column; gap:12px; width:100%; margin-top:8px;">
-            <a href="https://apps.apple.com/us/app/perkfinity-privacy-first-perks/id6759945540" target="_blank" rel="noopener noreferrer"
-              style="display:flex; align-items:center; gap:12px; background:rgba(255,255,255,0.12); border:1.5px solid rgba(255,255,255,0.25); border-radius:14px; padding:13px 20px; text-decoration:none; transition:background 0.2s; cursor:pointer;"
-              onmouseover="this.style.background='rgba(255,255,255,0.2)'"
-              onmouseout="this.style.background='rgba(255,255,255,0.12)'">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
-                <path
-                  d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
-              </svg>
-              <div>
-                <div
-                  style="font-size:10px; color:rgba(255,255,255,0.7); font-weight:600; letter-spacing:1px; text-transform:uppercase;">
-                  Download on the</div>
-                <div style="font-size:16px; font-weight:800; color:#fff;">App Store</div>
-              </div>
+      <div class="hero-inner">
+        <div>
+          <div class="hero-eyebrow">Save More. Discover More. Don't Compromise Your Privacy.</div>
+          <h1 class="hero-headline">Perks from brands<br>you love.<br><span>Businesses around you.</span></h1>
+          <p class="hero-sub">Online promo codes from top brands. Local deals from stores and pop-ups near you. One app, multiple brands and stores.</p>
+          <div class="path-cards">
+            <a href="codes.html" class="path-card online" aria-label="Find Online and Store Deals">
+              <div class="path-icon">🛍️</div>
+              <div class="path-label">Find Online &amp; Store Deals</div>
+              <div class="path-hint">Promo codes for online checkout or in-store visit</div>
+              <div class="path-arrow">→</div>
             </a>
-            <a href="#"
-              onclick="event.preventDefault(); alert('Coming Soon! The Perkfinity app will be available on Google Play very soon.')"
-              style="display:flex; align-items:center; gap:12px; background:rgba(255,255,255,0.12); border:1.5px solid rgba(255,255,255,0.25); border-radius:14px; padding:13px 20px; text-decoration:none; transition:background 0.2s; cursor:pointer;"
-              onmouseover="this.style.background='rgba(255,255,255,0.2)'"
-              onmouseout="this.style.background='rgba(255,255,255,0.12)'">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
-                <path
-                  d="M3.18 23.76c.3.17.64.22.98.14l12.38-7.15-2.9-2.9-10.46 9.91zm-1.18-19.5v15.48c0 .52.28.97.73 1.22l10.58-10.58-3.47-3.47L2 4.26zM20.52 9.4L17.6 7.74 14.4 11l3.2 3.2 2.94-1.7c.84-.48.84-1.62-.02-2.1zM4.16.14L14.4 10.4l-3.2-3.2L2.18.38C2.47.14 2.86.04 3.25.14l.91.0z" />
-              </svg>
-              <div>
-                <div
-                  style="font-size:10px; color:rgba(255,255,255,0.7); font-weight:600; letter-spacing:1px; text-transform:uppercase;">
-                  Get it on</div>
-                <div style="font-size:16px; font-weight:800; color:#fff;">Google Play</div>
-              </div>
+            <a href="localperks.html" class="path-card local" aria-label="Discover Local and Mobile Businesses">
+              <div class="path-icon">📍</div>
+              <div class="path-label">Discover Local &amp; Mobile Businesses</div>
+              <div class="path-hint">Map-based search, QR scan, instant perk</div>
+              <div class="path-arrow">→</div>
             </a>
           </div>
         </div>
+        <div class="hero-visual" aria-hidden="true">
+          <img src="assets/homepage-hero-spa.png" alt="Wellness Spa" class="active" />
+          <img src="assets/homepage-hero-tailor.png" alt="Artisan Tailor Shop" />
+          <img src="assets/homepage-hero-plants.png" alt="Modern Plant Boutique" />
+        </div>
+      </div>
+    </section>
 
-        <!-- RIGHT: MERCHANTS -->
-        <div
-          style="background:linear-gradient(145deg,#1e5c38,#2e7d4f); border-radius:24px; padding:48px 36px; display:flex; flex-direction:column; align-items:flex-start; gap:20px; box-shadow:0 12px 40px rgba(46,125,79,0.25);">
-          <span
-            style="font-size:12px; font-weight:800; letter-spacing:3px; text-transform:uppercase; color:rgba(255,255,255,0.65);">For
-            Merchants</span>
-          <h2 style="font-size:clamp(22px,3vw,32px); font-weight:900; color:#fff; margin:0; line-height:1.25;">Grow Your
-            Business.<br>Join the Network.</h2>
-          <p style="color:rgba(255,255,255,0.82); font-size:15px; line-height:1.65; margin:0;">Create campaigns, attract
-            new customers, and grow alongside neighboring stores—no hardware, no training, no friction.</p>
-          <a href="signup.html"
-            style="margin-top:8px; display:inline-flex; align-items:center; gap:10px; background:#fff; color:#1e5c38; font-weight:800; font-size:16px; padding:16px 32px; border-radius:14px; text-decoration:none; box-shadow:0 4px 18px rgba(0,0,0,0.15); transition:transform 0.2s;"
-            onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
-            Sign Up Free →
+    <!-- ===== HOW IT WORKS ===== -->
+    <section class="section">
+      <div class="section-inner">
+        <div class="section-label">Simple by Design</div>
+        <h2 class="section-title">How Perkfinity Works</h2>
+        <p class="section-sub">Three steps between you and your next perk.</p>
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <h3>Download the App</h3>
+            <p>Free on iOS and Android. No credit card, no subscription required.</p>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <h3>Browse &amp; Join</h3>
+            <p>Find a promo code online, or discover a local business near you. Tap <strong>Join Member List</strong> in the app, or scan the QR code in store to join their member list instantly.</p>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <h3>Claim Your Perk</h3>
+            <p>Reveal and copy your promo code in the app, then paste it at the brand's checkout — or scan the merchant's QR at their location. Done.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== THREE DEAL TYPES ===== -->
+    <section class="section deal-types-bg">
+      <div class="section-inner">
+        <div class="section-label">Three Ways to Save</div>
+        <h2 class="section-title">Every type of deal, covered in one app</h2>
+        <p class="section-sub">Whether you shop online, walk in, or discover a business on a map — Perkfinity has a deal flow for you.<br><span style="color:#7c3aed;font-weight:700;">Your personal info stays private — businesses never see it.</span></p>
+        <div class="deal-type-grid">
+          <div class="deal-type-card">
+            <div class="dt-icon">🛍️</div>
+            <div class="dt-badge online">Online Perk</div>
+            <div class="dt-title">Shop Online, Save Instantly</div>
+            <p class="dt-desc">Reveal a promo code in the app and enter it at the brand's online checkout. Works for ecommerce, delivery, subscriptions, and more.</p>
+          </div>
+          <div class="deal-type-card">
+            <div class="dt-icon">📱</div>
+            <div class="dt-badge hybrid">Claim &amp; Visit</div>
+            <div class="dt-title">Find It Online, Redeem In Store</div>
+            <p class="dt-desc">Claim a code online, then visit the physical location and scan their QR to redeem. Perfect for restaurants, spas, salons, and local chains.</p>
+          </div>
+          <div class="deal-type-card">
+            <div class="dt-icon">📍</div>
+            <div class="dt-badge local">Local Discovery</div>
+            <div class="dt-title">Discover &amp; Scan</div>
+            <p class="dt-desc">Find a local store or mobile pop-up near you on the map. Walk in, scan the QR, and your perk is claimed — no code needed.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== APP DOWNLOAD ===== -->
+    <section class="section download-section" id="download">
+      <div class="download-inner">
+        <h2>Start saving today — it's free</h2>
+        <p>Download Perkfinity and join thousands of members discovering perks near them and online.</p>
+        <div class="app-btns">
+          <a href="https://apps.apple.com/us/app/perkfinity-privacy-first-perks/id6759945540" target="_blank" rel="noopener noreferrer" class="app-btn" aria-label="Download on the App Store">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="white"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+            <div class="app-btn-text">
+              <div class="sub">Download on the</div>
+              <div class="main">App Store</div>
+            </div>
+          </a>
+          <a href="https://play.google.com/store/apps/details?id=net.perkfinity.app" target="_blank" rel="noopener noreferrer" class="app-btn" aria-label="Get it on Google Play">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="white"><path d="M3.18 23.76c.3.17.64.22.98.14l12.38-7.15-2.9-2.9-10.46 9.91zm-1.18-19.5v15.48c0 .52.28.97.73 1.22l10.58-10.58-3.47-3.47L2 4.26zM20.52 9.4L17.6 7.74 14.4 11l3.2 3.2 2.94-1.7c.84-.48.84-1.62-.02-2.1zM4.16.14L14.4 10.4l-3.2-3.2L2.18.38C2.47.14 2.86.04 3.25.14z"/></svg>
+            <div class="app-btn-text">
+              <div class="sub">Get it on</div>
+              <div class="main">Google Play</div>
+            </div>
           </a>
         </div>
-
       </div>
     </section>
 
-
-    <!-- ===== FEATURES ===== -->
-    <section class="info-section">
-      <div class="container">
-        <div class="cards" style="padding-top:20px">
-          <div class="card">
-            <div class="ci" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none">
-                <rect x="7" y="3" width="10" height="18" rx="3" stroke="#5B3FA5" stroke-width="2" />
-                <path d="M9 8h6" stroke="#6BC17A" stroke-width="2" />
-              </svg>
-            </div>
-            <h3>Exclusive Coupons</h3>
-            <p>Save at local spots with digital coupons and special offers that actually matter.</p>
-          </div>
-
-          <div class="card">
-            <div class="ci" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none">
-                <rect x="3" y="7" width="8" height="13" rx="2" stroke="#5B3FA5" stroke-width="2" />
-                <rect x="13" y="3" width="8" height="17" rx="2" stroke="#6BC17A" stroke-width="2" />
-              </svg>
-            </div>
-            <h3>One App, Every Store</h3>
-            <p>Ditch the clutter of single-store apps. Discover and unlock perks at all participating local
-              businesses—all in one place.</p>
-          </div>
-
-          <div class="card">
-            <div class="ci" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none">
-                <path d="M12 3l7 3v6c0 5-3.4 7.8-7 9.8C8.4 19.8 5 17 5 12V6l7-3z" stroke="#5B3FA5" stroke-width="2" />
-              </svg>
-            </div>
-            <h3>Privacy-First</h3>
-            <p>No personal info shared with merchants. Your data stays yours, always.</p>
-          </div>
+    <!-- ===== FOR BUSINESSES TEASER ===== -->
+    <section class="section biz-teaser">
+      <div class="biz-teaser-box">
+        <h2>Own a business? You belong here too.</h2>
+        <p>Perkfinity helps online brands, local shops, and mobile businesses attract new customers and build a loyal member base — with zero commissions and all your members in one place.</p>
+        <div class="biz-type-chips">
+          <span class="biz-chip">🛍️ Online Brands</span>
+          <span class="biz-chip">📱 Online + Physical</span>
+          <span class="biz-chip">📍 Physical Stores</span>
+          <span class="biz-chip">🚐 Mobile Businesses</span>
         </div>
+        <a href="merchants.html" class="biz-cta">Learn How It Works →</a>
       </div>
     </section>
 
-    <!-- ===== NEWSLETTER ===== -->
-    <section class="signup section" id="contact" style="padding:80px 0">
-      <div class="container">
-        <div class="signup-inner" style="flex-direction:column;text-align:center;gap:32px">
-          <div class="mail-badge" style="margin:0 auto">
-            <svg viewBox="0 0 24 24" fill="none">
-              <path d="M4 7h16v10H4V7z" stroke="#5B3FA5" stroke-width="2" />
-              <path d="M4.5 7.5l7.5 6 7.5-6" stroke="#6BC17A" stroke-width="2" />
-            </svg>
-          </div>
-          <div>
-            <h2 style="margin:0 0 8px;font-size:32px;color:var(--purpleDark)">Stay Updated</h2>
-            <p style="color:var(--muted);font-weight:850;font-size:17px;margin:0">Get early access and exclusive perks
-              in your inbox.</p>
-          </div>
-
-          <form id="newsletterForm" method="POST" action="https://formspree.io/f/mlgpldgk" class="inline-form"
-            style="justify-content:center">
-            <input type="email" name="email" placeholder="Enter your email address" required>
-            <button class="btn btn-purple" type="submit" style="padding:15px 32px">Subscribe →</button>
-            <div id="newsletterStatus" class="inline-status" style="text-align:center;margin-top:12px"></div>
-          </form>
-        </div>
-      </div>
-    </section>
-
-    <footer class="site-footer" id="contact">
-      <div class="container">
-        <div class="row">
-          <a href="mailto:hello@perkfinity.net" style="text-decoration:none;color:inherit">✉
-            <strong>hello@perkfinity.net</strong></a>
-          <span class="sep">|</span>
-          <span>🌐 <strong>www.perkfinity.net</strong></span>
-          <span class="sep">|</span>
-          <a href="privacy-policy.html" style="text-decoration:none;color:inherit">Privacy Policy</a>
-          <span class="sep">|</span>
-          <a href="terms-of-use.html" style="text-decoration:none;color:inherit">Terms of Use</a>
-        </div>
-      </div>
-    </footer>
   </main>
 
-  <script src="app.js"></script>
-</body>
+  <!-- ===== FOOTER ===== -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <span class="footer-brand">Perkfinity</span>
+      <nav class="footer-links" aria-label="Footer navigation">
+        <a href="about.html">About Us</a>
+        <a href="merchants.html">For Businesses</a>
+        <a href="privacy-policy.html">Privacy Policy</a>
+        <a href="terms-of-use.html">Terms of Use</a>
+        <a href="faq.html">FAQ</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+      <div class="footer-copy">© 2026 Perkfinity · perkfinity.net · by SafeBox Financial Technologies</div>
+    </div>
+  </footer>
 
+  <script>
+    // Hero image slider
+    (function() {
+      const imgs = document.querySelectorAll('.hero-visual img');
+      if (!imgs.length) return;
+      let cur = 0;
+      setInterval(function() {
+        imgs[cur].classList.remove('active');
+        cur = (cur + 1) % imgs.length;
+        imgs[cur].classList.add('active');
+      }, 4000);
+    })();
+  </script>
+
+</body>
 </html>

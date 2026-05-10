@@ -22,22 +22,19 @@
   </style>
 </head>
 <body>
-  <header class="header">
-    <div class="container header-inner">
-      <a class="brand" href="index.html" aria-label="Perkfinity home">
-        <img src="assets/Perkfinity-Logo.png" alt="Perkfinity logo">
+  <header class="site-header">
+    <div class="nav-inner">
+      <a class="nav-brand" href="index.html" aria-label="Perkfinity home">
+        <img src="assets/Perkfinity-Logo.png" alt="Perkfinity" />
       </a>
-      <nav class="nav" aria-label="Primary navigation">
-        <a href="members.html">For Members</a>
-        <a href="merchants.html">For Merchants</a>
-        
-        <a href="signup.html">Merchant Sign Up / Sign In</a>
-        <a href="how-it-works.html">How it Works</a>
+      <button class="nav-mobile-btn" onclick="this.nextElementSibling.classList.toggle('open')" aria-label="Toggle menu">☰</button>
+      <nav class="nav-links" aria-label="Primary navigation">
+        <a href="codes.html">Promo Codes</a>
+        <a href="localperks.html">Nearby Deals</a>
+        <div class="nav-sep" aria-hidden="true"></div>
+        <a href="merchants.html">For Businesses</a>
+        <a href="about.html">About Us</a>
       </nav>
-      <a class="btn btn-green" href="mailto:hello@perkfinity.net" aria-label="Contact Us">
-        <span aria-hidden="true" style="display:inline-grid;place-items:center;width:20px;height:20px;border-radius:7px;background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.22);">✉</span>
-        Contact Us
-      </a>
     </div>
   </header>
 
@@ -46,10 +43,10 @@
       <div class="container" style="max-width:780px;">
 
         <h1>🔒 Privacy Policy</h1>
-        <p class="legal-meta">Effective Date: March 23, 2025 &nbsp;|&nbsp; Last Updated: March 23, 2025</p>
+        <p class="legal-meta">Effective Date: March 23, 2025 &nbsp;|&nbsp; Last Updated: May 5, 2026</p>
 
         <h2>1. Introduction</h2>
-        <p>Welcome to Perkfinity ("we," "our," or "us"). Perkfinity operates the website <strong>www.perkfinity.net</strong> and the <strong>Perkfinity mobile application</strong> (iOS and Android). We are committed to building a privacy-first ecosystem that connects people with local businesses through perks and rewards.</p>
+        <p>Welcome to Perkfinity ("we," "our," or "us"). Perkfinity operates the website <strong>www.perkfinity.net</strong> and the <strong>Perkfinity mobile application</strong> (iOS and Android). We are committed to building a privacy-first ecosystem that connects people with local and online businesses through perks and rewards.</p>
         <p>This Privacy Policy explains how we collect, use, protect, and handle your information when you use our website, mobile app, and related services.</p>
 
         <div class="privacy-box">
@@ -63,18 +60,25 @@
         <ul>
           <li><strong>Account Information:</strong> Name, email address, and password when you create an account. If you sign up via Apple Sign-In or Google Sign-In, we receive your name and email from those providers.</li>
           <li><strong>Profile Information:</strong> Zip code and notification preferences you provide during onboarding.</li>
-          <li><strong>Activity Data:</strong> Records of perks you claim, activate, and redeem via QR codes at participating businesses. This data is used solely to facilitate your rewards.</li>
+          <li><strong>Activity Data:</strong> Records of perks you claim, activate, and redeem — including QR code scans at participating physical locations and promo code reveals for online merchants. This data is used solely to facilitate your rewards and is never shared with merchants in a form that identifies you personally.</li>
           <li><strong>Device Information:</strong> Device type, operating system, and push notification tokens if you opt in to receive notifications.</li>
-          <li><strong>Location Data:</strong> Only your zip code (entered manually), used to show nearby participating merchants. We do not track your GPS location.</li>
+          <li><strong>Location Data:</strong> We may request access to your device's location (GPS) solely to show you nearby participating businesses within the Nearby Deals feature of our mobile app. Location data is used in real-time and is <strong>not stored</strong> on our servers. You can deny or revoke location permission at any time in your device settings. We also use your ZIP code (entered manually) for the same discovery purpose on our website.</li>
         </ul>
 
         <h3>B. For Merchants</h3>
         <ul>
-          <li><strong>Business Information:</strong> Business name, address, suite, city, state, zip code, and website.</li>
+          <li><strong>Business Information:</strong> Business name and contact details. The specific information collected depends on your business type:
+            <ul>
+              <li><em>Physical Store merchants:</em> Street address, suite, city, state, ZIP code, and optional website.</li>
+              <li><em>Online Brand merchants:</em> Business website URL (physical address is not required or collected).</li>
+              <li><em>Online + Physical (Hybrid) merchants:</em> Business website URL and, for single-location businesses, a primary street address, city, state, and ZIP code.</li>
+              <li><em>Mobile / Pop-Up merchants:</em> Operating city and ZIP area (no fixed street address required).</li>
+            </ul>
+          </li>
           <li><strong>Contact Information:</strong> Contact person name, phone number, and email address.</li>
           <li><strong>Account Credentials:</strong> Password for merchant portal access (stored securely using industry-standard hashing).</li>
           <li><strong>Business Assets:</strong> Logo and other branding materials you upload.</li>
-          <li><strong>Subscription & Billing:</strong> Subscription tier selection and payment information (processed securely by our payment provider — we never store your full card number).</li>
+          <li><strong>Subscription &amp; Billing:</strong> Subscription tier selection and payment information (processed securely by Stripe — we never store your full card number). For Online Brand and Hybrid merchants, billing begins after application approval. For Physical and Mobile merchants on the free trial, billing begins after the trial member limit is reached. Payment information is collected at sign-up, but no charge is made until billing is triggered.</li>
         </ul>
 
         <h3>C. Automatically Collected Information</h3>
@@ -85,7 +89,7 @@
 
         <h2>3. How We Use Your Information</h2>
         <ul>
-          <li><strong>Providing Services:</strong> Facilitating the scanning, claiming, activating, and redeeming of digital perks and rewards.</li>
+          <li><strong>Providing Services:</strong> Facilitating the scanning and redeeming of perks via QR code at physical locations, and the revealing and use of promo codes for online checkout. Also includes managing member memberships and merchant campaigns across all presence types.</li>
           <li><strong>Communications:</strong> Sending campaign emails from merchants about their offers (via our email service), transactional emails (password resets, welcome emails), and push notifications about new perks.</li>
           <li><strong>Account Management:</strong> Administering member accounts, merchant portals, and subscription billing.</li>
           <li><strong>Improvement:</strong> Analyzing aggregated, anonymized platform usage to improve our services.</li>
@@ -98,9 +102,9 @@
         <p>We do <strong>not</strong> sell, rent, or trade your Personal Identifiable Information (PII) to third parties. Any data we may share or sell is strictly in an aggregated, anonymized format that cannot be traced back to you.</p>
 
         <h3>What Merchants See</h3>
-        <p>When a Member redeems a perk at a business, the Merchant does <strong>not</strong> receive the Member's PII (like email or phone number). Merchants receive only:</p>
+        <p>When a Member redeems a perk — whether by scanning a QR code at a physical location or by revealing a promo code for online use — the Merchant does <strong>not</strong> receive the Member's PII (like email or phone number). Merchants receive only:</p>
         <ul>
-          <li>Aggregated data (e.g., "15 perks redeemed today")</li>
+          <li>Aggregated data (e.g., "15 perks redeemed today" or "42 promo codes revealed this week")</li>
           <li>Offer status (created, pending, redeemed, expired) without personal identifiers visible</li>
           <li>Member count totals for their campaigns</li>
         </ul>
@@ -112,7 +116,7 @@
           <li><strong>Firebase Cloud Messaging:</strong> For sending push notifications to your device. Your device token is shared with Firebase solely for notification delivery.</li>
           <li><strong>Vercel:</strong> For hosting our backend services.</li>
           <li><strong>Neon:</strong> For secure database hosting (all data encrypted at rest).</li>
-          <li><strong>Apple & Google:</strong> If you use Apple Sign-In or Google Sign-In, your authentication is handled by their respective services.</li>
+          <li><strong>Apple &amp; Google:</strong> If you use Apple Sign-In or Google Sign-In, your authentication is handled by their respective services.</li>
           <li><strong>Stripe (Payment Processor):</strong> Merchant billing and credit card processing are handled entirely by our secure, PCI-compliant payment partner, Stripe. Perkfinity does not process, interact with, or store full credit card numbers or sensitive billing data on our servers.</li>
         </ul>
 
@@ -124,34 +128,46 @@
           <li>Database encrypted at rest</li>
         </ul>
 
-        <h2>5. Campaign Emails</h2>
-        <p>When a merchant creates a campaign or announcement, we send emails to qualifying members on behalf of that merchant. These emails:</p>
+        <h2>5. Daily Digest Emails</h2>
+        <p>Perkfinity sends a <strong>Daily Digest</strong> — a single aggregated email delivered to members containing active deals and offers from multiple participating merchants. This digest:</p>
         <ul>
-          <li>Are sent from <strong>noreply@perkfinity.net</strong> with the merchant's store name as the display name</li>
-          <li>Contain the campaign offer details, merchant logo, and store address</li>
-          <li>Include an unsubscribe option in compliance with CAN-SPAM regulations</li>
+          <li>Is sent from <strong>noreply@perkfinity.net</strong> under the Perkfinity name — not on behalf of any individual merchant</li>
+          <li>Aggregates active campaigns from multiple merchants relevant to the member, based on their preferences and location</li>
+          <li>Includes each merchant's offer details, logo, and store information (physical address for location-based merchants, or website link for online merchants, where applicable)</li>
+          <li>Includes a one-click unsubscribe link in compliance with the CAN-SPAM Act — members can opt out of future digest emails at any time</li>
         </ul>
-        <p>Your email address is never directly shared with the merchant.</p>
+        <p>Your email address is never directly shared with any merchant. Merchants do not control or initiate individual emails to members — all member communications are managed exclusively by Perkfinity.</p>
 
-        <h2>6. Push Notifications</h2>
+        <h2>6. Promo Codes</h2>
+        <p>For Online Brand and Hybrid merchants, Perkfinity auto-generates a unique welcome promo code (a "HELLO code") linked to the merchant's welcome offer. When a Member reveals a promo code on our platform:</p>
+        <ul>
+          <li>The Member receives the code to use at the merchant's online checkout or point of sale.</li>
+          <li>Perkfinity records that a promo code was claimed to track campaign performance — this record does not identify the member to the merchant.</li>
+          <li>The merchant's identity is displayed to the member, but the member's identity is <strong>never</strong> disclosed to the merchant.</li>
+          <li>Promo codes are managed by Perkfinity; merchants configure them in their own checkout system (e.g., Shopify, WooCommerce).</li>
+        </ul>
+
+        <h2>7. Push Notifications</h2>
         <p>If you opt in during app onboarding, we may send push notifications about:</p>
         <ul>
-          <li>New perks available from merchants you've visited</li>
+          <li>New perks available from merchants you've joined or visited</li>
           <li>Expiring offers</li>
+          <li>Location announcements from Mobile / Pop-Up merchants you follow (e.g., where to find them next)</li>
           <li>Important account updates</li>
         </ul>
         <p>You can disable push notifications at any time in your device settings.</p>
 
-        <h2>7. Your Choices and Rights</h2>
+        <h2>8. Your Choices and Rights</h2>
         <ul>
           <li><strong>Opt-Out of Emails:</strong> Unsubscribe from marketing emails at any time by clicking the "unsubscribe" link in any email or contacting us.</li>
           <li><strong>Disable Notifications:</strong> Turn off push notifications in your device's Settings app.</li>
+          <li><strong>Location Permissions:</strong> Deny or revoke location access at any time in your device's Settings app. This only affects the Nearby Deals geolocation feature; other app functions remain unaffected.</li>
           <li><strong>Data Access:</strong> Request to review or receive a copy of the personal information we hold about you.</li>
-          <li><strong>Data Deletion:</strong> Members can instantly and permanently delete their accounts and associated personal data directly within the Perkfinity mobile app (Profile -> Delete Account). Merchants possess a secure deletion workflow within the Billing tab of their dashboard. This deletion pipeline explicitly complies with Federal and State privacy laws (including CCPA), as well as Apple/Google ecosystem requirements. All Personal Identifiable Information (PII) is irrevocably wiped upon execution.</li>
+          <li><strong>Data Deletion:</strong> Members can instantly and permanently delete their accounts and associated personal data directly within the Perkfinity mobile app (Profile → Delete Account). Merchants possess a secure deletion workflow within the Billing tab of their dashboard. This deletion pipeline explicitly complies with Federal and State privacy laws (including CCPA), as well as Apple/Google ecosystem requirements. All Personal Identifiable Information (PII) is irrevocably wiped upon execution.</li>
           <li><strong>Account Portability:</strong> Request an export of your data in a commonly used format.</li>
         </ul>
 
-        <h2>8. Data Retention</h2>
+        <h2>9. Data Retention</h2>
         <p>We retain your personal data for as long as your account is active or as needed to provide services. Upon initiating account deletion:</p>
         <ul>
           <li><strong>Members:</strong> Active account Personal Identifiable Information (PII) is securely wiped instantly from our servers.</li>
@@ -159,10 +175,10 @@
           <li><strong>Analytics:</strong> Strictly anonymized, aggregated data markers (e.g., historical perk redemptions containing no personal identifiers) are retained indefinitely for global system analytics.</li>
         </ul>
 
-        <h2>9. Children's Privacy</h2>
+        <h2>10. Children's Privacy</h2>
         <p>Perkfinity's services are not directed to individuals under the age of 13 (or 16 in certain jurisdictions). We do not knowingly collect personal information from children. If we become aware that we have inadvertently collected such data, we will promptly delete it.</p>
 
-        <h2>10. California Privacy Rights (CCPA)</h2>
+        <h2>11. California Privacy Rights (CCPA)</h2>
         <p>If you are a California resident, you have the right to:</p>
         <ul>
           <li>Know what personal information we collect and how it is used</li>
@@ -171,10 +187,10 @@
           <li>Non-discrimination for exercising your privacy rights</li>
         </ul>
 
-        <h2>11. Changes to This Privacy Policy</h2>
+        <h2>12. Changes to This Privacy Policy</h2>
         <p>We may update this Privacy Policy from time to time. We will notify you of material changes by posting the updated policy on this page with a new "Last Updated" date. Continued use of our services after changes constitutes acceptance of the updated policy.</p>
 
-        <h2>12. Contact Us</h2>
+        <h2>13. Contact Us</h2>
         <p>If you have any questions, concerns, or requests regarding this Privacy Policy, please contact us:</p>
         <ul>
           <li><strong>Email:</strong> <a href="mailto:hello@perkfinity.net" style="color:var(--purple);">hello@perkfinity.net</a></li>

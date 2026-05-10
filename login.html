@@ -35,21 +35,14 @@
   <script src="/config.js"></script>
 </head>
 <body>
-  <header class="header">
+  <header style="position:sticky;top:0;z-index:100;background:rgba(45,21,112,0.97);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.08);">
     <div class="container header-inner">
       <a class="brand" href="index.html" aria-label="Perkfinity home">
         <img src="assets/Perkfinity-Logo.png" alt="Perkfinity logo">
       </a>
-      <nav class="nav" aria-label="Primary navigation">
-        <a href="members.html">For Members</a>
-        <a href="merchants.html">For Merchants</a>
-        
-        <a href="signup.html">Merchant Sign Up / Sign In</a>
-        <a href="how-it-works.html">How it Works</a>
+      <nav class="nav" aria-label="Business navigation" style="gap:4px">
+        <a href="merchants.html" style="color:rgba(255,255,255,0.6);font-size:13px">← For Businesses</a>
       </nav>
-      <a class="btn btn-green" href="mailto:hello@perkfinity.net" aria-label="Contact Us">
-        <span aria-hidden="true" style="display:inline-grid;place-items:center;width:20px;height:20px;border-radius:7px;background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.22);">✉</span> Contact Us
-      </a>
     </div>
   </header>
 
@@ -83,7 +76,7 @@
       </form>
 
       <div style="text-align:center; margin-top: 24px; font-size: 14px; color: var(--muted);">
-        Don't have an account? <a href="signup.html" style="color:var(--purple); font-weight:700; text-decoration:none;">Sign up here</a>
+        Don't have an account? <a href="get-started.html" style="color:var(--purple); font-weight:700; text-decoration:none;">Sign up here</a>
       </div>
     </div>
   </main>
@@ -199,9 +192,43 @@
           }
 
           if (data.data.setup_incomplete) {
-            // Account created but payment info was never saved — resume signup flow
+            // Account created but payment info was never saved — resume at Step 4
             localStorage.setItem('perkfinity_setup_incomplete', 'true');
             window.location.href = 'signup.html?resume=true';
+          } else if (data.data.needs_step5) {
+            // Payment done but logo/QR sign step was never completed — resume at Step 5
+            localStorage.removeItem('perkfinity_setup_incomplete');
+            window.location.href = 'signup.html?resume=step5';
+          } else if (data.data.application_needs_payment) {
+            // Online/Hybrid: account created, payment not yet saved — resume at Step 4
+            localStorage.removeItem('perkfinity_setup_incomplete');
+            window.location.href = 'apply.html?resume=step4' + (data.data.merchantUser.business_presence === 'hybrid' ? '&type=hybrid' : '');
+          } else if (data.data.application_needs_submit) {
+            // Online/Hybrid: payment saved, application not yet submitted — resume at Step 5
+            localStorage.removeItem('perkfinity_setup_incomplete');
+            window.location.href = 'apply.html?resume=step5' + (data.data.merchantUser.business_presence === 'hybrid' ? '&type=hybrid' : '');
+          } else if (data.data.online_needs_payment_update) {
+            // Online/Hybrid approved merchant deleted their card — must re-add before accessing dashboard
+            localStorage.removeItem('perkfinity_setup_incomplete');
+            window.location.href = 'apply.html?resume=step4&reason=payment_missing' + (data.data.merchantUser.business_presence === 'hybrid' ? '&type=hybrid' : '');
+          } else if (data.data.pending_approval) {
+            // Online/Hybrid application submitted but not yet approved
+            localStorage.removeItem('perkfinity_setup_incomplete');
+            const errorBox = document.getElementById('loginError');
+            errorBox.style.background = 'rgba(245, 158, 11, 0.1)';
+            errorBox.style.color = '#92400e';
+            errorBox.style.border = '1.5px solid rgba(245,158,11,0.4)';
+            errorBox.style.borderRadius = '10px';
+            errorBox.innerHTML = '⏳ <strong>Your application is under review.</strong><br>You\'ll receive an email at <strong>' + data.data.merchantUser.email + '</strong> once it\'s approved — usually within 1–2 business days.';
+            errorBox.style.display = 'block';
+          } else if (data.data.application_declined) {
+            // Online/Hybrid application was declined
+            localStorage.removeItem('perkfinity_setup_incomplete');
+            const errorBox = document.getElementById('loginError');
+            errorBox.style.background = 'rgba(220,53,69,0.08)';
+            errorBox.style.color = '#dc3545';
+            errorBox.innerHTML = '❌ <strong>Your application was not approved.</strong><br>Please contact <a href="mailto:support@perkfinity.net" style="color:#dc3545">support@perkfinity.net</a> for more information.';
+            errorBox.style.display = 'block';
           } else {
             localStorage.removeItem('perkfinity_setup_incomplete');
             window.location.href = 'dashboard.html';

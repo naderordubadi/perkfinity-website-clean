@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Perkfinity — Choose Your Business Type</title>
+  <meta name="description" content="Join Perkfinity as a merchant. Online businesses, hybrid online+physical, physical stores, and mobile businesses — choose the plan that fits how you sell." />
+  <link rel="icon" href="assets/Perkfinity-App-Icon.png" />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .gs-hero {
+      min-height: 100vh;
+      padding: 80px 0 60px;
+      background: linear-gradient(140deg, #2d1570 0%, #4a2e9c 45%, #6a4cc4 100%);
+      display: flex;
+      align-items: center;
+    }
+    .gs-hero::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(900px 500px at 15% 20%, rgba(107,193,122,.18), transparent 60%),
+        radial-gradient(700px 400px at 85% 80%, rgba(107,193,122,.12), transparent 60%);
+      pointer-events: none;
+    }
+    .gs-inner {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      max-width: 740px;
+      margin: 0 auto;
+    }
+    .gs-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.20);
+      border-radius: 999px;
+      padding: 6px 18px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.85);
+      margin-bottom: 24px;
+    }
+    .gs-title {
+      font-size: clamp(34px, 5vw, 58px);
+      font-weight: 1100;
+      color: #fff;
+      margin: 0 0 14px;
+      letter-spacing: -.03em;
+      line-height: 1.05;
+    }
+    .gs-sub {
+      font-size: 18px;
+      color: rgba(255,255,255,.72);
+      font-weight: 700;
+      margin: 0 0 52px;
+    }
+    .gs-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    @media (min-width: 700px) {
+      .gs-cards { grid-template-columns: 1fr 1fr 1fr; }
+      .gs-card-signin { grid-column: span 1; }
+    }
+    .gs-card {
+      background: rgba(255,255,255,.10);
+      border: 1.5px solid rgba(255,255,255,.18);
+      border-radius: 24px;
+      padding: 32px 24px;
+      cursor: pointer;
+      text-decoration: none;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 14px;
+      transition: background .2s, transform .2s, border-color .2s, box-shadow .2s;
+      backdrop-filter: blur(10px);
+      position: relative;
+      overflow: hidden;
+      text-align: left;
+    }
+    .gs-card:hover {
+      background: rgba(255,255,255,.18);
+      transform: translateY(-4px);
+      border-color: rgba(255,255,255,.35);
+      box-shadow: 0 20px 50px rgba(0,0,0,.25);
+    }
+    .gs-card::after {
+      content: "→";
+      position: absolute;
+      top: 24px;
+      right: 24px;
+      font-size: 20px;
+      color: rgba(255,255,255,.45);
+      transition: color .2s, transform .2s;
+    }
+    .gs-card:hover::after {
+      color: rgba(255,255,255,.85);
+      transform: translateX(4px);
+    }
+    .gs-card-icon {
+      width: 58px;
+      height: 58px;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      font-size: 28px;
+      flex-shrink: 0;
+    }
+    .gs-card-icon.green  { background: rgba(107,193,122,.22); border: 1px solid rgba(107,193,122,.35); }
+    .gs-card-icon.purple { background: rgba(160,130,255,.22); border: 1px solid rgba(160,130,255,.35); }
+    .gs-card-icon.blue   { background: rgba(96,165,250,.22);  border: 1px solid rgba(96,165,250,.35); }
+    .gs-card-icon.white  { background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.25); }
+    .gs-card-title {
+      font-size: 20px;
+      font-weight: 1000;
+      color: #fff;
+      margin: 0 0 4px;
+      letter-spacing: -.01em;
+    }
+    .gs-card-desc {
+      font-size: 13px;
+      color: rgba(255,255,255,.60);
+      font-weight: 600;
+      line-height: 1.5;
+      margin: 0;
+    }
+    .gs-card-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(107,193,122,.20);
+      border: 1px solid rgba(107,193,122,.35);
+      border-radius: 999px;
+      padding: 3px 10px;
+      font-size: 11px;
+      font-weight: 800;
+      color: #a8e8b4;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+    .gs-signin {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      color: rgba(255,255,255,.60);
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .gs-signin a {
+      color: #fff;
+      font-weight: 900;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+    .gs-signin a:hover { color: #a8e8b4; }
+    @media (max-width: 620px) {
+      .gs-cards { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header style="position:sticky;top:0;z-index:100;background:rgba(45,21,112,0.97);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.08);">
+    <div class="container header-inner">
+      <a class="brand" href="index.html" aria-label="Perkfinity home">
+        <img src="assets/Perkfinity-Logo.png" alt="Perkfinity logo">
+      </a>
+      <nav class="nav" aria-label="Business navigation" style="gap:4px">
+        <a href="merchants.html" style="color:rgba(255,255,255,0.6);font-size:13px">← For Businesses</a>
+        <a href="login.html" style="color:rgba(255,255,255,0.7)">Sign In</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="gs-hero">
+      <div class="container">
+        <div class="gs-inner">
+          <div class="gs-eyebrow">✦ Join the Perkfinity Network</div>
+          <h1 class="gs-title">What kind of<br>business are you?</h1>
+          <p class="gs-sub">Choose the type that matches how you sell — and we'll take you to the right signup.</p>
+
+          <div class="gs-cards">
+
+            <!-- Online Business -->
+            <a href="apply.html" class="gs-card" id="card-online-business">
+              <div class="gs-card-icon green">🌐</div>
+              <div>
+                <div class="gs-card-title">Online Business</div>
+                <p class="gs-card-desc">Your business sells online. Members discover your deal and use your promo code at checkout. Perfect for ecommerce, digital products, and delivery-only businesses. The important part is they become your member as soon as they reveal the code.</p>
+              </div>
+            </a>
+
+            <!-- Online + Physical (Hybrid) -->
+            <a href="apply.html?type=hybrid" class="gs-card" id="card-hybrid">
+              <div class="gs-card-icon purple">🛍️</div>
+              <div>
+                <div class="gs-card-title">Online + Physical</div>
+                <p class="gs-card-desc">You want online AND in-store presence. Members find your deal online, claim a code, then use it at checkout or scan your QR in store. Great for retail brands, restaurants, spas, salons, and in-home services. The important part is they become your member as soon as they reveal the code.</p>
+              </div>
+            </a>
+
+            <!-- Physical Store -->
+            <a href="signup.html?type=physical" class="gs-card" id="card-physical">
+              <div class="gs-card-icon blue">📍</div>
+              <div>
+                <div class="gs-card-title">Physical Store</div>
+                <p class="gs-card-desc">You have a single location and want to build a local member base. Members discover you in the Nearby Deals section on the website or via geolocation in the app, and can join by scanning your QR on the website or at the counter. The important part is they become your member as soon as they scan your QR code.</p>
+              </div>
+            </a>
+
+            <!-- Mobile Business -->
+            <a href="signup.html?type=mobile" class="gs-card" id="card-mobile">
+              <div class="gs-card-icon blue">🚚</div>
+              <div>
+                <div class="gs-card-title">Mobile / Pop-Up</div>
+                <p class="gs-card-desc">You move around — markets, events, food trucks, pop-ups. Members find you by searching your business name by city or ZIP. Send announcements to let them know where to find you next. The important part is they become your member as soon as they scan your QR code.</p>
+              </div>
+            </a>
+
+            <!-- Enterprise -->
+            <a href="enterprise.html" class="gs-card" id="card-enterprise" style="background:linear-gradient(135deg,#1e5c38,#2e7d4f);border-color:rgba(255,255,255,.15);">
+              <div class="gs-card-icon" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);font-size:28px;">🏢</div>
+              <div>
+                <div class="gs-card-title" style="color:#fff;">Enterprise</div>
+                <p class="gs-card-desc">15+ locations? We can build a tailor-made plan for your chain — with per-location performance tracking, custom onboarding, and dedicated support. Let's talk.</p>
+              </div>
+            </a>
+
+            <!-- Sign In -->
+            <a href="login.html" class="gs-card gs-card-signin" id="card-signin">
+              <div class="gs-card-icon white">🔑</div>
+              <div>
+                <div class="gs-card-title">Already a Merchant?</div>
+                <p class="gs-card-desc">Sign in to your Perkfinity dashboard to manage campaigns, view your members, and update your profile.</p>
+              </div>
+            </a>
+
+          </div>
+
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="row">
+        <a href="mailto:hello@perkfinity.net" style="text-decoration:none;color:inherit">✉ <strong>hello@perkfinity.net</strong></a>
+        <span class="sep">|</span>
+        <a href="privacy-policy.html" style="text-decoration:none;color:inherit">Privacy Policy</a>
+        <span class="sep">|</span>
+        <a href="terms-of-use.html" style="text-decoration:none;color:inherit">Terms of Use</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

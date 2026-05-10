@@ -573,6 +573,49 @@
       font-size: 11px
     }
 
+    /* Upgrade confirmation box — green & encouraging */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .upgrade-warning {
+      background: rgba(107, 193, 122, .06);
+      border: 1.5px solid rgba(107, 193, 122, .3);
+      border-radius: 14px;
+      padding: 20px;
+      margin-top: 12px;
+    }
+
+    .upgrade-warning h4 {
+      color: #166534;
+      font-size: 14px;
+      font-weight: 800;
+      margin-bottom: 8px
+    }
+
+    .upgrade-warning ul {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 14px 0
+    }
+
+    .upgrade-warning ul li {
+      font-size: 13px;
+      color: #166534;
+      font-weight: 600;
+      padding: 3px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .upgrade-warning ul li::before {
+      content: "✓";
+      color: #22c55e;
+      font-weight: 900;
+      font-size: 13px
+    }
+
     /* Blocked Overlay */
     .blocked-overlay {
       position: relative;
@@ -937,14 +980,28 @@
               style="width:100%; padding:10px 14px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; outline:none; box-sizing:border-box; resize:vertical; font-family:inherit;"></textarea>
             <div id="promo-disclaimer-count" style="text-align:right; font-size:11px; color:var(--muted); margin-top:4px;">0/200</div>
           </div>
-          <!-- Promo code field — online merchants only -->
+          <!-- Promo code field — online & hybrid merchants only -->
           <div id="promo-code-row" style="display:none; margin-bottom:16px; margin-top:8px; padding:14px 16px; background:rgba(91,63,165,0.06); border:1.5px solid rgba(91,63,165,0.2); border-radius:12px;">
-            <label style="display:block; font-weight:600; font-size:14px; margin-bottom:4px;">Discount Code <span style="color:red;">*</span></label>
-            <p style="font-size:12px; color:var(--muted); margin:0 0 10px;">Members will see and copy this code in the app to use at your online checkout.</p>
-            <input type="text" id="promo-campaign-code" placeholder="e.g. MEMBER20"
-              oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9_-]/g,'')"
-              maxlength="50"
-              style="width:100%; padding:10px 14px; border:1.5px solid var(--border); border-radius:10px; font-size:15px; font-weight:700; font-family:monospace; outline:none; box-sizing:border-box; letter-spacing:1px;">
+            <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:10px; flex-wrap:wrap;">
+              <div>
+                <label style="display:block; font-weight:600; font-size:14px; margin-bottom:4px;">Discount Code <span id="promo-code-required-star" style="color:red;">*</span></label>
+                <p style="font-size:12px; color:var(--muted); margin:0;">Members will see and copy this code in the app to use at checkout.</p>
+              </div>
+              <label style="display:flex; align-items:center; gap:6px; cursor:pointer; margin-top:2px; flex-shrink:0;">
+                <input type="checkbox" id="promo-no-code" onchange="togglePromoNoCode(this)"
+                  style="width:15px; height:15px; accent-color:var(--purple); cursor:pointer;">
+                <span style="font-size:12px; color:var(--muted); font-weight:500;">No code needed &mdash; general offer</span>
+              </label>
+            </div>
+            <div id="promo-code-input-wrap">
+              <input type="text" id="promo-campaign-code" placeholder="e.g. MEMBER20"
+                oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9_-]/g,'')"
+                maxlength="50"
+                style="width:100%; padding:10px 14px; border:1.5px solid var(--border); border-radius:10px; font-size:15px; font-weight:700; font-family:monospace; outline:none; box-sizing:border-box; letter-spacing:1px;">
+            </div>
+            <div id="promo-no-code-notice" style="display:none; font-size:13px; color:#166534; font-weight:600; padding:8px 12px; background:rgba(107,193,122,0.08); border-radius:8px; margin-top:8px;">
+              &#10003; No promo code needed &mdash; members will see this as a general offer.
+            </div>
           </div>
           <div style="margin-bottom:16px; margin-top:8px;">
             <label id="promo-expiry-label"
@@ -1445,7 +1502,7 @@
         </div>
         <div class="billing-section">
           <h3>Manage</h3>
-          <div class="action-link">
+          <div class="action-link" onclick="goToCustomerPortal()">
             <div class="left">
               <div class="icon-wrap">💳</div>
               <div>
@@ -1455,7 +1512,28 @@
             </div>
             <div class="arrow">→</div>
           </div>
-          <div class="action-link">
+          <div class="action-link" id="upgrade-link-trial-20" onclick="document.getElementById('upgrade-warning-trial-20').style.display='block';this.style.display='none'">
+            <div class="left">
+              <div class="icon-wrap" style="background:rgba(91,63,165,.08)">🚀</div>
+              <div>
+                <h4 style="color:var(--purple)">Upgrade to Connect</h4>
+                <p>Remove member limit — billed $29.99/mo starting today</p>
+              </div>
+            </div>
+            <div class="arrow" style="color:var(--purple)">→</div>
+          </div>
+          <div id="upgrade-warning-trial-20" class="upgrade-warning" style="display:none">
+            <h4>🚀 Upgrade to Connect?</h4>
+            <ul>
+              <li>Your <strong>member limit is removed immediately</strong></li>
+              <li>Your card on file will be <strong>charged $29.99 today</strong></li>
+              <li>Then billed $29.99/mo on the same date each month</li>
+            </ul>
+            <button class="btn btn-purple btn-sm" onclick="doUpgrade('tier1','upgrade-warning-trial-20')">Yes, Upgrade Now</button>
+            <button class="btn btn-outline btn-sm" style="margin-left:8px"
+              onclick="document.getElementById('upgrade-warning-trial-20').style.display='none';document.getElementById('upgrade-link-trial-20').style.display=''">Never Mind</button>
+          </div>
+          <div class="action-link" onclick="showCancelWarning('cancel-warning-trial-20')">
             <div class="left">
               <div class="icon-wrap" style="background:rgba(220,53,69,.08)">🚫</div>
               <div>
@@ -1465,8 +1543,20 @@
             </div>
             <div class="arrow" style="color:var(--red)">→</div>
           </div>
+          <div id="cancel-warning-trial-20" class="cancel-warning" style="display:none">
+            <h4>⚠️ Cancel your trial account?</h4>
+            <ul>
+              <li>Your account will be <strong>blocked immediately</strong></li>
+              <li>Members cannot redeem perks. Campaigns are frozen.</li>
+              <li>Your data is preserved — you can reactivate anytime.</li>
+            </ul>
+            <button class="btn btn-red-outline btn-sm" onclick="doCancelAction()">Yes, Cancel My Account</button>
+            <button class="btn btn-outline btn-sm" style="margin-left:8px"
+              onclick="document.getElementById('cancel-warning-trial-20').style.display='none'">Never Mind</button>
+          </div>
         </div>
       </div>
+
 
       <!-- ─── TRIAL NEAR LIMIT (9/10) ─── -->
       <div id="scene-trial-near-10" class="scene" style="display:none">
@@ -1494,7 +1584,7 @@
               <div class="usage-bar">
                 <div class="usage-fill" style="width:90%"></div>
               </div>
-              <div class="usage-note">🌟 1 more member and you'll unlock Tier 1 features!</div>
+              <div class="usage-note">🌟 1 more member and you'll unlock Connect features!</div>
             </div>
           </div>
         </div>
@@ -1608,7 +1698,7 @@
         </div>
         <div class="billing-section">
           <h3>Manage</h3>
-          <div class="action-link">
+          <div class="action-link" onclick="goToCustomerPortal()">
             <div class="left">
               <div class="icon-wrap">💳</div>
               <div>
@@ -1618,7 +1708,28 @@
             </div>
             <div class="arrow">→</div>
           </div>
-          <div class="action-link">
+          <div class="action-link" onclick="document.getElementById('upgrade-warning-trial-near-20').style.display='block';this.style.display='none'">
+            <div class="left">
+              <div class="icon-wrap" style="background:rgba(91,63,165,.08)">🚀</div>
+              <div>
+                <h4 style="color:var(--purple)">Upgrade to Connect</h4>
+                <p>Remove member limit — billed $29.99/mo starting today</p>
+              </div>
+            </div>
+            <div class="arrow" style="color:var(--purple)">→</div>
+          </div>
+          <div id="upgrade-warning-trial-near-20" class="upgrade-warning" style="display:none">
+            <h4>🚀 Upgrade to Connect?</h4>
+            <ul>
+              <li>Your <strong>member limit is removed immediately</strong></li>
+              <li>Your card on file will be <strong>charged $29.99 today</strong></li>
+              <li>Then billed $29.99/mo on the same date each month</li>
+            </ul>
+            <button class="btn btn-purple btn-sm" onclick="doUpgrade('tier1','upgrade-warning-trial-near-20')">Yes, Upgrade Now</button>
+            <button class="btn btn-outline btn-sm" style="margin-left:8px"
+              onclick="document.getElementById('upgrade-warning-trial-near-20').style.display='none';document.querySelector('#scene-trial-near-20 .action-link:nth-child(3)').style.display=''">Never Mind</button>
+          </div>
+          <div class="action-link" onclick="showCancelWarning('cancel-warning-trial-near-20')">
             <div class="left">
               <div class="icon-wrap" style="background:rgba(220,53,69,.08)">🚫</div>
               <div>
@@ -1628,6 +1739,17 @@
             </div>
             <div class="arrow" style="color:var(--red)">→</div>
           </div>
+          <div id="cancel-warning-trial-near-20" class="cancel-warning" style="display:none">
+            <h4>⚠️ Cancel your trial account?</h4>
+            <ul>
+              <li>Your account will be <strong>blocked immediately</strong></li>
+              <li>Members cannot redeem perks. Campaigns are frozen.</li>
+              <li>Your data is preserved — you can reactivate anytime.</li>
+            </ul>
+            <button class="btn btn-red-outline btn-sm" onclick="doCancelAction()">Yes, Cancel My Account</button>
+            <button class="btn btn-outline btn-sm" style="margin-left:8px"
+              onclick="document.getElementById('cancel-warning-trial-near-20').style.display='none'">Never Mind</button>
+          </div>
         </div>
       </div>
 
@@ -1635,14 +1757,14 @@
       <div id="scene-tier1" class="scene" style="display:none">
         <div id="tier1-status-wrapper" class="alert alert-success">
           <span id="tier1-status-icon" class="icon">✅</span>
-          <div id="tier1-status-text">Your <strong>Tier 1</strong> subscription is active. Next charge: <strong
+          <div id="tier1-status-text">Your <strong>Connect</strong> subscription is active. Next charge: <strong
               class="tier1-next-charge">April 27, 2026</strong> — $29.99.</div>
         </div>
         <div class="billing-section">
           <h3>Your Plan</h3>
           <div class="plan-card">
             <div class="plan-details">
-              <span class="plan-badge tier1">💎 Tier 1</span>
+              <span class="plan-badge tier1">💎 Connect</span>
               <div class="plan-price">$29.99 <span>/month</span></div>
               <ul class="plan-features">
                 <li>Unlimited digital promotions</li>
@@ -1769,6 +1891,133 @@
         </div>
       </div>
 
+      <!-- ─── ONLINE / HYBRID ACTIVE ─── -->
+      <div id="scene-online-active" class="scene" style="display:none">
+        <div id="oa-status-wrapper" class="alert alert-success">
+          <span class="icon">✅</span>
+          <div id="oa-status-text">Your <strong id="oa-plan-name">Plan</strong> subscription is active. Next charge: <strong id="oa-next-charge">—</strong> — <strong id="oa-price">—</strong>.</div>
+        </div>
+        <div class="billing-section">
+          <h3>Your Plan</h3>
+          <div class="plan-card">
+            <div class="plan-details">
+              <span class="plan-badge tier1" id="oa-badge">Plan</span>
+              <div class="plan-price"><span id="oa-price-display">—</span> <span>/month</span></div>
+              <ul class="plan-features">
+                <li>Online brand discovery listing</li>
+                <li>Unlimited digital promotions &amp; promo codes</li>
+                <li>QR code member enrollment</li>
+                <li>Member analytics &amp; insights</li>
+                <li>Priority support</li>
+              </ul>
+            </div>
+            <div class="usage-widget" style="justify-content:center;text-align:center">
+              <div style="font-size:42px;margin-bottom:4px" id="oa-members-emoji">👥</div>
+              <div style="font-size:20px;font-weight:900;color:var(--purpleDark)" id="oa-member-limit-label">— Members</div>
+              <div style="font-size:14px;color:var(--muted);font-weight:600;margin-top:4px" id="oa-member-count">Currently: — active members</div>
+            </div>
+          </div>
+        </div>
+        <div class="info-grid">
+          <div class="info-item">
+            <div class="label">Billing Status</div>
+            <div class="value" id="oa-billing-status-val"><span class="status-pill active">● Active</span></div>
+          </div>
+          <div class="info-item">
+            <div class="label" id="oa-billing-label">Next Billing Date</div>
+            <div class="value" id="oa-next-billing">—</div>
+          </div>
+          <div class="info-item">
+            <div class="label">Member Since</div>
+            <div class="value" id="oa-member-since">—</div>
+          </div>
+        </div>
+        <div class="billing-section">
+          <h3>Manage Subscription</h3>
+          <div class="action-link" onclick="goToCustomerPortal()">
+            <div class="left">
+              <div class="icon-wrap">💳</div>
+              <div>
+                <h4>Update Payment Method</h4>
+                <p>Change your card or bank account via Stripe's secure portal</p>
+              </div>
+            </div>
+            <div class="arrow">→</div>
+          </div>
+          <div class="action-link">
+            <div class="left">
+              <div class="icon-wrap">📄</div>
+              <div>
+                <h4>Download Invoices</h4>
+                <p>Access and download PDF invoices for your records</p>
+              </div>
+            </div>
+            <div class="arrow">→</div>
+          </div>
+          <!-- Upgrade Plan — shown only for Starter and Growth tiers via JS -->
+          <div class="action-link" id="oa-upgrade-link" style="display:none"
+            onclick="document.getElementById('upgrade-warning-online').style.display='block';this.style.display='none'">
+            <div class="left">
+              <div class="icon-wrap" style="background:rgba(91,63,165,.08)">🚀</div>
+              <div>
+                <h4 id="oa-upgrade-label" style="color:var(--purple)">Upgrade Plan</h4>
+                <p id="oa-upgrade-subtext">Increase your member limit</p>
+              </div>
+            </div>
+            <div class="arrow" style="color:var(--purple)">→</div>
+          </div>
+          <div id="upgrade-warning-online" class="upgrade-warning" style="display:none">
+            <h4 id="oa-upgrade-confirm-title">🚀 Upgrade your plan?</h4>
+            <ul id="oa-upgrade-confirm-list"></ul>
+            <button class="btn btn-purple btn-sm" id="oa-upgrade-confirm-btn">Yes, Upgrade</button>
+            <button class="btn btn-outline btn-sm" style="margin-left:8px"
+              onclick="document.getElementById('upgrade-warning-online').style.display='none';document.getElementById('oa-upgrade-link').style.display=''">Never Mind</button>
+          </div>
+          <div class="action-link" onclick="showCancelWarning()">
+            <div class="left">
+              <div class="icon-wrap" style="background:rgba(220,53,69,.08)">🚫</div>
+              <div>
+                <h4 style="color:var(--red)">Cancel Subscription</h4>
+                <p>WARNING: This will completely block your account — not just downgrade</p>
+              </div>
+            </div>
+            <div class="arrow" style="color:var(--red)">→</div>
+          </div>
+
+          <div id="cancel-warning-online" class="cancel-warning" style="display:none">
+            <h4>⚠️ Are you sure? Cancelling will BLOCK your entire account:</h4>
+            <ul>
+              <li>You will NOT be able to create campaigns or promotions</li>
+              <li>Members will NOT be able to redeem perks by scanning your QR code</li>
+              <li>Your member list and campaign data will be preserved but inaccessible</li>
+              <li>Only the Billing tab will remain active for reactivation</li>
+            </ul>
+            <p style="font-size:12px;color:var(--muted);margin-bottom:12px">Your data will be preserved. You can reactivate anytime to restore full access.</p>
+            <button class="btn btn-red-outline btn-sm">Yes, Cancel &amp; Block My Account</button>
+            <button class="btn btn-outline btn-sm" style="margin-left:8px"
+              onclick="document.getElementById('cancel-warning-online').style.display='none'">Never Mind</button>
+          </div>
+        </div>
+        <div class="billing-section">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+            <h3 style="margin:0">Invoice History</h3>
+            <button class="btn btn-outline btn-sm">⬇ Export CSV</button>
+          </div>
+          <div style="overflow-x:auto">
+            <table class="invoice-table">
+              <thead>
+                <tr>
+                  <th>Invoice</th><th>Date</th><th>Amount</th><th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td colspan="4" style="color:var(--muted);text-align:center;padding:12px">No invoices yet.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
       <!-- ─── FREE FOR LIFE ─── -->
       <div id="scene-free-for-life" class="scene" style="display:none">
         <div class="alert alert-success">
@@ -1843,7 +2092,7 @@
           <h3>Your Plan</h3>
           <div class="plan-card">
             <div class="plan-details">
-              <span class="plan-badge tier1">💎 Tier 1</span>
+              <span class="plan-badge tier1">💎 Connect</span>
               <div class="plan-price">$29.99 <span>/month</span></div>
               <div style="margin-top:4px">
                 <span class="status-pill failed">⚠ Payment Failed</span>
@@ -2126,7 +2375,7 @@
         <h4 style="margin:0 0 15px;color:var(--ink);border-bottom:1px solid var(--border);padding-bottom:10px;">
           Store/Business Information</h4>
         <div style="margin-bottom:20px;">
-          <label style="display:block; margin-bottom:8px; font-weight:600; font-size:14px;">Store/Business Name</label>
+          <label id="labelStoreName" style="display:block; margin-bottom:8px; font-weight:600; font-size:14px;">Store/Business Name</label>
           <input type="text" id="profileStoreName" placeholder="Enter store or business name"
             style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; outline:none;">
         </div>
@@ -2139,12 +2388,12 @@
 
         <div style="display:grid;grid-template-columns:2fr 1fr;gap:15px;margin-bottom:20px;">
           <div>
-            <label style="display:block; margin-bottom:8px; font-weight:600; font-size:14px;">Street Address</label>
+            <label id="labelAddress" style="display:block; margin-bottom:8px; font-weight:600; font-size:14px;">Street Address</label>
             <input type="text" id="profileAddress" placeholder="Enter street address"
               style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; outline:none; box-sizing:border-box;">
           </div>
           <div>
-            <label style="display:block; margin-bottom:8px; font-weight:600; font-size:14px;">Suite / Unit #</label>
+            <label id="labelSuite" style="display:block; margin-bottom:8px; font-weight:600; font-size:14px;">Suite / Unit # <span style="font-size:12px; font-weight:400; color:var(--muted);">(optional)</span></label>
             <input type="text" id="profileSuite" placeholder="Optional"
               style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; outline:none; box-sizing:border-box;">
           </div>
@@ -2152,17 +2401,17 @@
 
         <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:15px;margin-bottom:30px;">
           <div>
-            <label style="display:block; margin-bottom:8px; font-weight:600; font-size:14px;">City</label>
+            <label id="labelCity" style="display:block; margin-bottom:8px; font-weight:600; font-size:14px;">City</label>
             <input type="text" id="profileCity" placeholder="City"
               style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; outline:none; box-sizing:border-box;">
           </div>
           <div>
-            <label style="display:block; margin-bottom:8px; font-weight:600; font-size:14px;">State</label>
+            <label id="labelState" style="display:block; margin-bottom:8px; font-weight:600; font-size:14px;">State</label>
             <input type="text" id="profileState" placeholder="State"
               style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; outline:none; box-sizing:border-box;">
           </div>
           <div>
-            <label style="display:block; margin-bottom:8px; font-weight:600; font-size:14px;">ZIP Code</label>
+            <label id="labelZip" style="display:block; margin-bottom:8px; font-weight:600; font-size:14px;">ZIP Code</label>
             <input type="text" id="profileZip" placeholder="ZIP"
               style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; outline:none; box-sizing:border-box;">
           </div>
@@ -2176,7 +2425,7 @@
           <span id="profilePresenceBadge" style="display:inline-block;padding:5px 14px;border-radius:20px;font-size:13px;font-weight:700;background:rgba(91,63,165,.1);color:var(--purpleDark);border:1px solid rgba(91,63,165,.25)">—</span>
         </div>
         <div style="margin-bottom:20px;">
-          <label style="display:block;margin-bottom:8px;font-weight:600;font-size:14px;">Welcome Offer Description</label>
+          <label id="labelWelcomeOffer" style="display:block;margin-bottom:8px;font-weight:600;font-size:14px;">Welcome Offer Description</label>
           <input type="text" id="profileWelcomeOfferText" placeholder="e.g. 10% off your first purchase" style="width:100%;padding:12px;border:1px solid var(--border);border-radius:8px;outline:none;">
           <p style="margin:6px 0 0;font-size:12px;color:var(--muted)">Shown to members when they join your store in the Perkfinity app.</p>
         </div>
@@ -2203,19 +2452,20 @@
           & Contact</h4>
 
         <div style="margin-bottom:20px;">
-          <label style="display:block; margin-bottom:8px; font-weight:600; font-size:14px;">Contact Name</label>
+          <label id="labelContactName" style="display:block; margin-bottom:8px; font-weight:600; font-size:14px;">Contact Name</label>
           <input type="text" id="profileContactName" placeholder="Enter contact name"
             style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; outline:none;">
         </div>
 
         <div style="margin-bottom:20px;">
-          <label style="display:block; margin-bottom:8px; font-weight:600; font-size:14px;">Phone Number</label>
-          <input type="tel" id="profilePhone" placeholder="555-555-5555"
+          <label id="labelPhone" style="display:block; margin-bottom:8px; font-weight:600; font-size:14px;">Phone Number</label>
+          <input type="tel" id="profilePhone" placeholder="xxx-xxx-xxxx"
+            oninput="formatPhone(this)" maxlength="12"
             style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; outline:none;">
         </div>
 
         <div style="margin-bottom:20px;">
-          <label style="display:block; margin-bottom:8px; font-weight:600; font-size:14px;">Email / Username</label>
+          <label id="labelEmail" style="display:block; margin-bottom:8px; font-weight:600; font-size:14px;">Email / Username</label>
           <input type="email" id="profileEmail" placeholder="Enter new email"
             style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; outline:none;">
         </div>
@@ -2395,12 +2645,48 @@
     </div>
   </div>
 
+  <!-- ── Cancel Subscription Password Modal ── -->
+  <div id="modal-cancel-billing-confirm" class="modal"
+    style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.55); z-index:9999; justify-content:center; align-items:center;">
+    <div style="background:white; width:100%; max-width:460px; padding:28px; border-radius:14px; box-shadow:0 10px 30px rgba(0,0,0,0.15);">
+      <h3 style="margin:0 0 6px; font-size:17px; color:#b45309; font-weight:700;">⚠️ Cancel Subscription</h3>
+      <p style="font-size:13px; color:#6b7280; margin:0 0 16px;">This action requires your password to proceed.</p>
+
+      <!-- Consequence alerts -->
+      <div style="background:#fff7ed; border:1.5px solid #fed7aa; border-radius:10px; padding:14px 16px; margin-bottom:18px;">
+        <div style="font-size:12px; font-weight:700; color:#92400e; text-transform:uppercase; letter-spacing:.04em; margin-bottom:8px;">What happens when you cancel:</div>
+        <ul style="margin:0; padding-left:18px; font-size:13px; color:#78350f; line-height:2;">
+          <li>Your account stays <strong>active until the end of your current billing cycle</strong></li>
+          <li>After that, your account is <strong>fully blocked</strong> — no campaigns, no QR redemptions</li>
+          <li>Members will not be able to scan or redeem perks</li>
+          <li>Your data is preserved — you can reactivate any time within <strong>6 months</strong> by visiting the <strong>Billing tab</strong> in your dashboard</li>
+          <li>After 6 months of inactivity, your account is <strong>permanently and irrecoverably deleted</strong> — including your member list, all campaign history, and analytics</li>
+        </ul>
+      </div>
+
+      <label style="font-size:13px; font-weight:600; color:#374151; display:block; margin-bottom:6px;">Enter your password to confirm:</label>
+      <input type="password" id="cancelConfirmPassword"
+        style="width:100%; padding:10px 14px; border:1.5px solid #fcd34d; border-radius:8px; font-size:13px; box-sizing:border-box; margin-bottom:18px; outline:none;"
+        placeholder="Enter your current password">
+
+      <div style="display:flex; gap:10px;">
+        <button class="btn"
+          style="flex:1; background:white; border:1.5px solid #d1d5db; color:#374151; padding:10px; font-size:13px; border-radius:8px; cursor:pointer;"
+          onclick="document.getElementById('modal-cancel-billing-confirm').style.display='none'; document.getElementById('cancelConfirmPassword').value='';">Never Mind</button>
+        <button class="btn" id="btnConfirmCancel"
+          style="flex:1; background:#b45309; color:white; border:none; padding:10px; font-size:13px; border-radius:8px; cursor:pointer; font-weight:600;"
+          onclick="executeCancelSubscription()">Confirm Cancellation</button>
+      </div>
+    </div>
+  </div>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script>
     // Authentication Check
     const BACKEND_URL = PerkfinityConfig.BACKEND_URL;
     let merchantId = null;
     let apiToken = null;
+    function formatPhone(el){let x=el.value.replace(/\D/g,'').match(/(\d{0,3})(\d{0,3})(\d{0,4})/);el.value=!x[2]?x[1]:x[1]+'-'+x[2]+(x[3]?'-'+x[3]:'');}
 
     document.addEventListener('DOMContentLoaded', () => {
       const token = localStorage.getItem('perkfinity_token');
@@ -2417,6 +2703,41 @@
 
       apiToken = token;
       merchantId = localStorage.getItem('perkfinity_merchant_id');
+
+      // ── Handle return from Stripe Checkout after reactivation payment ──
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('reactivated') === 'true') {
+        const sessionId = urlParams.get('session_id');
+        const mId = urlParams.get('merchant_id') || merchantId;
+        // Clean the URL immediately so a reload doesn’t re-trigger
+        history.replaceState({}, '', window.location.pathname);
+        if (sessionId && mId) {
+          (async () => {
+            try {
+              const r = await fetch(`${BACKEND_URL}/api/v1/stripe/confirm-reactivation`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ merchant_id: mId, session_id: sessionId })
+              });
+              const j = await r.json();
+              if (j.success) {
+                // Show success banner then reload billing state
+                const banner = document.createElement('div');
+                banner.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#6BC17A;color:#fff;padding:14px 28px;border-radius:12px;font-weight:800;font-size:15px;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.15)';
+                banner.textContent = '✅ Subscription reactivated! Your account is now active.';
+                document.body.appendChild(banner);
+                setTimeout(() => banner.remove(), 4000);
+                switchTab('billing');
+                setTimeout(loadBilling, 500);
+              } else {
+                alert('❌ Reactivation could not be confirmed: ' + (j.error || 'Unknown error'));
+              }
+            } catch (e) {
+              alert('❌ Network error confirming reactivation. Please refresh and check Billing tab.');
+            }
+          })();
+        }
+      }
 
       const bName = localStorage.getItem('perkfinity_business_name');
       if (bName) {
@@ -2446,12 +2767,15 @@
         if (json.success && json.data) {
           const d = json.data;
 
-          // Gate: block if billing_status is null/none AND no stripe_payment_method_id
-          // billing_status='none' is the DB column DEFAULT for new merchants — treat same as null
+          // Gate: block if no stripe_payment_method_id on file for any non-FFL,
+          // non-online/hybrid merchant that hasn't been fully cancelled.
+          // Catches both: never-completed signup AND card deleted from Stripe after setup.
+          // Excludes pending_cancellation: winding down, no future charge needed.
           const setupIncomplete = (
-            (!d.billing_status || d.billing_status === 'none') &&
             !d.stripe_payment_method_id &&
-            d.subscription_tier !== 'free_for_life'
+            d.subscription_tier !== 'free_for_life' &&
+            !['online', 'hybrid'].includes(d.business_presence) &&
+            !['cancelled', 'deleted', 'pending_cancellation'].includes(d.billing_status)
           );
           if (setupIncomplete) {
             localStorage.setItem('perkfinity_setup_incomplete', 'true');
@@ -2559,7 +2883,7 @@
       document.getElementById('promo-s' + step).style.display = 'block';
       // Show promo code row in step 2 for online merchants only
       const codeRow = document.getElementById('promo-code-row');
-      if (codeRow) codeRow.style.display = (step === 2 && window._merchantPresence === 'online' && _promoType !== 'announcement') ? 'block' : 'none';
+      if (codeRow) codeRow.style.display = (step === 2 && ['online', 'hybrid'].includes(window._merchantPresence) && _promoType !== 'announcement') ? 'block' : 'none';
       document.getElementById('promo-step-label').innerText = `Step ${step} of 6`;
       document.getElementById('promo-progress-bar').style.width = _promoPercents[step - 1] + '%';
       _promoSteps.forEach((id, i) => {
@@ -2639,12 +2963,13 @@
       if (_promoType === 'dollar' && !document.getElementById('promo-dollar').value) { err.style.display = 'block'; return false; }
       if (_promoType === 'freeitem' && !document.getElementById('promo-free-item').value.trim()) { err.style.display = 'block'; return false; }
       if ((_promoType === 'loyalty' || _promoType === 'flash') && !document.getElementById('promo-custom-desc').value.trim()) { err.style.display = 'block'; return false; }
-      // Online merchants must provide a promo code
+      // Online/hybrid merchants must provide a promo code unless "no code" is checked
       const codeRow = document.getElementById('promo-code-row');
-      if (codeRow && codeRow.style.display !== 'none') {
+      const noCodeChecked = document.getElementById('promo-no-code')?.checked;
+      if (codeRow && codeRow.style.display !== 'none' && !noCodeChecked) {
         const codeVal = document.getElementById('promo-campaign-code').value.trim();
         if (!codeVal) {
-          err.innerText = 'Please enter a discount code for your online offer.';
+          err.innerText = 'Please enter a discount code, or check "No code needed" for a general offer.';
           err.style.display = 'block';
           return false;
         }
@@ -2982,12 +3307,32 @@
       }
     }
 
+    function togglePromoNoCode(cb) {
+      const inputWrap = document.getElementById('promo-code-input-wrap');
+      const notice    = document.getElementById('promo-no-code-notice');
+      const star      = document.getElementById('promo-code-required-star');
+      const input     = document.getElementById('promo-campaign-code');
+      if (cb.checked) {
+        if (input)     { input.value = ''; }
+        if (inputWrap) inputWrap.style.display = 'none';
+        if (notice)    notice.style.display = 'block';
+        if (star)      star.style.display = 'none';
+      } else {
+        if (inputWrap) inputWrap.style.display = '';
+        if (notice)    notice.style.display = 'none';
+        if (star)      star.style.display = '';
+      }
+    }
+
     function promoReset() {
       _promoType = null; _promoCond = null; _promoDelivery = null; _promoAud = null;
       _selectedCities = new Set(); _selectedZips = new Set();
-      ['promo-pct', 'promo-dollar', 'promo-bogo-buy', 'promo-bogo-get', 'promo-bogo-item', 'promo-free-item', 'promo-free-min', 'promo-custom-desc', 'promo-expiry', 'promo-cond-spend', 'promo-cond-items', 'promo-announce-subject', 'promo-announce-body'].forEach(id => {
+      ['promo-pct', 'promo-dollar', 'promo-bogo-buy', 'promo-bogo-get', 'promo-bogo-item', 'promo-free-item', 'promo-free-min', 'promo-custom-desc', 'promo-expiry', 'promo-cond-spend', 'promo-cond-items', 'promo-announce-subject', 'promo-announce-body', 'promo-campaign-code'].forEach(id => {
         const el = document.getElementById(id); if (el) el.value = el.type === 'number' && (id.includes('bogo')) ? (id.includes('buy') ? '2' : '1') : '';
       });
+      // Reset no-code checkbox back to unchecked
+      const noCodeCb = document.getElementById('promo-no-code');
+      if (noCodeCb) { noCodeCb.checked = false; togglePromoNoCode(noCodeCb); }
       document.getElementById('promoSendSuccess').style.display = 'none';
       document.getElementById('promoBtnSend').disabled = false;
       document.getElementById('promoBtnSend').innerText = '🚀 Send Promotion';
@@ -3142,6 +3487,7 @@
 
       if (tabId === 'members') loadMembers();
       if (tabId === 'profile') {
+        _profileDirty = false; // clear stale dirty state before populating
         const uEmail = localStorage.getItem('perkfinity_email') || '';
         document.getElementById('profileEmail').value = uEmail;
         document.getElementById('profileMessage').style.display = 'none';
@@ -3187,11 +3533,6 @@
             if (json.success && json.data) {
               document.getElementById('profileStoreName').value = json.data.business_name || '';
               document.getElementById('profileWebsite').value = json.data.website || '';
-              // Update website label based on presence
-              const websiteLabel = document.getElementById('websiteLabel');
-              if (websiteLabel && window._merchantPresence === 'online') {
-                websiteLabel.innerHTML = 'Website <span style="color:#ef4444;">*</span> <span style="font-size:11px; font-weight:400; color:#6b7280;">(Required for online merchants)</span>';
-              }
               document.getElementById('profileAddress').value = json.data.address || '';
               document.getElementById('profileSuite').value = json.data.suite || '';
               document.getElementById('profileCity').value = json.data.city || '';
@@ -3200,22 +3541,30 @@
               document.getElementById('profileContactName').value = json.data.contact_name || '';
               document.getElementById('profilePhone').value = json.data.phone || '';
 
-              // New presence/offer fields
+              // Presence + multilocation detection
               const presence = json.data.business_presence || 'physical';
-              window._merchantPresence = presence; // make available to campaign wizard
-              const presenceLabels = { physical: '🏪 Physical Store', mobile: '🚐 Mobile / Pop-Up', online: '🌐 Online Only' };
+              window._merchantPresence = presence;
+              // Prefer authoritative DB flag (available after migration + SELECT update).
+              // Fall back to address-null heuristic for existing merchants in the meantime.
+              const isMultiLocation = json.data.is_multi_location === true ||
+                (presence === 'hybrid' && !json.data.address);
+              window._merchantMultilocation = isMultiLocation;
+              const presenceLabels = { physical: '🏪 Physical Store', mobile: '🚐 Mobile / Pop-Up', online: '🌐 Online Only', hybrid: '🌐🏪 Hybrid' };
               document.getElementById('profilePresenceBadge').innerText = presenceLabels[presence] || presence;
               document.getElementById('profileWelcomeOfferText').value = json.data.welcome_offer_text || '';
               document.getElementById('profileReviewUrl').value = json.data.review_url || '';
               document.getElementById('profileOrderUrl').value = json.data.order_url || '';
-              // Show the locked promo code row only for online merchants
+              // Show the locked promo code row for online AND hybrid merchants
               const promoRow = document.getElementById('profilePromoCodeRow');
-              if (presence === 'online' && json.data.welcome_promo_code) {
+              if (['online','hybrid'].includes(presence) && json.data.welcome_promo_code) {
                 document.getElementById('profilePromoCode').value = json.data.welcome_promo_code;
                 promoRow.style.display = 'block';
               } else {
                 promoRow.style.display = 'none';
               }
+              // Apply required stars + optional tags based on presence
+              updateProfileRequiredMarkers(presence, isMultiLocation);
+
 
               // Store full address in localStorage so promotion preview can display it
               const addrParts = [json.data.address, json.data.suite, json.data.city, json.data.state, json.data.postal_code].filter(Boolean);
@@ -3236,13 +3585,48 @@
                 }
               }
             }
+            _profileDirty = false; // reset after all fields populated — user hasn't changed anything yet
           })
           .catch(e => console.error("Failed to load profile data"));
       }
       if (tabId === 'billing') loadBilling();
     }
 
+    // ── Profile presence-aware required markers ───────────────────
+    function updateProfileRequiredMarkers(presence, isMultiLocation) {
+      const S   = ' <span style="color:#ef4444;margin-left:2px">*</span>';
+      const OPT = ' <span style="font-size:12px;font-weight:400;color:var(--muted)">(optional)</span>';
+      const OPTs = ' <span style="font-size:12px;font-weight:400;color:var(--muted)">(opt.)</span>'; // short form for narrow columns
+
+      // Business name — ALWAYS required
+      document.getElementById('labelStoreName').innerHTML = 'Store/Business Name' + S;
+
+      // Website — required for online/hybrid, optional for physical/mobile
+      const wsLabel = document.getElementById('websiteLabel');
+      if (wsLabel) wsLabel.innerHTML = ['online','hybrid'].includes(presence)
+        ? 'Website' + S
+        : 'Website' + OPT;
+
+      // Address logic
+      const needsFullAddress = presence === 'physical' || (presence === 'hybrid' && !isMultiLocation);
+      const needsCityStateZip = presence === 'mobile' || needsFullAddress;
+
+      document.getElementById('labelAddress').innerHTML = 'Street Address' + (needsFullAddress ? S : OPT);
+      document.getElementById('labelCity').innerHTML    = 'City'           + (needsCityStateZip ? S : OPT);
+      document.getElementById('labelState').innerHTML   = 'State'          + (needsCityStateZip ? S : OPT);
+      // ZIP uses short (opt.) to stay inline in the narrow 1fr grid column
+      document.getElementById('labelZip').innerHTML     = 'ZIP Code'       + (needsCityStateZip ? S : OPTs);
+
+      // Welcome Offer — ALWAYS required
+      document.getElementById('labelWelcomeOffer').innerHTML = 'Welcome Offer Description' + S;
+
+      // Contact, Phone, Email — ALWAYS required
+      document.getElementById('labelContactName').innerHTML  = 'Contact Name'     + S;
+      document.getElementById('labelPhone').innerHTML        = 'Phone Number'     + S;
+      document.getElementById('labelEmail').innerHTML        = 'Email / Username' + S;
+    }
     async function goToCustomerPortal() {
+
       const token = localStorage.getItem('perkfinity_token');
       const merchantId = localStorage.getItem('perkfinity_merchant_id');
       try {
@@ -3265,38 +3649,70 @@
       }
     }
 
-    async function cancelSubscription() {
-      if (!confirm("Are you sure you want to cancel? You will have access until the end of your billing cycle, after which your account will be blocked.")) return;
+    async function cancelSubscription(password) {
       const token = localStorage.getItem('perkfinity_token');
       const merchantId = localStorage.getItem('perkfinity_merchant_id');
       try {
         const res = await fetch(`${BACKEND_URL}/api/v1/merchants/${merchantId}/billing/cancel`, {
           method: 'POST',
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify({ password })
         });
         const json = await res.json();
         if (json.success) {
-          alert("Your subscription has been cancelled and will end at the current billing cycle.");
           loadBilling();
         } else {
-          alert('Failed to cancel: ' + json.error);
+          throw new Error(json.error || 'Unknown error');
         }
       } catch (e) {
-        alert('Error cancelling subscription.');
+        throw e;
       }
     }
 
-    function showCancelWarning() {
+    function showCancelWarning(id) {
+      if (id) {
+        const w = document.getElementById(id);
+        if (w) w.style.display = w.style.display === 'none' ? 'block' : 'none';
+        return;
+      }
+      // Fallback: find first cancel-warning in visible scene that is NOT an upgrade-warning
       const visibleScene = document.querySelector('.scene[style*="display: block"], .scene[style*="display:block"]');
       if (!visibleScene) return;
-      const warning = visibleScene.querySelector('.cancel-warning');
-      if (warning) {
-        warning.style.display = warning.style.display === 'none' ? 'block' : 'none';
+      const warnings = visibleScene.querySelectorAll('.cancel-warning');
+      for (const w of warnings) {
+        if (!w.id || !w.id.startsWith('upgrade-warning')) {
+          w.style.display = w.style.display === 'none' ? 'block' : 'none';
+          return;
+        }
       }
     }
 
     function doCancelAction() {
-      cancelSubscription();
+      // Open password confirmation modal instead of calling API directly
+      document.getElementById('cancelConfirmPassword').value = '';
+      document.getElementById('btnConfirmCancel').disabled = false;
+      document.getElementById('btnConfirmCancel').textContent = 'Confirm Cancellation';
+      document.getElementById('modal-cancel-billing-confirm').style.display = 'flex';
+    }
+
+    async function executeCancelSubscription() {
+      const password = document.getElementById('cancelConfirmPassword').value.trim();
+      if (!password) {
+        alert('Please enter your password to confirm cancellation.');
+        return;
+      }
+      const btn = document.getElementById('btnConfirmCancel');
+      btn.disabled = true;
+      btn.textContent = 'Cancelling...';
+      try {
+        await cancelSubscription(password);
+        document.getElementById('modal-cancel-billing-confirm').style.display = 'none';
+        document.getElementById('cancelConfirmPassword').value = '';
+      } catch (e) {
+        alert('Failed to cancel: ' + e.message);
+        btn.disabled = false;
+        btn.textContent = 'Confirm Cancellation';
+      }
     }
 
     function showFFLCancelWarning() {
@@ -3321,6 +3737,75 @@
         }
       } catch (e) {
         alert('Error cancelling account.');
+      }
+    }
+
+    // ── Upgrade subscription tier ──────────────────────────────────
+    async function doUpgrade(targetTier, warningBoxId) {
+      const merchantId = localStorage.getItem('perkfinity_merchant_id');
+      const token = localStorage.getItem('perkfinity_token');
+      if (!merchantId || !token) return;
+      const warningBox = warningBoxId ? document.getElementById(warningBoxId) : null;
+      const confirmBtn = warningBox ? warningBox.querySelector('button.btn-purple') : null;
+      if (confirmBtn) { confirmBtn.disabled = true; confirmBtn.textContent = 'Upgrading…'; }
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/v1/merchants/${merchantId}/billing/upgrade`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify({ target_tier: targetTier })
+        });
+        const json = await res.json();
+        if (json.success) {
+          if (warningBox) warningBox.style.display = 'none';
+          // Show congratulations modal, then refresh billing after dismiss
+          const tierNames = { tier1:'Connect', online_starter:'Starter', online_growth:'Growth', online_scale:'Scale', free_for_life:'Free For Life' };
+          const tierLabel = tierNames[targetTier] || targetTier;
+          const modal = document.createElement('div');
+          modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.55);z-index:99999;display:flex;align-items:center;justify-content:center;padding:24px;';
+          modal.innerHTML = `
+            <div style="background:#fff;border-radius:20px;padding:36px 32px;max-width:420px;width:100%;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,0.18);animation:fadeInUp 0.3s ease;">
+              <div style="font-size:56px;margin-bottom:12px;">🎉</div>
+              <h3 style="font-size:22px;font-weight:900;color:#1a1a2e;margin:0 0 8px;">You're now on ${tierLabel}!</h3>
+              <p style="font-size:15px;color:#64748b;line-height:1.6;margin:0 0 28px;">Congratulations! Your plan has been upgraded successfully. Your new member limits and features are active right now.</p>
+              <button id="upgrade-success-dismiss" style="background:linear-gradient(135deg,#5b3fa5,#7c5cbf);color:#fff;border:none;border-radius:12px;padding:14px 36px;font-size:15px;font-weight:800;cursor:pointer;width:100%;">🚀 Awesome, let's go!</button>
+            </div>`;
+          document.body.appendChild(modal);
+          document.getElementById('upgrade-success-dismiss').onclick = async () => {
+            modal.remove();
+            await loadBilling();
+          };
+        } else {
+          alert('Upgrade failed: ' + (json.error || 'Unknown error'));
+          if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.textContent = 'Yes, Upgrade Now'; }
+        }
+      } catch (e) {
+        alert('Error connecting to billing system.');
+        if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.textContent = 'Yes, Upgrade Now'; }
+      }
+    }
+
+    // ── Cancel promo-phase billing (no active subscription yet) ───
+    async function doPromoCancel() {
+      const merchantId = localStorage.getItem('perkfinity_merchant_id');
+      const token = localStorage.getItem('perkfinity_token');
+      if (!merchantId || !token) return;
+      const btn = document.getElementById('promo-cancel-confirm-btn');
+      if (btn) { btn.disabled = true; btn.textContent = 'Cancelling…'; }
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/v1/merchants/${merchantId}/billing/cancel-promo`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
+        });
+        const json = await res.json();
+        if (json.success) {
+          await loadBilling();
+        } else {
+          alert('Cancellation failed: ' + (json.error || 'Unknown error'));
+          if (btn) { btn.disabled = false; btn.textContent = 'Yes, Cancel Account'; }
+        }
+      } catch (e) {
+        alert('Error connecting to billing system.');
+        if (btn) { btn.disabled = false; btn.textContent = 'Yes, Cancel Account'; }
       }
     }
 
@@ -3350,15 +3835,141 @@
       const token = localStorage.getItem('perkfinity_token');
       const merchantId = localStorage.getItem('perkfinity_merchant_id');
       try {
-        const res = await fetch(`${BACKEND_URL}/api/v1/merchants/${merchantId}/billing`, {
-          headers: { 'Authorization': `Bearer ${token}` }
+        const res = await fetch(`${BACKEND_URL}/api/v1/merchants/${merchantId}/billing?t=${Date.now()}`, {
+          headers: { 'Authorization': `Bearer ${token}` },
+          cache: 'no-store'
         });
         const json = await res.json();
         if (!json.success) return console.error('Failed to load billing:', json.error);
         const d = json.data;
         window.currentInvoices = d.invoices || [];
 
-        // Determine scene
+        // ── Online brand: pending application banner ──────────────
+        if (d.application_status === 'pending') {
+          document.querySelectorAll('.scene').forEach(s => s.style.display = 'none');
+          const billingWrap = document.querySelector('.billing-wrap') || document.querySelector('[id^="scene-"]')?.parentElement;
+          if (billingWrap) {
+            if (d.tier === 'free_for_life') {
+              billingWrap.innerHTML = `
+                <div style="background:rgba(107,193,122,.08);border:1.5px solid rgba(107,193,122,.3);border-radius:20px;padding:32px 28px;max-width:640px;margin:0 auto;">
+                  <div style="font-size:36px;margin-bottom:12px;">🎖️</div>
+                  <div style="font-size:20px;font-weight:900;color:#1a6b2b;margin-bottom:8px;">Free For Life — Under Review</div>
+                  <p style="font-size:14px;color:#1e5c38;font-weight:700;line-height:1.6;margin:0 0 16px;">Your Free For Life application has been submitted and is pending admin review. Once approved, you will have <strong>unlimited members and no billing — ever</strong>.</p>
+                  <p style="font-size:13px;color:#1a6b2b;font-weight:700;margin:0;">You will receive an email confirmation once the review is complete. No payment method is required.</p>
+                </div>`;
+            } else {
+              billingWrap.innerHTML = `
+                <div style="background:rgba(245,158,11,.08);border:1.5px solid rgba(245,158,11,.35);border-radius:20px;padding:32px 28px;max-width:640px;margin:0 auto;">
+                  <div style="font-size:36px;margin-bottom:12px;">⏳</div>
+                  <div style="font-size:20px;font-weight:900;color:#92400e;margin-bottom:8px;">Application Under Review</div>
+                  <p style="font-size:14px;color:#78350f;font-weight:700;line-height:1.6;margin:0 0 16px;">Your online business application has been submitted successfully. Our team will review it within <strong>1–2 business days</strong>.</p>
+                  <p style="font-size:13px;color:#92400e;font-weight:700;margin:0;">Your card will only be charged <strong>after approval</strong>. You will receive an email confirmation once a decision is made.</p>
+                </div>`;
+            }
+          }
+          return;
+        }
+
+        // ── Online brand: promo threshold billing display ─────────
+        if (['online', 'hybrid'].includes(d.business_presence) && d.billing_starts_at_member_count) {
+          const threshold = d.billing_starts_at_member_count;
+          const current = d.member_count || 0;
+          const pct = Math.min(100, Math.round((current / threshold) * 100));
+          document.querySelectorAll('.scene').forEach(s => s.style.display = 'none');
+          const promoEl = document.getElementById('scene-online-promo');
+          if (promoEl) {
+            promoEl.style.display = 'block';
+            const bar = promoEl.querySelector('.promo-progress-bar');
+            const countEl = promoEl.querySelector('.promo-member-count');
+            const limitEl = promoEl.querySelector('.promo-member-limit');
+            if (bar) bar.style.width = pct + '%';
+            if (countEl) countEl.textContent = current;
+            if (limitEl) limitEl.textContent = threshold;
+          } else {
+            const billingWrap = document.querySelector('.billing-wrap') || document.querySelector('[id^="scene-"]')?.parentElement;
+            if (billingWrap) {
+              // Compute upgrade path for promo-phase merchant
+              const promoTierMeta = {
+                online_starter: { next:'online_growth', nextLabel:'Growth', price:'$299', limit:'2,500' },
+                online_growth:  { next:'online_scale',    nextLabel:'Scale',  price:'$499', limit:'Unlimited' },
+                online_scale:     null,
+              };
+              const promoNext = promoTierMeta[d.tier];
+              const upgradeSection = promoNext ? `
+                <div class="action-link" id="promo-upgrade-link" onclick="document.getElementById('promo-upgrade-warning').style.display='block';this.style.display='none'" style="margin-top:8px">
+                  <div class="left">
+                    <div class="icon-wrap" style="background:rgba(91,63,165,.08)">🚀</div>
+                    <div>
+                      <h4 style="color:var(--purple)">Upgrade to ${promoNext.nextLabel} Now</h4>
+                      <p>Skip the threshold — billing starts today at ${promoNext.price}/mo</p>
+                    </div>
+                  </div>
+                  <div class="arrow" style="color:var(--purple)">→</div>
+                </div>
+                <div id="promo-upgrade-warning" class="upgrade-warning" style="display:none">
+                  <h4>🚀 Upgrade to ${promoNext.nextLabel}?</h4>
+                  <ul>
+                    <li>Your member limit increases to <strong>${promoNext.limit} immediately</strong></li>
+                    <li>Your card on file will be <strong>charged ${promoNext.price} today</strong></li>
+                    <li>The free threshold is removed — billing starts now</li>
+                  </ul>
+                  <button class="btn btn-purple btn-sm" onclick="doUpgrade('${promoNext.next}','promo-upgrade-warning')">Yes, Upgrade Now</button>
+                  <button class="btn btn-outline btn-sm" style="margin-left:8px"
+                    onclick="document.getElementById('promo-upgrade-warning').style.display='none';document.getElementById('promo-upgrade-link').style.display=''">Never Mind</button>
+                </div>` : '';
+
+              billingWrap.innerHTML = `
+                <div style="background:#fff;border:1px solid rgba(230,230,240,.95);border-radius:20px;padding:32px 28px;max-width:640px;margin:0 auto;box-shadow:0 10px 22px rgba(27,27,45,.08);">
+                  <div style="font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#5B3FA5;margin-bottom:8px;">Online Business — Promo Billing</div>
+                  <div style="font-size:22px;font-weight:800;color:#3F2B8A;margin-bottom:4px;">Free Until ${threshold} Members</div>
+                  <p style="font-size:14px;color:rgba(31,32,48,.65);font-weight:700;margin:0 0 24px;">Your subscription activates automatically when you reach <strong>${threshold} members</strong>. You have <strong>${current}</strong> members so far.</p>
+                  <div style="background:rgba(91,63,165,.06);border-radius:12px;overflow:hidden;height:12px;margin-bottom:8px;">
+                    <div style="width:${pct}%;height:100%;background:linear-gradient(135deg,#5B3FA5,#7A57D6);border-radius:12px;transition:width .4s ease;"></div>
+                  </div>
+                  <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:800;color:rgba(31,32,48,.55);margin-bottom:28px;">
+                    <span>${current} members</span><span>${threshold} members (billing starts)</span>
+                  </div>
+                  <hr style="border:none;border-top:1px solid rgba(230,230,240,.8);margin:0 0 20px;">
+                  <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:rgba(31,32,48,.4);margin-bottom:12px;">Manage</div>
+                  <div class="action-link" onclick="goToCustomerPortal()">
+                    <div class="left">
+                      <div class="icon-wrap">💳</div>
+                      <div>
+                        <h4>Update Payment Method</h4>
+                        <p>Change the card on file via Stripe's secure portal</p>
+                      </div>
+                    </div>
+                    <div class="arrow">→</div>
+                  </div>
+                  ${upgradeSection}
+                  <div class="action-link" onclick="document.getElementById('promo-cancel-warning').style.display='block';this.style.display='none'" style="margin-top:8px">
+                    <div class="left">
+                      <div class="icon-wrap" style="background:rgba(220,53,69,.08)">🚫</div>
+                      <div>
+                        <h4 style="color:var(--red)">Cancel Account</h4>
+                        <p>Block your account and stop future billing — data is preserved</p>
+                      </div>
+                    </div>
+                    <div class="arrow" style="color:var(--red)">→</div>
+                  </div>
+                  <div id="promo-cancel-warning" class="cancel-warning" style="display:none">
+                    <h4>⚠️ Cancel your account?</h4>
+                    <ul>
+                      <li>Your account will be <strong>blocked immediately</strong></li>
+                      <li>Members cannot redeem perks. Campaigns are frozen.</li>
+                      <li>Your payment method is <strong>not charged</strong> (billing never started)</li>
+                      <li>Your data is preserved — you can reactivate anytime</li>
+                    </ul>
+                    <button id="promo-cancel-confirm-btn" class="btn btn-red-outline btn-sm" onclick="doPromoCancel()">Yes, Cancel Account</button>
+                    <button class="btn btn-outline btn-sm" style="margin-left:8px"
+                      onclick="document.getElementById('promo-cancel-warning').style.display='none';document.querySelector('.action-link[onclick*=promo-cancel]').style.display=''">Never Mind</button>
+                  </div>
+                </div>`;
+            }
+          }
+          return;
+        }
+
         let sceneName = 'tier1';
         if (d.account_blocked) {
           sceneName = d.tier === 'free_for_life' ? 'blocked-ffl' : 'blocked';
@@ -3371,6 +3982,8 @@
           let count = d.member_count || 0;
           let diff = limit - count;
           sceneName = (diff <= 2 && diff >= 0) ? 'trial-near-20' : 'trial-20';
+        } else if (['online_starter', 'online_growth', 'online_scale'].includes(d.tier)) {
+          sceneName = 'online-active';
         } else if (d.tier === 'tier1' && !d.has_stripe) {
           // Tier 1 merchant who never completed payment — redirect to finish signup
           localStorage.setItem('perkfinity_setup_incomplete', 'true');
@@ -3419,6 +4032,8 @@
             sceneEl.querySelectorAll('.action-link').forEach(link => {
               if (link.innerHTML.includes('Cancel Subscription')) link.style.display = 'none';
             });
+            // Always hide ALL cancel warning boxes in this scene when already in pending_cancellation
+            sceneEl.querySelectorAll('.cancel-warning').forEach(w => w.style.display = 'none');
           }
 
           // Customize scene-blocked for payment failure vs voluntary cancellation
@@ -3438,7 +4053,7 @@
             const heading = sceneEl.querySelector('h3');
             if (heading) heading.textContent = 'Payment Update Required';
             const subtitle = sceneEl.querySelector('p');
-            if (subtitle) subtitle.textContent = 'Your card was declined when your account reached the member limit and we tried to upgrade you to Tier 1. Update your payment method and click Reactivate to restore all campaigns and member redemptions.';
+            if (subtitle) subtitle.textContent = 'Your card was declined when your account reached the member limit and we tried to upgrade you to Connect. Update your payment method and click Reactivate to restore all campaigns and member redemptions.';
             const existBanner = sceneEl.querySelector('.payment-fail-banner');
             if (!existBanner) {
               const reactivateBtn = sceneEl.querySelector('.btn-green');
@@ -3456,7 +4071,15 @@
             }
           }
 
-          // Dynamic Updates
+          // Dynamic reactivate button price for scene-blocked
+          if (sceneName === 'blocked') {
+            const blockedBtn = sceneEl.querySelector('.btn-green');
+            if (blockedBtn) {
+              const priceLabel = { tier1:'$29.99', online_starter:'$149', online_growth:'$299', online_scale:'$499' }[d.tier] || '$29.99';
+              blockedBtn.innerHTML = `🔄 Reactivate Subscription — ${priceLabel}/mo`;
+            }
+          }
+
           const promoCode = d.promo_code;
           const memberLimit = d.member_limit || 100;
 
@@ -3544,15 +4167,104 @@
             sceneEl.querySelector('.tier1-member-since').innerText = d.created_at ? formatDt(d.created_at) : 'Unknown';
           }
 
-          // Wiring buttons
+          // ── Populate online-active scene ───────────────────────
+          if (sceneName === 'online-active') {
+            const onlineTierMap = {
+              online_starter: { name:'Starter', price:'$149', limit:'500',       limitNum:500,  emoji:'🌱', color:'#0d9488', bg:'rgba(13,148,136,0.1)' },
+              online_growth:  { name:'Growth',  price:'$299', limit:'2,500',     limitNum:2500, emoji:'🚀', color:'#5b3fa5', bg:'rgba(91,63,165,0.1)'  },
+              online_scale:     { name:'Scale',   price:'$499', limit:'Unlimited', limitNum:null, emoji:'🏆', color:'#b45309', bg:'rgba(180,83,9,0.1)'   },
+            };
+            const ti = onlineTierMap[d.tier] || { name:d.tier, price:'—', limit:'—', emoji:'📦', color:'#666', bg:'rgba(100,100,100,0.1)' };
+
+            const badge = document.getElementById('oa-badge');
+            if (badge) { badge.textContent=`${ti.emoji} ${ti.name}`; badge.style.color=ti.color; badge.style.background=ti.bg; badge.style.borderColor=ti.color+'66'; }
+
+            const priceDisp = document.getElementById('oa-price-display');
+            if (priceDisp) priceDisp.textContent = ti.price;
+
+            const planName = document.getElementById('oa-plan-name');
+            if (planName) planName.textContent = ti.name;
+
+            const nextChargeEl = document.getElementById('oa-next-charge');
+            if (nextChargeEl) nextChargeEl.textContent = nextBillingStr ? formatDt(nextBillingStr) : '—';
+
+            const oaPrice = document.getElementById('oa-price');
+            if (oaPrice) oaPrice.textContent = ti.price + '/mo';
+
+            const limitLabel = document.getElementById('oa-member-limit-label');
+            if (limitLabel) limitLabel.textContent = ti.limitNum ? `Up to ${ti.limit} Members` : 'Unlimited Members';
+
+            const membEmoji = document.getElementById('oa-members-emoji');
+            if (membEmoji) membEmoji.textContent = ti.limitNum ? '👥' : '♾️';
+
+            const membCount = document.getElementById('oa-member-count');
+            if (membCount) membCount.textContent = `Currently: ${d.member_count || 0} active members`;
+
+            const nextBillingEl = document.getElementById('oa-next-billing');
+            if (nextBillingEl) nextBillingEl.textContent = nextBillingStr ? formatDt(nextBillingStr) : '—';
+
+            const memberSince = document.getElementById('oa-member-since');
+            if (memberSince) memberSince.textContent = d.created_at ? formatDt(d.created_at) : 'Unknown';
+
+            // ── Handle pending_cancellation state for online scene ──
+            if (d.billing_status === 'pending_cancellation') {
+              // Update top status banner to warning
+              const oaWrapper = document.getElementById('oa-status-wrapper');
+              if (oaWrapper) {
+                oaWrapper.className = 'alert alert-danger';
+                oaWrapper.style.background = 'rgba(220,53,69,.08)';
+                oaWrapper.style.borderColor = 'rgba(220,53,69,.3)';
+              }
+              const oaStatusIcon = oaWrapper ? oaWrapper.querySelector('.icon') : null;
+              if (oaStatusIcon) oaStatusIcon.textContent = '⚠️';
+              const oaStatusText = document.getElementById('oa-status-text');
+              if (oaStatusText) {
+                const endDate = nextBillingStr ? formatDt(nextBillingStr) : 'end of billing cycle';
+                oaStatusText.innerHTML = `<strong>Cancellation Pending.</strong> Your account will remain active until <strong>${endDate}</strong>, then fully cancel. <span style="text-decoration:underline;font-size:13px;margin-left:6px;color:var(--red);">See details ↓</span>`;
+              }
+              // Update billing status pill
+              const oaBillingStatusVal = document.getElementById('oa-billing-status-val');
+              if (oaBillingStatusVal) oaBillingStatusVal.innerHTML = '<span class="status-pill" style="background:rgba(220,53,69,.1);color:#dc2626;border-color:rgba(220,53,69,.3);">⚠ Cancellation Pending</span>';
+              // Change label from "Next Billing Date" to "Active Until"
+              const oaBillingLabel = document.getElementById('oa-billing-label');
+              if (oaBillingLabel) oaBillingLabel.textContent = 'Active Until';
+            }
+            // ── Upgrade button (Starter→Growth, Growth→Scale) — hide if pending_cancellation ──
+            const upgradeTierMap = {
+              online_starter: { next:'online_growth', label:'Upgrade to Growth',  subtext:'Move to 2,500 members — pricing changes at next billing', price:'$299', limit:'2,500' },
+              online_growth:  { next:'online_scale',    label:'Upgrade to Scale',   subtext:'Move to unlimited members — pricing changes at next billing', price:'$499', limit:'Unlimited' },
+            };
+            const upgradeInfo = upgradeTierMap[d.tier];
+            const oaUpgradeLink = document.getElementById('oa-upgrade-link');
+            if (oaUpgradeLink) {
+              if (upgradeInfo && d.billing_status !== 'pending_cancellation') {
+                oaUpgradeLink.style.display = '';
+                document.getElementById('oa-upgrade-label').textContent = upgradeInfo.label;
+                document.getElementById('oa-upgrade-subtext').textContent = upgradeInfo.subtext;
+                document.getElementById('oa-upgrade-confirm-title').textContent = `🚀 ${upgradeInfo.label}?`;
+                document.getElementById('oa-upgrade-confirm-list').innerHTML = `
+                  <li>Your member limit increases to <strong>${upgradeInfo.limit} immediately</strong></li>
+                  <li>Pricing changes to <strong>${upgradeInfo.price}/mo</strong> at your next billing cycle</li>
+                  <li>No charge today — pricing change takes effect on <strong>${nextBillingStr ? formatDt(nextBillingStr) : 'your renewal date'}</strong></li>
+                `;
+                const oaUpgradeBtn = document.getElementById('oa-upgrade-confirm-btn');
+                if (oaUpgradeBtn) oaUpgradeBtn.onclick = () => doUpgrade(upgradeInfo.next, 'upgrade-warning-online');
+              } else {
+                oaUpgradeLink.style.display = 'none';
+              }
+            }
+          }
+
           sceneEl.querySelectorAll('.action-link').forEach(link => {
+            // Skip upgrade links — managed by scene population or inline HTML, must not be nulled
+            if (link.id && (link.id === 'oa-upgrade-link' || link.id.startsWith('upgrade-link-'))) return;
             link.onclick = null; // remove existing
             if (link.innerHTML.includes('Update Payment Method') || link.innerHTML.includes('Download Invoices')) {
               link.onclick = goToCustomerPortal;
             } else if (link.innerHTML.includes('Cancel Subscription')) {
-              link.onclick = showCancelWarning;
+              link.onclick = () => showCancelWarning(); // arrow fn prevents MouseEvent being passed as id
             } else if (link.innerHTML.includes('Cancel Account')) {
-              link.onclick = showFFLCancelWarning;
+              link.onclick = () => showFFLCancelWarning(); // same fix
             }
           });
 
@@ -3605,12 +4317,16 @@
         const token = localStorage.getItem('perkfinity_token');
         const res = await fetch(`${BACKEND_URL}/api/v1/merchants/${merchantId}/billing/reactivate`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify({ origin: window.location.origin })
         });
         const json = await res.json();
         if (json.success) {
           alert('✅ Subscription reactivated! Your account is now active.');
-          loadBilling(); // Refresh
+          loadBilling();
+        } else if (json.needs_payment_method && json.checkout_url) {
+          // No payment method on file — redirect to Stripe Checkout to capture one
+          window.location.href = json.checkout_url;
         } else {
           alert('❌ ' + (json.error || 'Failed to reactivate'));
         }
@@ -3618,7 +4334,7 @@
         alert('❌ Network error. Please try again.');
       } finally {
         btn.disabled = false;
-        btn.textContent = 'Reactivate Subscription →';
+        btn.textContent = '🔄 Reactivate Subscription — $29.99/mo';
       }
     }
 
@@ -4139,6 +4855,48 @@
       if (new_password && new_password.length > 0 && new_password.length < 8) {
         msgLabel.innerText = "New password must be at least 8 characters long.";
         return;
+      }
+
+      // ── Presence-aware required field validation ─────────────────
+      const _pres   = window._merchantPresence || 'physical';
+      const _isMulti = window._merchantMultilocation || false;
+      const _req = (val, msg) => { if (!val.trim()) { msgLabel.innerText = msg; msgLabel.scrollIntoView({ behavior:'smooth', block:'center' }); return true; } return false; };
+
+      if (_req(business_name, 'Store/Business name is required.')) return;
+      if (_req(contact_name,  'Contact name is required.')) return;
+      if (_req(phone,         'Phone number is required.')) return;
+      if (_req(email,         'Email address is required.')) return;
+      if (_req(welcome_offer_text, 'Welcome offer description is required.')) return;
+
+      // ── Format validation ────────────────────────────────────────
+      if (phone.trim() && !/^\d{3}-\d{3}-\d{4}$/.test(phone.trim())) {
+        msgLabel.innerText = 'Please enter phone in xxx-xxx-xxxx format.';
+        msgLabel.scrollIntoView({ behavior: 'smooth', block: 'center' }); return;
+      }
+      if (email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+        msgLabel.innerText = 'Please enter a valid email address (e.g. you@example.com).';
+        msgLabel.scrollIntoView({ behavior: 'smooth', block: 'center' }); return;
+      }
+      // Website normalization — auto-prefix bare domains
+      const websiteEl = document.getElementById('profileWebsite');
+      if (websiteEl && websiteEl.value.trim() && !/^https?:\/\//i.test(websiteEl.value.trim())) {
+        websiteEl.value = 'https://' + websiteEl.value.trim();
+      }
+
+      if (['online','hybrid'].includes(_pres) && !website.trim()) {
+        msgLabel.innerText = 'Website URL is required for online/hybrid merchants.';
+        msgLabel.scrollIntoView({ behavior:'smooth', block:'center' }); return;
+      }
+      if (_pres === 'physical' || (_pres === 'hybrid' && !_isMulti)) {
+        if (_req(address, 'Street address is required.')) return;
+        if (_req(city,    'City is required.')) return;
+        if (_req(state,   'State is required.')) return;
+        if (_req(zip,     'ZIP code is required.')) return;
+      }
+      if (_pres === 'mobile') {
+        if (_req(city,  'City is required.')) return;
+        if (_req(state, 'State is required.')) return;
+        if (_req(zip,   'ZIP code is required.')) return;
       }
 
       btn.disabled = true;

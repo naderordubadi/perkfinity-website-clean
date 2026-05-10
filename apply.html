@@ -1,0 +1,917 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Perkfinity — Brand Application</title>
+<meta name="description" content="Apply to join Perkfinity as an online business and reach members across the country."/>
+<link rel="icon" href="assets/Perkfinity-App-Icon.png"/>
+<link rel="stylesheet" href="styles.css"/>
+<script src="/config.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://js.stripe.com/v3/"></script>
+<style>
+:root{--step-active:#5B3FA5;--step-done:#6BC17A}
+.apply-wrap{min-height:100vh;background:linear-gradient(140deg,#2d1570,#4a2e9c 50%,#6a4cc4);padding:60px 0 80px}
+.apply-panel{background:#fff;border-radius:28px;max-width:680px;margin:0 auto;padding:40px;box-shadow:0 24px 56px rgba(27,27,45,.22)}
+.steps-bar{display:flex;align-items:center;justify-content:center;gap:0;margin-bottom:36px}
+.s-dot{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font-size:13px;font-weight:900;border:2px solid #e2e2f0;background:#fff;color:#aaa;flex-shrink:0;position:relative;z-index:1;transition:all .3s}
+.s-dot.active{border-color:var(--step-active);background:var(--step-active);color:#fff}
+.s-dot.done{border-color:var(--step-done);background:var(--step-done);color:#fff}
+.s-line{flex:1;height:2px;background:#e2e2f0;transition:background .3s}
+.s-line.done{background:var(--step-done)}
+.step-title{font-size:22px;font-weight:1000;color:#3F2B8A;margin:0 0 6px;letter-spacing:-.02em}
+.step-sub{font-size:14px;color:rgba(31,32,48,.6);font-weight:700;margin:0 0 28px}
+.step-pane{display:none}.step-pane.active{display:block}
+.field{margin-bottom:18px}
+.field label{display:block;font-size:13px;font-weight:900;color:#1F2030;margin-bottom:7px}
+.field input,.field select,.field textarea{width:100%;padding:12px 16px;border:1.5px solid rgba(230,230,240,.95);border-radius:12px;font-size:15px;font-family:inherit;outline:none;background:#fff;color:#1F2030;transition:border-color .18s,box-shadow .18s}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:rgba(91,63,165,.45);box-shadow:0 0 0 4px rgba(91,63,165,.10)}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.tier-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px}
+.tier-opt{border:2px solid rgba(230,230,240,.95);border-radius:16px;padding:20px 14px;cursor:pointer;text-align:center;transition:all .2s}
+.tier-opt:hover{border-color:#5B3FA5;background:#f8f6ff}
+.tier-opt.selected{border-color:#5B3FA5;background:linear-gradient(135deg,rgba(91,63,165,.08),rgba(91,63,165,.03))}
+.tier-name{font-size:15px;font-weight:1000;color:#3F2B8A;margin-bottom:6px}
+.tier-price{font-size:22px;font-weight:1100;color:#5B3FA5;margin-bottom:4px}
+.tier-price span{font-size:13px;font-weight:700;color:#aaa}
+.tier-cap{font-size:12px;font-weight:800;color:rgba(31,32,48,.55)}
+.promo-result{display:none;background:rgba(107,193,122,.10);border:1.5px solid rgba(107,193,122,.35);border-radius:12px;padding:12px 16px;font-size:13px;font-weight:800;color:#1e5c38;margin-top:10px}
+.stripe-mount{border:1.5px solid rgba(230,230,240,.95);border-radius:12px;padding:14px 16px;background:#fff;min-height:42px;transition:border-color .18s}
+.stripe-mount.focused{border-color:rgba(91,63,165,.45);box-shadow:0 0 0 4px rgba(91,63,165,.10)}
+.nav-row{display:flex;gap:12px;margin-top:28px}
+.btn-back{flex:1;padding:14px;border-radius:12px;border:1.5px solid rgba(230,230,240,.95);background:#fff;color:#1F2030;font-size:15px;font-weight:900;cursor:pointer;font-family:inherit;transition:background .15s}
+.btn-back:hover{background:var(--cream,#F9F7F1)}
+.btn-next{flex:2;padding:14px;border-radius:12px;border:none;background:linear-gradient(135deg,#5B3FA5,#7A57D6);color:#fff;font-size:15px;font-weight:900;cursor:pointer;font-family:inherit;transition:transform .15s,box-shadow .15s}
+.btn-next:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 22px rgba(91,63,165,.35)}
+.btn-next:disabled{opacity:.55;cursor:not-allowed}
+.err-msg{color:#dc2626;font-size:13px;font-weight:800;margin-top:10px;min-height:18px}
+.summary-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(230,230,240,.95);font-size:14px}
+.summary-row:last-child{border-bottom:none}
+.summary-label{font-weight:700;color:rgba(31,32,48,.6)}
+.summary-val{font-weight:900;color:#1F2030;text-align:right;max-width:60%}
+.confirm-box{text-align:center;padding:40px 0}
+.confirm-icon{font-size:64px;margin-bottom:20px}
+.confirm-title{font-size:26px;font-weight:1100;color:#3F2B8A;margin:0 0 12px}
+.confirm-sub{font-size:15px;font-weight:700;color:rgba(31,32,48,.65);line-height:1.6;margin:0 0 28px}
+.agree-row{display:flex;align-items:flex-start;gap:10px;margin-bottom:18px;font-size:13px;font-weight:700;color:rgba(31,32,48,.65);line-height:1.5}
+.agree-row input{margin-top:2px;flex-shrink:0}
+.agree-row a{color:#5B3FA5}
+@media(max-width:640px){.tier-grid{grid-template-columns:1fr}.field-row{grid-template-columns:1fr}.apply-panel{padding:24px 18px}}
+</style>
+</head>
+<body>
+<header style="position:sticky;top:0;z-index:100;background:rgba(45,21,112,0.97);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.08);">
+  <div class="container header-inner">
+    <a class="brand" href="index.html" aria-label="Perkfinity home">
+      <img src="assets/Perkfinity-Logo.png" alt="Perkfinity logo">
+    </a>
+    <nav class="nav" aria-label="Business navigation" style="gap:4px">
+      <a href="merchants.html" style="color:rgba(255,255,255,0.6);font-size:13px">← For Businesses</a>
+      <a href="login.html" style="color:rgba(255,255,255,0.7)">Sign In</a>
+    </nav>
+  </div>
+</header>
+<main class="apply-wrap">
+<div class="container">
+<div style="text-align:center;margin-bottom:28px">
+<div class="section-label" id="app-label" style="margin:0 auto 12px;display:inline-flex">🌐 Online Business Application</div>
+<div id="app-sub" style="color:rgba(255,255,255,.72);font-size:15px;font-weight:700">Complete all 5 steps to submit your application. We review within 1-2 business days.</div>
+</div>
+<div class="apply-panel">
+<!-- Progress bar -->
+<div class="steps-bar" id="steps-bar">
+<div class="s-dot active" id="sd1">1</div><div class="s-line" id="sl1"></div>
+<div class="s-dot" id="sd2">2</div><div class="s-line" id="sl2"></div>
+<div class="s-dot" id="sd3">3</div><div class="s-line" id="sl3"></div>
+<div class="s-dot" id="sd4">4</div><div class="s-line" id="sl4"></div>
+<div class="s-dot" id="sd5">5</div>
+</div>
+<!-- Step 1: Business Info + Offer -->
+<div class="step-pane active" id="step1">
+<div class="step-title" id="s1-title">Your Business &amp; Offer</div>
+<div class="step-sub" id="s1-sub">Tell us about your business and the welcome perk for new members.</div>
+<div class="field"><label>Business Name *</label><input type="text" id="f-name" placeholder="e.g. Bella Botanicals"></div>
+<div class="field"><label>Website URL *</label><input type="url" id="f-website" placeholder="https://yourbrand.com"></div>
+<div class="field"><label>Category *</label>
+<select id="f-category">
+<option value="">— Select category —</option>
+<option>Fashion</option><option>Beauty</option><option>Food</option>
+<option>Home</option><option>Sports</option><option>Tech</option>
+<option>Health</option><option>Restaurants &amp; Cafes</option><option>Spa &amp; Wellness</option><option>Other</option>
+</select></div>
+
+
+<!-- Welcome Offer context -->
+<div style="margin-bottom:16px;padding:16px 18px;background:rgba(107,193,122,.08);border:1px solid rgba(107,193,122,.28);border-radius:14px">
+  <p style="margin:0 0 6px;font-size:14px;font-weight:800;color:#1e5c38">Welcome Offer for New Members</p>
+  <p id="welcome-offer-hint" style="margin:0;font-size:13px;font-weight:600;color:rgba(31,32,48,.65);line-height:1.55">Members discover your store on Perkfinity and tap <strong>Claim &amp; Reveal</strong> in the app to unlock your promo code. Once revealed, the code is theirs to use at your online checkout — and they instantly become your member. Choose an offer strong enough to earn that first click. You can update your welcome offer anytime from your dashboard.</p>
+</div>
+
+<div class="field">
+<label>Welcome Offer *</label>
+<select id="f-offer-select" onchange="onOfferSelectChange(this.value)">
+<option value="" disabled selected>— Select a welcome offer for new members —</option>
+<option value="10% Off Your First Purchase">10% Off Your First Purchase</option>
+<option value="15% Off Your First Purchase">15% Off Your First Purchase</option>
+<option value="20% Off Your First Purchase">20% Off Your First Purchase</option>
+<option value="$5 Off Your First Order">$5 Off Your First Order</option>
+<option value="$10 Off Your First Order">$10 Off Your First Order</option>
+<option value="Free Item with Any Purchase">Free Item with Any Purchase</option>
+<option value="Buy One, Get One Free">Buy One, Get One Free</option>
+<option value="Free Consultation / First Visit">Free Consultation / First Visit</option>
+<option value="Free Delivery on First Order">Free Delivery on First Order</option>
+<option value="Free Sample / Trial">Free Sample / Trial</option>
+<option value="2-for-1 on First Visit">2-for-1 on First Visit</option>
+<option value="__custom__">✏️ Custom Offer (write your own)</option>
+</select>
+</div>
+<div id="custom-offer-row" style="display:none" class="field">
+<label>Your Custom Offer <span style="font-weight:600;color:#aaa">(max 60 characters)</span></label>
+<input type="text" id="f-offer-custom" maxlength="60" placeholder="e.g. Free dessert with any entrée" oninput="document.getElementById('offer-char-count').textContent=this.value.length+'/60'">
+<div style="text-align:right;font-size:12px;color:rgba(31,32,48,.5);margin-top:4px" id="offer-char-count">0/60</div>
+</div>
+<div id="hello-code-preview" style="margin-top:16px;padding:14px 18px;background:rgba(91,63,165,.07);border:1.5px solid #5B3FA5;border-radius:12px">
+<p style="margin:0 0 4px;font-size:13px;font-weight:800;color:#3F2B8A">🔐 Your Welcome Offer Promo Code</p>
+<p style="margin:0 0 6px;font-size:13px;color:rgba(31,32,48,.6);line-height:1.55">This auto-generated code is reserved for your <strong>Welcome Offer only</strong> — the first perk every new member claims. For future campaigns you can create and use any code you like. Set this code up in your Shopify / WooCommerce / platform before you go live.</p>
+
+<div style="display:flex;align-items:center;gap:10px">
+<span id="hello-code-display" style="font-size:18px;font-weight:700;font-family:monospace;color:#5B3FA5;letter-spacing:2px;background:#fff;padding:10px 18px;border-radius:8px;border:1px solid rgba(91,63,165,.25)">HELLO-...</span>
+<button type="button" onclick="copyHelloCode()" id="copy-hello-btn" style="padding:10px 16px;background:#5B3FA5;color:#fff;border:none;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit">Copy</button>
+</div>
+</div>
+<!-- Hybrid-only: multi-location toggle -->
+<div id="hybrid-location-section" style="display:none;margin-top:16px">
+<div class="field" style="background:#f8f6ff;border-radius:14px;padding:16px;border:1.5px solid rgba(91,63,165,.2)">
+<label style="display:flex;align-items:center;gap:12px;cursor:pointer;margin:0">
+<input type="checkbox" id="f-multiloc" onchange="toggleMultiLocation()" style="width:18px;height:18px;accent-color:#5B3FA5;cursor:pointer;flex-shrink:0">
+<span style="font-size:14px;font-weight:800;color:#3F2B8A">We have multiple locations (chain, franchise, or HQ)</span>
+</label>
+<div style="margin-top:10px;font-size:12px;font-weight:600;color:rgba(31,32,48,.55);line-height:1.6;padding-left:30px">
+If you have <strong style="color:rgba(31,32,48,.75)">more than 10 locations</strong> or need location-based member lists and performance tracking,
+<a href="mailto:hello@perkfinity.net?subject=Enterprise%20Inquiry" style="color:#5B3FA5;text-decoration:none;font-weight:700">fill in our Enterprise form</a> for a tailor-made plan.
+By using this plan, members and performance across all locations will be aggregated under this single account.
+</div>
+</div>
+<div id="multiloc-note" style="display:none;background:rgba(91,63,165,.06);border:1.5px solid rgba(91,63,165,.2);border-radius:12px;padding:14px 16px;margin-top:10px;font-size:13px;font-weight:700;color:#3F2B8A">📍 For chains: your members will find their nearest location via your website or Google.</div>
+<div id="hybrid-address-fields">
+<div style="margin-top:16px;padding-top:16px;border-top:1px solid rgba(230,230,240,.95)">
+<p style="font-size:13px;font-weight:800;color:#3F2B8A;margin:0 0 14px">📍 Primary Location Address</p>
+<div class="field"><label>Street Address *</label><input type="text" id="f-address" placeholder="123 Main St"></div>
+<div class="field-row">
+<div class="field"><label>Suite / Unit</label><input type="text" id="f-suite" placeholder="Optional"></div>
+<div class="field"><label>City *</label><input type="text" id="f-city" placeholder="City"></div>
+</div>
+<div class="field-row">
+<div class="field"><label>State *</label><input type="text" id="f-state" placeholder="CA" maxlength="2"></div>
+<div class="field"><label>ZIP Code *</label><input type="text" id="f-zip" placeholder="90210" maxlength="10"></div>
+</div>
+
+</div>
+</div>
+</div>
+<div class="err-msg" id="err1"></div>
+<div class="nav-row"><button class="btn-next" style="flex:1" id="btn-next1" onclick="next(1)">Next →</button></div>
+</div>
+<!-- Step 2: Choose Plan -->
+<div class="step-pane" id="step2">
+<div class="step-title">Choose Your Plan</div>
+<div class="step-sub">You won't be charged until your application is approved.</div>
+<div class="tier-grid">
+<div class="tier-opt" id="t-starter" onclick="selectTier('online_starter',this)">
+<div class="tier-name">Starter</div>
+<div class="tier-price">$149<span>/mo</span></div>
+<div class="tier-cap">Up to 500 members</div>
+</div>
+<div class="tier-opt selected" id="t-growth" onclick="selectTier('online_growth',this)">
+<div class="tier-name">Growth</div>
+<div class="tier-price">$299<span>/mo</span></div>
+<div class="tier-cap">Up to 2,500 members</div>
+</div>
+<div class="tier-opt" id="t-scale" onclick="selectTier('online_scale',this)">
+<div class="tier-name">Scale</div>
+<div class="tier-price">$499<span>/mo</span></div>
+<div class="tier-cap">Unlimited members</div>
+</div>
+</div>
+<div id="ffl-tier-note" style="display:none;background:rgba(107,193,122,.08);border:1.5px solid rgba(107,193,122,.3);border-radius:12px;padding:12px 16px;font-size:13px;font-weight:700;color:#1e5c38;margin-top:-4px;margin-bottom:4px">
+  🎖️ Your <strong>Free For Life</strong> code overrides plan selection — no billing will ever apply regardless of the tier shown above.
+</div>
+<div class="field">
+<label>Promo / Invite Code <span style="font-weight:600;color:#aaa">(optional)</span></label>
+<div style="display:flex;gap:10px">
+<input type="text" id="f-access-code" placeholder="e.g. MEMBER-150" style="text-transform:uppercase;flex:1">
+<button onclick="applyPromo()" style="padding:0 18px;border-radius:12px;border:1.5px solid rgba(91,63,165,.4);background:#f8f6ff;color:#5B3FA5;font-weight:900;cursor:pointer;font-family:inherit;white-space:nowrap">Apply</button>
+</div>
+<div class="promo-result" id="promo-result"></div>
+</div>
+<div class="err-msg" id="err2"></div>
+<div class="nav-row">
+<button class="btn-back" onclick="goTo(1)">← Back</button>
+<button class="btn-next" id="btn-next2" onclick="next(2)">Next →</button>
+</div>
+</div>
+<!-- Step 3: Create Account -->
+<div class="step-pane" id="step3">
+<div class="step-title">Create Your Account</div>
+<div class="step-sub">Your login credentials for the merchant dashboard.</div>
+<div class="field-row">
+<div class="field"><label>Contact Name *</label><input type="text" id="f-contact" placeholder="Jane Doe"></div>
+<div class="field"><label>Phone *</label><input type="tel" id="f-phone" placeholder="xxx-xxx-xxxx" oninput="formatPhone(this)" maxlength="12"></div>
+</div>
+<div class="field">
+<label>Email Address *</label>
+<input type="email" id="f-email" placeholder="you@yourbusiness.com">
+<div style="font-size:12px;font-weight:600;color:rgba(31,32,48,.5);margin-top:5px">This will be your username to sign in to the dashboard.</div>
+</div>
+<div class="field-row">
+<div class="field">
+<label>Password *</label>
+<div style="position:relative">
+<input type="password" id="f-pass" placeholder="Min 8 characters" style="padding-right:45px;width:100%;box-sizing:border-box;">
+<span onclick="togglePassword('f-pass', this)" style="position:absolute;right:15px;top:50%;transform:translateY(-50%);cursor:pointer;opacity:0.6;font-size:18px;user-select:none;">👁️</span>
+</div>
+<div style="font-size:12px;font-weight:600;color:rgba(31,32,48,.5);margin-top:5px">Must contain at least 1 uppercase, 1 lowercase, and 1 number.</div>
+</div>
+<div class="field">
+<label>Confirm Password *</label>
+<div style="position:relative">
+<input type="password" id="f-pass2" placeholder="Repeat password" style="padding-right:45px;width:100%;box-sizing:border-box;">
+<span onclick="togglePassword('f-pass2', this)" style="position:absolute;right:15px;top:50%;transform:translateY(-50%);cursor:pointer;opacity:0.6;font-size:18px;user-select:none;">👁️</span>
+</div>
+</div>
+</div>
+<div class="agree-row" style="margin-top:4px">
+<input type="checkbox" id="f-terms">
+<label for="f-terms">I agree to the <a href="terms-of-use.html" target="_blank">Terms of Use</a> and <a href="privacy-policy.html" target="_blank">Privacy Policy</a>.</label>
+</div>
+<div class="err-msg" id="err3"></div>
+<div class="nav-row">
+<button class="btn-back" onclick="goTo(2)">← Back</button>
+<button class="btn-next" id="btn-next3" onclick="next(3)">Next →</button>
+</div>
+</div>
+<!-- Step 4: Payment -->
+<div class="step-pane" id="step4">
+<div id="resume-banner-s4" style="display:none;background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1.5px solid #f59e0b;border-radius:14px;padding:14px 18px;margin-bottom:20px;font-size:13px;font-weight:800;color:#92400e">
+🔔 Welcome back! Your account is saved. Please add your payment method to continue.
+</div>
+
+<!-- ⏰ Amber session / billing notice -->
+<div style="padding:14px 18px;background:linear-gradient(135deg,#fef3c7,#fde68a);border:2px solid #f59e0b;border-radius:12px;margin-bottom:18px;font-size:14px;color:#92400e;display:flex;align-items:flex-start;gap:10px;">
+  <span style="font-size:20px;flex-shrink:0;margin-top:1px;">⏰</span>
+  <div>
+    <strong>Please complete this step to submit your application.</strong><br>
+    Your card will <strong>not</strong> be charged today — billing begins only after your application is approved. If you used a promo code, billing starts when you reach your free member limit. If this step isn't completed within 15 minutes, you'll need to sign in and continue.
+  </div>
+</div>
+
+<div class="step-title">Payment Method</div>
+<div class="step-sub">Your card is saved for when billing starts after approval. No charge today.</div>
+<div class="field"><label>Card Details *</label><div class="stripe-mount" id="card-element"></div></div>
+<div class="err-msg" id="err4"></div>
+
+<!-- 🛡️ Payment security banner -->
+<div style="padding:16px 18px;background:linear-gradient(135deg,#fef3c7,#fde68a);border:2px solid #f59e0b;border-radius:12px;margin-top:18px;display:flex;align-items:flex-start;gap:12px;">
+  <span style="font-size:24px;flex-shrink:0;margin-top:2px;">🛡️</span>
+  <div>
+    <strong style="font-size:14px;color:#92400e;">Your payment information is completely safe</strong><br>
+    <span style="font-size:13px;color:#78350f;line-height:1.6;">Perkfinity <strong style="color:#92400e;">never sees, receives, or stores</strong> your card number or any sensitive payment data. Everything is handled directly by <strong style="color:#92400e;">Stripe</strong>, a PCI Level 1 certified payment processor trusted by millions of businesses worldwide.</span>
+  </div>
+</div>
+
+<div class="nav-row">
+<button class="btn-back" id="btn-back4" onclick="goTo(3)">← Back</button>
+<button class="btn-next" id="btn-pay" onclick="handlePayment()">Save Card →</button>
+</div>
+</div>
+<!-- Step 5: Logo + Review + Submit -->
+<div class="step-pane" id="step5">
+<div id="resume-banner-s5" style="display:none;background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1.5px solid #f59e0b;border-radius:14px;padding:14px 18px;margin-bottom:20px;font-size:13px;font-weight:800;color:#92400e">
+🔔 Welcome back! Your payment is saved. Upload a logo (optional) and submit your application.
+</div>
+<div class="step-title">Submit Application</div>
+<div class="step-sub">Upload your logo (optional), then submit your application.</div>
+<!-- Logo upload (optional) -->
+<div style="margin-bottom:22px;padding:18px;background:#f8f6ff;border-radius:16px;border:1.5px solid rgba(91,63,165,.15)">
+<p style="font-size:13px;font-weight:900;color:#3F2B8A;margin:0 0 12px">Brand Logo <span style="font-weight:600;color:#aaa">(optional — you can add later from your dashboard)</span></p>
+<div style="display:flex;align-items:center;gap:16px">
+<img id="logo-preview" src="" style="width:72px;height:72px;border-radius:50%;object-fit:contain;border:3px solid #c4b5fd;display:none;background:#fff">
+<div id="logo-placeholder" style="width:72px;height:72px;border-radius:50%;background:#ede9fe;color:#5B3FA5;display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0">🏷️</div>
+<div style="display:flex;flex-direction:column;gap:8px">
+<input type="file" id="logo-file" accept="image/png,image/jpeg,image/webp" style="display:none" onchange="previewLogo(event)">
+<button class="btn-back" style="display:inline-block;padding:10px 18px;font-size:13px" onclick="document.getElementById('logo-file').click()">Upload Logo</button>
+<button id="apply-remove-logo" style="display:none;padding:7px 14px;font-size:12px;font-weight:700;background:#fff;border:1.5px solid #dc2626;border-radius:10px;color:#dc2626;cursor:pointer;font-family:inherit" onclick="removeApplyLogo()">✕ Remove Logo</button>
+</div>
+</div>
+<p id="apply-logo-note" style="margin:10px 0 0;font-size:12px;color:rgba(31,32,48,.5);font-weight:600">🔤 No logo? The first letter of your business name will appear in the QR code center.</p>
+<div id="logo-warning" style="display:none;background:#fffbeb;border:1.5px solid #f59e0b;border-radius:12px;padding:12px 14px;margin-top:12px;font-size:13px;font-weight:700;color:#92400e">
+⚠️ Your logo is wider than it is tall and may appear cropped in the QR code center.
+<label style="display:flex;align-items:center;gap:8px;margin-top:10px;cursor:pointer">
+<input type="checkbox" id="logo-warn-accept" style="width:16px;height:16px;accent-color:#f59e0b" onchange="const b=document.getElementById('btn-submit');b.disabled=!this.checked;b.style.opacity=this.checked?'':'0.5'">
+I understand and want to continue with this logo
+</label>
+</div>
+</div>
+<!-- QR mini-preview (shown after logo upload) -->
+<div id="apply-qr-preview-block" style="display:none;margin-top:14px;text-align:center">
+<p style="font-size:13px;font-weight:700;color:#3F2B8A;margin:0 0 10px">How your QR code will look:</p>
+<div style="position:relative;display:inline-block;padding:10px;background:#fff;border-radius:14px;border:2px solid #c4b5fd;box-shadow:0 2px 8px rgba(91,63,165,.1)">
+<div id="apply-qr-mini" style="width:120px;height:120px"></div>
+<img id="apply-qr-logo-overlay" src="" alt="logo preview" style="display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:28px;height:28px;border-radius:6px;object-fit:contain;background:#fff;padding:2px;box-shadow:0 1px 4px rgba(0,0,0,0.15)">
+<div id="apply-qr-letter-overlay" style="display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:28px;height:28px;border-radius:6px;background:#5B3FA5;color:#fff;align-items:center;justify-content:center;font-size:13px;font-weight:900;font-family:ui-sans-serif,system-ui,sans-serif;box-shadow:0 1px 4px rgba(0,0,0,0.2)"></div>
+</div>
+</div>
+<!-- Profile note -->
+<div style="margin-bottom:20px;padding:14px 16px;background:#f8f6ff;border:1.5px solid rgba(91,63,165,.2);border-radius:12px;font-size:13px;color:#5B3FA5;font-weight:600">
+  ℹ️ You can view and update your business details in your <strong>Profile</strong> from the dashboard after your application is approved.
+</div>
+<div class="err-msg" id="err5"></div>
+<div class="nav-row">
+<button class="btn-back" id="btn-back5" onclick="goTo(4)">← Back</button>
+<button class="btn-next" id="btn-submit" onclick="submitApp()">Submit Application →</button>
+</div>
+</div>
+<!-- Confirmation -->
+<div class="step-pane" id="step-confirm">
+<div class="confirm-box">
+<div class="confirm-icon">🎉</div>
+<div class="confirm-title">Application Submitted!</div>
+<p class="confirm-sub">Thank you for applying to join Perkfinity. We'll review your application and contact you within <strong>1-2 business days</strong>.</p>
+<a href="index.html" class="btn btn-purple" style="display:inline-flex">← Back to Home</a>
+</div>
+</div>
+</div><!-- end apply-panel -->
+</div>
+</main>
+<footer class="site-footer">
+<div class="container"><div class="row">
+<a href="mailto:hello@perkfinity.net" style="text-decoration:none;color:inherit">✉ <strong>hello@perkfinity.net</strong></a>
+<span class="sep">|</span><a href="privacy-policy.html" style="text-decoration:none;color:inherit">Privacy Policy</a>
+<span class="sep">|</span><a href="terms-of-use.html" style="text-decoration:none;color:inherit">Terms of Use</a>
+</div></div>
+</footer>
+<script>
+const BACKEND=(typeof PerkfinityConfig!=='undefined')?PerkfinityConfig.BACKEND_URL:'https://perkfinity-backend.vercel.app';
+const STRIPE_PK=(typeof PerkfinityConfig!=='undefined')?PerkfinityConfig.STRIPE_PK:'';
+const TOTAL_STEPS=5;
+let stripe,cardEl;
+let selectedTier='online_growth';
+function formatPhone(el){let x=el.value.replace(/\D/g,'').match(/(\d{0,3})(\d{0,3})(\d{0,4})/);el.value=!x[2]?x[1]:x[1]+'-'+x[2]+(x[3]?'-'+x[3]:'');}
+let promoApplied=null;
+let currentStep=1;
+let uploadedLogoBase64=null;
+let currentMerchantId=null;
+let currentAccessToken=null;
+let paymentMethodId=null;
+let isEditMode=false;
+let isFFL=false;
+
+const isHybrid=new URLSearchParams(location.search).get('type')==='hybrid';
+const resumeMode=new URLSearchParams(location.search).get('resume');
+
+// Apply hybrid UI
+if(isHybrid){
+  document.title='Perkfinity \u2014 Hybrid Brand Application';
+  document.getElementById('app-label').textContent='\ud83d\udcf1 Online + Physical (Hybrid) Application';
+  document.getElementById('s1-title').textContent='Your Business & Offer';
+  document.getElementById('s1-sub').textContent='Tell us about your business and the welcome perk for new members.';
+  document.getElementById('hybrid-location-section').style.display='block';
+  document.getElementById('welcome-offer-hint').innerHTML='Members discover your store on Perkfinity and tap <strong>Claim &amp; Reveal</strong> in the app to unlock your promo code. Once revealed, the code is theirs to use at your online checkout or in-store — and they instantly become your member. Choose an offer strong enough to earn that first click. You can update your welcome offer anytime from your dashboard.';
+}
+
+// Resume mode: restore session from localStorage and jump to correct step
+if(resumeMode==='step4'||resumeMode==='step5'){
+  currentMerchantId=localStorage.getItem('applyMerchantId');
+  currentAccessToken=localStorage.getItem('applyAccessToken');
+  isFFL=localStorage.getItem('applyIsFFL')==='1';
+  if(currentMerchantId&&currentAccessToken){
+    if(resumeMode==='step4'&&!isFFL){
+      document.getElementById('resume-banner-s4').style.display='block';
+      document.getElementById('btn-back4').style.display='none';
+      initStripe();
+      goTo(4);
+    } else {
+      // FFL or step5 resume: skip straight to review
+      document.getElementById('resume-banner-s5').style.display='block';
+      document.getElementById('btn-back5').style.display='none';
+      buildSummaryFromProfile().then(()=>goTo(5));
+    }
+  }
+}
+
+function toggleMultiLocation(){
+  const on=document.getElementById('f-multiloc').checked;
+  document.getElementById('multiloc-note').style.display=on?'block':'none';
+  document.getElementById('hybrid-address-fields').style.display=on?'none':'block';
+}
+
+function onOfferSelectChange(val){
+  document.getElementById('custom-offer-row').style.display=val==='__custom__'?'block':'none';
+  updateHelloPreview();
+  if(val) document.getElementById('hello-code-preview').style.display='block';
+}
+
+function getOfferValue(){
+  const sel=document.getElementById('f-offer-select').value;
+  if(sel==='__custom__')return document.getElementById('f-offer-custom').value.trim();
+  return sel||'';
+}
+
+function updateHelloPreview(){
+  const name=document.getElementById('f-name').value.trim();
+  const code=name?'HELLO-'+name.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,12):'HELLO-...';
+  document.getElementById('hello-code-display').textContent=code;
+}
+
+function copyHelloCode(){
+  const code=document.getElementById('hello-code-display').textContent;
+  if(code==='HELLO-...')return;
+  navigator.clipboard.writeText(code).then(()=>{
+    const btn=document.getElementById('copy-hello-btn');
+    btn.textContent='Copied!';
+    setTimeout(()=>btn.textContent='Copy',2000);
+  }).catch(()=>{});
+}
+
+document.getElementById('f-name').addEventListener('input',()=>{updateHelloPreview();});
+document.getElementById('f-offer-select').addEventListener('change',()=>{
+  if(getOfferValue()) document.getElementById('hello-code-preview').style.display='block';
+});
+
+function goTo(n){
+  document.querySelectorAll('.step-pane').forEach(p=>p.classList.remove('active'));
+  if(n==='confirm'){document.getElementById('step-confirm').classList.add('active');return;}
+  document.getElementById('step'+n)?.classList.add('active');
+  currentStep=n;
+  updateBar(n);
+  if(n===5) initApplyQrPreview();
+  window.scrollTo({top:document.querySelector('.apply-panel').offsetTop-80,behavior:'smooth'});
+}
+
+function updateBar(n){
+  for(let i=1;i<=TOTAL_STEPS;i++){
+    const d=document.getElementById('sd'+i);
+    if(!d)continue;
+    d.className='s-dot'+(i<n?' done':i===n?' active':'');
+  }
+  for(let i=1;i<TOTAL_STEPS;i++){
+    const l=document.getElementById('sl'+i);
+    if(l)l.className='s-line'+(i<n?' done':'');
+  }
+}
+
+function selectTier(tier,el){
+  selectedTier=tier;
+  document.querySelectorAll('.tier-opt').forEach(e=>e.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+// --- Image compression ---
+function compressImage(file,maxSize,quality){
+  return new Promise((resolve,reject)=>{
+    const img=new Image();
+    img.onload=function(){
+      const canvas=document.createElement('canvas');
+      let w=img.width,h=img.height;
+      if(w>maxSize||h>maxSize){if(w>h){h=Math.round(h*maxSize/w);w=maxSize;}else{w=Math.round(w*maxSize/h);h=maxSize;}}
+      canvas.width=w;canvas.height=h;
+      const ctx=canvas.getContext('2d');
+      ctx.fillStyle='#FFFFFF';ctx.fillRect(0,0,w,h);
+      ctx.drawImage(img,0,0,w,h);
+      resolve(canvas.toDataURL('image/jpeg',quality));
+    };
+    img.onerror=reject;
+    img.src=URL.createObjectURL(file);
+  });
+}
+
+async function previewLogo(event){
+  const file=event.target.files[0];
+  if(!file)return;
+  try{uploadedLogoBase64=await compressImage(file,200,0.7);}
+  catch(e){
+    const reader=new FileReader();
+    reader.onload=ev=>{uploadedLogoBase64=ev.target.result;applyLogoPreview();};
+    reader.readAsDataURL(file);return;
+  }
+  applyLogoPreview();
+}
+
+function applyLogoPreview(){
+  const prev=document.getElementById('logo-preview');
+  const ph=document.getElementById('logo-placeholder');
+  prev.src=uploadedLogoBase64;
+  prev.style.display='block';ph.style.display='none';
+  document.getElementById('apply-remove-logo').style.display='inline-block';
+  document.getElementById('apply-logo-note').style.display='none';
+  const img=new Image();
+  img.onload=()=>{
+    const isWide=img.naturalWidth>img.naturalHeight*1.5;
+    // Wide logo warning + submit gate
+    const warn=document.getElementById('logo-warning');
+    const submitBtn=document.getElementById('btn-submit');
+    warn.style.display=isWide?'block':'none';
+    warn.style.border='1.5px solid #f59e0b';
+    document.getElementById('logo-warn-accept').checked=false;
+    if(isWide){
+      submitBtn.disabled=true;submitBtn.style.opacity='0.5';
+    }else{
+      submitBtn.disabled=false;submitBtn.style.opacity='';
+    }
+    // QR mini-preview — swap to logo overlay
+    document.getElementById('apply-qr-preview-block').style.display='block';
+    document.getElementById('apply-qr-logo-overlay').src=uploadedLogoBase64;
+    document.getElementById('apply-qr-logo-overlay').style.display='block';
+    const letterEl=document.getElementById('apply-qr-letter-overlay');
+    if(letterEl) letterEl.style.display='none';
+    const qrContainer=document.getElementById('apply-qr-mini');
+    qrContainer.innerHTML='';
+    if(typeof QRCode!=='undefined'){
+      new QRCode(qrContainer,{text:'https://app.perkfinity.net',width:120,height:120,correctLevel:QRCode.CorrectLevel.H});
+    }
+  };
+  img.src=uploadedLogoBase64;
+}
+
+function removeApplyLogo(){
+  uploadedLogoBase64=null;
+  const prev=document.getElementById('logo-preview');
+  prev.src='';prev.style.display='none';
+  document.getElementById('logo-placeholder').style.display='flex';
+  // Keep QR block visible but swap back to letter overlay
+  document.getElementById('apply-qr-logo-overlay').src='';
+  document.getElementById('apply-qr-logo-overlay').style.display='none';
+  const letterEl=document.getElementById('apply-qr-letter-overlay');
+  if(letterEl) letterEl.style.display='flex';
+  document.getElementById('logo-warning').style.display='none';
+  document.getElementById('logo-warn-accept').checked=false;
+  const btn=document.getElementById('btn-submit');
+  btn.disabled=false;btn.style.opacity='';
+  document.getElementById('logo-file').value='';
+  document.getElementById('apply-remove-logo').style.display='none';
+  document.getElementById('apply-logo-note').style.display='block';
+}
+
+// --- QR init for Step 5 ---
+function initApplyQrPreview(){
+  const name=document.getElementById('f-name')?.value?.trim()||'';
+  const letter=(name.charAt(0)||'?').toUpperCase();
+  const letterEl=document.getElementById('apply-qr-letter-overlay');
+  const logoImg=document.getElementById('apply-qr-logo-overlay');
+  const qrContainer=document.getElementById('apply-qr-mini');
+  if(qrContainer&&qrContainer.innerHTML===''){
+    if(typeof QRCode!=='undefined'){
+      new QRCode(qrContainer,{text:'https://app.perkfinity.net',width:120,height:120,correctLevel:QRCode.CorrectLevel.H});
+    }
+  }
+  if(uploadedLogoBase64){
+    if(logoImg){logoImg.src=uploadedLogoBase64;logoImg.style.display='block';}
+    if(letterEl) letterEl.style.display='none';
+  }else{
+    if(letterEl){letterEl.textContent=letter;letterEl.style.display='flex';}
+    if(logoImg) logoImg.style.display='none';
+  }
+  document.getElementById('apply-qr-preview-block').style.display='block';
+}
+
+// --- Promo code ---
+async function applyPromo(){
+  const code=document.getElementById('f-access-code').value.trim().toUpperCase();
+  const res=document.getElementById('promo-result');
+  const fflNote=document.getElementById('ffl-tier-note');
+  if(!code){res.style.display='none';promoApplied=null;if(fflNote)fflNote.style.display='none';return;}
+  try{
+    const r=await fetch(`${BACKEND}/api/v1/admin/access-codes/validate?code=${encodeURIComponent(code)}`);
+    const j=await r.json();
+    if(j.success&&j.data?.type==='free_for_life'){
+      promoApplied={code,isFFL:true};
+      res.style.cssText='display:block;background:rgba(107,193,122,.10);border:1.5px solid rgba(107,193,122,.35);border-radius:12px;padding:12px 16px;font-size:13px;font-weight:800;color:#1e5c38;margin-top:10px';
+      res.textContent='\u2713 Free For Life applied \u2014 no billing, ever. Unlimited members, free forever!';
+      if(fflNote)fflNote.style.display='block';
+    }else if(j.success&&j.data?.type==='extended_trial'){
+      promoApplied={code,member_limit:j.data.member_limit||150,isFFL:false};
+      res.style.cssText='display:block;background:rgba(107,193,122,.10);border:1.5px solid rgba(107,193,122,.35);border-radius:12px;padding:12px 16px;font-size:13px;font-weight:800;color:#1e5c38;margin-top:10px';
+      res.textContent=`\u2713 Promo applied \u2014 first ${promoApplied.member_limit} members FREE before billing starts!`;
+      if(fflNote)fflNote.style.display='none';
+    }else{
+      res.style.cssText='display:block;background:rgba(220,38,38,.08);border:1.5px solid rgba(220,38,38,.35);border-radius:12px;padding:12px 16px;font-size:13px;font-weight:800;color:#dc2626;margin-top:10px';
+      res.textContent='\u2717 Invalid or expired promo code.';promoApplied=null;
+      if(fflNote)fflNote.style.display='none';
+    }
+  }catch(e){res.style.display='block';res.textContent='Could not validate code. Continue without it.';}
+}
+
+// --- Password visibility toggle ---
+function togglePassword(inputId, icon) {
+  const input = document.getElementById(inputId);
+  if (input.type === 'password') {
+    input.type = 'text';
+    icon.innerText = '🙈';
+  } else {
+    input.type = 'password';
+    icon.innerText = '👁️';
+  }
+}
+
+// --- Validators ---
+function validate1(){
+  const name=document.getElementById('f-name').value.trim();
+  let webRaw=document.getElementById('f-website').value.trim();
+  if(webRaw && !/^https?:\/\//i.test(webRaw)){webRaw='https://'+webRaw;document.getElementById('f-website').value=webRaw;}
+  const web=webRaw;
+  const cat=document.getElementById('f-category').value;
+  const offer=getOfferValue();
+  if(!name)return'Business name is required.';
+  if(!web||!web.startsWith('http'))return'Please enter a valid website URL (e.g. www.yourbusiness.com or https://yourbusiness.com).';
+  if(!cat)return'Please select a category.';
+  if(!offer)return'Please select or enter a welcome offer.';
+  if(document.getElementById('f-offer-select').value==='__custom__'&&offer.length<3)return'Please enter your custom offer text (at least 3 characters).';
+  if(isHybrid){
+    const isMulti=document.getElementById('f-multiloc').checked;
+    if(!isMulti){
+      if(!document.getElementById('f-address').value.trim())return'Street address is required.';
+      if(!document.getElementById('f-city').value.trim())return'City is required.';
+      if(!document.getElementById('f-state').value.trim())return'State is required.';
+      if(!document.getElementById('f-zip').value.trim())return'ZIP code is required.';
+    }
+  }
+  // Show HELLO preview after validation passes
+  updateHelloPreview();
+  document.getElementById('hello-code-preview').style.display='block';
+  return'';
+}
+
+function validate2(){return'';}
+
+async function validate3(){
+  const c=document.getElementById('f-contact').value.trim();
+  const ph=document.getElementById('f-phone').value.trim();
+  const e=document.getElementById('f-email').value.trim();
+  const p=document.getElementById('f-pass').value;
+  const p2=document.getElementById('f-pass2').value;
+  const terms=document.getElementById('f-terms').checked;
+  if(!c)return'Contact name is required.';
+  if(!ph)return'Phone number is required.';
+  if(!/^\d{3}-\d{3}-\d{4}$/.test(ph))return'Please enter phone in xxx-xxx-xxxx format.';
+  if(!e||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e))return'Please enter a valid email address.';
+  if(p.length<8)return'Password must be at least 8 characters.';
+  if(!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/.test(p))return'Password must contain at least 1 uppercase, 1 lowercase, and 1 number.';
+  if(p!==p2)return'Passwords do not match.';
+  if(!terms)return'You must agree to the Terms of Use and Privacy Policy.';
+  return'';
+}
+
+function validate5(){
+  const warn=document.getElementById('logo-warning');
+  if(warn.style.display!=='none'&&!document.getElementById('logo-warn-accept').checked)
+    return'Please confirm you understand the wide logo display, or upload a different logo.';
+  return'';
+}
+
+async function next(from){
+  const errEl=document.getElementById('err'+from);
+  errEl.textContent='';
+  let msg='';
+  if(from===1)msg=validate1();
+  else if(from===2)msg=validate2();
+  else if(from===3)msg=await createAccount();
+  else if(from===5)msg=validate5();
+  if(msg){errEl.textContent=msg;return;}
+  if(from===3)return; // createAccount handles navigation
+  const to=from+1;
+  if(to===4){initStripe();}
+  if(to===5){buildSummary();}
+  // Edit mode: skip back to step 5 from step 1 or 2
+  if(isEditMode&&(from===1||from===2)){
+    isEditMode=false;
+    buildSummary();
+    goTo(5);
+    return;
+  }
+  goTo(to);
+}
+
+// --- Step 3: Create Account API call ---
+async function createAccount(){
+  const btn=document.getElementById('btn-next3');
+  const errEl=document.getElementById('err3');
+  // Run Step 3 validation first
+  const validErr=await validate3();
+  if(validErr){errEl.textContent=validErr;return validErr;}
+  btn.disabled=true;btn.textContent='Creating account\u2026';
+  const isMulti=isHybrid&&document.getElementById('f-multiloc').checked;
+  const body={
+    business_presence:isHybrid?'hybrid':'online',
+    name:document.getElementById('f-name').value.trim(),
+    website:document.getElementById('f-website').value.trim(),
+    category:document.getElementById('f-category').value,
+    welcome_offer_text:getOfferValue(),
+    tier:selectedTier,
+    promo_code:promoApplied?.code||null,
+    sales_volume_range:null,
+    contactName:document.getElementById('f-contact').value.trim(),
+    phone:document.getElementById('f-phone').value.trim(),
+    email:document.getElementById('f-email').value.trim(),
+    password:document.getElementById('f-pass').value,
+    is_multi_location:isMulti||false,
+    ...(isHybrid&&!isMulti?{
+      address:document.getElementById('f-address').value.trim(),
+      suite:document.getElementById('f-suite').value.trim(),
+      city:document.getElementById('f-city').value.trim(),
+      state:document.getElementById('f-state').value.trim(),
+      zip:document.getElementById('f-zip').value.trim(),
+    }:{}),
+  };
+  try{
+    const r=await fetch(`${BACKEND}/api/v1/merchants/apply-create-account`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const j=await r.json();
+    if(!j.success)throw new Error(j.error||'Account creation failed.');
+    currentMerchantId=j.data.merchant_id;
+    currentAccessToken=j.data.access_token;
+    isFFL=j.data.skip_stripe===true;
+    localStorage.setItem('applyMerchantId',currentMerchantId);
+    localStorage.setItem('applyAccessToken',currentAccessToken);
+    if(isFFL) localStorage.setItem('applyIsFFL','1');
+    btn.disabled=false;btn.textContent='Next \u2192';
+    if(isFFL){
+      // Free For Life: skip payment, go straight to review
+      buildSummary();
+      goTo(5);
+    } else {
+      initStripe();
+      goTo(4);
+    }
+    return null;
+  }catch(e){
+    btn.disabled=false;btn.textContent='Next \u2192';
+    return e.message||'Account creation failed. Please try again.';
+  }
+}
+
+// --- Step 4: Stripe ---
+function initStripe(){
+  if(!stripe&&STRIPE_PK){
+    stripe=Stripe(STRIPE_PK);
+    const els=stripe.elements();
+    cardEl=els.create('card',{style:{base:{fontSize:'15px',fontFamily:'ui-sans-serif,system-ui,sans-serif',color:'#1F2030','::placeholder':{color:'#aaa'}}}});
+    cardEl.mount('#card-element');
+    cardEl.on('focus',()=>document.getElementById('card-element').classList.add('focused'));
+    cardEl.on('blur',()=>document.getElementById('card-element').classList.remove('focused'));
+  }
+}
+
+async function handlePayment(){
+  const btn=document.getElementById('btn-pay');
+  const errEl=document.getElementById('err4');
+  if(!stripe||!cardEl){errEl.textContent='Payment system not loaded. Please refresh.';return;}
+  if(!currentMerchantId){errEl.textContent='Session expired. Please start over.';return;}
+  btn.disabled=true;btn.textContent='Processing\u2026';errEl.textContent='';
+  try{
+    const r=await fetch(`${BACKEND}/api/v1/stripe/create-setup-intent`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+currentAccessToken},
+      body:JSON.stringify({merchant_id:currentMerchantId})
+    });
+    const j=await r.json();
+    const clientSecret = j.data?.client_secret || j.client_secret;
+    if(!clientSecret)throw new Error('Could not initialize payment.');
+    const{setupIntent,error}=await stripe.confirmCardSetup(clientSecret,{payment_method:{card:cardEl}});
+    if(error){errEl.textContent=error.message;btn.disabled=false;btn.textContent='Save Card \u2192';return;}
+    paymentMethodId=setupIntent.payment_method;
+    // Save payment method to backend
+    const saveR=await fetch(`${BACKEND}/api/v1/stripe/save-apply-payment`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+currentAccessToken},
+      body:JSON.stringify({merchant_id:currentMerchantId,payment_method_id:paymentMethodId})
+    });
+    const saveJ=await saveR.json();
+    if(!saveJ.success)throw new Error(saveJ.error||'Failed to save payment method.');
+    btn.disabled=false;btn.textContent='Save Card \u2192';
+    // If we're here because an approved merchant deleted their card and was redirected
+    // back to re-add it, skip Step 5 (Submit) and go straight to the dashboard.
+    const urlReason = new URLSearchParams(location.search).get('reason');
+    if (urlReason === 'payment_missing') {
+      window.location.href = 'dashboard.html';
+      return;
+    }
+    buildSummary();
+    goTo(5);
+  }catch(e){
+    errEl.textContent=e.message||'Payment setup failed. Please try again.';
+    btn.disabled=false;btn.textContent='Save Card \u2192';
+  }
+}
+
+// --- Step 5: Summary builder ---
+function buildSummary(){
+  // Review table removed — merchants edit details via dashboard Profile.
+  return;
+  const offerVal=getOfferValue();
+  const helloCode=document.getElementById('hello-code-display').textContent;
+  const tierLabel={online_starter:'Starter ($149/mo)',online_growth:'Growth ($299/mo)',online_scale:'Scale ($499/mo)'}[selectedTier]||selectedTier;
+  const editBadge=(step)=>`<button onclick="editSection(${step})" style="margin-left:auto;padding:3px 10px;border:1.5px solid rgba(91,63,165,.4);border-radius:8px;font-size:11px;font-weight:800;color:#5B3FA5;background:#f8f6ff;cursor:pointer;font-family:inherit">Edit</button>`;
+  const row=(l,v)=>`<div class="summary-row"><span class="summary-label">${l}</span><span class="summary-val">${v||'\u2014'}</span></div>`;
+  let html=`<div style="border:1.5px solid rgba(230,230,240,.95);border-radius:14px;overflow:hidden;margin-bottom:12px">`;
+  html+=`<div style="background:#f8f6ff;padding:10px 14px;display:flex;align-items:center;font-size:12px;font-weight:900;color:#3F2B8A;letter-spacing:.04em">BUSINESS & OFFER ${editBadge(1)}</div>`;
+  html+=`<div style="padding:4px 14px">`;
+  html+=row('Type',isHybrid?'\ud83d\udcf1 Hybrid (Online + Physical)':'\ud83c\udf10 Online Business');
+  html+=row('Business',document.getElementById('f-name').value.trim());
+  html+=row('Website',document.getElementById('f-website').value.trim());
+  html+=row('Category',document.getElementById('f-category').value);
+  html+=row('Offer',offerVal||'\u2014');
+  html+=row('Welcome Code',helloCode!=='HELLO-...'?helloCode:'(auto-generated)');
+  if(isHybrid) html+=row('Multi-location',isMulti?'Yes':'No (single location)');
+  if(isHybrid&&!isMulti){
+    const addr=[document.getElementById('f-address').value.trim(),document.getElementById('f-city').value.trim(),document.getElementById('f-state').value.trim(),document.getElementById('f-zip').value.trim()].filter(Boolean).join(', ');
+    html+=row('Address',addr);
+  }
+  html+=`</div></div>`;
+  html+=`<div style="border:1.5px solid rgba(230,230,240,.95);border-radius:14px;overflow:hidden;margin-bottom:12px">`;
+  html+=`<div style="background:#f8f6ff;padding:10px 14px;display:flex;align-items:center;font-size:12px;font-weight:900;color:#3F2B8A;letter-spacing:.04em">PLAN ${editBadge(2)}</div>`;
+  html+=`<div style="padding:4px 14px">`;
+  html+=row('Plan',tierLabel);
+  html+=row('Promo Code',promoApplied?`${promoApplied.code} (${promoApplied.member_limit} free members)`:'None');
+
+  html+=`</div></div>`;
+  html+=`<div style="border:1.5px solid rgba(230,230,240,.95);border-radius:14px;overflow:hidden;margin-bottom:12px">`;
+  html+=`<div style="background:#f8f6ff;padding:10px 14px;font-size:12px;font-weight:900;color:#3F2B8A;letter-spacing:.04em">ACCOUNT & PAYMENT</div>`;
+  html+=`<div style="padding:4px 14px">`;
+  html+=row('Contact',document.getElementById('f-contact').value.trim());
+  html+=row('Email',document.getElementById('f-email').value.trim());
+  html+=row('Payment',isFFL?'\u267e\ufe0f Free For Life \u2014 No payment required':paymentMethodId?'\u2713 Card saved securely':'\u26a0\ufe0f Not yet saved');
+  html+=row('Logo',uploadedLogoBase64?'\u2713 Uploaded':'Not uploaded (can add later)');
+  html+=`</div></div>`;
+  document.getElementById('summary-rows').innerHTML=html;
+}
+
+async function buildSummaryFromProfile(){
+  if(!currentMerchantId||!currentAccessToken)return;
+  try{
+    const r=await fetch(`${BACKEND}/api/v1/merchants/${currentMerchantId}/profile`,{headers:{'Authorization':'Bearer '+currentAccessToken}});
+    const j=await r.json();
+    if(j.success&&j.data){
+      const m=j.data;
+      document.getElementById('f-name').value=m.business_name||'';
+      document.getElementById('f-website').value=m.website||'';
+      document.getElementById('f-category').value=m.business_category||'';
+      const offerSel=document.getElementById('f-offer-select');
+      const offer=m.welcome_offer_text||'';
+      const opt=[...offerSel.options].find(o=>o.value===offer);
+      if(opt){offerSel.value=offer;}else{offerSel.value='__custom__';document.getElementById('f-offer-custom').value=offer;document.getElementById('custom-offer-row').style.display='block';}
+      updateHelloPreview();
+      selectedTier=m.subscription_tier||'online_growth';
+      const tierMap={online_starter:'t-starter',online_growth:'t-growth',online_scale:'t-scale'};
+      document.querySelectorAll('.tier-opt').forEach(e=>e.classList.remove('selected'));
+      const tEl=document.getElementById(tierMap[selectedTier]);
+      if(tEl)tEl.classList.add('selected');
+    }
+  }catch(e){}
+  buildSummary();
+}
+
+function editSection(step){
+  isEditMode=true;
+  const btn1=document.getElementById('btn-next1');
+  const btn2=document.getElementById('btn-next2');
+  if(btn1)btn1.textContent='Update & Back to Review \u2192';
+  if(btn2)btn2.textContent='Update & Back to Review \u2192';
+  goTo(step);
+}
+
+// --- Step 5: Submit ---
+async function submitApp(){
+  const msg=validate5();
+  const errEl=document.getElementById('err5');
+  if(msg){errEl.textContent=msg;return;}
+  if(!currentMerchantId||!currentAccessToken){errEl.textContent='Session expired. Please start over.';return;}
+  const btn=document.getElementById('btn-submit');
+  btn.disabled=true;btn.textContent='Submitting\u2026';errEl.textContent='';
+  const body={
+    name:document.getElementById('f-name').value.trim(),
+    website:document.getElementById('f-website').value.trim(),
+    category:document.getElementById('f-category').value,
+    welcome_offer_text:getOfferValue(),
+    logo_url:uploadedLogoBase64||undefined,
+  };
+  try{
+    const r=await fetch(`${BACKEND}/api/v1/merchants/${currentMerchantId}/submit-application`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+currentAccessToken},
+      body:JSON.stringify(body)
+    });
+    const j=await r.json();
+    if(!j.success)throw new Error(j.error||'Submission failed.');
+    // Clear session storage
+    localStorage.removeItem('applyMerchantId');
+    localStorage.removeItem('applyAccessToken');
+    localStorage.removeItem('applyIsFFL');
+    // Session cleared — show confirmation screen
+    document.querySelectorAll('.step-pane').forEach(p=>p.classList.remove('active'));
+    document.getElementById('step-confirm').classList.add('active');
+    for(let i=1;i<=TOTAL_STEPS;i++){const d=document.getElementById('sd'+i);if(d)d.className='s-dot done';}
+    for(let i=1;i<TOTAL_STEPS;i++){const l=document.getElementById('sl'+i);if(l)l.className='s-line done';}
+  }catch(e){
+    errEl.textContent=e.message||'Submission failed. Please try again.';
+    btn.disabled=false;btn.textContent='Submit Application \u2192';
+  }
+}
+</script>
+</body></html>
