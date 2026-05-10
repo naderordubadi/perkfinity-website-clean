@@ -2771,8 +2771,12 @@
           // non-online/hybrid merchant that hasn't been fully cancelled.
           // Catches both: never-completed signup AND card deleted from Stripe after setup.
           // Excludes pending_cancellation: winding down, no future charge needed.
+          // Excludes onboarding_complete=true: pre-existing merchants who signed up before
+          //   stripe_payment_method_id was stored — they are already active and should not
+          //   be routed back to the payment capture screen.
           const setupIncomplete = (
             !d.stripe_payment_method_id &&
+            !d.onboarding_complete &&
             d.subscription_tier !== 'free_for_life' &&
             !['online', 'hybrid'].includes(d.business_presence) &&
             !['cancelled', 'deleted', 'pending_cancellation'].includes(d.billing_status)
