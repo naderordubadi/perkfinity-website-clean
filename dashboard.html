@@ -995,9 +995,13 @@
             </div>
             <div id="promo-code-input-wrap">
               <input type="text" id="promo-campaign-code" placeholder="e.g. MEMBER20"
-                oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9_-]/g,'')"
-                maxlength="50"
+                oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9_-]/g,''); document.getElementById('promo-code-counter').innerText = this.value.length + '/18'; document.getElementById('promo-code-counter').style.color = this.value.length >= 18 ? '#ef4444' : 'var(--muted)';"
+                maxlength="18"
                 style="width:100%; padding:10px 14px; border:1.5px solid var(--border); border-radius:10px; font-size:15px; font-weight:700; font-family:monospace; outline:none; box-sizing:border-box; letter-spacing:1px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
+                <span style="font-size:11px; color:var(--muted);">Uppercase letters, numbers, dashes &amp; underscores only. Max 18 characters.</span>
+                <span id="promo-code-counter" style="font-size:11px; color:var(--muted); font-weight:600; white-space:nowrap;">0/18</span>
+              </div>
             </div>
             <div id="promo-no-code-notice" style="display:none; font-size:13px; color:#166534; font-weight:600; padding:8px 12px; background:rgba(107,193,122,0.08); border-radius:8px; margin-top:8px;">
               &#10003; No promo code needed &mdash; members will see this as a general offer.
