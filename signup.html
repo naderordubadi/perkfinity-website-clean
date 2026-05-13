@@ -99,6 +99,33 @@
             <div class="form-row">
               <label>Business Name *<input type="text" id="store_name" required></label>
             </div>
+            <div class="form-row" style="margin-bottom:20px">
+              <label>Business Category *
+                <select id="business_category" required
+                  style="border:1.5px solid var(--border);border-radius:12px;padding:12px 16px;background:#fff;color:var(--ink);font-size:15px;width:100%;outline:none;font-family:inherit;appearance:auto;margin-top:6px">
+                  <option value="" disabled selected>— Select a category —</option>
+                  <option value="Cafe &amp; Juice Bars">☕ Cafe &amp; Juice Bars</option>
+                  <option value="Restaurants">🍽️ Restaurants</option>
+                  <option value="Bakery &amp; Desserts">🥐 Bakery &amp; Desserts</option>
+                  <option value="Bars &amp; Nightlife">🍹 Bars &amp; Nightlife</option>
+                  <option value="Grocery &amp; Market">🛒 Grocery &amp; Market</option>
+                  <option value="Fitness &amp; Gym">💪 Fitness &amp; Gym</option>
+                  <option value="Yoga &amp; Pilates">🧘 Yoga &amp; Pilates</option>
+                  <option value="Beauty &amp; Nail">💅 Beauty &amp; Nail</option>
+                  <option value="Hair Salon">💇 Hair Salon</option>
+                  <option value="Barber Shop">✂️ Barber Shop</option>
+                  <option value="Spa &amp; Wellness">🧖 Spa &amp; Wellness</option>
+                  <option value="Retail &amp; Boutique">🛍️ Retail &amp; Boutique</option>
+                  <option value="Books &amp; Hobbies">📚 Books &amp; Hobbies</option>
+                  <option value="Pet Services">🐾 Pet Services</option>
+                  <option value="Services &amp; Repair">🔧 Services &amp; Repair</option>
+                  <option value="Photography">📸 Photography</option>
+                  <option value="Entertainment">🎮 Entertainment</option>
+                  <option value="Health &amp; Medical">🏥 Health &amp; Medical</option>
+                  <option value="Other">Other</option>
+                </select>
+              </label>
+            </div>
             <div id="street_row" class="form-row form-row-2">
               <label>Street Address *<input type="text" id="street_address"></label>
               <label>Suite / Unit #<input type="text" id="suite" placeholder="e.g. Suite 4B (optional)"></label>
@@ -1127,12 +1154,13 @@
             if (sel === '__custom__') return document.getElementById('welcome_offer_text').value.trim();
             return sel;
           })();
+          const sCat = document.getElementById('business_category').value;
 
           const errEl = document.getElementById('step1Error');
           const showErr = (msg) => { errEl.innerText = msg; errEl.style.display = 'block'; };
 
-          if (!sName || !sContact || !sEmail || !sPhone || !sOffer) {
-            showErr('Please fill in all required fields to continue.');
+          if (!sName || !sCat || !sContact || !sEmail || !sPhone || !sOffer) {
+            showErr('Please fill in all required fields including Business Category.');
             return;
           }
 
@@ -1285,6 +1313,7 @@
           pos_system: document.getElementById('pos_system').value === 'Other'
             ? (document.getElementById('pos_other').value.trim() || 'Other')
             : document.getElementById('pos_system').value,
+          business_category: document.getElementById('business_category').value,
           promo_code: document.getElementById('promo_code').value.trim(),
           tier: selectedTier,
           password: password

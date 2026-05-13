@@ -149,6 +149,22 @@
       border-color: rgba(255,255,255,.50);
       color: #fff;
     }
+    /* Row 3: Category chips */
+    .cat-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      overflow-x: auto;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      padding-bottom: 2px;
+    }
+    .cat-row::-webkit-scrollbar { display: none; }
+    /* Override dark chip style — match codes.html filter-chip appearance */
+    .cat-row .pres-chip {
+      white-space: nowrap;
+    }
     /* Multi-value tags (optional power feature) */
     .active-tags {
       display: flex;
@@ -397,6 +413,31 @@
             <button class="pres-chip"        data-pres="hybrid"   onclick="setPres(this)">📱 Claim &amp; Visit</button>
           </div>
 
+          <!-- Row 3: Category filter chips -->
+          <div class="cat-row">
+            <span class="presence-label" style="flex-shrink:0">Category:</span>
+            <button class="pres-chip active" data-cat="all" onclick="setCat(this)">All</button>
+            <button class="pres-chip" data-cat="Cafe &amp; Juice Bars" onclick="setCat(this)">☕ Cafe &amp; Juice Bars</button>
+            <button class="pres-chip" data-cat="Restaurants" onclick="setCat(this)">🍽️ Restaurants</button>
+            <button class="pres-chip" data-cat="Bakery &amp; Desserts" onclick="setCat(this)">🥐 Bakery &amp; Desserts</button>
+            <button class="pres-chip" data-cat="Bars &amp; Nightlife" onclick="setCat(this)">🍹 Bars &amp; Nightlife</button>
+            <button class="pres-chip" data-cat="Grocery &amp; Market" onclick="setCat(this)">🛒 Grocery &amp; Market</button>
+            <button class="pres-chip" data-cat="Fitness &amp; Gym" onclick="setCat(this)">💪 Fitness &amp; Gym</button>
+            <button class="pres-chip" data-cat="Yoga &amp; Pilates" onclick="setCat(this)">🧘 Yoga &amp; Pilates</button>
+            <button class="pres-chip" data-cat="Beauty &amp; Nail" onclick="setCat(this)">💅 Beauty &amp; Nail</button>
+            <button class="pres-chip" data-cat="Hair Salon" onclick="setCat(this)">💇 Hair Salon</button>
+            <button class="pres-chip" data-cat="Barber Shop" onclick="setCat(this)">✂️ Barber Shop</button>
+            <button class="pres-chip" data-cat="Spa &amp; Wellness" onclick="setCat(this)">🧖 Spa &amp; Wellness</button>
+            <button class="pres-chip" data-cat="Retail &amp; Boutique" onclick="setCat(this)">🛍️ Retail &amp; Boutique</button>
+            <button class="pres-chip" data-cat="Books &amp; Hobbies" onclick="setCat(this)">📚 Books &amp; Hobbies</button>
+            <button class="pres-chip" data-cat="Pet Services" onclick="setCat(this)">🐾 Pet Services</button>
+            <button class="pres-chip" data-cat="Services &amp; Repair" onclick="setCat(this)">🔧 Services &amp; Repair</button>
+            <button class="pres-chip" data-cat="Photography" onclick="setCat(this)">📸 Photography</button>
+            <button class="pres-chip" data-cat="Entertainment" onclick="setCat(this)">🎮 Entertainment</button>
+            <button class="pres-chip" data-cat="Health &amp; Medical" onclick="setCat(this)">🏥 Health &amp; Medical</button>
+            <button class="pres-chip" data-cat="Other" onclick="setCat(this)">🔖 Other</button>
+          </div>
+
           <!-- Multi-value tags (shown when user adds more cities/zips) -->
           <div class="active-tags" id="active-tags"></div>
         </div>
@@ -467,6 +508,7 @@
     // Multi-value tag arrays (optional power feature — add multiple cities/zips)
     const extraCities = [], extraZips = [];
     let activePresence = 'all';
+    let activeCategory = 'all';
 
     function clearSearch() {
       document.getElementById('search-q').value = '';
@@ -501,6 +543,13 @@
       if (document.getElementById('merchants-list').children.length > 0) doSearch();
     }
 
+    function setCat(btn) {
+      document.querySelectorAll('.cat-row .pres-chip').forEach(c => c.classList.remove('active'));
+      btn.classList.add('active');
+      activeCategory = btn.dataset.cat;
+      doSearch();
+    }
+
     async function doSearch() {
       // Read direct inputs — works without needing +Add
       const q       = document.getElementById('search-q').value.trim();
@@ -532,6 +581,10 @@
         // Client-side presence filter
         if (activePresence !== 'all') {
           results = results.filter(m => m.business_presence === activePresence);
+        }
+        // Client-side category filter
+        if (activeCategory !== 'all') {
+          results = results.filter(m => m.business_category === activeCategory);
         }
 
         results = results.sort((a, b) => a.business_name.localeCompare(b.business_name));

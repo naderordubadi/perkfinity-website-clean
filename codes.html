@@ -102,10 +102,14 @@
     .filter-bar {
       display: flex;
       gap: 10px;
-      justify-content: center;
-      flex-wrap: wrap;
+      overflow-x: auto;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      padding-bottom: 6px;
       margin-bottom: 48px;
     }
+    .filter-bar::-webkit-scrollbar { display: none; }
     .filter-chip {
       display: inline-flex;
       align-items: center;
@@ -118,6 +122,7 @@
       font-weight: 800;
       color: var(--muted);
       cursor: pointer;
+      flex-shrink: 0;
       transition: background .15s, border-color .15s, color .15s, transform .15s;
     }
     .filter-chip:hover {
@@ -472,14 +477,25 @@
         <!-- Category filter -->
         <div class="filter-bar" id="filter-bar">
           <button class="filter-chip active" data-cat="all" onclick="filterCat(this)">✦ All</button>
-          <button class="filter-chip" data-cat="Fashion" onclick="filterCat(this)">👗 Fashion</button>
-          <button class="filter-chip" data-cat="Beauty" onclick="filterCat(this)">💄 Beauty</button>
-          <button class="filter-chip" data-cat="Food" onclick="filterCat(this)">🍔 Food</button>
-          <button class="filter-chip" data-cat="Home" onclick="filterCat(this)">🏠 Home</button>
-          <button class="filter-chip" data-cat="Sports" onclick="filterCat(this)">⚽ Sports</button>
-          <button class="filter-chip" data-cat="Tech" onclick="filterCat(this)">💻 Tech</button>
-          <button class="filter-chip" data-cat="Health" onclick="filterCat(this)">🌿 Health</button>
-          <button class="filter-chip" data-cat="Other" onclick="filterCat(this)">🛍️ Other</button>
+          <button class="filter-chip" data-cat="Cafe &amp; Juice Bars" onclick="filterCat(this)">☕ Cafe &amp; Juice Bars</button>
+          <button class="filter-chip" data-cat="Restaurants" onclick="filterCat(this)">🍽️ Restaurants</button>
+          <button class="filter-chip" data-cat="Bakery &amp; Desserts" onclick="filterCat(this)">🥐 Bakery &amp; Desserts</button>
+          <button class="filter-chip" data-cat="Bars &amp; Nightlife" onclick="filterCat(this)">🍹 Bars &amp; Nightlife</button>
+          <button class="filter-chip" data-cat="Grocery &amp; Market" onclick="filterCat(this)">🛒 Grocery &amp; Market</button>
+          <button class="filter-chip" data-cat="Fitness &amp; Gym" onclick="filterCat(this)">💪 Fitness &amp; Gym</button>
+          <button class="filter-chip" data-cat="Yoga &amp; Pilates" onclick="filterCat(this)">🧘 Yoga &amp; Pilates</button>
+          <button class="filter-chip" data-cat="Beauty &amp; Nail" onclick="filterCat(this)">💅 Beauty &amp; Nail</button>
+          <button class="filter-chip" data-cat="Hair Salon" onclick="filterCat(this)">💇 Hair Salon</button>
+          <button class="filter-chip" data-cat="Barber Shop" onclick="filterCat(this)">✂️ Barber Shop</button>
+          <button class="filter-chip" data-cat="Spa &amp; Wellness" onclick="filterCat(this)">🧖 Spa &amp; Wellness</button>
+          <button class="filter-chip" data-cat="Retail &amp; Boutique" onclick="filterCat(this)">🛍️ Retail &amp; Boutique</button>
+          <button class="filter-chip" data-cat="Books &amp; Hobbies" onclick="filterCat(this)">📚 Books &amp; Hobbies</button>
+          <button class="filter-chip" data-cat="Pet Services" onclick="filterCat(this)">🐾 Pet Services</button>
+          <button class="filter-chip" data-cat="Services &amp; Repair" onclick="filterCat(this)">🔧 Services &amp; Repair</button>
+          <button class="filter-chip" data-cat="Photography" onclick="filterCat(this)">📸 Photography</button>
+          <button class="filter-chip" data-cat="Entertainment" onclick="filterCat(this)">🎮 Entertainment</button>
+          <button class="filter-chip" data-cat="Health &amp; Medical" onclick="filterCat(this)">🏥 Health &amp; Medical</button>
+          <button class="filter-chip" data-cat="Other" onclick="filterCat(this)">🔖 Other</button>
         </div>
       </div>
     </section>
@@ -574,7 +590,27 @@
   <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
   <script>
     const BACKEND = (typeof PerkfinityConfig !== 'undefined') ? PerkfinityConfig.BACKEND_URL : 'https://perkfinity-backend.vercel.app';
-    const catIcons = { Fashion:'👗', Beauty:'💄', Food:'🍔', Home:'🏠', Sports:'⚽', Tech:'💻', Health:'🌿', Other:'🛍️' };
+    const catIcons = {
+      'Cafe & Juice Bars': '☕',
+      'Restaurants': '🍽️',
+      'Bakery & Desserts': '🥐',
+      'Bars & Nightlife': '🍹',
+      'Grocery & Market': '🛒',
+      'Fitness & Gym': '💪',
+      'Yoga & Pilates': '🧘',
+      'Beauty & Nail': '💅',
+      'Hair Salon': '💇',
+      'Barber Shop': '✂️',
+      'Spa & Wellness': '🧖',
+      'Retail & Boutique': '🛍️',
+      'Books & Hobbies': '📚',
+      'Pet Services': '🐾',
+      'Services & Repair': '🔧',
+      'Photography': '📸',
+      'Entertainment': '🎮',
+      'Health & Medical': '🏥',
+      'Other': '🔖'
+    };
     let allBrands = [];
     let activeCategory = 'all';
 
