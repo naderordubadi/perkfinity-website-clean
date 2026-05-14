@@ -9,7 +9,7 @@
   <link rel="icon" href="assets/Perkfinity-App-Icon.png"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap"/>
-  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -187,7 +187,13 @@
         <div class="merchant-label">Test Merchant</div>
         <div class="merchant-name">INYA New York</div>
       </div>
-      <canvas id="qrCanvas"></canvas>
+      <img
+        src="https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=https%3A%2F%2Fapp.perkfinity.net%2Fqr%2FSkoFv0_Rt1l4&color=1a1040&bgcolor=ffffff&margin=2"
+        alt="INYA QR Code"
+        width="240"
+        height="240"
+        style="border-radius:12px; display:block;"
+      />
       <div style="font-size:13px; color:#9b92b8;">Point your camera directly at this code</div>
     </div>
 
@@ -214,23 +220,7 @@
 
   <footer>This page is for app review purposes only · perkfinity.net</footer>
 
-  <script>
-    QRCode.toCanvas(
-      document.getElementById('qrCanvas'),
-      'https://app.perkfinity.net/qr/SkoFv0_Rt1l4',
-      {
-        width: 240,
-        margin: 2,
-        color: {
-          dark: '#1a1040',
-          light: '#ffffff'
-        }
-      },
-      function(error) {
-        if (error) console.error('QR generation error:', error);
-      }
-    );
-  </script>
+
 
 </body>
 </html>
