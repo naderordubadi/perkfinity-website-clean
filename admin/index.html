@@ -729,7 +729,6 @@
           <select class="toolbar-select" id="campaign-filter-type" onchange="filterTable('campaigns')">
             <option value="">All Types</option>
             <option value="initial">Initial (Welcome)</option>
-            <option value="perk">Perk</option>
             <option value="percent">% Off</option>
             <option value="dollar">$ Off</option>
             <option value="bogo">BOGO</option>
@@ -932,7 +931,8 @@
                 <button class="ann-type-btn active" onclick="annSetType('merchants',this)">🏪 Merchants</button>
                 <button class="ann-type-btn" onclick="annSetType('members',this)">👤 Members</button>
                 <button class="ann-type-btn" onclick="annSetType('both',this)">🏪👤 Both</button>
-                <button class="ann-type-btn" onclick="annSetType('external',this)">📧 External Only</button>
+                <button class="ann-type-btn" onclick="annSetType('external',this)">📧 External Mass</button>
+                <button class="ann-type-btn" onclick="annSetType('individual',this)">✉️ Outreach</button>
               </div>
             </div>
 
@@ -1039,7 +1039,7 @@
           </div>
 
           <!-- External Emails -->
-          <div class="section-card" style="margin-top:16px">
+          <div id="ann-external-section" class="section-card" style="margin-top:16px">
             <div class="section-title">📧 External Email List <span style="font-size:12px;font-weight:400;color:var(--muted);">(optional — prospects not in your system)</span></div>
             <div class="form-group" style="margin-bottom:8px">
               <textarea class="form-textarea" id="ann-external-emails" placeholder="Paste emails (one per line or comma separated)&#10;john@example.com&#10;jane@business.net" style="min-height:80px;font-size:13px;"></textarea>
@@ -1050,6 +1050,15 @@
                 <input type="file" accept=".csv,.txt" onchange="annLoadCSV(event)" style="display:none;">
               </label>
               <span id="ann-ext-count" style="font-size:12px;color:var(--muted);"></span>
+            </div>
+          </div>
+
+          <!-- Individual Outreach Recipient -->
+          <div id="ann-individual-section" class="section-card" style="margin-top:16px;display:none;">
+            <div class="section-title">✉️ Recipient</div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">Recipient Email Address</label>
+              <input type="email" class="form-input" id="ann-individual-email" placeholder="owner@coffeeshop.com" style="font-size:14px;" oninput="annUpdateIndividualCount()">
             </div>
           </div>
 
@@ -1083,6 +1092,20 @@
                   <div style="font-size:11px;color:var(--muted);margin-top:2px;">Announcements & alerts</div>
                 </label>
               </div>
+            </div>
+
+            <!-- Template Selector (Outreach/Individual only) -->
+            <div id="ann-template-section" class="form-group" style="display:none;">
+              <label class="form-label">Email Template</label>
+              <select class="form-input" id="ann-template-select" onchange="annApplyTemplate()" style="font-size:14px;">
+                <option value="">— Select a template —</option>
+                <option value="physical">📍 Physical Business</option>
+                <option value="mobile">🚐 Mobile Business</option>
+                <option value="online">🛒 Online Business</option>
+                <option value="hybrid">🏪 Hybrid Business</option>
+                <option value="enterprise">🏗️ Enterprise</option>
+                <option value="custom">✏️ Custom (blank)</option>
+              </select>
             </div>
 
             <!-- Subject -->
@@ -1206,7 +1229,8 @@
             <option value="merchants">🏪 Merchants</option>
             <option value="members">👤 Members</option>
             <option value="both">🏪👤 Both</option>
-            <option value="external">📧 External</option>
+            <option value="external">📧 External Mass</option>
+            <option value="individual">✉️ Individual Outreach</option>
           </select>
           <select class="toolbar-select" id="ann-history-filter-status" onchange="filterAnnHistory()">
             <option value="">All Status</option>
@@ -1633,7 +1657,13 @@
       overlay.style.display = 'flex';
       document.getElementById('detail-title').textContent = m.business_name || 'Merchant Details';
 
-      const tierLabel = m.tier === 'tier1' ? 'Tier 1' : m.tier === 'free_for_life' ? 'Free For Life' : 'Free Trial';
+      const tierLabel = m.tier === 'tier1' ? 'Connect'
+        : m.tier === 'free_for_life' ? 'Free For Life'
+        : m.tier === 'online_starter' ? 'Starter'
+        : m.tier === 'online_growth' ? 'Growth'
+        : m.tier === 'online_scale' ? 'Scale'
+        : m.tier === 'enterprise' ? 'Enterprise'
+        : 'Free Trial';
       const bs = m.billing_status || m.status || 'active';
       let statusLabel = bs;
       if (bs === 'deleted') { statusLabel = 'Deleted'; }
@@ -1904,7 +1934,13 @@
       const isPendingCancel = inv.billing_status === 'pending_cancellation';
       const statusLabel = isDeleted ? 'Deleted' : isPendingCancel ? 'Pending Cancel' : inv.status ? inv.status.charAt(0).toUpperCase() + inv.status.slice(1) : '\u2014';
       const statusColor = inv.status === 'paid' ? '#16a34a' : inv.status === 'failed' ? '#ef4444' : '#f59e0b';
-      const tierLabel = inv.subscription_tier === 'tier1' ? 'Tier 1' : inv.subscription_tier === 'free_for_life' ? 'Free For Life' : 'Free Trial';
+      const tierLabel = inv.subscription_tier === 'tier1' ? 'Connect'
+        : inv.subscription_tier === 'free_for_life' ? 'Free For Life'
+        : inv.subscription_tier === 'online_starter' ? 'Starter'
+        : inv.subscription_tier === 'online_growth' ? 'Growth'
+        : inv.subscription_tier === 'online_scale' ? 'Scale'
+        : inv.subscription_tier === 'enterprise' ? 'Enterprise'
+        : 'Free Trial';
 
       let period = '\u2014';
       if (inv.period_start) {
@@ -2597,8 +2633,17 @@
               : isPendingCancel && inv.next_billing_date
                 ? `<span style="color:#ef4444;font-weight:600;">\uD83D\uDEAB ${formatDate(inv.next_billing_date)}</span>`
                 : inv.next_billing_date ? formatDate(inv.next_billing_date) : '\u2014';
-            const tierClass = inv.subscription_tier === 'tier1' ? 'tier1' : inv.subscription_tier === 'free_for_life' ? 'ffl' : 'free';
-            const tierLabel = inv.subscription_tier === 'tier1' ? 'Connect' : inv.subscription_tier === 'free_for_life' ? 'FFL' : 'Free';
+            const tierClass = inv.subscription_tier === 'tier1' ? 'tier1'
+              : inv.subscription_tier === 'free_for_life' ? 'ffl'
+              : ['online_starter','online_growth','online_scale','enterprise'].includes(inv.subscription_tier) ? 'tier1'
+              : 'free';
+            const tierLabel = inv.subscription_tier === 'tier1' ? 'Connect'
+              : inv.subscription_tier === 'free_for_life' ? 'FFL'
+              : inv.subscription_tier === 'online_starter' ? 'Starter'
+              : inv.subscription_tier === 'online_growth' ? 'Growth'
+              : inv.subscription_tier === 'online_scale' ? 'Scale'
+              : inv.subscription_tier === 'enterprise' ? 'Enterprise'
+              : 'Free';
             return `
             <tr style="cursor:pointer;" onclick="showInvoiceDetail('${inv.id}')">
               <td><strong>${inv.merchant_name || '\u2014'}</strong></td>
@@ -2695,7 +2740,7 @@
             (c.merchant_name||c.business_name||'').toLowerCase().includes(search)
           );
           if (campStatus) data = data.filter(c => c.status === campStatus);
-          if (campType) data = data.filter(c => c.campaign_type === campType);
+          if (campType) data = data.filter(c => campType === 'initial' ? (c.campaign_type === 'initial' || c.campaign_type === 'perk') : c.campaign_type === campType);
           if (campPromo === 'yes') data = data.filter(c => !!(c.promo_code));
           if (campPromo === 'no') data = data.filter(c => !(c.promo_code));
           if (campMerchant) data = data.filter(c => (c.merchant_name || c.business_name) === campMerchant);
@@ -3652,6 +3697,53 @@
     // ═══════════════════════════════════════════════════════════════
     // ANNOUNCEMENT WIZARD
     // ═══════════════════════════════════════════════════════════════
+    // ── Sales Email Templates ─────────────────────────────────────
+    const SALES_TEMPLATES = {
+      physical: {
+        subject: 'Your walk-ins have phones — here\'s how to reach them again',
+        body: `Hi [First Name / there],\n\nPerkfinity is a loyalty and perks platform for local businesses — and it works alongside whatever system you already have in place, whether that\'s a POS, punch cards, or nothing at all.\n\nHere\'s how it works: you display a QR code at your counter — we generate it for you. When a customer scans it, they automatically join your member list. You can see every member in your online dashboard, and when you\'re ready to run a promotion — a percentage off, a buy-one-get-one, a dollar discount, a free item — we send it to your members as a Daily Digest email and push notification.\n\nThere\'s no hardware to buy, no staff training required, and you never handle any customer data. Perkfinity manages all of it, so you carry zero privacy liability.\n\nYour business also shows up in the Nearby Deals section of our website and the Near Me section of our app — so when a Perkfinity user is in your area, your business appears on their screen automatically, and they can join your member list right inside the app, even before they walk through the door.\n\nI\'d love to show you how it looks in a 15-minute call — and I\'ll share a promo code as a thank-you for your time.\n\nWould Tuesday or Wednesday this week work? Or feel free to grab a time here: https://calendly.com/hello-perkfinity/perkfinity-demo\n\nBest,\nNader\nPerkfinity\nhttps://perkfinity.net/merchants.html`
+      },
+      mobile: {
+        subject: 'The problem with keeping customers engaged with a mobile business — and our fix for it',
+        body: `Hi [First Name / there],\n\nPerkfinity is a loyalty and perks platform — and unlike most loyalty tools, it\'s built to work for businesses that move, not just ones with a fixed address.\n\nHere\'s how it works: you display a QR code at your service point — we generate it for you. When a customer scans it, they automatically join your member list. You can see every member in your online dashboard, and when you want to reach them, you have two tools: run a promotion — a percentage off, a buy-one-get-one, a dollar discount, a free item — or post an announcement, like letting your members know where you\'ll be this weekend or what\'s new on the menu. Either way, we deliver it as a Daily Digest email and push notification.\n\nThere\'s no hardware to buy, no staff training required, and you never handle any customer data. Perkfinity manages all of it, so you carry zero privacy liability.\n\nYour business is also discoverable by Perkfinity users in your area — they can find you in the Nearby Deals section of our website and the Near Me section of our app, and join your member list right in the app.\n\nI\'d love to show you how it looks in a 15-minute call — and I\'ll share a promo code as a thank-you for your time.\n\nWould Tuesday or Wednesday this week work? Or feel free to grab a time here: https://calendly.com/hello-perkfinity/perkfinity-demo\n\nBest,\nNader\nPerkfinity\nhttps://perkfinity.net/merchants.html`
+      },
+      online: {
+        subject: 'Getting your first-time buyers to come back — without a 40% discount',
+        body: `Hi [First Name / there],\n\nPerkfinity is a loyalty and perks platform for online businesses — and it gives your customers a reason to come back without training them to expect a deal every time.\n\nHere\'s how it works: your store gets listed on our Promo Codes page, where Perkfinity members can discover you. Here\'s what sets it apart from deal sites: the promo code stays hidden until they actually join your member list. That means only committed, opted-in customers see your offer — not discount hunters browsing for any coupon they can find.\n\nWhen someone joins, they receive a Welcome Promo as their first offer — a code they apply directly at checkout, just like any other promo code. You create it using whatever you already use (Shopify, WooCommerce, or any platform) — no new integrations, no changes to your checkout. And even if they never redeem it, they\'re on your member list and you can keep the conversation going with future promotions.\n\nUnlike platforms that charge a commission per transaction, Perkfinity is a flat monthly fee — with different plan levels to fit where your business is today. You keep your margin, you control your offers, and your audience is people who\'ve opted in to hear from you.\n\nThere\'s no new setup, no staff training, and you never handle any customer data. Perkfinity manages all of it, so you carry zero privacy liability.\n\nI\'d love to show you how it works in a 15-minute call — and I\'ll share a promo code as a thank-you for your time.\n\nWould Tuesday or Wednesday this week work? Or feel free to grab a time here: https://calendly.com/hello-perkfinity/perkfinity-demo\n\nBest,\nNader\nPerkfinity\nhttps://perkfinity.net/merchants.html`
+      },
+      hybrid: {
+        subject: 'New customers from online and in-store — and they join your member list automatically',
+        body: `Hi [First Name / there],\n\nPerkfinity is a loyalty and perks platform — built for businesses that operate both online and in-store, bringing both customer worlds into a single member list.\n\nOn the online side: your store gets listed on our Promo Codes page, where Perkfinity members can discover you. The promo code stays hidden until a visitor actually joins your member list — so only opted-in customers see your offer, not deal hunters. When they join, they receive a Welcome Promo as their first offer — a code they apply at your existing checkout (Shopify, WooCommerce, or any platform) with no new integrations.\n\nOn the in-store side: you display a QR code at your counter — we generate it for you. When a walk-in scans it, they join the same member list automatically. Both your online and in-store members land in one online dashboard. When you run a promotion — a percentage off, a dollar discount, a buy-one-get-one, a free item — we deliver it to your full list as a Daily Digest email and push notification. And even members who never redeem stay on your list for future outreach.\n\nYour physical locations are also discoverable by Perkfinity users in your area through the Nearby Deals section of our website and the Near Me section of our app — they can join your member list right in the app before walking in.\n\nUnlike platforms that charge a commission per transaction, Perkfinity is a flat monthly fee — with different plan levels to fit where your business is today. No new hardware, no staff training, and you never handle any customer data. Perkfinity manages all of it, so you carry zero privacy liability.\n\nI\'d love to show you how it works in a 15-minute call — and I\'ll share a promo code as a thank-you for your time.\n\nWould Tuesday or Wednesday this week work? Or feel free to grab a time here: https://calendly.com/hello-perkfinity/perkfinity-demo\n\nBest,\nNader\nPerkfinity\nhttps://perkfinity.net/merchants.html`
+      },
+      enterprise: {
+        subject: 'How your promo codes could be building your member list at the same time',
+        body: `Hi [First Name / there],\n\nPerkfinity is a loyalty and perks platform — and we have an enterprise path built for multi-location businesses.\n\nHere\'s the core of how it works: your brand gets listed on Perkfinity\'s Promo Codes page, where users actively search for deals from businesses they love. To reveal your promo code, they have to join your member list first — so every redemption automatically builds your audience, with no deal hunters who grab the code and disappear. The code works in your existing checkout system, online or in store, so there\'s nothing new to deploy.\n\nOnce they\'re members, you stay in touch through campaigns — a percentage off, a dollar discount, a buy-one-get-one, a free item, or simply an announcement — delivered as a Daily Digest email and push notification. You manage everything across all your locations from one central dashboard.\n\nThere\'s no hardware to install, no staff training across locations, and you never handle any customer data. Perkfinity manages all of it — zero privacy liability across your entire operation.\n\nPricing is a flat monthly fee that scales with your footprint — not per transaction, not per member.\n\nIf this sounds like a fit, our 5-minute intake form helps us understand your structure so we can reach out with something actually tailored to your operation:\n\n→ https://perkfinity.net/enterprise.html\n\nBest,\nNader\nPerkfinity`
+      },
+      custom: { subject: '', body: '' }
+    };
+
+    function annApplyTemplate() {
+      const key = document.getElementById('ann-template-select').value;
+      if (!key || !SALES_TEMPLATES[key]) return;
+      const tmpl = SALES_TEMPLATES[key];
+      document.getElementById('ann-subject').value = tmpl.subject;
+      document.getElementById('ann-body').value = tmpl.body;
+    }
+
+    function annBuildIndividualPreview(body) {
+      if (!body) return '<p style="color:#999;font-family:sans-serif;">Email body will appear here...</p>';
+      const paras = body.split(/\n\n+/).map(p =>
+        `<p style="margin:0 0 16px 0;font-family:'Helvetica Neue',Arial,sans-serif;font-size:15px;color:#333;line-height:1.7;">${p.replace(/\n/g,'<br>')}</p>`
+      ).join('');
+      return paras + '<p style="margin-top:32px;padding-top:16px;border-top:1px solid #eee;font-size:12px;color:#aaa;font-family:sans-serif;">Perkfinity &middot; perkfinity.net<br>If you\'d prefer not to receive outreach, reply "Unsubscribe".</p>';
+    }
+
+    function annUpdateIndividualCount() {
+      const email = document.getElementById('ann-individual-email').value.trim();
+      document.getElementById('ann-preview-count').textContent = email.includes('@') ? '1' : '—';
+      document.getElementById('ann-preview-sample').textContent = email.includes('@') ? email : 'Enter recipient email above';
+    }
+
     let _annType = 'merchants';
     let _annSender = 'hello@perkfinity.net';
     let _annAttachments = [];
@@ -3662,6 +3754,10 @@
       document.querySelectorAll('.ann-step-tab').forEach(t => t.classList.remove('active'));
       document.getElementById('ann-step-' + n).classList.add('active');
       document.getElementById('ann-step-tab-' + n).classList.add('active');
+      if (n === 2) {
+        const tmplEl = document.getElementById('ann-template-section');
+        if (tmplEl) tmplEl.style.display = _annType === 'individual' ? 'block' : 'none';
+      }
       if (n === 3) annPopulateReview();
       if (n === 1) annPreview();
     }
@@ -3672,12 +3768,17 @@
       btn.classList.add('active');
       // Show/hide entire filters section
       const filters = document.getElementById('ann-filters');
-      filters.style.display = type === 'external' ? 'none' : 'block';
+      filters.style.display = (type === 'external' || type === 'individual') ? 'none' : 'block';
       // Show/hide type-specific groups
       const merchantGroup = document.getElementById('ann-group-merchant-only');
       const memberGroup = document.getElementById('ann-group-member-only');
       if (merchantGroup) merchantGroup.style.display = (type === 'merchants') ? 'block' : 'none';
       if (memberGroup) memberGroup.style.display = (type === 'members') ? 'block' : 'none';
+      // Show/hide external mass vs individual sections
+      const extSection = document.getElementById('ann-external-section');
+      const indSection = document.getElementById('ann-individual-section');
+      if (extSection) extSection.style.display = (type === 'individual') ? 'none' : 'block';
+      if (indSection) indSection.style.display = (type === 'individual') ? 'block' : 'none';
       // Reset filters and rebuild dropdowns for this type
       annClearFilters();
       annUpdateDropdowns();
@@ -3767,6 +3868,12 @@
       if (_annType === 'external') {
         document.getElementById('ann-preview-count').textContent = '—';
         document.getElementById('ann-preview-sample').textContent = 'External list only';
+        return;
+      }
+      if (_annType === 'individual') {
+        const email = document.getElementById('ann-individual-email')?.value.trim() || '';
+        document.getElementById('ann-preview-count').textContent = email.includes('@') ? '1' : '—';
+        document.getElementById('ann-preview-sample').textContent = email.includes('@') ? email : 'Enter recipient email above';
         return;
       }
       clearTimeout(_annPreviewTimer);
@@ -3867,6 +3974,16 @@
     }
 
     function annPopulateReview() {
+      if (_annType === 'individual') {
+        const recipEmail = document.getElementById('ann-individual-email').value.trim();
+        document.getElementById('ann-review-recipients').textContent = recipEmail || '(no recipient set)';
+        document.getElementById('ann-review-sender').textContent = _annSender;
+        document.getElementById('ann-review-subject').textContent = document.getElementById('ann-subject').value || '(no subject)';
+        document.getElementById('ann-review-attachments').textContent = 'None';
+        const body = document.getElementById('ann-body').value;
+        document.getElementById('ann-preview-html').innerHTML = annBuildIndividualPreview(body);
+        return;
+      }
       const extCount = annGetExternalEmails().length;
       const dbCount = document.getElementById('ann-preview-count').textContent;
       const total = (parseInt(dbCount) || 0) + extCount;
@@ -3874,7 +3991,6 @@
       document.getElementById('ann-review-sender').textContent = _annSender;
       document.getElementById('ann-review-subject').textContent = document.getElementById('ann-subject').value || '(no subject)';
       document.getElementById('ann-review-attachments').textContent = _annAttachments.length ? _annAttachments.map(a => a.name).join(', ') : 'None';
-      // Build preview HTML
       const body = document.getElementById('ann-body').value;
       const subject = document.getElementById('ann-subject').value;
       document.getElementById('ann-preview-html').innerHTML = annBuildEmailTemplate(subject, body);
@@ -3946,22 +4062,36 @@
       const statusEl = document.getElementById('ann-send-status');
       statusEl.innerHTML = `<span style="color:var(--purple);">⏳ ${isScheduled ? 'Scheduling...' : 'Sending...'}</span>`;
 
-      const html_body = annBuildEmailTemplate(subject, body);
-
       try {
-        const res = await fetch(API_BASE + '/admin/send-announcement', {
-          method: 'POST',
-          headers: getAdminHeaders({ 'Content-Type': 'application/json' }),
-          body: JSON.stringify({
-            subject,
-            html_body,
-            sender: _annSender,
-            audience: _annType !== 'external' ? annBuildAudience() : { type: 'external' },
-            external_emails: annGetExternalEmails(),
-            attachments: _annAttachments,
-            scheduled_at: scheduledAt
-          })
-        });
+        let res;
+        if (_annType === 'individual') {
+          const recipEmail = document.getElementById('ann-individual-email').value.trim();
+          if (!recipEmail || !recipEmail.includes('@')) {
+            showToast('⚠️ Please enter a valid recipient email');
+            annGoStep(1);
+            return;
+          }
+          res = await fetch(API_BASE + '/admin/send-individual-email', {
+            method: 'POST',
+            headers: getAdminHeaders({ 'Content-Type': 'application/json' }),
+            body: JSON.stringify({ recipient_email: recipEmail, subject, body, sender: _annSender })
+          });
+        } else {
+          const html_body = annBuildEmailTemplate(subject, body);
+          res = await fetch(API_BASE + '/admin/send-announcement', {
+            method: 'POST',
+            headers: getAdminHeaders({ 'Content-Type': 'application/json' }),
+            body: JSON.stringify({
+              subject,
+              html_body,
+              sender: _annSender,
+              audience: _annType !== 'external' ? annBuildAudience() : { type: 'external' },
+              external_emails: annGetExternalEmails(),
+              attachments: _annAttachments,
+              scheduled_at: scheduledAt
+            })
+          });
+        }
         const json = await res.json();
         if (json.success) {
           if (isScheduled) {
