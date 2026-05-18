@@ -769,6 +769,12 @@
           style="background:var(--purpleLight);color:var(--purpleDark);padding:8px 14px;font-size:13px;">Apply</button>
         <button onclick="clearMembersFilter()" class="btn"
           style="background:#f1f5f9;color:#555;padding:8px 14px;font-size:13px;">Clear</button>
+        <select id="mf-source" onchange="applyMembersFilter()"
+          style="padding:8px 12px; border:1px solid var(--border); border-radius:8px; font-size:13px; color:#333;">
+          <option value="">All Sources</option>
+          <option value="qr_scan">📱 QR Scan</option>
+          <option value="app_discovery">🗺 App Discovery</option>
+        </select>
         <div style="margin-left:auto; display:flex; gap:8px;">
           <button onclick="exportMembers('csv')" class="btn"
             style="background:#0ea5e9;color:#fff;padding:8px 16px;font-size:13px;">⬇ CSV</button>
@@ -794,6 +800,8 @@
                 Promotion <span id="sort-campaign_title"></span></th>
               <th style="padding:12px; cursor:pointer; user-select:none;" onclick="sortMembers('status')">Status <span
                   id="sort-status"></span></th>
+              <th style="padding:12px; cursor:pointer; user-select:none;" onclick="sortMembers('join_source')">Joined Via <span
+                  id="sort-join_source"></span></th>
               <th style="padding:12px; cursor:pointer; user-select:none;" onclick="sortMembers('ts')">Timestamp <span
                   id="sort-ts"></span></th>
             </tr>
@@ -5121,7 +5129,7 @@
 
     async function loadMembers() {
       const tbody = document.getElementById('membersTableBody');
-      tbody.innerHTML = '<tr><td colspan="7" style="padding:20px; text-align:center; color:var(--muted);">Loading members...</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="8" style="padding:20px; text-align:center; color:var(--muted);">Loading members...</td></tr>';
       try {
         const res = await fetch(`${BACKEND_URL}/api/v1/merchants/${merchantId}/members`, {
           headers: { 'Authorization': `Bearer ${apiToken}` }
@@ -5133,7 +5141,7 @@
             const proms = m.promotions || [];
             const total = proms.length;
             if (proms.length === 0) {
-              _membersRaw.push({ member_id: m.user_id, city: m.city || '', zip_code: m.zip_code || '', total, campaign_title: '-', status: '-', ts_raw: null, ts_display: '-' });
+              _membersRaw.push({ member_id: m.user_id, city: m.city || '', zip_code: m.zip_code || '', total, campaign_title: '-', status: '-', join_source: m.join_source || '', ts_raw: null, ts_display: '-' });
             } else {
               proms.forEach(p => {
                 let ts_raw = null;
@@ -5142,18 +5150,18 @@
                 else if (p.status === 'Expired' && p.expires_at) ts_raw = new Date(p.expires_at);
                 else if (p.status === 'Created' && p.issued_at) ts_raw = new Date(p.issued_at);
                 else if (p.status === 'Announcement' && p.issued_at) ts_raw = new Date(p.issued_at);
-                _membersRaw.push({ member_id: m.user_id, city: m.city || '', zip_code: m.zip_code || '', total, campaign_title: p.campaign_title || 'Promo', status: p.status || 'Pending', ts_raw, ts_display: ts_raw ? _fmtTs(ts_raw.toISOString()) : '-' });
+                _membersRaw.push({ member_id: m.user_id, city: m.city || '', zip_code: m.zip_code || '', total, campaign_title: p.campaign_title || 'Promo', status: p.status || 'Pending', join_source: m.join_source || '', ts_raw, ts_display: ts_raw ? _fmtTs(ts_raw.toISOString()) : '-' });
               });
             }
           });
           renderMembersTable(_membersRaw);
         } else {
-          tbody.innerHTML = '<tr><td colspan="7" style="padding:20px; text-align:center; color:var(--muted);">No members joined yet.</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="8" style="padding:20px; text-align:center; color:var(--muted);">No members joined yet.</td></tr>';
           document.getElementById('membersCount').innerText = '';
           const lm = document.getElementById('members-load-more-wrap'); if (lm) lm.style.display = 'none';
         }
       } catch (e) {
-        tbody.innerHTML = `<tr><td colspan="7" style="padding:20px; text-align:center; color:red;">Connection error fetching members.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" style="padding:20px; text-align:center; color:red;">Connection error fetching members.</td></tr>`;
       }
     }
 
@@ -5336,6 +5344,7 @@ You're receiving this because you're a valued customer of ${businessName}.`;
       const memberQ = (document.getElementById('mf-member').value || '').toLowerCase();
       const zipQ = (document.getElementById('mf-zip').value || '').toLowerCase();
       const statusQ = document.getElementById('mf-status').value;
+      const sourceQ = document.getElementById('mf-source').value;
       const timeQ = document.getElementById('mf-time').value;
       const now = new Date();
       const startOf = (d) => { const r = new Date(d); r.setHours(0, 0, 0, 0); return r; };
@@ -5343,6 +5352,7 @@ You're receiving this because you're a valued customer of ${businessName}.`;
         if (memberQ && !r.member_id.toLowerCase().includes(memberQ)) return false;
         if (zipQ && !r.zip_code.toLowerCase().includes(zipQ)) return false;
         if (statusQ && r.status !== statusQ) return false;
+        if (sourceQ && r.join_source !== sourceQ) return false;
         if (timeQ && r.ts_raw) {
           const d = r.ts_raw;
           const todayStart = startOf(now);
@@ -5362,6 +5372,7 @@ You're receiving this because you're a valued customer of ${businessName}.`;
       document.getElementById('mf-member').value = '';
       document.getElementById('mf-zip').value = '';
       document.getElementById('mf-status').value = '';
+      document.getElementById('mf-source').value = '';
       document.getElementById('mf-time').value = '';
       renderMembersTable(_membersRaw);
     }
@@ -5375,7 +5386,7 @@ You're receiving this because you're a valued customer of ${businessName}.`;
     function renderMembersTable(rows) {
       const PAGE = 25;
       // Update sort indicators
-      ['member_id', 'city', 'zip_code', 'total', 'campaign_title', 'status', 'ts'].forEach(c => {
+      ['member_id', 'city', 'zip_code', 'total', 'campaign_title', 'status', 'join_source', 'ts'].forEach(c => {
         const el = document.getElementById('sort-' + c);
         if (el) el.innerText = _membersSort.col === c ? (_membersSort.dir === 'asc' ? ' ▲' : ' ▼') : ' ⇅';
       });
@@ -5394,7 +5405,7 @@ You're receiving this because you're a valued customer of ${businessName}.`;
       const tbody = document.getElementById('membersTableBody');
       const loadMoreWrap = document.getElementById('members-load-more-wrap');
       if (sorted.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" style="padding:20px; text-align:center; color:var(--muted);">No results match your filters.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" style="padding:20px; text-align:center; color:var(--muted);">No results match your filters.</td></tr>';
         document.getElementById('membersCount').innerText = '';
         if (loadMoreWrap) loadMoreWrap.style.display = 'none';
         return;
@@ -5406,6 +5417,11 @@ You're receiving this because you're a valued customer of ${businessName}.`;
         else if (r.status === 'Expired') { badgeBg = 'rgba(255,0,0,0.1)'; badgeColor = 'red'; }
         else if (r.status === 'Pending') { badgeBg = 'rgba(251,191,36,0.15)'; badgeColor = '#D97706'; }
         const badge = r.status !== '-' ? `<span style="background:${badgeBg};color:${badgeColor};padding:2px 8px;border-radius:4px;font-size:12px;font-weight:600;">${r.status}</span>` : '-';
+        const srcBadge = r.join_source === 'qr_scan'
+          ? `<span style="background:rgba(91,63,165,0.12);color:var(--purpleDark);padding:2px 8px;border-radius:4px;font-size:12px;font-weight:600;">📱 QR Scan</span>`
+          : r.join_source === 'app_discovery'
+          ? `<span style="background:rgba(14,165,233,0.12);color:#0369a1;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:600;">🗺 App</span>`
+          : '-';
         return `<tr style="border-bottom:1px solid #f0f0f0;">
           <td style="padding:12px; font-weight:600; font-size:13px;">${r.member_id.substring(0, 8)}...</td>
           <td style="padding:12px; font-size:13px;">${r.city || '-'}</td>
@@ -5413,6 +5429,7 @@ You're receiving this because you're a valued customer of ${businessName}.`;
           <td style="padding:12px; font-size:13px;">${r.total}</td>
           <td style="padding:12px; font-size:13px;">${r.campaign_title}</td>
           <td style="padding:12px;">${badge}</td>
+          <td style="padding:12px;">${srcBadge}</td>
           <td style="padding:12px; font-size:12px; color:var(--muted);">${r.ts_display}</td>
         </tr>`;
       }).join('');
@@ -5439,6 +5456,11 @@ You're receiving this because you're a valued customer of ${businessName}.`;
         else if (r.status === 'Expired') { badgeBg = 'rgba(255,0,0,0.1)'; badgeColor = 'red'; }
         else if (r.status === 'Pending') { badgeBg = 'rgba(251,191,36,0.15)'; badgeColor = '#D97706'; }
         const badge = r.status !== '-' ? `<span style="background:${badgeBg};color:${badgeColor};padding:2px 8px;border-radius:4px;font-size:12px;font-weight:600;">${r.status}</span>` : '-';
+        const srcBadge = r.join_source === 'qr_scan'
+          ? `<span style="background:rgba(91,63,165,0.12);color:var(--purpleDark);padding:2px 8px;border-radius:4px;font-size:12px;font-weight:600;">📱 QR Scan</span>`
+          : r.join_source === 'app_discovery'
+          ? `<span style="background:rgba(14,165,233,0.12);color:#0369a1;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:600;">🗺 App</span>`
+          : '-';
         return `<tr style="border-bottom:1px solid #f0f0f0;">
           <td style="padding:12px; font-weight:600; font-size:13px;">${r.member_id.substring(0, 8)}...</td>
           <td style="padding:12px; font-size:13px;">${r.city || '-'}</td>
@@ -5446,6 +5468,7 @@ You're receiving this because you're a valued customer of ${businessName}.`;
           <td style="padding:12px; font-size:13px;">${r.total}</td>
           <td style="padding:12px; font-size:13px;">${r.campaign_title}</td>
           <td style="padding:12px;">${badge}</td>
+          <td style="padding:12px;">${srcBadge}</td>
           <td style="padding:12px; font-size:12px; color:var(--muted);">${r.ts_display}</td>
         </tr>`;
       }).join('');
