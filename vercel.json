@@ -1,6 +1,14 @@
 {
   "headers": [
-    { "source": "/(.*)", "headers": [{ "key": "Cache-Control", "value": "no-store" }] }
+    { "source": "/(.*)", "headers": [{ "key": "Cache-Control", "value": "no-store" }] },
+    {
+      "source": "/.well-known/apple-app-site-association",
+      "headers": [{ "key": "Content-Type", "value": "application/json" }]
+    },
+    {
+      "source": "/.well-known/assetlinks.json",
+      "headers": [{ "key": "Content-Type", "value": "application/json" }]
+    }
   ],
   "rewrites": [
     { "source": "/join/:code", "destination": "/join/index.html" },
@@ -10,6 +18,7 @@
     { "source": "/get-started", "destination": "/get-started.html" }
   ],
   "redirects": [
-    { "source": "/beta-test", "destination": "/beta-test/part1.html", "permanent": false }
+    { "source": "/beta-test", "destination": "/beta-test/part1.html", "permanent": false },
+    { "source": "/qr/:code", "destination": "https://app.perkfinity.net/qr/:code", "permanent": false }
   ]
 }

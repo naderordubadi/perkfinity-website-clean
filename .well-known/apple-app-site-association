@@ -1,0 +1,14 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "97FRL7454B.net.perkfinity.app",
+        "paths": ["/qr/*"]
+      }
+    ]
+  },
+  "webcredentials": {
+    "apps": ["97FRL7454B.net.perkfinity.app"]
+  }
+}

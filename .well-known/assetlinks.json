@@ -1,0 +1,10 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "net.perkfinity.app",
+    "sha256_cert_fingerprints": [
+      "0A:75:BC:E7:69:2E:D4:91:3E:0F:2D:97:AC:FB:F5:4B:27:2C:B2:9B:1B:51:48:8A:89:A8:8E:8A:E9:3C:49:13"
+    ]
+  }
+}]
