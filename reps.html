@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Rep Portal — Perkfinity</title>
+  <meta name="robots" content="noindex,nofollow"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --brand: #5b3fa5;
+      --brand-light: #7c5cc2;
+      --bg: #0f0f1a;
+      --bg2: #16182a;
+      --card: #1e2035;
+      --card2: #252742;
+      --border: rgba(255,255,255,0.08);
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --green: #22c55e;
+      --amber: #f59e0b;
+      --red: #ef4444;
+      --blue: #3b82f6;
+    }
+    body { font-family:'Inter',system-ui,sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+
+    /* ── Login Screen ── */
+    #login-screen {
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      min-height:100vh; padding:24px;
+      background: radial-gradient(ellipse at 30% 30%, #2a1a5e 0%, #0f0f1a 60%);
+    }
+    .login-card {
+      background:var(--card); border:1px solid var(--border); border-radius:20px;
+      padding:40px 44px; width:100%; max-width:420px;
+      box-shadow: 0 24px 80px rgba(91,63,165,0.3);
+    }
+    .login-logo { display:flex; align-items:center; gap:12px; margin-bottom:32px; }
+    .login-logo svg { width:40px; height:40px; }
+    .login-logo span { font-size:22px; font-weight:900; background:linear-gradient(135deg,#a78bfa,#5b3fa5); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+    .login-title { font-size:24px; font-weight:800; margin-bottom:6px; }
+    .login-sub { font-size:13px; color:var(--muted); margin-bottom:28px; }
+    .field-label { font-size:12px; font-weight:700; color:var(--muted); margin-bottom:6px; letter-spacing:0.05em; }
+    .field-input {
+      width:100%; padding:12px 16px; border-radius:10px; border:1px solid var(--border);
+      background:#0f1020; color:var(--text); font-size:14px; font-family:inherit;
+      outline:none; transition:border-color 0.2s;
+    }
+    .field-input:focus { border-color:var(--brand-light); }
+    .field-group { margin-bottom:18px; }
+    .btn-login {
+      width:100%; padding:14px; border-radius:12px; border:none;
+      background:linear-gradient(135deg,#7c5cc2,#5b3fa5);
+      color:#fff; font-size:15px; font-weight:800; cursor:pointer;
+      transition:opacity 0.2s, transform 0.1s;
+      margin-top:6px;
+    }
+    .btn-login:hover { opacity:0.9; transform:translateY(-1px); }
+    .btn-login:active { transform:translateY(0); }
+    .login-err {
+      margin-top:14px; padding:10px 14px; background:#450a0a; border:1px solid #7f1d1d;
+      border-radius:8px; color:#fca5a5; font-size:13px; display:none;
+    }
+    .login-spinner { display:none; justify-content:center; margin-top:12px; }
+    .spinner { width:20px; height:20px; border:2px solid rgba(255,255,255,0.2); border-top-color:#fff; border-radius:50%; animation:spin 0.7s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    /* ── App Shell ── */
+    #app { display:none; min-height:100vh; }
+    .topbar {
+      background:var(--card); border-bottom:1px solid var(--border);
+      padding:0 28px; height:62px; display:flex; align-items:center; justify-content:space-between;
+      position:sticky; top:0; z-index:100;
+    }
+    .topbar-left { display:flex; align-items:center; gap:14px; }
+    .topbar-logo { font-size:16px; font-weight:900; background:linear-gradient(135deg,#a78bfa,#5b3fa5); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+    .topbar-badge { font-size:11px; font-weight:700; padding:3px 10px; border-radius:999px; background:#5b3fa520; color:#a78bfa; border:1px solid #5b3fa540; }
+    .topbar-right { display:flex; align-items:center; gap:12px; }
+    .rep-name { font-size:13px; font-weight:700; color:var(--muted); }
+    .btn-signout { padding:7px 16px; border-radius:8px; border:1px solid var(--border); background:transparent; color:var(--muted); font-size:12px; font-weight:700; cursor:pointer; transition:all 0.2s; }
+    .btn-signout:hover { background:var(--card2); color:var(--text); }
+
+    .content { max-width:1040px; margin:0 auto; padding:32px 24px 64px; }
+    .welcome-bar { margin-bottom:28px; }
+    .welcome-bar h1 { font-size:26px; font-weight:900; }
+    .welcome-bar p { font-size:14px; color:var(--muted); margin-top:4px; }
+
+    /* ── KPI Cards ── */
+    .kpi-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:16px; margin-bottom:28px; }
+    .kpi-card {
+      background:var(--card); border:1px solid var(--border); border-radius:14px; padding:20px 22px;
+      position:relative; overflow:hidden;
+    }
+    .kpi-card::after { content:''; position:absolute; top:-40px; right:-40px; width:90px; height:90px; border-radius:50%; background:var(--kpi-color,#5b3fa5); opacity:0.08; }
+    .kpi-label { font-size:11px; font-weight:700; color:var(--muted); letter-spacing:0.06em; margin-bottom:10px; }
+    .kpi-value { font-size:28px; font-weight:900; color:var(--text); }
+    .kpi-sub { font-size:12px; color:var(--muted); margin-top:4px; }
+
+    /* ── Section Cards ── */
+    .section-card {
+      background:var(--card); border:1px solid var(--border); border-radius:16px;
+      padding:24px 26px; margin-bottom:24px;
+    }
+    .section-title { font-size:14px; font-weight:800; color:var(--text); margin-bottom:18px; display:flex; align-items:center; gap:8px; }
+
+    /* ── Quota ── */
+    .quota-bar-bg { height:12px; background:var(--card2); border-radius:999px; overflow:hidden; margin:12px 0 8px; }
+    .quota-bar-fill { height:100%; border-radius:999px; transition:width 0.5s ease; }
+
+    /* ── Profile Row ── */
+    .info-row { display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--border); }
+    .info-row:last-child { border-bottom:none; }
+    .info-label { font-size:13px; font-weight:600; color:var(--muted); }
+    .info-value { font-size:13px; font-weight:700; color:var(--text); }
+
+    /* ── Table ── */
+    .tbl { width:100%; border-collapse:collapse; font-size:13px; }
+    .tbl th { padding:9px 12px; text-align:left; color:var(--muted); font-weight:700; border-bottom:1px solid var(--border); }
+    .tbl td { padding:10px 12px; border-bottom:1px solid rgba(255,255,255,0.04); }
+
+    /* ── Status badges ── */
+    .badge { display:inline-block; padding:3px 10px; border-radius:999px; font-size:11px; font-weight:700; }
+    .badge-active { background:#22c55e18; color:#22c55e; }
+    .badge-pending { background:#f59e0b18; color:#f59e0b; }
+    .badge-inactive { background:#94a3b818; color:#94a3b8; }
+    .badge-paid { background:#22c55e18; color:#22c55e; }
+    .badge-approved { background:#3b82f618; color:#3b82f6; }
+
+    /* ── W-9 gate ── */
+    .w9-gate {
+      background:var(--card2); border:1px dashed var(--border); border-radius:12px;
+      padding:32px; text-align:center;
+    }
+    .w9-gate h3 { font-size:16px; font-weight:800; margin-bottom:8px; }
+    .w9-gate p { font-size:13px; color:var(--muted); margin-bottom:16px; }
+
+    /* ── ZIP tags ── */
+    .zip-tag { display:inline-block; padding:3px 10px; border-radius:6px; background:#1d4ed818; color:#60a5fa; font-size:12px; font-weight:700; font-family:monospace; margin:3px; }
+
+    /* ── Toast ── */
+    #toast { position:fixed; bottom:28px; right:28px; z-index:9999; pointer-events:none; }
+    .toast-msg { background:var(--card2); border:1px solid var(--border); border-radius:10px; padding:12px 18px; font-size:13px; font-weight:600; color:var(--text); margin-top:8px; opacity:0; transform:translateY(10px); transition:all 0.3s; box-shadow:0 8px 30px rgba(0,0,0,0.4); }
+    .toast-msg.show { opacity:1; transform:translateY(0); }
+
+    /* ── Responsive ── */
+    @media (max-width:600px) {
+      .topbar { padding:0 16px; }
+      .content { padding:20px 16px 48px; }
+      .kpi-grid { grid-template-columns:1fr 1fr; }
+      .login-card { padding:28px 22px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════
+     LOGIN SCREEN
+══════════════════════════════════════════════════════ -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="40" height="40" rx="10" fill="#5b3fa5"/>
+        <text x="20" y="27" text-anchor="middle" fill="white" font-size="20" font-weight="900" font-family="Inter,sans-serif">P</text>
+      </svg>
+      <span>Perkfinity</span>
+    </div>
+    <div class="login-title">Rep Portal</div>
+    <div class="login-sub">Sign in to view your merchants, earnings, and territory.</div>
+    <div class="field-group">
+      <div class="field-label">EMAIL</div>
+      <input class="field-input" id="login-email" type="email" placeholder="your@email.com" autocomplete="username"/>
+    </div>
+    <div class="field-group">
+      <div class="field-label">PASSWORD</div>
+      <input class="field-input" id="login-password" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"/>
+    </div>
+    <button class="btn-login" id="login-btn" onclick="doLogin()">Sign In</button>
+    <div class="login-spinner" id="login-spinner"><div class="spinner"></div></div>
+    <div class="login-err" id="login-err"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     APP SHELL
+══════════════════════════════════════════════════════ -->
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-logo">Perkfinity</div>
+      <div class="topbar-badge">Rep Portal</div>
+    </div>
+    <div class="topbar-right">
+      <div class="rep-name" id="top-rep-name"></div>
+      <button class="btn-signout" onclick="signOut()">Sign Out</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <!-- Welcome -->
+    <div class="welcome-bar">
+      <h1 id="welcome-heading">Welcome back</h1>
+      <p id="welcome-sub">Here's your performance overview.</p>
+    </div>
+
+    <!-- KPI Row -->
+    <div class="kpi-grid" id="kpi-grid">
+      <div class="kpi-card" style="--kpi-color:#22c55e">
+        <div class="kpi-label">TOTAL EARNED</div>
+        <div class="kpi-value" id="kpi-total">—</div>
+        <div class="kpi-sub">All-time commissions</div>
+      </div>
+      <div class="kpi-card" style="--kpi-color:#3b82f6">
+        <div class="kpi-label">PENDING</div>
+        <div class="kpi-value" id="kpi-pending">—</div>
+        <div class="kpi-sub">Awaiting payment</div>
+      </div>
+      <div class="kpi-card" style="--kpi-color:#f59e0b">
+        <div class="kpi-label">MERCHANTS</div>
+        <div class="kpi-value" id="kpi-merchants">—</div>
+        <div class="kpi-sub">Attributed to you</div>
+      </div>
+      <div class="kpi-card" style="--kpi-color:#5b3fa5">
+        <div class="kpi-label">QUOTA</div>
+        <div class="kpi-value" id="kpi-quota">—</div>
+        <div class="kpi-sub" id="kpi-quota-sub">3-month target</div>
+      </div>
+    </div>
+
+    <!-- Profile -->
+    <div class="section-card" id="profile-card">
+      <div class="section-title">👤 Your Profile</div>
+      <div id="profile-rows"></div>
+    </div>
+
+    <!-- Territory -->
+    <div class="section-card" id="territory-card">
+      <div class="section-title">🗺️ Your Territory</div>
+      <div id="territory-content"></div>
+    </div>
+
+    <!-- Quota -->
+    <div class="section-card" id="quota-card" style="display:none;">
+      <div class="section-title">🎯 Quota Period</div>
+      <div id="quota-content"></div>
+    </div>
+
+    <!-- Earnings -->
+    <div class="section-card" id="earnings-card">
+      <div class="section-title">💰 Earnings Summary</div>
+      <div id="earnings-content"></div>
+    </div>
+
+    <!-- Payouts -->
+    <div class="section-card" id="payouts-card" style="display:none;">
+      <div class="section-title">📋 Payout History</div>
+      <div style="overflow-x:auto;">
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th>Period</th>
+              <th>Commission</th>
+              <th>Retainer</th>
+              <th>Bonus</th>
+              <th>Total</th>
+              <th>Status</th>
+              <th>Paid On</th>
+            </tr>
+          </thead>
+          <tbody id="payouts-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Attributed Merchants -->
+    <div class="section-card">
+      <div class="section-title">🏪 Your Merchants</div>
+      <div id="merchants-content"></div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+  'use strict';
+
+  // ── Config ──────────────────────────────────────────────────────────
+  const API_BASE = 'https://api.perkfinity.com/api/v1';
+  const TOKEN_KEY = 'perkfinity_rep_token';
+  const REP_KEY   = 'perkfinity_rep_data';
+
+  // ── Toast helper ─────────────────────────────────────────────────────
+  function showToast(msg, duration = 3500) {
+    const t = document.getElementById('toast');
+    const el = document.createElement('div');
+    el.className = 'toast-msg';
+    el.textContent = msg;
+    t.appendChild(el);
+    setTimeout(() => el.classList.add('show'), 10);
+    setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 400); }, duration);
+  }
+
+  // ── Auth helpers ─────────────────────────────────────────────────────
+  function getToken() { return sessionStorage.getItem(TOKEN_KEY); }
+  function getRepData() { try { return JSON.parse(sessionStorage.getItem(REP_KEY) || 'null'); } catch { return null; } }
+
+  function signOut() {
+    sessionStorage.removeItem(TOKEN_KEY);
+    sessionStorage.removeItem(REP_KEY);
+    document.getElementById('app').style.display = 'none';
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('login-email').value = '';
+    document.getElementById('login-password').value = '';
+  }
+
+  // ── Login ────────────────────────────────────────────────────────────
+  async function doLogin() {
+    const email    = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value;
+    const errEl    = document.getElementById('login-err');
+    const spinner  = document.getElementById('login-spinner');
+    const btn      = document.getElementById('login-btn');
+    errEl.style.display = 'none';
+    if (!email || !password) { errEl.textContent = 'Email and password are required.'; errEl.style.display = 'block'; return; }
+    btn.disabled = true; btn.textContent = 'Signing in…'; spinner.style.display = 'flex';
+    try {
+      const res  = await fetch(API_BASE + '/rep/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const json = await res.json();
+      if (json.success) {
+        sessionStorage.setItem(TOKEN_KEY, json.token);
+        sessionStorage.setItem(REP_KEY, JSON.stringify(json.contractor));
+        errEl.style.display = 'none';
+        await launchApp(json.contractor);
+      } else {
+        errEl.textContent = json.error || 'Sign-in failed. Please try again.';
+        errEl.style.display = 'block';
+      }
+    } catch(e) {
+      errEl.textContent = 'Connection error. Please try again.';
+      errEl.style.display = 'block';
+    } finally {
+      btn.disabled = false; btn.textContent = 'Sign In'; spinner.style.display = 'none';
+    }
+  }
+
+  // ── Format helpers ───────────────────────────────────────────────────
+  const fmt$  = cents => '$' + ((cents || 0) / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const fmtDate = d => d ? new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
+
+  // ── App launch ───────────────────────────────────────────────────────
+  async function launchApp(repBasic) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    document.getElementById('top-rep-name').textContent = repBasic.full_name;
+    document.getElementById('welcome-heading').textContent = 'Welcome, ' + (repBasic.full_name.split(' ')[0] || 'Rep') + '!';
+
+    // Load all data in parallel
+    const token = getToken();
+    const headers = { 'Authorization': 'Bearer ' + token };
+    const [profileR, merchantsR, earningsR, payoutsR, quotaR, territoryR] = await Promise.all([
+      fetch(API_BASE + '/rep/profile',   { headers }).then(r => r.json()).catch(() => null),
+      fetch(API_BASE + '/rep/merchants', { headers }).then(r => r.json()).catch(() => null),
+      fetch(API_BASE + '/rep/earnings',  { headers }).then(r => r.json()).catch(() => null),
+      fetch(API_BASE + '/rep/payouts',   { headers }).then(r => r.json()).catch(() => null),
+      fetch(API_BASE + '/rep/quota',     { headers }).then(r => r.json()).catch(() => null),
+      fetch(API_BASE + '/rep/territory', { headers }).then(r => r.json()).catch(() => null),
+    ]);
+
+    // ── Profile ──────────────────────────────────────────────────────
+    if (profileR?.success) {
+      const p = profileR.data;
+      document.getElementById('welcome-sub').textContent = 'Referral Code: ' + (p.referral_code || '—') + ' · Member since ' + fmtDate(p.created_at);
+      const W9_LABELS = { not_submitted:'Not Submitted', pending:'Submitted — Pending Review', verified:'Verified ✅' };
+      const ICA_LABELS = { not_sent:'Not Sent', sent:'Sent — Awaiting Signature', signed:'Signed ✅' };
+      const ENTITY_LABELS = { individual:'👤 Individual', sole_proprietor:'👤 Sole Proprietor', llc_single:'🏢 LLC (Single Member)', llc_partnership:'🏢 LLC (Partnership)', s_corporation:'🏛️ S Corporation', c_corporation:'🏛️ C Corporation', other:'Other' };
+      const rows = [
+        ['Full Name', p.full_name],
+        ['Email', p.email],
+        ['Phone', p.phone || '—'],
+        ['W-9 Status', W9_LABELS[p.w9_status] || p.w9_status],
+        ['ICA Status', ICA_LABELS[p.ica_status] || p.ica_status],
+        ['Entity Type', p.entity_type ? (ENTITY_LABELS[p.entity_type] || p.entity_type) : '—'],
+      ];
+      document.getElementById('profile-rows').innerHTML = rows.map(([l,v]) =>
+        `<div class="info-row"><span class="info-label">${l}</span><span class="info-value">${v}</span></div>`
+      ).join('');
+    }
+
+    // ── Merchants ────────────────────────────────────────────────────
+    const merchants = merchantsR?.data || [];
+    document.getElementById('kpi-merchants').textContent = merchants.length;
+    if (merchants.length) {
+      document.getElementById('merchants-content').innerHTML = `
+        <div style="overflow-x:auto;">
+          <table class="tbl">
+            <thead><tr><th>Business</th><th>Tier</th><th>Status</th><th>Since</th></tr></thead>
+            <tbody>
+              ${merchants.map(m => `
+                <tr>
+                  <td style="font-weight:700;">${m.business_name || '—'}</td>
+                  <td><span class="badge badge-${m.tier}">${(m.tier||'—').toUpperCase()}</span></td>
+                  <td><span class="badge badge-${m.billing_status==='active'?'active':m.billing_status==='pending'?'pending':'inactive'}">${(m.billing_status||'—').toUpperCase()}</span></td>
+                  <td style="color:var(--muted);">${fmtDate(m.attributed_at)}</td>
+                </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>`;
+    } else {
+      document.getElementById('merchants-content').innerHTML = '<div style="color:var(--muted);font-size:13px;padding:12px 0;">No merchants attributed yet. Share your referral code to get started!</div>';
+    }
+
+    // ── Earnings ────────────────────────────────────────────────────
+    if (earningsR?.gated) {
+      document.getElementById('earnings-content').innerHTML = `<div class="w9-gate"><h3>🔒 W-9 Required</h3><p>${earningsR.message}</p></div>`;
+    } else if (earningsR?.success) {
+      const e = earningsR.data;
+      document.getElementById('kpi-total').textContent = fmt$(e.total_earned_cents);
+      document.getElementById('kpi-pending').textContent = fmt$(e.pending_cents);
+      let rateInfo = '';
+      if (e.rule) {
+        const rate = ((e.rule.commission_rate || 0.25) * 100).toFixed(0);
+        const dur  = e.rule.commission_duration_months || 12;
+        const ret  = e.rule.retainer_cents ? fmt$(e.rule.retainer_cents) + '/mo' : 'None';
+        rateInfo = `<div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;">
+          <div class="kpi-card" style="--kpi-color:#5b3fa5;flex:1;min-width:120px;padding:14px 16px;">
+            <div class="kpi-label">COMMISSION RATE</div><div class="kpi-value" style="font-size:22px;">${rate}%</div>
+          </div>
+          <div class="kpi-card" style="--kpi-color:#3b82f6;flex:1;min-width:120px;padding:14px 16px;">
+            <div class="kpi-label">DURATION</div><div class="kpi-value" style="font-size:22px;">${dur} mo</div>
+          </div>
+          <div class="kpi-card" style="--kpi-color:#22c55e;flex:1;min-width:120px;padding:14px 16px;">
+            <div class="kpi-label">RETAINER</div><div class="kpi-value" style="font-size:22px;">${ret}</div>
+          </div>
+        </div>`;
+      }
+      document.getElementById('earnings-content').innerHTML = rateInfo || '<div style="color:var(--muted);font-size:13px;">Compensation rule not yet assigned. Contact your administrator.</div>';
+    }
+
+    // ── Payouts ──────────────────────────────────────────────────────
+    if (payoutsR?.success && !payoutsR.gated) {
+      const payouts = payoutsR.data || [];
+      if (payouts.length) {
+        document.getElementById('payouts-card').style.display = 'block';
+        document.getElementById('payouts-tbody').innerHTML = payouts.map(p => {
+          const bonuses = (p.milestone_bonus_cents||0) + (p.retention_bonus_cents||0) + (p.special_bonus_cents||0);
+          return `<tr>
+            <td style="color:var(--muted);">${fmtDate(p.period_start)} – ${fmtDate(p.period_end)}</td>
+            <td>${fmt$(p.commission_cents)}</td>
+            <td>${p.retainer_cents ? fmt$(p.retainer_cents) : '—'}</td>
+            <td>${bonuses ? fmt$(bonuses) : '—'}</td>
+            <td style="font-weight:800;">${fmt$(p.total_cents)}</td>
+            <td><span class="badge badge-${p.status}">${(p.status||'?').toUpperCase()}</span></td>
+            <td style="color:var(--muted);">${fmtDate(p.paid_at)}</td>
+          </tr>`;
+        }).join('');
+      }
+    }
+
+    // ── Territory ────────────────────────────────────────────────────
+    const territory = territoryR?.data;
+    if (territory) {
+      document.getElementById('territory-content').innerHTML = `
+        <div style="margin-bottom:12px;font-size:15px;font-weight:800;">${territory.label}</div>
+        <div style="margin-bottom:10px;">
+          ${(territory.zip_codes || []).map(z => `<span class="zip-tag">${z}</span>`).join('')}
+        </div>
+        <div style="font-size:12px;color:var(--muted);">Assigned ${fmtDate(territory.assigned_at)}</div>`;
+    } else {
+      document.getElementById('territory-content').innerHTML = '<div style="color:var(--muted);font-size:13px;">No territory assigned yet. Contact your administrator.</div>';
+    }
+
+    // ── Quota ────────────────────────────────────────────────────────
+    const quota = quotaR?.data;
+    if (quota) {
+      document.getElementById('quota-card').style.display = 'block';
+      const qs = quota.period?.status || quota.status || 'active';
+      const qc = { active:'#3b82f6', met:'#22c55e', missed:'#ef4444' }[qs] || '#94a3b8';
+      const cur = quota.current_count || 0;
+      const target = quota.quota_target || 30;
+      const pct = quota.percent || 0;
+      const days = quota.days_remaining;
+      document.getElementById('kpi-quota').textContent = `${cur}/${target}`;
+      document.getElementById('kpi-quota-sub').textContent = `${pct}% of 3-month target`;
+      document.getElementById('quota-content').innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <div style="font-size:15px;font-weight:800;">${cur} of ${target} merchants</div>
+          <span class="badge" style="background:${qc}18;color:${qc};">${qs.toUpperCase()}</span>
+        </div>
+        <div class="quota-bar-bg">
+          <div class="quota-bar-fill" style="width:${pct}%;background:${qc};"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);">
+          <span>Start: ${fmtDate(quota.period_start || quota.period?.period_start)}</span>
+          <span>${pct}% complete</span>
+          <span>End: ${fmtDate(quota.period_end || quota.period?.period_end)}</span>
+        </div>
+        ${qs === 'active' && days !== undefined ? `<div style="margin-top:10px;font-size:13px;font-weight:700;color:${days <= 14 ? '#ef4444' : '#94a3b8'};">${days} days remaining in your quota window</div>` : ''}
+        ${qs === 'missed' ? '<div style="margin-top:12px;padding:12px 16px;background:#450a0a;border-radius:10px;color:#fca5a5;font-size:13px;font-weight:700;">⚠️ Quota period ended without reaching target. Please contact your administrator.</div>' : ''}
+        ${qs === 'met' ? '<div style="margin-top:12px;padding:12px 16px;background:#052e16;border-radius:10px;color:#86efac;font-size:13px;font-weight:700;">🎉 Congratulations! You\'ve met your quota and your territory is permanently locked in.</div>' : ''}
+      `;
+    }
+  }
+
+  // ── Auto sign-in if token exists ─────────────────────────────────────
+  (async () => {
+    const token = getToken();
+    const rep   = getRepData();
+    if (token && rep) {
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('app').style.display = 'block';
+      document.getElementById('top-rep-name').textContent = rep.full_name;
+      document.getElementById('welcome-heading').textContent = 'Welcome back, ' + (rep.full_name.split(' ')[0] || 'Rep') + '!';
+      // Silently reload full data
+      try { await launchApp(rep); } catch(e) { signOut(); }
+    }
+  })();
+</script>
+</body>
+</html>

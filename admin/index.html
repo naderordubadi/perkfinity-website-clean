@@ -220,6 +220,19 @@
       border-radius:10px; color:#fff; font-size:14px; font-family:'Outfit',sans-serif; outline:none;
     }
     .form-input:focus, .form-textarea:focus { border-color:var(--purple); }
+    /* White-background modals need dark text on inputs */
+    #add-contractor-modal .form-input,
+    #add-contractor-modal .form-textarea,
+    #add-contractor-modal .form-select-lg {
+      color:#1a1a2e; background:#f8fafc; border-color:#e2e8f0;
+    }
+    #add-contractor-modal .form-input::placeholder,
+    #add-contractor-modal .form-textarea::placeholder { color:#94a3b8; }
+    #add-contractor-modal .form-input:focus,
+    #add-contractor-modal .form-textarea:focus { border-color:#5b3fa5; background:#fff; }
+    #add-contractor-modal .form-label { color:#475569; }
+    #add-contractor-modal label { color:#1a1a2e; }
+
     .form-textarea { resize:vertical; min-height:120px; }
 
     /* Loading */
@@ -408,6 +421,9 @@
       <div class="nav-item" onclick="showTab('billing')">
         <span class="icon">💳</span> Billing & Revenue
       </div>
+      <div class="nav-item" onclick="showTab('contractors')" id="nav-contractors">
+        <span class="icon">👥</span> Contractors
+      </div>
 
       <div class="nav-section">Communicate</div>
       <div class="nav-item" onclick="showTab('announcements')">
@@ -452,6 +468,164 @@
           </div>
         </div>
         <div id="merchant-detail-body" style="padding:24px 28px 28px;"></div>
+      </div>
+    </div>
+
+    <!-- ═══ Contractor Detail Panel (right-side drawer) ═══ -->
+    <div id="ctr-detail-backdrop" onclick="closeContractorDetail()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:10001;"></div>
+    <div id="contractor-detail-overlay" style="display:none;position:fixed;top:0;right:0;bottom:0;width:840px;max-width:calc(100vw - 200px);background:#fff;z-index:10002;overflow-y:auto;box-shadow:-6px 0 50px rgba(0,0,0,0.22);">
+      <div style="position:sticky;top:0;background:#fff;padding:20px 28px 12px;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;z-index:2;">
+        <div style="font-size:20px;font-weight:800;color:#1a1a2e;" id="ctr-detail-title">Contractor Details</div>
+        <button onclick="closeContractorDetail()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#999;padding:4px 8px;line-height:1;">✕</button>
+      </div>
+      <div id="ctr-detail-body" style="padding:24px 28px 40px;"></div>
+    </div>
+
+    <!-- ═══ Add Contractor Modal ═══ -->
+    <!-- ── Assign Territory Modal ─────────────────────────────────────── -->
+    <div id="assign-territory-modal" onclick="if(event.target===this)this.style.display='none'" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:10004;align-items:center;justify-content:center;">
+      <div style="background:#fff;border-radius:18px;padding:32px 36px;width:480px;max-width:95vw;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
+        <h2 style="font-size:18px;font-weight:900;margin:0 0 20px;">🗺️ Assign Territory</h2>
+        <div class="form-group">
+          <label class="form-label">Territory Name <span style="color:#ef4444;">*</span></label>
+          <input type="text" class="form-input" id="terr-label" placeholder="e.g. Miami South, Downtown NYC…"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">ZIP Codes <span style="color:#ef4444;">*</span></label>
+          <textarea class="form-input" id="terr-zips" rows="4" placeholder="Enter 5-digit ZIP codes separated by commas, spaces, or new lines&#10;e.g. 33101, 33102, 33103&#10;&#10;Tip: you can paste a list directly" style="resize:vertical;font-family:monospace;"></textarea>
+          <div style="font-size:11px;color:#94a3b8;margin-top:4px;">Each valid 5-digit ZIP becomes part of this territory. The system will warn you if any ZIPs overlap with another active rep.</div>
+        </div>
+        <div id="terr-err" style="color:#ef4444;font-size:13px;margin-bottom:12px;padding:10px 14px;background:#fef2f2;border-radius:8px;display:none;"></div>
+        <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:4px;">
+          <button onclick="document.getElementById('assign-territory-modal').style.display='none'" class="toolbar-btn" style="padding:10px 20px;">Cancel</button>
+          <button onclick="saveTerritory()" style="padding:10px 22px;border-radius:10px;border:none;background:#1d4ed8;color:#fff;font-weight:800;font-size:14px;cursor:pointer;">Assign Territory</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="add-contractor-modal" onclick="if(event.target===this)this.style.display='none'" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:10003;align-items:center;justify-content:center;">
+      <div style="width:620px;max-height:92vh;overflow-y:auto;background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+        <div style="position:sticky;top:0;background:#fff;padding:20px 28px 14px;border-bottom:1px solid #e2e8f0;border-radius:16px 16px 0 0;display:flex;justify-content:space-between;align-items:center;z-index:2;">
+          <div style="font-size:18px;font-weight:800;color:#1a1a2e;">👥 Add Sales Rep</div>
+          <button onclick="document.getElementById('add-contractor-modal').style.display='none'" style="background:none;border:none;font-size:22px;cursor:pointer;color:#999;line-height:1;">✕</button>
+        </div>
+        <div style="padding:24px 28px 28px;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div class="form-group">
+              <label class="form-label">Full Name <span style="color:#ef4444;">*</span></label>
+              <input type="text" class="form-input" id="nc-full-name" placeholder="e.g. John Doe"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Legal Name (for 1099/W-9) <span style="color:#ef4444;">*</span></label>
+              <input type="text" class="form-input" id="nc-legal-name" placeholder="As on tax documents"/>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div class="form-group">
+              <label class="form-label">Email <span style="color:#ef4444;">*</span></label>
+              <input type="email" class="form-input" id="nc-email" placeholder="rep@example.com"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Phone</label>
+              <input type="tel" class="form-input" id="nc-phone" placeholder="(555) 000-0000"/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Address</label>
+            <input type="text" class="form-input" id="nc-address" placeholder="123 Main St, City, ST 00000"/>
+          </div>
+          <div style="background:#f8fafc;border-radius:12px;padding:16px 18px;margin-bottom:16px;border:1px solid #e2e8f0;">
+            <div style="font-size:13px;font-weight:800;color:#1a1a2e;margin-bottom:12px;">💰 Compensation</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">Commission Rate %</label>
+                <input type="number" class="form-input" id="nc-rate" value="25" min="1" max="25" step="1" oninput="document.getElementById('nc-rate-err').style.display=this.value>25?'block':'none'"/>
+                <div id="nc-rate-err" style="color:#ef4444;font-size:11px;margin-top:3px;display:none;">Maximum is 25%</div>
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">Duration (months)</label>
+                <input type="number" class="form-input" id="nc-duration" value="12" min="1" max="24" step="1" oninput="document.getElementById('nc-dur-err').style.display=this.value>24?'block':'none'"/>
+                <div id="nc-dur-err" style="color:#ef4444;font-size:11px;margin-top:3px;display:none;">Maximum is 24 months</div>
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">Monthly Retainer $</label>
+                <input type="number" class="form-input" id="nc-retainer" value="0" min="0" step="1"/>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Payment Method</label>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:9px 16px;border:1.5px solid #e2e8f0;border-radius:8px;flex:1;font-size:13px;">
+                <input type="radio" name="nc-payment-method" value="check" checked/> Check
+              </label>
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:9px 16px;border:1.5px solid #e2e8f0;border-radius:8px;flex:1;font-size:13px;">
+                <input type="radio" name="nc-payment-method" value="ach"/> ACH Transfer
+              </label>
+              <label style="display:flex;align-items:center;gap:8px;cursor:not-allowed;padding:9px 16px;border:1.5px dashed #e2e8f0;border-radius:8px;flex:1;opacity:0.5;font-size:13px;" title="Available in Phase 3">
+                <input type="radio" name="nc-payment-method" value="stripe_connect" disabled/> Stripe Connect <span style="font-size:10px;color:#94a3b8;font-weight:700;margin-left:4px;">Phase 3</span>
+              </label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Internal Notes</label>
+            <textarea class="form-input" id="nc-notes" rows="2" placeholder="Any notes about this rep…" style="resize:vertical;"></textarea>
+          </div>
+          <div style="background:#f8fafc;border-radius:12px;padding:16px 18px;margin-bottom:16px;border:1px solid #e2e8f0;">
+            <div style="font-size:13px;font-weight:800;color:#1a1a2e;margin-bottom:12px;">🔐 Portal Access &amp; Classification</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">Portal Password <span style="color:#ef4444;">*</span></label>
+                <input type="password" class="form-input" id="nc-password" placeholder="Min 8 characters" autocomplete="new-password"/>
+                <div id="nc-pw-err" style="color:#ef4444;font-size:11px;margin-top:3px;display:none;">Minimum 8 characters</div>
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">Entity Type <span style="color:#94a3b8;font-size:11px;">(optional — can set later)</span></label>
+                <select class="form-input" id="nc-entity-type" style="font-family:inherit;">
+                  <option value="">— Select if known —</option>
+                  <option value="individual">Individual</option>
+                  <option value="sole_proprietor">Sole Proprietor</option>
+                  <option value="llc_single">LLC (Single Member)</option>
+                  <option value="llc_partnership">LLC (Partnership)</option>
+                  <option value="s_corporation">S Corporation</option>
+                  <option value="c_corporation">C Corporation</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div id="nc-err" style="color:#ef4444;font-size:13px;margin-bottom:12px;padding:10px 14px;background:#fef2f2;border-radius:8px;display:none;"></div>
+          <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:4px;">
+            <button onclick="document.getElementById('add-contractor-modal').style.display='none'" class="toolbar-btn" style="padding:10px 20px;">Cancel</button>
+            <button onclick="saveNewContractor()" class="toolbar-btn primary" style="padding:10px 24px;" id="nc-save-btn">Create Rep</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ Mark as Paid Modal ═══ -->
+    <div id="mark-paid-modal" onclick="if(event.target===this)this.style.display='none'" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:10004;align-items:center;justify-content:center;">
+      <div style="width:460px;background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.3);padding:28px;">
+        <div style="font-size:18px;font-weight:800;color:#1a1a2e;margin-bottom:20px;">💰 Mark Payout as Paid</div>
+        <input type="hidden" id="mark-paid-payout-id"/>
+        <div class="form-group">
+          <label class="form-label">Payment Method <span style="color:#ef4444;">*</span></label>
+          <select class="form-input" id="mark-paid-method">
+            <option value="check">Check</option>
+            <option value="ach">ACH Transfer</option>
+            <option value="wire">Wire Transfer</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Payment Reference # <span style="color:#ef4444;">*</span></label>
+          <input type="text" class="form-input" id="mark-paid-ref" placeholder="e.g. Check #1042 or ACH Batch 2025-05"/>
+        </div>
+        <div id="mark-paid-err" style="color:#ef4444;font-size:13px;margin-bottom:12px;padding:10px 14px;background:#fef2f2;border-radius:8px;display:none;"></div>
+        <div style="display:flex;gap:10px;justify-content:flex-end;">
+          <button onclick="document.getElementById('mark-paid-modal').style.display='none'" class="toolbar-btn" style="padding:10px 20px;">Cancel</button>
+          <button onclick="submitMarkPaid()" class="toolbar-btn green" style="padding:10px 24px;" id="mark-paid-submit-btn">Mark as Paid</button>
+        </div>
       </div>
     </div>
 
@@ -577,6 +751,11 @@
             <option value="30">Last 30 Days</option>
             <option value="90">Last 90 Days</option>
           </select>
+          <select class="toolbar-select" id="merchant-filter-cycle" onchange="filterTable('merchants')">
+            <option value="">All Sub Types</option>
+            <option value="monthly">Monthly</option>
+            <option value="annual">Annual</option>
+          </select>
           <div style="flex:1;"></div>
           <button class="toolbar-btn green" onclick="exportData('merchants','csv')">📄 CSV</button>
           <button class="toolbar-btn" onclick="exportData('merchants','txt')">📋 TXT</button>
@@ -586,7 +765,7 @@
         <div class="bulk-bar" id="merchant-bulk-bar">
           <span class="bulk-bar-count"><span id="bulk-count">0</span> merchant(s) selected</span>
           <button class="toolbar-btn" onclick="openBulkEmail()">📧 Send Email</button>
-          <button class="toolbar-btn" style="background:rgba(239,68,68,0.12);border-color:rgba(239,68,68,0.3);color:var(--red)" onclick="openBulkDelete()">🗑️ Delete</button>
+
         </div>
 
         <div class="table-wrap">
@@ -599,6 +778,7 @@
                 <th onclick="sortTable('merchants','location_zip')">Zip <span class="sort-arrow">▲</span></th>
                 <th onclick="sortTable('merchants','business_presence')">Presence <span class="sort-arrow">▲</span></th>
                 <th onclick="sortTable('merchants','tier')">Tier <span class="sort-arrow">▲</span></th>
+                <th onclick="sortTable('merchants','billing_cycle')">Sub Type <span class="sort-arrow">▲</span></th>
                 <th onclick="sortTable('merchants','billing_status')">Status <span class="sort-arrow">▲</span></th>
                 <th onclick="sortTable('merchants','member_count')">Members <span class="sort-arrow">▲</span></th>
                 <th onclick="sortTable('merchants','next_billing_date')">Billing Date <span class="sort-arrow">▲</span></th>
@@ -606,7 +786,7 @@
               </tr>
             </thead>
             <tbody id="merchants-tbody">
-              <tr><td colspan="9" style="color:var(--muted);text-align:center;padding:40px;">Loading merchants...</td></tr>
+              <tr><td colspan="11" style="color:var(--muted);text-align:center;padding:40px;">Loading merchants...</td></tr>
             </tbody>
           </table>
           <div class="pagination" id="merchants-pagination"></div>
@@ -791,11 +971,16 @@
           </div>
         </div>
 
-        <div class="stat-grid" style="grid-template-columns:repeat(7,1fr);">
+        <div class="stat-grid" style="grid-template-columns:repeat(8,1fr);">
           <div class="stat-card">
             <div class="stat-value green" id="bill-mrr">$0</div>
             <div class="stat-label">Monthly Recurring Revenue</div>
-            <div style="font-size:10px;color:var(--muted);margin-top:2px;">Pending cancel deducted</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px;">Monthly subs only</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" style="color:#f59e0b;" id="bill-arr">$0</div>
+            <div class="stat-label">Annual Recurring Revenue</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px;" id="bill-arr-equiv">≈ $0/mo equiv.</div>
           </div>
           <div class="stat-card">
             <div class="stat-value" style="color:#22c55e;" id="bill-total-revenue">$0</div>
@@ -842,6 +1027,11 @@
             <option value="pending_cancellation">Pending Cancel</option>
             <option value="deleted">Deleted</option>
           </select>
+          <select class="toolbar-select" id="billing-filter-cycle" onchange="filterTable('billing')">
+            <option value="">All Sub Types</option>
+            <option value="monthly">Monthly</option>
+            <option value="annual">Annual</option>
+          </select>
           <div style="flex:1;"></div>
           <button class="toolbar-btn green" onclick="exportData('billing','csv')">📄 CSV</button>
           <button class="toolbar-btn" onclick="exportData('billing','txt')">📋 TXT</button>
@@ -878,6 +1068,7 @@
               <tr>
                 <th onclick="sortTable('billing','merchant_name')">Merchant <span class="sort-arrow">▲</span></th>
                 <th onclick="sortTable('billing','subscription_tier')">Tier <span class="sort-arrow">▲</span></th>
+                <th onclick="sortTable('billing','billing_cycle')">Sub Type <span class="sort-arrow">▲</span></th>
                 <th onclick="sortTable('billing','status')">Status <span class="sort-arrow">▲</span></th>
                 <th onclick="sortTable('billing','amount_cents')">Amount <span class="sort-arrow">▲</span></th>
                 <th>Period</th>
@@ -886,7 +1077,7 @@
               </tr>
             </thead>
             <tbody id="billing-tbody">
-              <tr><td colspan="7" style="color:var(--muted);text-align:center;padding:40px;">Loading billing data...</td></tr>
+              <tr><td colspan="8" style="color:var(--muted);text-align:center;padding:40px;">Loading billing data...</td></tr>
             </tbody>
           </table>
         </div>
@@ -1513,6 +1704,150 @@
       </div>
       <!-- ═══ END APPLICATIONS TAB ═══ -->
 
+      <!-- ═══════════════════════════════════════════════════════════ -->
+      <!-- CONTRACTORS TAB                                             -->
+      <!-- ═══════════════════════════════════════════════════════════ -->
+      <div id="tab-contractors" class="tab-content">
+        <div class="page-header">
+          <div>
+            <div class="page-title">👥 Sales Contractors</div>
+            <div class="page-subtitle">Manage reps, attribution, monthly payouts, and 1099 compliance.</div>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="toolbar-btn" onclick="loadContractors()">🔄 Refresh</button>
+            <button class="toolbar-btn primary" onclick="openAddContractorModal()">+ Add Rep</button>
+          </div>
+        </div>
+
+        <!-- Sub-tab nav -->
+        <div style="display:flex;border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:24px;">
+          <div class="ann-step-tab active" id="ctab-btn-reps" onclick="switchContractorTab('reps')">👥 Reps</div>
+          <div class="ann-step-tab" id="ctab-btn-payouts" onclick="switchContractorTab('payouts')">💳 Payouts</div>
+          <div class="ann-step-tab" id="ctab-btn-settings" onclick="switchContractorTab('settings')">⚙️ Program Settings</div>
+          <div class="ann-step-tab" id="ctab-btn-1099" onclick="switchContractorTab('1099')">📄 1099 Report</div>
+        </div>
+
+        <!-- ─── SUB: REPS LIST ─── -->
+        <div id="ctab-reps">
+          <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center;">
+            <input type="text" id="ctr-search" placeholder="🔍  Search name, email, code…" oninput="filterContractors()"
+              style="flex:1;min-width:220px;padding:8px 14px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,0.04);color:var(--text);font-size:13px;font-family:inherit;outline:none;"/>
+            <select class="toolbar-select" id="ctr-filter-status" onchange="filterContractors()">
+              <option value="">All Status</option>
+              <option value="active">✅ Active</option>
+              <option value="inactive">⏸ Inactive</option>
+              <option value="suspended">🚫 Suspended</option>
+            </select>
+            <select class="toolbar-select" id="ctr-filter-w9" onchange="filterContractors()">
+              <option value="">All W-9</option>
+              <option value="verified">🟢 Verified</option>
+              <option value="pending">🟡 Pending</option>
+              <option value="not_submitted">🔴 Not Submitted</option>
+            </select>
+          </div>
+          <div class="section-card" style="padding:0;overflow:hidden;">
+            <table style="width:100%;border-collapse:collapse;font-size:13px;">
+              <thead>
+                <tr style="border-bottom:1px solid var(--border);">
+                  <th style="padding:14px 16px;text-align:left;color:var(--mutedLight);font-weight:700;">Rep</th>
+                  <th style="padding:14px 12px;text-align:left;color:var(--mutedLight);font-weight:700;">Referral Code</th>
+                  <th style="padding:14px 12px;text-align:center;color:var(--mutedLight);font-weight:700;">Status</th>
+                  <th style="padding:14px 12px;text-align:center;color:var(--mutedLight);font-weight:700;">W-9</th>
+                  <th style="padding:14px 12px;text-align:center;color:var(--mutedLight);font-weight:700;">ICA</th>
+                  <th style="padding:14px 12px;text-align:center;color:var(--mutedLight);font-weight:700;">Merchants</th>
+                  <th style="padding:14px 12px;text-align:right;color:var(--mutedLight);font-weight:700;">YTD Earnings</th>
+                  <th style="padding:14px 12px;text-align:center;color:var(--mutedLight);font-weight:700;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="ctr-tbody">
+                <tr><td colspan="8" style="padding:40px;text-align:center;color:var(--muted);">Click Contractors in the sidebar to load.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ─── SUB: PAYOUTS ─── -->
+        <div id="ctab-payouts" style="display:none;">
+          <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center;">
+            <input type="text" id="cpay-search" placeholder="🔍  Search contractor…" oninput="filterContractorPayouts()"
+              style="flex:1;min-width:200px;padding:8px 14px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,0.04);color:var(--text);font-size:13px;font-family:inherit;outline:none;"/>
+            <select class="toolbar-select" id="cpay-filter-status" onchange="filterContractorPayouts()">
+              <option value="">All Status</option>
+              <option value="pending">⏳ Pending</option>
+              <option value="approved">✅ Approved</option>
+              <option value="paid">💰 Paid</option>
+              <option value="voided">🚫 Voided</option>
+            </select>
+            <button class="toolbar-btn green" onclick="generatePayoutsFlow()">⚡ Generate Payouts</button>
+            <button class="toolbar-btn" onclick="loadContractorPayouts()">🔄 Refresh</button>
+            <button class="toolbar-btn" onclick="exportPayoutsCSV()">📥 CSV</button>
+          </div>
+          <div id="cpay-skipped-banner" style="display:none;background:#fef3c7;border:1px solid #fcd34d;border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#78350f;"></div>
+          <div class="section-card" style="padding:0;overflow:hidden;">
+            <table style="width:100%;border-collapse:collapse;font-size:13px;">
+              <thead>
+                <tr style="border-bottom:1px solid var(--border);">
+                  <th style="padding:14px 16px;text-align:left;color:var(--mutedLight);font-weight:700;">Contractor</th>
+                  <th style="padding:14px 12px;text-align:left;color:var(--mutedLight);font-weight:700;">Period</th>
+                  <th style="padding:14px 12px;text-align:right;color:var(--mutedLight);font-weight:700;">Commission</th>
+                  <th style="padding:14px 12px;text-align:right;color:var(--mutedLight);font-weight:700;">Retainer</th>
+                  <th style="padding:14px 12px;text-align:right;color:var(--mutedLight);font-weight:700;">Bonuses</th>
+                  <th style="padding:14px 12px;text-align:right;color:var(--mutedLight);font-weight:700;">Total</th>
+                  <th style="padding:14px 12px;text-align:center;color:var(--mutedLight);font-weight:700;">W-9</th>
+                  <th style="padding:14px 12px;text-align:center;color:var(--mutedLight);font-weight:700;">Status</th>
+                  <th style="padding:14px 12px;text-align:center;color:var(--mutedLight);font-weight:700;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="cpay-tbody">
+                <tr><td colspan="9" style="padding:40px;text-align:center;color:var(--muted);">Switch to Payouts tab to load.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ─── SUB: PROGRAM SETTINGS ─── -->
+        <div id="ctab-settings" style="display:none;">
+          <div style="max-width:680px;">
+            <div class="section-card">
+              <div class="section-title">🏆 Milestone Bonus Tiers</div>
+              <div style="font-size:13px;color:var(--mutedLight);margin-bottom:20px;">When a rep's paying subscriber count crosses a threshold for the first time, they earn a one-time bonus. Threshold values are fixed; bonus amounts and active status are editable.</div>
+              <div id="milestone-config-body">
+                <div style="color:var(--muted);text-align:center;padding:20px;">Loading…</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─── SUB: 1099 REPORT ─── -->
+        <div id="ctab-1099" style="display:none;">
+          <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center;">
+            <select class="toolbar-select" id="report-1099-year" onchange="load1099Report()"></select>
+            <button class="toolbar-btn" onclick="load1099Report()">🔄 Refresh</button>
+            <button class="toolbar-btn green" onclick="export1099CSV()">📥 Export CSV</button>
+          </div>
+          <div class="section-card" style="padding:0;overflow:hidden;">
+            <table style="width:100%;border-collapse:collapse;font-size:13px;">
+              <thead>
+                <tr style="border-bottom:1px solid var(--border);">
+                  <th style="padding:14px 16px;text-align:left;color:var(--mutedLight);font-weight:700;">Legal Name</th>
+                  <th style="padding:14px 12px;text-align:left;color:var(--mutedLight);font-weight:700;">Email</th>
+                  <th style="padding:14px 12px;text-align:right;color:var(--mutedLight);font-weight:700;">Commission</th>
+                  <th style="padding:14px 12px;text-align:right;color:var(--mutedLight);font-weight:700;">Retainer</th>
+                  <th style="padding:14px 12px;text-align:right;color:var(--mutedLight);font-weight:700;">Bonuses</th>
+                  <th style="padding:14px 12px;text-align:right;color:var(--mutedLight);font-weight:700;">Total YTD</th>
+                  <th style="padding:14px 12px;text-align:center;color:var(--mutedLight);font-weight:700;">1099 Required?</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-1099">
+                <tr><td colspan="7" style="padding:40px;text-align:center;color:var(--muted);">Select a year to load the report.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+      <!-- ═══ END CONTRACTORS TAB ═══ -->
+
     </div>
   </div>
 
@@ -1649,8 +1984,25 @@
 
     const API_BASE = PerkfinityConfig.BACKEND_URL + '/api/v1';
 
+    // ── Helper: Stale Date Warning ──────────────────────────────
+    function staleDateWarn(dateStr) {
+      if (!dateStr) return '—';
+      const d = new Date(dateStr);
+      const now = new Date();
+      const diffDays = Math.floor((d - now) / (1000 * 60 * 60 * 24));
+      if (d < now) return `<span style="color:#ef4444;font-weight:700;">⚠ ${formatDate(dateStr)}</span>`;
+      if (diffDays < 3) return `<span style="color:#f59e0b;font-weight:600;">${formatDate(dateStr)}</span>`;
+      return formatDate(dateStr);
+    }
+
+    function cycleBadge(cycle) {
+      if (cycle === 'annual')
+        return '<span style="font-size:11px;font-weight:700;color:#34d399;background:rgba(52,211,153,0.12);border:1px solid rgba(52,211,153,0.35);border-radius:6px;padding:2px 7px;">Annual</span>';
+      return '<span style="font-size:11px;font-weight:700;color:#facc15;background:rgba(250,204,21,0.12);border:1px solid rgba(250,204,21,0.35);border-radius:6px;padding:2px 7px;">Monthly</span>';
+    }
+
     // ── Merchant Detail Panel ─────────────────────────────────────
-    function showMerchantDetail(merchantId) {
+    async function showMerchantDetail(merchantId) {
       const m = allMerchants.find(x => x.id === merchantId);
       if (!m) return;
       const overlay = document.getElementById('merchant-detail-overlay');
@@ -1681,14 +2033,14 @@
       const d30 = new Date(now - 30 * 86400000);
       const d90 = new Date(now - 90 * 86400000);
 
-      // Members for this merchant — we need to check MerchantMember but we don't have that data per-merchant
-      // Use member_count from the merchant data and campaign data
       const merchantCampaigns = allCampaigns.filter(c => c.merchant_id === merchantId);
       const campaigns30 = merchantCampaigns.filter(c => new Date(c.created_at) >= d30).length;
       const campaigns90 = merchantCampaigns.filter(c => new Date(c.created_at) >= d90).length;
       const totalRedemptions = merchantCampaigns.reduce((sum, c) => sum + (parseInt(c.redemption_count) || 0), 0);
 
       const body = document.getElementById('merchant-detail-body');
+
+      // Render core sections immediately (don't wait for attribution fetch)
       body.innerHTML = `
         <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px;">
           ${statCard('Members', m.member_count || 0, '#5b3fa5')}
@@ -1725,14 +2077,21 @@
         <div style="background:#f8fafc;border-radius:12px;padding:18px 20px;margin-bottom:20px;">
           <div style="font-size:14px;font-weight:800;color:#1a1a2e;margin-bottom:10px;">💳 Billing & Account</div>
           ${infoRow('Tier', tierLabel)}
+          ${infoRow('Sub Type', cycleBadge(m.billing_cycle))}
           ${infoRow('Status', statusLabel)}
           ${infoRow('Billing Status', m.billing_status || '\u2014')}
           ${infoRow('Member Limit', m.member_limit || 'Unlimited')}
-          ${infoRow('Next Billing Date', m.next_billing_date ? formatDate(m.next_billing_date) : '\u2014')}
+          ${infoRow('Next Billing Date', staleDateWarn(m.next_billing_date))}
           ${infoRow('Stripe Customer ID', m.stripe_customer_id || 'None')}
           ${infoRow('Stripe Subscription ID', m.stripe_subscription_id || 'None')}
           ${infoRow('Account Blocked', m.account_blocked ? 'Yes' : 'No')}
           ${infoRow('Joined', formatDate(m.created_at))}
+        </div>
+
+        <!-- Sales Partner section — loaded async below -->
+        <div id="merchant-detail-attribution" style="background:linear-gradient(135deg,#f0fdf4,#f8fafc);border:1.5px solid #d1fae5;border-radius:12px;padding:18px 20px;margin-bottom:20px;">
+          <div style="font-size:14px;font-weight:800;color:#14532d;margin-bottom:10px;">🤝 Sales Partner / Referral</div>
+          <div style="color:#64748b;font-size:13px;">Loading attribution…</div>
         </div>
 
         <div style="background:#f8fafc;border-radius:12px;padding:18px 20px;">
@@ -1744,6 +2103,50 @@
           ${infoRow('Total Redemptions', m.redemption_count || totalRedemptions || 0)}
         </div>
       `;
+
+      // Fetch and render contractor attribution asynchronously
+      try {
+        const attrJson = await adminFetch(`/admin/merchants/${merchantId}/attribution`);
+        const attrEl = document.getElementById('merchant-detail-attribution');
+        if (!attrEl) return;
+        const a = attrJson?.data;
+        const infoRowGreen = (label, value) => `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #d1fae5;"><span style="color:#166534;font-weight:600;font-size:13px;">${label}</span><span style="font-weight:700;font-size:13px;color:#14532d;">${value || '\u2014'}</span></div>`;
+        if (!a) {
+          attrEl.innerHTML = `
+            <div style="font-size:14px;font-weight:800;color:#14532d;margin-bottom:10px;">🤝 Sales Partner / Referral</div>
+            <div style="font-size:13px;color:#64748b;font-style:italic;">No referral recorded — merchant signed up without a referral code.</div>
+            <button onclick="openManualAttributionModal('${merchantId}')" style="margin-top:12px;padding:8px 16px;border-radius:8px;border:1.5px solid #16a34a;background:#f0fdf4;color:#166534;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">+ Assign Rep Manually</button>
+          `;
+        } else {
+          const rateDisplay  = a.commission_rate ? (parseFloat(a.commission_rate) * 100).toFixed(0) + '%' : '—';
+          const durDisplay   = a.commission_duration_months ? a.commission_duration_months + ' months' : '—';
+          const sourceLabel  = a.source === 'self' ? '🔑 Referral Code (self-serve)' : a.source === 'manual' ? '👤 Manual (admin)' : a.source || '—';
+          const statusBadge  = a.contractor_status === 'active'
+            ? '<span style="background:#dcfce7;color:#166534;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;">Active</span>'
+            : '<span style="background:#fee2e2;color:#991b1b;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;">' + (a.contractor_status || 'Unknown') + '</span>';
+          attrEl.innerHTML = `
+            <div style="font-size:14px;font-weight:800;color:#14532d;margin-bottom:10px;">🤝 Sales Partner / Referral</div>
+            ${infoRowGreen('Rep Name', a.contractor_name + ' ' + statusBadge)}
+            ${infoRowGreen('Referral Code', `<span style="font-family:monospace;font-weight:900;color:#166534;letter-spacing:1px;font-size:14px;">${a.referral_code || '—'}</span>`)}
+            ${infoRowGreen('Rep Email', a.contractor_email || '—')}
+            ${infoRowGreen('Attribution Method', sourceLabel)}
+            ${infoRowGreen('Attributed On', a.attributed_at ? new Date(a.attributed_at).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}) : '—')}
+            ${infoRowGreen('Commission Started', a.commission_start_date ? new Date(a.commission_start_date).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}) : '⏳ Not yet (awaiting first payment)')}
+            ${infoRowGreen('Commission Ends', a.commission_end_date ? new Date(a.commission_end_date).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}) : a.commission_start_date ? '—' : 'N/A')}
+            ${infoRowGreen('Commission Rate', rateDisplay)}
+            ${infoRowGreen('Commission Duration', durDisplay)}
+            <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
+              <button onclick="openManualAttributionModal('${merchantId}','${a.contractor_id}')" style="padding:7px 14px;border-radius:8px;border:1.5px solid #fbbf24;background:#fffbeb;color:#92400e;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">✏️ Reassign Rep</button>
+            </div>
+          `;
+        }
+      } catch(e) {
+        const attrEl = document.getElementById('merchant-detail-attribution');
+        if (attrEl) attrEl.innerHTML = `
+          <div style="font-size:14px;font-weight:800;color:#14532d;margin-bottom:10px;">🤝 Sales Partner / Referral</div>
+          <div style="font-size:13px;color:#94a3b8;">Could not load attribution data.</div>
+        `;
+      }
     }
 
     function closeMerchantDetail() {
@@ -1753,6 +2156,50 @@
     document.getElementById('merchant-detail-overlay')?.addEventListener('click', function(e) {
       if (e.target === this) closeMerchantDetail();
     });
+
+    // ── Manual Attribution Modal (Task 3 — stub, full UI in Part 4 Contractors tab) ──
+    async function openManualAttributionModal(merchantId, existingContractorId) {
+      const code = window.prompt(
+        existingContractorId
+          ? 'Reassign rep — enter the new contractor\'s referral code (e.g. REF-JOHNM1234):'
+          : 'Assign a sales rep — enter their referral code (e.g. REF-JOHNM1234):'
+      );
+      if (!code || !code.trim()) return;
+      const token = sessionStorage.getItem('perkfinity_admin_token');
+      const authHeaders = { 'Content-Type': 'application/json', ...(token ? { 'Authorization': 'Bearer ' + token } : {}) };
+      try {
+        // Resolve referral code → contractor id
+        const r = await fetch(`${API_BASE}/contractors/validate-code?code=${encodeURIComponent(code.trim().toUpperCase())}`);
+        const j = await r.json();
+        if (!j.valid) { showToast('⚠️ Code not recognised — check with the rep.'); return; }
+        const contractorId = j.contractor_id;
+        // If there's already an attribution that has started, block reassignment
+        const attrRes = await adminFetch(`/admin/merchants/${merchantId}/attribution`);
+        if (attrRes?.data?.commission_start_date) {
+          showToast('⚠️ Commission has already started — cannot reassign without removing the existing attribution first.');
+          return;
+        }
+        // Remove existing attribution if present (only allowed before commission starts)
+        if (attrRes?.data) {
+          await fetch(`${API_BASE}/admin/contractors/attribute-merchant/${merchantId}`, { method: 'DELETE', headers: authHeaders });
+        }
+        // Create new attribution
+        const postRes = await fetch(`${API_BASE}/admin/contractors/attribute-merchant`, {
+          method: 'POST', headers: authHeaders,
+          body: JSON.stringify({ merchant_id: merchantId, contractor_id: contractorId })
+        });
+        const postJson = await postRes.json();
+        if (postJson?.success) {
+          showToast(`✅ Merchant attributed to ${j.contractor_name} (${code.trim().toUpperCase()})`);
+          showMerchantDetail(merchantId); // Reload detail panel to show updated section
+        } else {
+          showToast('⚠️ ' + (postJson?.error || 'Attribution failed.'));
+        }
+      } catch(e) {
+        showToast('⚠️ Could not complete attribution. Check console.');
+        console.error(e);
+      }
+    }
 
     // ── Application Detail Panel ─────────────────────────────────
     async function openApplicationDetail(id) {
@@ -1967,11 +2414,12 @@
           <div style="font-size:14px;font-weight:800;color:#1a1a2e;margin-bottom:10px;">\ud83e\uddf3 Invoice Details</div>
           ${infoRow('Merchant', inv.merchant_name)}
           ${infoRow('Invoice ID', inv.id)}
+          ${infoRow('Sub Type', cycleBadge(inv.billing_cycle))}
           ${infoRow('Status', statusLabel)}
           ${infoRow('Amount', '$' + amt)}
           ${infoRow('Billing Period', period)}
           ${infoRow('Paid At', inv.paid_at ? formatDate(inv.paid_at) : '\u2014')}
-          ${infoRow('Next Billing Date', inv.next_billing_date ? formatDate(inv.next_billing_date) : '\u2014')}
+          ${infoRow('Next Billing Date', staleDateWarn(inv.next_billing_date))}
           ${infoRow('Billing Status', inv.billing_status || '\u2014')}
           ${inv.stripe_invoice_id ? infoRow('Stripe Invoice ID', inv.stripe_invoice_id) : ''}
           ${infoRow('Created', formatDate(inv.created_at))}
@@ -2457,6 +2905,10 @@
         const bStats = billRes.data.stats || {};
         document.getElementById('ov-mrr').textContent = '$' + (bStats.mrr || '0');
         document.getElementById('bill-mrr').textContent = '$' + (bStats.mrr || '0');
+        document.getElementById('bill-arr').textContent = '$' + (bStats.arr || '0');
+        const arrMonthEquiv = bStats.arr ? (parseFloat(bStats.arr) / 12).toFixed(2) : '0';
+        const arrSubEl = document.getElementById('bill-arr-equiv');
+        if (arrSubEl) arrSubEl.textContent = `≈ $${arrMonthEquiv}/mo equiv. (${bStats.annual_merchant_count || 0} merchant${(bStats.annual_merchant_count || 0) === 1 ? '' : 's'})`;
         document.getElementById('bill-total-revenue').textContent = '$' + ((bStats.total_revenue_cents || 0) / 100).toFixed(2);
         document.getElementById('bill-paying').textContent = bStats.paying_merchants || 0;
         document.getElementById('bill-eligible').textContent = bStats.upgrade_eligible || 0;
@@ -2542,7 +2994,7 @@
               if (bs === 'pending_cancellation' && m.next_billing_date) {
                 billingDate = '<span style="color:#ef4444;font-weight:600;">\ud83d\udeab ' + formatDate(m.next_billing_date) + '</span>';
               } else if (m.next_billing_date) {
-                billingDate = formatDate(m.next_billing_date);
+                billingDate = staleDateWarn(m.next_billing_date);
               }
             }
             return `
@@ -2553,12 +3005,13 @@
               <td>${m.location_zip || '\u2014'}</td>
               <td><span style="font-size:12px;font-weight:700;color:${m.business_presence==='online'?'#5b3fa5':m.business_presence==='hybrid'?'#7c3aed':m.business_presence==='mobile'?'#0891b2':'#16a34a'}">${m.business_presence==='online'?'🌐 Online':m.business_presence==='hybrid'?'📱 Hybrid':m.business_presence==='mobile'?'🚐 Mobile':'📍 Local'}</span></td>
               <td><span class="badge ${tierClass}">${tierLabel}</span></td>
+              <td>${cycleBadge(m.billing_cycle)}</td>
               <td><span class="badge ${statusClass}">${statusLabel}</span></td>
               <td>${m.member_count || 0}</td>
               <td>${billingDate}</td>
               <td>${formatDate(m.created_at)}</td>
             </tr>`;
-          }).join('') || emptyRow(10, 'No merchants found');
+          }).join('') || emptyRow(11, 'No merchants found');
           break;
 
         case 'members':
@@ -2629,10 +3082,10 @@
                 period = formatDate(ps) + ' \u2014 ' + formatDate(pe);
               }
             }
-            const nextBilling = isDeleted ? '\u2014'
+            const nextBilling = isDeleted ? '—'
               : isPendingCancel && inv.next_billing_date
-                ? `<span style="color:#ef4444;font-weight:600;">\uD83D\uDEAB ${formatDate(inv.next_billing_date)}</span>`
-                : inv.next_billing_date ? formatDate(inv.next_billing_date) : '\u2014';
+                ? `<span style="color:#ef4444;font-weight:600;">🚫 ${staleDateWarn(inv.next_billing_date)}</span>`
+                : inv.next_billing_date ? staleDateWarn(inv.next_billing_date) : '—';
             const tierClass = inv.subscription_tier === 'tier1' ? 'tier1'
               : inv.subscription_tier === 'free_for_life' ? 'ffl'
               : ['online_starter','online_growth','online_scale','enterprise'].includes(inv.subscription_tier) ? 'tier1'
@@ -2646,15 +3099,16 @@
               : 'Free';
             return `
             <tr style="cursor:pointer;" onclick="showInvoiceDetail('${inv.id}')">
-              <td><strong>${inv.merchant_name || '\u2014'}</strong></td>
+              <td><strong>${inv.merchant_name || '—'}</strong></td>
               <td><span class="badge ${tierClass}">${tierLabel}</span></td>
+              <td>${cycleBadge(inv.billing_cycle)}</td>
               <td><span class="badge ${statusClass}">${statusLabel}</span></td>
               <td>$${amt}</td>
               <td>${period}</td>
               <td>${nextBilling}</td>
-              <td>${inv.paid_at ? formatDate(inv.paid_at) : '\u2014'}</td>
+              <td>${inv.paid_at ? formatDate(inv.paid_at) : '—'}</td>
             </tr>`;
-          }).join('') || emptyRow(7, 'No invoices yet \u2014 billing starts when merchants upgrade to Connect');
+          }).join('') || emptyRow(8, 'No invoices yet \u2014 billing starts when merchants upgrade to Connect');
           break;
       }
     }
@@ -2674,6 +3128,7 @@
           filters.tier = document.getElementById('merchant-filter-tier').value;
           filters.presence = document.getElementById('merchant-filter-presence').value;
           filters.joined = document.getElementById('merchant-filter-joined').value;
+          filters.cycle = document.getElementById('merchant-filter-cycle')?.value || '';
           if (search) data = data.filter(m =>
             (m.business_name||'').toLowerCase().includes(search) ||
             (m.contact_email||m.email||'').toLowerCase().includes(search) ||
@@ -2693,6 +3148,11 @@
           }
           if (filters.tier) data = data.filter(m => (m.tier||'free') === filters.tier);
           if (filters.presence) data = data.filter(m => (m.business_presence || 'physical') === filters.presence);
+          if (filters.cycle) {
+            data = data.filter(m => (filters.cycle === 'annual')
+              ? m.billing_cycle === 'annual'
+              : (!m.billing_cycle || m.billing_cycle === 'monthly'));
+          }
           if (filters.joined) {
             const merchantCutoff = new Date(Date.now() - parseInt(filters.joined) * 86400000);
             data = data.filter(m => new Date(m.created_at) >= merchantCutoff);
@@ -2754,6 +3214,7 @@
           data = [...allBilling];
           const billStatus = document.getElementById('billing-filter-status').value;
           const billPeriod = document.getElementById('billing-filter-period').value;
+          const billCycle = document.getElementById('billing-filter-cycle')?.value || '';
           const billSearch = document.getElementById('billing-search')?.value.toLowerCase() || '';
           if (billSearch) data = data.filter(i => (i.merchant_name||'').toLowerCase().includes(billSearch));
           if (billStatus) {
@@ -2764,6 +3225,11 @@
               if (billStatus === 'deleted') return i.billing_status === 'deleted';
               return true;
             });
+          }
+          if (billCycle) {
+            data = data.filter(i => (billCycle === 'annual')
+              ? i.billing_cycle === 'annual'
+              : (!i.billing_cycle || i.billing_cycle === 'monthly'));
           }
           if (billPeriod && billPeriod !== 'all') {
             const cutoff = new Date(Date.now() - parseInt(billPeriod) * 86400000);
@@ -2883,6 +3349,23 @@
     function formatDate(d) {
       if (!d) return '—';
       return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    // Stale date: show formatted date + ⚠️ if the date is in the past
+    function staleDateWarn(d) {
+      if (!d) return '—';
+      const formatted = formatDate(d);
+      const isPast = new Date(d) < new Date();
+      return isPast
+        ? `${formatted} <span title="Stale — will auto-correct on next Stripe invoice event" style="cursor:help;font-size:12px;">⚠️</span>`
+        : formatted;
+    }
+
+    // Billing cycle badge
+    function cycleBadge(cycle) {
+      if (cycle === 'annual')
+        return '<span style="font-size:11px;font-weight:700;color:#34d399;background:rgba(52,211,153,0.12);border:1px solid rgba(52,211,153,0.35);border-radius:6px;padding:2px 7px;">Annual</span>';
+      return '<span style="font-size:11px;font-weight:700;color:#facc15;background:rgba(250,204,21,0.12);border:1px solid rgba(250,204,21,0.35);border-radius:6px;padding:2px 7px;">Monthly</span>';
     }
 
     // ── Chart Rendering ─────────────────────────────────────────
@@ -3613,16 +4096,14 @@
     let pendingGateAction = null;
     let gateEmailData = null;
 
-    function openGateModal(action, data = null) {
+    function openGateModal(action, data = null, customTitle = null, customDesc = null) {
       pendingGateAction = action;
       gateEmailData = data;
       document.getElementById('gate-password').value = '';
       document.getElementById('gate-error').style.display = 'none';
       document.getElementById('gate-email-compose').classList.remove('visible');
-      document.getElementById('gate-modal-title').textContent = action === 'email' ? 'Confirm: Send Bulk Email' : 'Confirm: Delete Merchant(s)';
-      document.getElementById('gate-modal-desc').textContent = action === 'email'
-        ? `You are about to send an email to ${getSelectedMerchantIds().length} merchant(s). Enter your admin password to confirm.`
-        : `You are about to PERMANENTLY delete ${getSelectedMerchantIds().length} merchant account(s). This cannot be undone. Enter your admin password to confirm.`;
+      document.getElementById('gate-modal-title').textContent = customTitle || 'Confirm: Send Bulk Email';
+      document.getElementById('gate-modal-desc').textContent = customDesc || `You are about to send an email to ${getSelectedMerchantIds().length} merchant(s). Enter your admin password to confirm.`;
       if (action === 'email') {
         document.getElementById('gate-email-compose').classList.add('visible');
       }
@@ -3639,10 +4120,7 @@
       openGateModal('email');
     }
 
-    function openBulkDelete() {
-      if (!getSelectedMerchantIds().length) return showToast('⚠️ Select at least one merchant');
-      openGateModal('delete');
-    }
+
 
     async function confirmGateAction() {
       const password = document.getElementById('gate-password').value;
@@ -3673,24 +4151,10 @@
           const json = await res.json();
           showToast(json.success ? `✅ Sent to ${json.data.sent} merchant(s)` : '❌ ' + json.error);
         } catch(e) { showToast('❌ Send failed: ' + e.message); }
+      }
 
-      } else if (pendingGateAction === 'delete') {
-        let deleted = 0, failed = 0;
-        for (const id of ids) {
-          try {
-            const res = await fetch(API_BASE + '/admin/merchants/' + id, {
-              method: 'DELETE',
-              headers: getAdminHeaders(),
-            });
-            const json = await res.json();
-            if (json.success) deleted++; else failed++;
-          } catch(e) { failed++; }
-        }
-        showToast(`✅ Deleted ${deleted}${ failed ? ', ' + failed + ' failed' : '' }`);
-        // Deselect all and refresh
-        document.getElementById('merchant-select-all').checked = false;
-        updateBulkBar();
-        loadAllData();
+      if (pendingGateAction === 'special-bonus') {
+        await _execPendingSpecialBonus();
       }
     }
 
@@ -4142,7 +4606,7 @@
             <td>${formatDate(h.created_at)}</td>
             <td><strong>${h.subject}</strong></td>
             <td style="font-size:12px;">${h.sender}</td>
-            <td>${typeLabels[h.audience_type] || h.audience_type || '—'}</td>
+            <td>${h.audience_type === 'individual' ? (() => { const e = (h.filters?.recipient || ''); return e ? e.split('@')[0] : 'individual'; })() : (typeLabels[h.audience_type] || h.audience_type || '—')}</td>
             <td>${h.recipient_count}</td>
             <td>${h.external_count || 0}</td>
             <td>${h.has_attachments ? '📎' : '—'}</td>
@@ -4169,6 +4633,8 @@
     function annShowDetail(idx) {
       const h = window._annHistory[idx];
       if (!h) return;
+      const isIndividual = h.audience_type === 'individual';
+      const recipientEmail = isIndividual ? (h.filters?.recipient || '') : '';
       const typeLabels = { merchants: '🏪 Merchants', members: '👤 Members', both: '🏪👤 Both', external: '📧 External', custom: '📧 Custom' };
       const filters = h.filters || {};
       let filterInfo = '';
@@ -4190,7 +4656,7 @@
       overlay.innerHTML = `
         <div style="background:#ffffff;border-radius:16px;padding:28px;max-width:640px;width:100%;max-height:90vh;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-            <h3 style="color:#1a1a2e;margin:0;">📧 Campaign Details</h3>
+            <h3 style="color:#1a1a2e;margin:0;">${isIndividual ? '✉️ Outreach Details' : '📧 Campaign Details'}</h3>
             <button onclick="document.getElementById('ann-detail-overlay-temp').remove()" style="background:none;border:none;color:#999;font-size:20px;cursor:pointer;line-height:1;">✕</button>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;">
@@ -4210,10 +4676,15 @@
               <div style="font-size:11px;color:#999;text-transform:uppercase;">Sender</div>
               <div style="font-weight:600;color:#1a1a2e;">${h.sender}</div>
             </div>
+            ${isIndividual ? `
+            <div style="background:#eff6ff;padding:12px;border-radius:10px;grid-column:span 2;">
+              <div style="font-size:11px;color:#1d4ed8;text-transform:uppercase;">To</div>
+              <div style="font-weight:600;color:#1a1a2e;word-break:break-all;">${recipientEmail || '—'}</div>
+            </div>` : `
             <div style="background:#f8f8fc;padding:12px;border-radius:10px;">
               <div style="font-size:11px;color:#999;text-transform:uppercase;">Audience</div>
               <div style="font-weight:600;color:#1a1a2e;">${typeLabels[h.audience_type] || h.audience_type}</div>
-            </div>
+            </div>`}
             <div style="background:#f8f8fc;padding:12px;border-radius:10px;">
               <div style="font-size:11px;color:#999;text-transform:uppercase;">Recipients</div>
               <div style="font-weight:600;color:#1a1a2e;">${h.recipient_count}${h.external_count ? ' + ' + h.external_count + ' external' : ''}</div>
@@ -4223,10 +4694,10 @@
               <div style="font-weight:600;color:#1a1a2e;">${h.has_attachments ? '📎 Yes' : 'None'}</div>
             </div>
           </div>
-          <div style="margin-bottom:16px;">
+          ${isIndividual ? '' : `<div style="margin-bottom:16px;">
             <div style="font-size:12px;color:#999;text-transform:uppercase;margin-bottom:6px;">Filters Applied</div>
             <div style="background:#f8f8fc;padding:12px;border-radius:10px;font-size:13px;color:#333;">${filterInfo}</div>
-          </div>
+          </div>`}
           <div style="font-size:12px;color:#999;text-transform:uppercase;margin-bottom:6px;">Subject: ${h.subject}</div>
           <div style="background:#fff;border:1px solid #eee;border-radius:12px;padding:4px;max-height:400px;overflow:auto;">
             ${h.html_body || '<div style="padding:24px;text-align:center;color:#999;">Email preview not available</div>'}
@@ -4235,6 +4706,1063 @@
       overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
       document.body.appendChild(overlay);
     }
+
+    // ════════════════════════════════════════════════════════════════
+    // CONTRACTORS TAB — STATE & FUNCTIONS
+    // ════════════════════════════════════════════════════════════════
+    let allContractors = [];
+    let allContractorPayouts = [];
+    let _currentContractorId = null;
+    let _pendingSpecialBonus = null;
+    let _milestoneConfig = [];
+    let _1099Data = [];
+
+    // ── Sub-tab switching ─────────────────────────────────────────
+    function switchContractorTab(name) {
+      ['reps','payouts','settings','1099'].forEach(t => {
+        const view = document.getElementById('ctab-' + t);
+        if (view) view.style.display = (t === name) ? 'block' : 'none';
+        const btn  = document.getElementById('ctab-btn-' + t);
+        if (btn)  btn.classList.toggle('active', t === name);
+      });
+      if (name === 'payouts')  loadContractorPayouts();
+      if (name === 'settings') loadMilestoneConfig();
+      if (name === '1099')     load1099Report();
+    }
+
+    // ── Reps List ─────────────────────────────────────────────────
+    async function loadContractors() {
+      const tbody = document.getElementById('ctr-tbody');
+      if (tbody) tbody.innerHTML = '<tr><td colspan="8" style="padding:40px;text-align:center;color:var(--muted);">Loading…</td></tr>';
+      try {
+        const res = await adminFetch('/admin/contractors');
+        allContractors = res.data || res.contractors || [];
+        filterContractors();
+      } catch(e) {
+        if (tbody) tbody.innerHTML = '<tr><td colspan="8" style="padding:40px;text-align:center;color:var(--red);">Error loading contractors.</td></tr>';
+      }
+    }
+
+    function filterContractors() {
+      const search  = (document.getElementById('ctr-search')?.value || '').toLowerCase();
+      const statusF = document.getElementById('ctr-filter-status')?.value || '';
+      const w9F     = document.getElementById('ctr-filter-w9')?.value || '';
+      let data = allContractors;
+      if (search)  data = data.filter(c =>
+        (c.full_name||'').toLowerCase().includes(search) ||
+        (c.email||'').toLowerCase().includes(search) ||
+        (c.referral_code||'').toLowerCase().includes(search));
+      if (statusF) data = data.filter(c => c.status === statusF);
+      if (w9F)     data = data.filter(c => c.w9_status === w9F);
+      renderContractorTable(data);
+    }
+
+    function renderContractorTable(data) {
+      const tbody = document.getElementById('ctr-tbody');
+      if (!data.length) {
+        tbody.innerHTML = '<tr><td colspan="9" style="padding:40px;text-align:center;color:var(--muted);">No reps found.</td></tr>';
+        return;
+      }
+      const sColors = { active:'#22c55e', inactive:'#94a3b8', suspended:'#ef4444' };
+      const ENTITY_BADGE = {
+        individual:'👤 Individual', sole_proprietor:'👤 Sole Prop',
+        llc_single:'🏢 LLC (Single)', llc_partnership:'🏢 LLC (Partner)',
+        s_corporation:'🏛️ S Corp', c_corporation:'🏛️ C Corp', other:'❓ Other'
+      };
+      tbody.innerHTML = data.map(c => {
+        const sc  = sColors[c.status] || '#94a3b8';
+        const w9b = c.w9_status  === 'verified' ? '🟢' : c.w9_status  === 'pending' ? '🟡' : '🔴';
+        const icb = c.ica_status === 'signed'   ? '🟢' : c.ica_status === 'sent'    ? '🟡' : '⚫';
+        const ytd = ((c.total_ytd_cents||0)/100).toFixed(2);
+        const entityBadge = c.entity_type ? `<div style="font-size:10px;color:#64748b;margin-top:2px;">${ENTITY_BADGE[c.entity_type]||c.entity_type}</div>` : '';
+        const is1099Exempt = ['s_corporation','c_corporation'].includes(c.entity_type);
+        return `
+          <tr style="border-bottom:1px solid var(--border);cursor:pointer;" onclick="openContractorDetail('${c.id}')">
+            <td style="padding:12px 16px;">
+              <div style="font-weight:700;color:var(--text);font-size:13px;">${c.full_name||'—'}</div>
+              <div style="font-size:11px;color:var(--mutedLight);">${c.email||'—'}</div>
+              ${entityBadge}
+              ${is1099Exempt?'<div style="font-size:10px;color:#64748b;background:#f1f5f9;border-radius:4px;padding:1px 5px;display:inline-block;margin-top:2px;">1099 exempt</div>':''}
+            </td>
+            <td style="padding:12px;font-family:monospace;font-size:12px;font-weight:700;color:#5b3fa5;">${c.referral_code||'—'}</td>
+            <td style="padding:12px;text-align:center;"><span style="padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;background:${sc}18;color:${sc};">${(c.status||'?').toUpperCase()}</span></td>
+            <td style="padding:12px;text-align:center;font-size:16px;" title="W-9: ${c.w9_status||'not_submitted'}">${w9b}</td>
+            <td style="padding:12px;text-align:center;font-size:16px;" title="ICA: ${c.ica_status||'not_sent'}">${icb}</td>
+            <td style="padding:12px;text-align:center;font-weight:700;">${c.merchant_count||0}</td>
+            <td style="padding:12px;text-align:right;font-weight:700;${(c.total_ytd_cents||0)>=60000?'color:#16a34a;':'color:var(--text);'}">$${ytd}</td>
+            <td style="padding:12px;text-align:center;">
+              <button onclick="event.stopPropagation();openContractorDetail('${c.id}')" style="padding:5px 12px;border-radius:7px;border:1px solid var(--border);background:none;color:var(--text);font-size:12px;font-weight:700;cursor:pointer;">View</button>
+            </td>
+          </tr>`;
+      }).join('');
+    }
+
+    // ── Contractor Detail Panel ───────────────────────────────────
+    async function openContractorDetail(id) {
+      _currentContractorId = id;
+      document.getElementById('ctr-detail-backdrop').style.display = 'block';
+      document.getElementById('contractor-detail-overlay').style.display = 'block';
+      document.getElementById('ctr-detail-title').textContent = 'Loading…';
+      document.getElementById('ctr-detail-body').innerHTML = '<div style="padding:60px;text-align:center;color:var(--muted);">Loading contractor data…</div>';
+      try {
+        const res = await adminFetch('/admin/contractors/' + id);
+        const c = res.data || res.contractor;
+        if (!c) throw new Error('No data');
+        _renderContractorDetail(c);
+      } catch(e) {
+        document.getElementById('ctr-detail-body').innerHTML = '<div style="padding:60px;text-align:center;color:var(--red);">Could not load contractor details.</div>';
+      }
+    }
+
+    function closeContractorDetail() {
+      document.getElementById('ctr-detail-backdrop').style.display = 'none';
+      document.getElementById('contractor-detail-overlay').style.display = 'none';
+      _currentContractorId = null;
+    }
+
+    function _renderContractorDetail(c) {
+      document.getElementById('ctr-detail-title').textContent = c.full_name || 'Contractor';
+      const sColors  = { active:'#22c55e', inactive:'#94a3b8', suspended:'#ef4444' };
+      const w9Colors = { verified:'#22c55e', pending:'#f59e0b', not_submitted:'#ef4444' };
+      const icaColor_m = { signed:'#22c55e', sent:'#f59e0b', not_sent:'#94a3b8' };
+      const sc  = sColors[c.status]  || '#94a3b8';
+      const w9c = w9Colors[c.w9_status]  || '#ef4444';
+      const icac = icaColor_m[c.ica_status] || '#94a3b8';
+      const w9Label  = { verified:'🟢 Verified', pending:'🟡 Pending', not_submitted:'🔴 Not Submitted' }[c.w9_status]  || '🔴 Not Submitted';
+      const icaLabel = { signed:'🟢 Signed', sent:'🟡 Sent', not_sent:'⚫ Not Sent' }[c.ica_status] || '⚫ Not Sent';
+      const ir = (label, value) => `<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f1f5f9;"><span style="color:#64748b;font-weight:600;font-size:13px;">${label}</span><span style="font-weight:700;font-size:13px;color:#1a1a2e;text-align:right;max-width:60%;">${value ?? '—'}</span></div>`;
+      const rule = c.compensation_rule || c; // GET /admin/contractors/:id returns fields flat (commission_rate, etc.)
+      const rate  = rule.commission_rate ? (parseFloat(rule.commission_rate)*100).toFixed(0)+'%' : '25%';
+      const dur   = rule.commission_duration_months ? rule.commission_duration_months+' months' : '12 months';
+      const ret   = rule.retainer_cents ? '$'+(rule.retainer_cents/100).toFixed(2)+'/mo' : '$0.00';
+
+      const canActivate = c.ica_status === 'signed';
+
+      const merchants = c.attributed_merchants || [];
+      const tierMap = { tier1:'Connect', free_for_life:'Free For Life', online_starter:'Starter', online_growth:'Growth', online_scale:'Scale', enterprise:'Enterprise' };
+      const mRows = merchants.length ? merchants.map(m => {
+        const commStart = m.commission_start_date
+          ? new Date(m.commission_start_date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})
+          : '⏳ Awaiting 1st payment';
+        const commEnd = m.commission_end_date
+          ? new Date(m.commission_end_date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})
+          : '—';
+        return `<tr style="border-bottom:1px solid #f1f5f9;">
+          <td style="padding:8px 10px;font-weight:600;font-size:12px;">${m.business_name||'—'}</td>
+          <td style="padding:8px 10px;font-size:12px;">${tierMap[m.tier]||m.tier||'—'}</td>
+          <td style="padding:8px 10px;font-size:12px;">${commStart}</td>
+          <td style="padding:8px 10px;font-size:12px;">${commEnd}</td>
+          <td style="padding:8px 10px;font-size:12px;text-align:center;">${m.retention_bonuses_paid||0}</td>
+          <td style="padding:8px 10px;font-size:12px;text-align:center;">${!m.commission_start_date
+            ? `<button onclick="removeContractorAttribution('${m.merchant_id}','${c.id}')" style="padding:3px 8px;border-radius:6px;border:1px solid #fecaca;background:#fef2f2;color:#dc2626;font-size:11px;font-weight:700;cursor:pointer;">Remove</button>`
+            : '<span style="color:#94a3b8;font-size:11px;">Active</span>'}</td>
+        </tr>`;
+      }).join('') : '<tr><td colspan="6" style="padding:20px;text-align:center;color:#94a3b8;font-size:13px;">No merchants attributed yet.</td></tr>';
+
+      const bonuses = c.special_bonuses || [];
+      const bColors = { pending:'#f59e0b', paid:'#22c55e', cancelled:'#94a3b8' };
+      const bRows = bonuses.length ? bonuses.map(b => {
+        const bc = bColors[b.status]||'#94a3b8';
+        return `<tr style="border-bottom:1px solid #f1f5f9;">
+          <td style="padding:8px 10px;font-size:12px;font-weight:600;">${b.label||'—'}</td>
+          <td style="padding:8px 10px;font-size:12px;font-weight:700;">$${((b.amount_cents||0)/100).toFixed(2)}</td>
+          <td style="padding:8px 10px;font-size:12px;"><span style="padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700;background:${bc}18;color:${bc};">${b.status||'?'}</span></td>
+          <td style="padding:8px 10px;font-size:12px;">${b.created_at ? new Date(b.created_at).toLocaleDateString() : '—'}</td>
+          <td style="padding:8px 10px;font-size:12px;text-align:center;">${b.status==='pending'
+            ? `<button onclick="cancelSpecialBonus('${c.id}','${b.id}')" style="padding:3px 8px;border-radius:6px;border:1px solid #fecaca;background:#fef2f2;color:#dc2626;font-size:11px;font-weight:700;cursor:pointer;">Cancel</button>`
+            : '—'}</td>
+        </tr>`;
+      }).join('') : '<tr><td colspan="5" style="padding:20px;text-align:center;color:#94a3b8;font-size:13px;">No special bonuses.</td></tr>';
+
+      const payouts = c.payouts || [];
+      const pColors = { pending:'#f59e0b', approved:'#3b82f6', paid:'#22c55e', voided:'#94a3b8' };
+      const pRows = payouts.length ? payouts.map(p => {
+        const pc = pColors[p.status]||'#94a3b8';
+        const ps = p.period_start ? new Date(p.period_start).toLocaleDateString('en-US',{month:'short',year:'numeric'}) : '—';
+        const bonTotal = ((p.milestone_bonus_cents||0)+(p.retention_bonus_cents||0)+(p.special_bonus_cents||0));
+        return `<tr style="border-bottom:1px solid #f1f5f9;">
+          <td style="padding:8px 10px;font-size:12px;">${ps}</td>
+          <td style="padding:8px 10px;font-size:12px;">$${((p.commission_cents||0)/100).toFixed(2)}</td>
+          <td style="padding:8px 10px;font-size:12px;">$${((p.retainer_cents||0)/100).toFixed(2)}</td>
+          <td style="padding:8px 10px;font-size:12px;">$${(bonTotal/100).toFixed(2)}</td>
+          <td style="padding:8px 10px;font-size:12px;font-weight:700;">$${((p.total_cents||0)/100).toFixed(2)}</td>
+          <td style="padding:8px 10px;font-size:12px;text-align:center;"><span style="padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700;background:${pc}18;color:${pc};">${p.status||'?'}</span></td>
+        </tr>`;
+      }).join('') : '<tr><td colspan="6" style="padding:20px;text-align:center;color:#94a3b8;font-size:13px;">No payout history.</td></tr>';
+
+      document.getElementById('ctr-detail-body').innerHTML = `
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+          <div style="background:#f8fafc;border-radius:12px;padding:18px 20px;">
+            <div style="font-size:13px;font-weight:800;color:#1a1a2e;margin-bottom:10px;">👤 Profile</div>
+            ${ir('Full Name', c.full_name)}
+            ${ir('Legal Name', c.legal_name)}
+            ${ir('Email', c.email)}
+            ${ir('Phone', c.phone)}
+            ${ir('Address', c.address)}
+            ${ir('Referral Code', `<span style="font-family:monospace;font-weight:900;color:#5b3fa5;letter-spacing:1px;">${c.referral_code||'—'}</span>`)}
+            ${ir('Payment Method', c.payment_method||'Check')}
+            ${ir('Start Date', c.start_date ? new Date(c.start_date).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}) : '—')}
+          </div>
+          <div style="background:#f8fafc;border-radius:12px;padding:18px 20px;">
+            <div style="font-size:13px;font-weight:800;color:#1a1a2e;margin-bottom:10px;">📋 Status &amp; Compliance</div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f1f5f9;">
+              <span style="color:#64748b;font-weight:600;font-size:13px;">Status</span>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span style="padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;background:${sc}18;color:${sc};">${(c.status||'?').toUpperCase()}</span>
+                <select onchange="updateContractorStatus('${c.id}',this.value)" style="font-size:11px;padding:3px 6px;border-radius:6px;border:1px solid var(--border);background:#fff;color:#1a1a2e;cursor:pointer;font-family:inherit;">
+                  <option value="active"   ${c.status==='active'?'selected':''} ${!canActivate&&c.status!=='active'?'disabled':''}>Active</option>
+                  <option value="inactive"  ${c.status==='inactive'?'selected':''}>Inactive</option>
+                  <option value="suspended" ${c.status==='suspended'?'selected':''}>Suspended</option>
+                </select>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f1f5f9;">
+              <span style="color:#64748b;font-weight:600;font-size:13px;">W-9 Status</span>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span style="font-size:13px;font-weight:700;color:${w9c};">${w9Label}</span>
+                ${c.w9_status === 'not_submitted' ? `<button id="w9-send-btn-${c.id}" onclick="sendW9Request('${c.id}')" style="padding:3px 10px;border-radius:6px;border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8;font-size:11px;font-weight:700;cursor:pointer;">Send W-9 Request</button>` : ''}
+                ${c.w9_status === 'pending'       ? `<button id="w9-send-btn-${c.id}" onclick="sendW9Request('${c.id}')" style="padding:3px 10px;border-radius:6px;border:1px solid #fed7aa;background:#fff7ed;color:#c2410c;font-size:11px;font-weight:700;cursor:pointer;">Resend W-9 Request</button>` : ''}
+                ${c.w9_status !== 'verified'      ? `<button onclick="markW9Verified('${c.id}')" style="padding:3px 10px;border-radius:6px;border:1px solid #bbf7d0;background:#f0fdf4;color:#166534;font-size:11px;font-weight:700;cursor:pointer;">Mark Verified</button>` : ''}
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f1f5f9;">
+              <span style="color:#64748b;font-weight:600;font-size:13px;">ICA Status</span>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span style="font-size:13px;font-weight:700;color:${icac};">${icaLabel}</span>
+                ${c.ica_status!=='signed' ? `<button onclick="markICASigned('${c.id}')" style="padding:3px 10px;border-radius:6px;border:1px solid #bbf7d0;background:#f0fdf4;color:#166534;font-size:11px;font-weight:700;cursor:pointer;">Mark Signed</button>` : ''}
+                ${c.ica_status==='not_sent' ? `<a href="https://app.dropboxsign.com" target="_blank" style="padding:3px 10px;border-radius:6px;border:1px solid #e2e8f0;background:#f8fafc;color:#475569;font-size:11px;font-weight:700;text-decoration:none;">Send ICA ↗</a>` : ''}
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;">
+              <span style="color:#64748b;font-weight:600;font-size:13px;">Entity Type</span>
+              <div style="display:flex;align-items:center;gap:8px;">
+                ${(() => { const EL={individual:'👤 Individual',sole_proprietor:'👤 Sole Prop',llc_single:'🏢 LLC (Single)',llc_partnership:'🏢 LLC (Partner)',s_corporation:'🏛️ S Corp',c_corporation:'🏛️ C Corp',other:'❓ Other'}; const exempt=['s_corporation','c_corporation'].includes(c.entity_type); const etl=c.entity_type?EL[c.entity_type]||c.entity_type:'— Not set'; const etc=exempt?'#64748b':(c.entity_type?'#1a1a2e':'#94a3b8'); return `<span style="font-size:13px;font-weight:700;color:${etc};">${etl}</span>${exempt?'<span style="padding:2px 7px;border-radius:999px;font-size:10px;font-weight:700;background:#f1f5f9;color:#64748b;">1099 exempt</span>':''}`;})()}
+                <select onchange="updateContractorEntityType('${c.id}',this.value)" style="font-size:11px;padding:3px 6px;border-radius:6px;border:1px solid var(--border);background:#fff;color:#1a1a2e;cursor:pointer;font-family:inherit;">
+                  <option value="">— Edit —</option>
+                  <option value="individual" ${c.entity_type==='individual'?'selected':''}>Individual</option>
+                  <option value="sole_proprietor" ${c.entity_type==='sole_proprietor'?'selected':''}>Sole Prop</option>
+                  <option value="llc_single" ${c.entity_type==='llc_single'?'selected':''}>LLC (Single)</option>
+                  <option value="llc_partnership" ${c.entity_type==='llc_partnership'?'selected':''}>LLC (Partner)</option>
+                  <option value="s_corporation" ${c.entity_type==='s_corporation'?'selected':''}>S Corp</option>
+                  <option value="c_corporation" ${c.entity_type==='c_corporation'?'selected':''}>C Corp</option>
+                  <option value="other" ${c.entity_type==='other'?'selected':''}>Other</option>
+                </select>
+              </div>
+            </div>
+            ${!canActivate ? `<div style="margin-top:10px;font-size:12px;color:#f59e0b;font-weight:600;">⚠️ ICA must be signed before setting status to Active.</div>` : ''}
+          </div>
+        </div>
+        <div style="background:#f8fafc;border-radius:12px;padding:18px 20px;margin-bottom:20px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <div style="font-size:13px;font-weight:800;color:#1a1a2e;">💰 Compensation Rule</div>
+            <button onclick="openEditCompModal('${c.id}','${rule.commission_rate||0.25}','${rule.commission_duration_months||12}','${rule.retainer_cents||0}')" style="padding:5px 12px;border-radius:7px;border:1px solid var(--border);background:none;color:var(--text);font-size:12px;font-weight:700;cursor:pointer;">✏️ Edit</button>
+          </div>
+          <div style="display:flex;gap:14px;flex-wrap:wrap;">
+            <div style="flex:1;min-width:110px;text-align:center;background:#5b3fa508;border:1px solid #5b3fa520;border-radius:10px;padding:12px;">
+              <div style="font-size:22px;font-weight:900;color:#5b3fa5;">${rate}</div>
+              <div style="font-size:11px;font-weight:700;color:#64748b;margin-top:3px;">RATE</div>
+            </div>
+            <div style="flex:1;min-width:110px;text-align:center;background:#2563eb08;border:1px solid #2563eb20;border-radius:10px;padding:12px;">
+              <div style="font-size:22px;font-weight:900;color:#2563eb;">${dur}</div>
+              <div style="font-size:11px;font-weight:700;color:#64748b;margin-top:3px;">DURATION</div>
+            </div>
+            <div style="flex:1;min-width:110px;text-align:center;background:#16a34a08;border:1px solid #16a34a20;border-radius:10px;padding:12px;">
+              <div style="font-size:22px;font-weight:900;color:#16a34a;">${ret}</div>
+              <div style="font-size:11px;font-weight:700;color:#64748b;margin-top:3px;">RETAINER</div>
+            </div>
+          </div>
+        </div>
+        <div style="background:#f8fafc;border-radius:12px;padding:18px 20px;margin-bottom:20px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <div style="font-size:13px;font-weight:800;color:#1a1a2e;">🗺️ Territory</div>
+            <div style="display:flex;gap:8px;">
+              <button onclick="openAssignTerritoryModal('${c.id}')" style="padding:5px 12px;border-radius:7px;border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8;font-size:12px;font-weight:700;cursor:pointer;">${c.territory?'🔄 Reassign':'+ Assign Territory'}</button>
+              ${c.territory?`<button onclick="revokeTerritory('${c.id}')" style="padding:5px 12px;border-radius:7px;border:1px solid #fecaca;background:#fef2f2;color:#dc2626;font-size:12px;font-weight:700;cursor:pointer;">✕ Revoke</button>`:''}
+            </div>
+          </div>
+          ${c.territory
+            ? `<div style="font-weight:700;font-size:13px;">${c.territory.label}</div><div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px;">${(c.territory.zip_codes||[]).map(z=>`<span style="padding:2px 8px;border-radius:6px;background:#eff6ff;color:#1d4ed8;font-size:12px;font-weight:700;font-family:monospace;">${z}</span>`).join('')}</div><div style="margin-top:8px;font-size:11px;color:#94a3b8;">Assigned ${c.territory.assigned_at?new Date(c.territory.assigned_at).toLocaleDateString():''}</div>`
+            : '<div style="color:#94a3b8;font-size:13px;">No territory assigned.</div>'}
+        </div>
+        ${(()=>{const qd=c.quota;if(!qd)return`<div style="background:#f8fafc;border-radius:12px;padding:18px 20px;margin-bottom:20px;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><div style="font-size:13px;font-weight:800;color:#1a1a2e;">🎯 Quota Period</div><button onclick="startQuotaPeriod('${c.id}')" style="padding:5px 12px;border-radius:7px;border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8;font-size:12px;font-weight:700;cursor:pointer;">▶ Start</button></div><div style="color:#94a3b8;font-size:13px;">No quota period started yet.</div></div>`;const qs=qd.status,qc={active:'#3b82f6',met:'#22c55e',missed:'#ef4444'}[qs]||'#94a3b8',cur=qd.current_count||0,target=qd.quota_target||30,pct=qd.percent||0,days=qd.days_remaining;return`<div style="background:#f8fafc;border-radius:12px;padding:18px 20px;margin-bottom:20px;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><div style="font-size:13px;font-weight:800;color:#1a1a2e;">🎯 Quota Period</div><div style="display:flex;gap:8px;">${qs==='active'?`<button onclick="evaluateQuota('${c.id}')" style="padding:5px 12px;border-radius:7px;border:1px solid #bbf7d0;background:#f0fdf4;color:#166534;font-size:12px;font-weight:700;cursor:pointer;">✓ Evaluate</button>`:''} ${qs==='active'?`<button onclick="extendQuota('${c.id}')" style="padding:5px 12px;border-radius:7px;border:1px solid #fde68a;background:#fffbeb;color:#92400e;font-size:12px;font-weight:700;cursor:pointer;">📅 Extend</button>`:''} ${(qs==='active'||qs==='missed')?`<button onclick="sendQuotaReminder('${c.id}')" style="padding:5px 12px;border-radius:7px;border:1px solid #e2e8f0;background:#f8fafc;color:#475569;font-size:12px;font-weight:700;cursor:pointer;">📧 Remind</button>`:''}</div></div><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span style="font-size:13px;font-weight:700;">${cur}/${target} active merchants</span><span style="padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;background:${qc}18;color:${qc};">${(qs||'?').toUpperCase()}</span></div><div style="height:10px;background:#e2e8f0;border-radius:999px;overflow:hidden;margin-bottom:8px;"><div style="height:100%;width:${pct}%;background:${qc};border-radius:999px;"></div></div><div style="display:flex;justify-content:space-between;font-size:11px;color:#64748b;"><span>Start:${qd.period_start?new Date(qd.period_start).toLocaleDateString():'-'}</span><span>${pct}%</span><span>End:${qd.period_end?new Date(qd.period_end).toLocaleDateString():'-'}</span></div>${qs==='active'&&days!==undefined?`<div style="margin-top:6px;font-size:12px;color:${days<=14?'#ef4444':'#64748b'};font-weight:600;">${days} days remaining</div>`:''}${qs==='missed'?'<div style="margin-top:8px;padding:8px 12px;background:#fef2f2;border-radius:8px;color:#dc2626;font-size:12px;font-weight:700;">⚠️ Quota missed — extend, assign new rep, or cancel territory.</div>':''}${qs==='met'?'<div style="margin-top:8px;padding:8px 12px;background:#f0fdf4;border-radius:8px;color:#166534;font-size:12px;font-weight:700;">🎉 Quota met! Territory locked in.</div>':''}</div>`;})()}
+        <div style="background:#f8fafc;border-radius:12px;padding:18px 20px;margin-bottom:20px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <div style="font-size:13px;font-weight:800;color:#1a1a2e;">🏪 Attributed Merchants (${merchants.length})</div>
+            <button onclick="openManualAttributeToContractorModal('${c.id}')" style="padding:5px 12px;border-radius:7px;border:1px solid #bbf7d0;background:#f0fdf4;color:#166534;font-size:12px;font-weight:700;cursor:pointer;">+ Attribute Merchant</button>
+          </div>
+          <div style="overflow-x:auto;">
+            <table style="width:100%;border-collapse:collapse;font-size:12px;">
+              <thead><tr style="border-bottom:1px solid #e2e8f0;">
+                <th style="padding:8px 10px;text-align:left;color:#64748b;font-weight:700;">Business</th>
+                <th style="padding:8px 10px;text-align:left;color:#64748b;font-weight:700;">Tier</th>
+                <th style="padding:8px 10px;text-align:left;color:#64748b;font-weight:700;">Comm. Start</th>
+                <th style="padding:8px 10px;text-align:left;color:#64748b;font-weight:700;">Comm. End</th>
+                <th style="padding:8px 10px;text-align:center;color:#64748b;font-weight:700;">Retention</th>
+                <th style="padding:8px 10px;text-align:center;color:#64748b;font-weight:700;">Action</th>
+              </tr></thead>
+              <tbody>${mRows}</tbody>
+            </table>
+          </div>
+        </div>
+        <div style="background:#f8fafc;border-radius:12px;padding:18px 20px;margin-bottom:20px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <div style="font-size:13px;font-weight:800;color:#1a1a2e;">⭐ Special Bonuses</div>
+            <button onclick="openAddSpecialBonusModal('${c.id}')" style="padding:5px 12px;border-radius:7px;border:1px solid #fde68a;background:#fffbeb;color:#92400e;font-size:12px;font-weight:700;cursor:pointer;">+ Add Bonus</button>
+          </div>
+          <table style="width:100%;border-collapse:collapse;font-size:12px;">
+            <thead><tr style="border-bottom:1px solid #e2e8f0;">
+              <th style="padding:8px 10px;text-align:left;color:#64748b;font-weight:700;">Label</th>
+              <th style="padding:8px 10px;text-align:left;color:#64748b;font-weight:700;">Amount</th>
+              <th style="padding:8px 10px;text-align:left;color:#64748b;font-weight:700;">Status</th>
+              <th style="padding:8px 10px;text-align:left;color:#64748b;font-weight:700;">Date</th>
+              <th style="padding:8px 10px;text-align:center;color:#64748b;font-weight:700;">Action</th>
+            </tr></thead>
+            <tbody>${bRows}</tbody>
+          </table>
+        </div>
+        <div style="background:#f8fafc;border-radius:12px;padding:18px 20px;">
+          <div style="font-size:13px;font-weight:800;color:#1a1a2e;margin-bottom:12px;">📋 Payout History</div>
+          <table style="width:100%;border-collapse:collapse;font-size:12px;">
+            <thead><tr style="border-bottom:1px solid #e2e8f0;">
+              <th style="padding:8px 10px;text-align:left;color:#64748b;font-weight:700;">Period</th>
+              <th style="padding:8px 10px;text-align:right;color:#64748b;font-weight:700;">Commission</th>
+              <th style="padding:8px 10px;text-align:right;color:#64748b;font-weight:700;">Retainer</th>
+              <th style="padding:8px 10px;text-align:right;color:#64748b;font-weight:700;">Bonuses</th>
+              <th style="padding:8px 10px;text-align:right;color:#64748b;font-weight:700;">Total</th>
+              <th style="padding:8px 10px;text-align:center;color:#64748b;font-weight:700;">Status</th>
+            </tr></thead>
+            <tbody>${pRows}</tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    // ── Add Contractor ────────────────────────────────────────────
+    function openAddContractorModal() {
+      document.getElementById('add-contractor-modal').style.display = 'flex';
+      ['nc-full-name','nc-legal-name','nc-email','nc-phone','nc-address','nc-notes'].forEach(id => {
+        const el = document.getElementById(id); if (el) el.value = '';
+      });
+      const pwEl = document.getElementById('nc-password'); if (pwEl) pwEl.value = '';
+      const etEl = document.getElementById('nc-entity-type'); if (etEl) etEl.value = '';
+      document.getElementById('nc-rate').value = '25';
+      document.getElementById('nc-duration').value = '12';
+      document.getElementById('nc-retainer').value = '0';
+      document.getElementById('nc-err').style.display = 'none';
+      document.getElementById('nc-save-btn').disabled = false;
+      const check = document.querySelector('[name="nc-payment-method"][value="check"]');
+      if (check) check.checked = true;
+    }
+
+    async function saveNewContractor() {
+      const full_name   = document.getElementById('nc-full-name').value.trim();
+      const legal_name  = document.getElementById('nc-legal-name').value.trim();
+      const email       = document.getElementById('nc-email').value.trim();
+      const phone       = document.getElementById('nc-phone').value.trim();
+      const address     = document.getElementById('nc-address').value.trim();
+      const notes       = document.getElementById('nc-notes').value.trim();
+      const rate        = parseFloat(document.getElementById('nc-rate').value);
+      const duration    = parseInt(document.getElementById('nc-duration').value);
+      const retainer    = parseInt(document.getElementById('nc-retainer').value) || 0;
+      const pay_method  = document.querySelector('[name="nc-payment-method"]:checked')?.value || 'check';
+      const password    = document.getElementById('nc-password')?.value || '';
+      const entity_type = document.getElementById('nc-entity-type')?.value || null;
+      const errEl = document.getElementById('nc-err');
+      errEl.style.display = 'none';
+      if (!full_name || !legal_name || !email) {
+        errEl.textContent = 'Full name, legal name, and email are required.';
+        errEl.style.display = 'block'; return;
+      }
+      if (!password || password.length < 8) {
+        document.getElementById('nc-pw-err').style.display = 'block'; return;
+      }
+      if (rate < 1 || rate > 25) { document.getElementById('nc-rate-err').style.display = 'block'; return; }
+      if (duration < 1 || duration > 24) { document.getElementById('nc-dur-err').style.display = 'block'; return; }
+      const btn = document.getElementById('nc-save-btn');
+      btn.disabled = true; btn.textContent = 'Creating…';
+      const token = sessionStorage.getItem('perkfinity_admin_token');
+      try {
+        const res = await fetch(API_BASE + '/admin/contractors', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({ full_name, legal_name, email, phone, address, notes, payment_method: pay_method,
+            commission_rate: rate / 100, commission_duration_months: duration, retainer_cents: retainer * 100,
+            password, entity_type: entity_type || undefined })
+        });
+        const json = await res.json();
+        if (json.success) {
+          document.getElementById('add-contractor-modal').style.display = 'none';
+          showToast(`✅ Rep created! Code: ${json.data?.referral_code || ''}`);
+          await loadContractors();
+        } else { errEl.textContent = json.error || 'Failed to create rep.'; errEl.style.display = 'block'; }
+      } catch(e) { errEl.textContent = 'Connection error.'; errEl.style.display = 'block'; }
+      finally { btn.disabled = false; btn.textContent = 'Create Rep'; }
+    }
+
+    // ── Status / W-9 / ICA PATCH ──────────────────────────────────
+    async function updateContractorStatus(id, status) {
+      const token = sessionStorage.getItem('perkfinity_admin_token');
+      try {
+        const res  = await fetch(API_BASE + '/admin/contractors/' + id, {
+          method: 'PATCH', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({ status })
+        });
+        const json = await res.json();
+        if (json.success) { showToast('✅ Status updated to ' + status); await loadContractors(); openContractorDetail(id); }
+        else { showToast('⚠️ ' + (json.error || 'Could not update status.')); openContractorDetail(id); }
+      } catch(e) { showToast('⚠️ Connection error.'); }
+    }
+
+    async function markW9Verified(id) {
+      if (!confirm('Mark W-9 as verified? Only do this after reviewing the signed W-9 in TaxBandits.')) return;
+      const token = sessionStorage.getItem('perkfinity_admin_token');
+      try {
+        const res  = await fetch(API_BASE + '/admin/contractors/' + id, {
+          method: 'PATCH', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({ w9_status: 'verified' })
+        });
+        const json = await res.json();
+        if (json.success) {
+          showToast('✅ W-9 marked as verified.');
+          allContractors = allContractors.map(c => c.id===id?{...c,w9_status:'verified'}:c);
+          openContractorDetail(id);
+        } else { showToast('⚠️ ' + (json.error||'Failed.')); }
+      } catch(e) { showToast('⚠️ Connection error.'); }
+    }
+
+    async function sendW9Request(id) {
+      const contractor = allContractors.find(c => c.id === id);
+      const isResend   = contractor && contractor.w9_status === 'pending';
+      const label      = isResend ? 'Resend' : 'Send';
+      if (!confirm(`${label} W-9 request email to this contractor via TaxBandits?`)) return;
+      const btn = document.getElementById(`w9-send-btn-${id}`);
+      if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
+      const token = sessionStorage.getItem('perkfinity_admin_token');
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 30000); // 30-second timeout
+      try {
+        const res  = await fetch(`${API_BASE}/admin/contractors/${id}/send-w9-request`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          signal: controller.signal
+        });
+        clearTimeout(timeout);
+        const json = await res.json();
+        if (json.success) {
+          showToast('✅ W-9 request sent to contractor.');
+          allContractors = allContractors.map(c => c.id === id ? { ...c, w9_status: 'pending' } : c);
+          openContractorDetail(id);
+        } else {
+          showToast('⚠️ ' + (json.error || 'Failed to send W-9 request.'));
+          if (btn) { btn.disabled = false; btn.textContent = isResend ? 'Resend W-9 Request' : 'Send W-9 Request'; }
+        }
+      } catch(e) {
+        clearTimeout(timeout);
+        const msg = e.name === 'AbortError' ? 'Timed out — TaxBandits is slow, try again.' : 'Connection error sending W-9 request.';
+        showToast('⚠️ ' + msg);
+        if (btn) { btn.disabled = false; btn.textContent = isResend ? 'Resend W-9 Request' : 'Send W-9 Request'; }
+      }
+    }
+
+
+    async function markICASigned(id) {
+      if (!confirm('Mark ICA as signed? Only do this after Dropbox Sign confirms the signature.')) return;
+      const token = sessionStorage.getItem('perkfinity_admin_token');
+      try {
+        const res  = await fetch(API_BASE + '/admin/contractors/' + id, {
+          method: 'PATCH', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({ ica_status: 'signed' })
+        });
+        const json = await res.json();
+        if (json.success) {
+          showToast('✅ ICA marked as signed.');
+          allContractors = allContractors.map(c => c.id===id?{...c,ica_status:'signed'}:c);
+          openContractorDetail(id);
+        } else { showToast('⚠️ ' + (json.error||'Failed.')); }
+      } catch(e) { showToast('⚠️ Connection error.'); }
+    }
+
+    // ── Update contractor entity type ────────────────────────────────
+    async function updateContractorEntityType(id, entityType) {
+      if (!entityType) return;
+      const token = sessionStorage.getItem('perkfinity_admin_token');
+      try {
+        const res  = await fetch(API_BASE + '/admin/contractors/' + id, {
+          method: 'PATCH', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({ entity_type: entityType })
+        });
+        const json = await res.json();
+        if (json.success) {
+          showToast('✅ Entity type updated.');
+          allContractors = allContractors.map(c => c.id===id?{...c,entity_type:entityType}:c);
+          openContractorDetail(id);
+        } else { showToast('⚠️ ' + (json.error||'Failed.')); }
+      } catch(e) { showToast('⚠️ Connection error.'); }
+    }
+
+    // ── Territory management ─────────────────────────────────────────
+    let _terrRepId = null;
+    function openAssignTerritoryModal(repId) {
+      _terrRepId = repId;
+      document.getElementById('terr-label').value = '';
+      document.getElementById('terr-zips').value = '';
+      document.getElementById('terr-err').style.display = 'none';
+      document.getElementById('assign-territory-modal').style.display = 'flex';
+    }
+    async function saveTerritory() {
+      const token = sessionStorage.getItem('perkfinity_admin_token');
+      const label = document.getElementById('terr-label').value.trim();
+      const zipsRaw = document.getElementById('terr-zips').value.trim();
+      const zip_codes = zipsRaw.split(/[\s,;]+/).map(z=>z.trim()).filter(z=>/^\d{5}(-\d{4})?$/.test(z));
+      const errEl = document.getElementById('terr-err');
+      if (!label) { errEl.textContent='Territory name is required.'; errEl.style.display='block'; return; }
+      if (!zip_codes.length) { errEl.textContent='At least one valid 5-digit ZIP is required.'; errEl.style.display='block'; return; }
+      errEl.style.display='none';
+      try {
+        const res = await fetch(API_BASE + '/admin/contractors/' + _terrRepId + '/territory', {
+          method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+          body: JSON.stringify({ label, zip_codes })
+        });
+        const json = await res.json();
+        if (json.success) {
+          document.getElementById('assign-territory-modal').style.display='none';
+          if (json.overlap_warning) {
+            const names = json.overlap_warning.map(o=>o.contractor_name).join(', ');
+            showToast(`⚠️ Territory assigned. ZIP overlap with: ${names}. Review recommended.`, 6000);
+          } else { showToast('✅ Territory assigned successfully.'); }
+          openContractorDetail(_terrRepId);
+        } else { errEl.textContent=json.error||'Failed.'; errEl.style.display='block'; }
+      } catch(e) { errEl.textContent='Connection error.'; errEl.style.display='block'; }
+    }
+    async function revokeTerritory(repId) {
+      if (!confirm('Revoke this territory? The rep will lose their area assignment.')) return;
+      const token = sessionStorage.getItem('perkfinity_admin_token');
+      try {
+        const res = await fetch(API_BASE + '/admin/contractors/' + repId + '/territory', {
+          method:'DELETE', headers:{'Authorization':'Bearer '+token}
+        });
+        const json = await res.json();
+        if (json.success) { showToast('✅ Territory revoked.'); openContractorDetail(repId); }
+        else { showToast('⚠️ ' + (json.error||'Failed.')); }
+      } catch(e) { showToast('⚠️ Connection error.'); }
+    }
+
+    // ── Quota management ─────────────────────────────────────────────
+    async function startQuotaPeriod(repId) {
+      if (!confirm('Start a 3-month quota period (30 merchants target) for this rep?')) return;
+      const token = sessionStorage.getItem('perkfinity_admin_token');
+      try {
+        const res = await fetch(API_BASE + '/admin/contractors/' + repId + '/quota', {
+          method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+          body: JSON.stringify({ quota_target: 30 })
+        });
+        const json = await res.json();
+        if (json.success) { showToast('✅ Quota period started (30 merchants / 3 months).'); openContractorDetail(repId); }
+        else { showToast('⚠️ ' + (json.error||'Failed.')); }
+      } catch(e) { showToast('⚠️ Connection error.'); }
+    }
+    async function evaluateQuota(repId) {
+      if (!confirm('Evaluate quota now? This will mark it as met or missed based on current merchant count.')) return;
+      const token = sessionStorage.getItem('perkfinity_admin_token');
+      try {
+        const res = await fetch(API_BASE + '/admin/contractors/' + repId + '/quota/evaluate', {
+          method:'POST', headers:{'Authorization':'Bearer '+token}
+        });
+        const json = await res.json();
+        if (json.success) {
+          const labels = { met:'🎉 Quota MET! Territory locked in.', missed:'⚠️ Quota MISSED. Consider next steps.', active:'📊 Quota is still active.' };
+          showToast(labels[json.result]||'✅ Done.');
+          openContractorDetail(repId);
+        } else { showToast('⚠️ ' + (json.error||'Failed.')); }
+      } catch(e) { showToast('⚠️ Connection error.'); }
+    }
+    async function extendQuota(repId) {
+      const daysStr = prompt('Extend quota period by how many days? (1-180)', '30');
+      if (!daysStr) return;
+      const days = parseInt(daysStr);
+      if (isNaN(days) || days < 1 || days > 180) { showToast('⚠️ Enter a number between 1 and 180.'); return; }
+      const token = sessionStorage.getItem('perkfinity_admin_token');
+      try {
+        const res = await fetch(API_BASE + '/admin/contractors/' + repId + '/quota/extend', {
+          method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+          body: JSON.stringify({ days })
+        });
+        const json = await res.json();
+        if (json.success) { showToast(`✅ Quota extended by ${days} days.`); openContractorDetail(repId); }
+        else { showToast('⚠️ ' + (json.error||'Failed.')); }
+      } catch(e) { showToast('⚠️ Connection error.'); }
+    }
+    async function sendQuotaReminder(repId) {
+      if (!confirm('Send a quota reminder to this rep?')) return;
+      const token = sessionStorage.getItem('perkfinity_admin_token');
+      try {
+        const res = await fetch(API_BASE + '/admin/contractors/' + repId + '/quota/send-reminder', {
+          method:'POST', headers:{'Authorization':'Bearer '+token}
+        });
+        const json = await res.json();
+        if (json.success) { showToast('✅ Reminder logged. ' + (json.message||'')); }
+        else { showToast('⚠️ ' + (json.error||'Failed.')); }
+      } catch(e) { showToast('⚠️ Connection error.'); }
+    }
+
+    // ── Edit Compensation Modal ────────────────────────────────────
+    let _editCompId = null;
+    function openEditCompModal(id, rate, duration, retainerCents) {
+      _editCompId = id;
+      const curRate = (parseFloat(rate) * 100).toFixed(0);
+      const existing = document.getElementById('edit-comp-overlay');
+      if (existing) existing.remove();
+      const el = document.createElement('div');
+      el.id = 'edit-comp-overlay';
+      el.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:10005;display:flex;align-items:center;justify-content:center;';
+      el.innerHTML = `
+        <div style="width:420px;background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.3);padding:28px;">
+          <div style="font-size:18px;font-weight:800;color:#1a1a2e;margin-bottom:20px;">✏️ Edit Compensation</div>
+          <div class="form-group">
+            <label class="form-label" style="color:#475569;">Commission Rate % (1–25)</label>
+            <input type="number" class="form-input" id="ec-rate" value="${curRate}" min="1" max="25" step="1" style="color:#1a1a2e;background:#f8fafc;border-color:#e2e8f0;"/>
+            <div id="ec-rate-err" style="color:#ef4444;font-size:11px;display:none;">Maximum is 25%</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" style="color:#475569;">Duration months (1–24)</label>
+            <input type="number" class="form-input" id="ec-duration" value="${duration}" min="1" max="24" step="1" style="color:#1a1a2e;background:#f8fafc;border-color:#e2e8f0;"/>
+            <div id="ec-dur-err" style="color:#ef4444;font-size:11px;display:none;">Maximum is 24 months</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" style="color:#475569;">Monthly Retainer $</label>
+            <input type="number" class="form-input" id="ec-retainer" value="${(parseInt(retainerCents)||0)/100}" min="0" step="1" style="color:#1a1a2e;background:#f8fafc;border-color:#e2e8f0;"/>
+          </div>
+          <div id="ec-err" style="color:#ef4444;font-size:13px;margin-bottom:12px;display:none;"></div>
+          <div style="display:flex;gap:10px;justify-content:flex-end;">
+            <button onclick="document.getElementById('edit-comp-overlay').remove()" class="toolbar-btn" style="padding:10px 20px;">Cancel</button>
+            <button onclick="saveCompRule()" class="toolbar-btn primary" style="padding:10px 24px;" id="ec-save-btn">Save</button>
+          </div>
+        </div>`;
+
+      el.onclick = e => { if (e.target === el) el.remove(); };
+      document.body.appendChild(el);
+    }
+
+    async function saveCompRule() {
+      const rate     = parseFloat(document.getElementById('ec-rate').value);
+      const duration = parseInt(document.getElementById('ec-duration').value);
+      const retainer = parseFloat(document.getElementById('ec-retainer').value) || 0;
+      document.getElementById('ec-rate-err').style.display = 'none';
+      document.getElementById('ec-dur-err').style.display  = 'none';
+      if (rate < 1 || rate > 25)     { document.getElementById('ec-rate-err').style.display = 'block'; return; }
+      if (duration < 1 || duration > 24) { document.getElementById('ec-dur-err').style.display = 'block'; return; }
+      const btn = document.getElementById('ec-save-btn');
+      btn.disabled = true; btn.textContent = 'Saving…';
+      const token = sessionStorage.getItem('perkfinity_admin_token');
+      try {
+        const res  = await fetch(API_BASE + '/admin/contractors/' + _editCompId + '/compensation', {
+          method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({ commission_rate: rate/100, commission_duration_months: duration, retainer_cents: Math.round(retainer*100) })
+        });
+        const json = await res.json();
+        if (json.success) {
+          document.getElementById('edit-comp-overlay').remove();
+          showToast('✅ Compensation saved.');
+          openContractorDetail(_editCompId);
+        } else { document.getElementById('ec-err').textContent = json.error||'Failed.'; document.getElementById('ec-err').style.display = 'block'; }
+      } catch(e) { document.getElementById('ec-err').textContent = 'Connection error.'; document.getElementById('ec-err').style.display = 'block'; }
+      finally { btn.disabled = false; btn.textContent = 'Save'; }
+    }
+
+    // ── Manual Attribution from Detail Panel ──────────────────────
+    function openManualAttributeToContractorModal(contractorId) {
+      const mid = window.prompt('Enter Merchant ID to attribute to this rep:\n(Find it in the Merchants tab or a merchant detail popup)');
+      if (!mid || !mid.trim()) return;
+      _doAttributeMerchantToContractor(contractorId, mid.trim());
+    }
+
+    async function _doAttributeMerchantToContractor(contractorId, merchantId) {
+      const token = sessionStorage.getItem('perkfinity_admin_token');
+      try {
+        const res  = await fetch(API_BASE + '/admin/contractors/attribute-merchant', {
+          method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({ contractor_id: contractorId, merchant_id: merchantId })
+        });
+        const json = await res.json();
+        if (json.success) { showToast('✅ Merchant attributed.'); openContractorDetail(contractorId); }
+        else { showToast('⚠️ ' + (json.error||'Attribution failed.')); }
+      } catch(e) { showToast('⚠️ Connection error.'); }
+    }
+
+    async function removeContractorAttribution(merchantId, contractorId) {
+      if (!confirm('Remove this attribution? Only possible before commission starts.')) return;
+      const token = sessionStorage.getItem('perkfinity_admin_token');
+      try {
+        const res  = await fetch(API_BASE + '/admin/contractors/attribute-merchant/' + merchantId, {
+          method: 'DELETE', headers: { 'Authorization': 'Bearer ' + token }
+        });
+        const json = await res.json();
+        if (json.success) { showToast('✅ Attribution removed.'); openContractorDetail(contractorId); }
+        else { showToast('⚠️ ' + (json.error||'Could not remove.')); }
+      } catch(e) { showToast('⚠️ Connection error.'); }
+    }
+
+    // ── Special Bonuses ────────────────────────────────────────────
+    function openAddSpecialBonusModal(contractorId) {
+      const existing = document.getElementById('sb-overlay');
+      if (existing) existing.remove();
+      const el = document.createElement('div');
+      el.id = 'sb-overlay';
+      el.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:10005;display:flex;align-items:center;justify-content:center;';
+      el.innerHTML = `
+        <div style="width:440px;background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.3);padding:28px;">
+          <div style="font-size:18px;font-weight:800;color:#1a1a2e;margin-bottom:4px;">⭐ Add Special Bonus</div>
+          <div style="font-size:12px;color:#94a3b8;margin-bottom:20px;">Amounts over $500 require CONFIRM gate. Max $2,000.</div>
+          <div class="form-group"><label class="form-label">Label <span style="color:#ef4444;">*</span></label>
+            <input type="text" class="form-input" id="sb-label" placeholder="e.g. Q1 Launch Bonus"/></div>
+          <div class="form-group"><label class="form-label">Amount $ <span style="color:#ef4444;">*</span> <span style="color:#94a3b8;">(max $2,000)</span></label>
+            <input type="number" class="form-input" id="sb-amount" min="1" max="2000" step="1" placeholder="0"/></div>
+          <div class="form-group"><label class="form-label">Internal Reason</label>
+            <input type="text" class="form-input" id="sb-reason" placeholder="Internal note for records"/></div>
+          <div id="sb-err" style="color:#ef4444;font-size:13px;margin-bottom:12px;padding:10px 14px;background:#fef2f2;border-radius:8px;display:none;"></div>
+          <div style="display:flex;gap:10px;justify-content:flex-end;">
+            <button onclick="document.getElementById('sb-overlay').remove()" class="toolbar-btn" style="padding:10px 20px;">Cancel</button>
+            <button onclick="submitSpecialBonus('${contractorId}')" class="toolbar-btn primary" style="padding:10px 24px;" id="sb-submit-btn">Add Bonus</button>
+          </div>
+        </div>`;
+      el.onclick = e => { if (e.target === el) el.remove(); };
+      document.body.appendChild(el);
+    }
+
+    async function submitSpecialBonus(contractorId) {
+      const label    = document.getElementById('sb-label')?.value.trim();
+      const amount   = parseFloat(document.getElementById('sb-amount')?.value || 0);
+      const reason   = document.getElementById('sb-reason')?.value.trim();
+      const errEl    = document.getElementById('sb-err');
+      if (errEl) errEl.style.display = 'none';
+      if (!label)  { if (errEl) { errEl.textContent = 'Label is required.'; errEl.style.display = 'block'; } return; }
+      if (!amount || amount <= 0) { if (errEl) { errEl.textContent = 'Amount must be > $0.'; errEl.style.display = 'block'; } return; }
+      if (amount > 2000) { if (errEl) { errEl.textContent = 'Maximum bonus is $2,000.'; errEl.style.display = 'block'; } return; }
+      if (amount > 500) {
+        _pendingSpecialBonus = { contractorId, label, amount_cents: Math.round(amount * 100), reason };
+        document.getElementById('sb-overlay')?.remove();
+        openGateModal('special-bonus', null,
+          `⭐ Confirm High-Value Bonus ($${amount.toFixed(2)})`,
+          `Type CONFIRM to add a $${amount.toFixed(2)} special bonus to this rep. It will be included in their next payout.`);
+        return;
+      }
+      await _execSpecialBonusDirectly(contractorId, label, Math.round(amount*100), reason);
+    }
+
+    async function _execPendingSpecialBonus() {
+      if (!_pendingSpecialBonus) return;
+      const { contractorId, label, amount_cents, reason } = _pendingSpecialBonus;
+      _pendingSpecialBonus = null;
+      await _execSpecialBonusDirectly(contractorId, label, amount_cents, reason);
+    }
+
+    async function _execSpecialBonusDirectly(contractorId, label, amount_cents, reason) {
+      const token = sessionStorage.getItem('perkfinity_admin_token');
+      try {
+        const res  = await fetch(API_BASE + '/admin/contractors/' + contractorId + '/special-bonus', {
+          method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({ label, amount_cents, reason })
+        });
+        const json = await res.json();
+        if (json.success) { showToast(`✅ Bonus of $${(amount_cents/100).toFixed(2)} added.`); openContractorDetail(contractorId); }
+        else { showToast('⚠️ ' + (json.error||'Failed to add bonus.')); }
+      } catch(e) { showToast('⚠️ Connection error.'); }
+    }
+
+    async function cancelSpecialBonus(contractorId, bonusId) {
+      if (!confirm('Cancel this pending bonus? It will not be included in the next payout.')) return;
+      const token = sessionStorage.getItem('perkfinity_admin_token');
+      try {
+        const res  = await fetch(API_BASE + '/admin/contractors/' + contractorId + '/special-bonuses/' + bonusId, {
+          method: 'DELETE', headers: { 'Authorization': 'Bearer ' + token }
+        });
+        const json = await res.json();
+        if (json.success) { showToast('✅ Bonus cancelled.'); openContractorDetail(contractorId); }
+        else { showToast('⚠️ ' + (json.error||'Could not cancel.')); }
+      } catch(e) { showToast('⚠️ Connection error.'); }
+    }
+
+    // ── Payouts Tab ────────────────────────────────────────────────
+    async function loadContractorPayouts() {
+      const tbody = document.getElementById('cpay-tbody');
+      if (!tbody) return;
+      tbody.innerHTML = '<tr><td colspan="9" style="padding:40px;text-align:center;color:var(--muted);">Loading…</td></tr>';
+      try {
+        const statusF = document.getElementById('cpay-filter-status')?.value || '';
+        const url = '/admin/contractor-payouts' + (statusF ? '?status=' + statusF : '');
+        const res = await adminFetch(url);
+        allContractorPayouts = res.data || [];
+        filterContractorPayouts();
+      } catch(e) {
+        tbody.innerHTML = '<tr><td colspan="9" style="padding:40px;text-align:center;color:var(--red);">Error loading payouts.</td></tr>';
+      }
+    }
+
+    function filterContractorPayouts() {
+      const search  = (document.getElementById('cpay-search')?.value || '').toLowerCase();
+      const statusF = document.getElementById('cpay-filter-status')?.value || '';
+      let data = allContractorPayouts;
+      if (search)  data = data.filter(p => (p.contractor_name||'').toLowerCase().includes(search));
+      if (statusF) data = data.filter(p => p.status === statusF);
+      renderContractorPayoutsTable(data);
+    }
+
+    function renderContractorPayoutsTable(data) {
+      const tbody = document.getElementById('cpay-tbody');
+      if (!data.length) { tbody.innerHTML = '<tr><td colspan="9" style="padding:40px;text-align:center;color:var(--muted);">No payouts found.</td></tr>'; return; }
+      const pColors = { pending:'#f59e0b', approved:'#3b82f6', paid:'#22c55e', voided:'#94a3b8' };
+      tbody.innerHTML = data.map(p => {
+        const pc  = pColors[p.status]||'#94a3b8';
+        const ps  = p.period_start ? new Date(p.period_start).toLocaleDateString('en-US',{month:'short',year:'numeric'}) : '—';
+        const bon = ((p.milestone_bonus_cents||0)+(p.retention_bonus_cents||0)+(p.special_bonus_cents||0));
+        const w9i = p.w9_status==='verified' ? '🟢' : p.w9_status==='pending' ? '🟡' : '🔴';
+        const canApprove  = p.status==='pending'  && p.w9_status==='verified';
+        const canMarkPaid = p.status==='approved' && p.w9_status==='verified';
+        const canVoid     = p.status==='pending'  || p.status==='approved';
+        return `
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:12px 16px;font-weight:700;font-size:13px;color:var(--text);">${p.contractor_name||'—'}</td>
+            <td style="padding:12px;font-size:12px;color:var(--mutedLight);">${ps}</td>
+            <td style="padding:12px;text-align:right;font-size:13px;">$${((p.commission_cents||0)/100).toFixed(2)}</td>
+            <td style="padding:12px;text-align:right;font-size:13px;">$${((p.retainer_cents||0)/100).toFixed(2)}</td>
+            <td style="padding:12px;text-align:right;font-size:13px;">$${(bon/100).toFixed(2)}</td>
+            <td style="padding:12px;text-align:right;font-size:13px;font-weight:800;">$${((p.total_cents||0)/100).toFixed(2)}</td>
+            <td style="padding:12px;text-align:center;font-size:14px;" title="W-9: ${p.w9_status||'?'}">${w9i}</td>
+            <td style="padding:12px;text-align:center;"><span style="padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;background:${pc}18;color:${pc};">${p.status||'?'}</span></td>
+            <td style="padding:12px;text-align:center;">
+              <div style="display:flex;gap:4px;justify-content:center;flex-wrap:wrap;">
+                ${canApprove  ? `<button onclick="approveContractorPayout('${p.id}')" style="padding:4px 9px;border-radius:6px;border:1px solid #bbf7d0;background:#f0fdf4;color:#166534;font-size:11px;font-weight:700;cursor:pointer;">Approve</button>` : ''}
+                ${canMarkPaid ? `<button onclick="openMarkPaidModal('${p.id}')" style="padding:4px 9px;border-radius:6px;border:none;background:#22c55e;color:#fff;font-size:11px;font-weight:700;cursor:pointer;">Mark Paid</button>` : ''}
+                ${canVoid     ? `<button onclick="voidContractorPayout('${p.id}')" style="padding:4px 9px;border-radius:6px;border:1px solid #fecaca;background:#fef2f2;color:#dc2626;font-size:11px;font-weight:700;cursor:pointer;">Void</button>` : ''}
+              </div>
+            </td>
+          </tr>`;
+      }).join('');
+    }
+
+    async function generatePayoutsFlow() {
+      const ps = window.prompt('Generate payouts for a custom period.\nEnter period start (YYYY-MM-DD):');
+      if (!ps) return;
+      const pe = window.prompt('Enter period end (YYYY-MM-DD):');
+      if (!pe) return;
+      showToast('⏳ Generating payouts…');
+      const banner = document.getElementById('cpay-skipped-banner');
+      if (banner) banner.style.display = 'none';
+      const token = sessionStorage.getItem('perkfinity_admin_token');
+      try {
+        const res  = await fetch(API_BASE + '/admin/contractors/calculate-payouts', {
+          method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({ period_start: ps, period_end: pe })
+        });
+        const json = await res.json();
+        if (json.success) {
+          const skipped = json.skipped || [];
+          if (skipped.length && banner) {
+            banner.style.display = 'block';
+            banner.innerHTML = `⚠️ <strong>${skipped.length} contractor(s) skipped</strong> due to unverified W-9:<br>` +
+              skipped.map(s => `• ${s.name||s.id} — ${s.reason||'w9_not_verified'}`).join('<br>');
+          }
+          showToast(`✅ ${json.created||0} payout(s) generated.`);
+          loadContractorPayouts();
+        } else { showToast('⚠️ ' + (json.error||'Payout generation failed.')); }
+      } catch(e) { showToast('⚠️ Connection error.'); }
+    }
+
+    async function approveContractorPayout(id) {
+      if (!confirm('Approve this payout?')) return;
+      const token = sessionStorage.getItem('perkfinity_admin_token');
+      try {
+        const res  = await fetch(API_BASE + '/admin/contractor-payouts/' + id + '/approve', {
+          method: 'PATCH', headers: { 'Authorization': 'Bearer ' + token }
+        });
+        const json = await res.json();
+        if (json.success) { showToast('✅ Payout approved.'); loadContractorPayouts(); }
+        else { showToast('⚠️ ' + (json.error||'Could not approve.')); }
+      } catch(e) { showToast('⚠️ Connection error.'); }
+    }
+
+    async function voidContractorPayout(id) {
+      if (!confirm('Void this payout? This cannot be undone.')) return;
+      const token = sessionStorage.getItem('perkfinity_admin_token');
+      try {
+        const res  = await fetch(API_BASE + '/admin/contractor-payouts/' + id + '/void', {
+          method: 'PATCH', headers: { 'Authorization': 'Bearer ' + token }
+        });
+        const json = await res.json();
+        if (json.success) { showToast('✅ Payout voided.'); loadContractorPayouts(); }
+        else { showToast('⚠️ ' + (json.error||'Could not void.')); }
+      } catch(e) { showToast('⚠️ Connection error.'); }
+    }
+
+    function openMarkPaidModal(id) {
+      document.getElementById('mark-paid-payout-id').value = id;
+      document.getElementById('mark-paid-ref').value = '';
+      document.getElementById('mark-paid-err').style.display = 'none';
+      document.getElementById('mark-paid-submit-btn').disabled = false;
+      document.getElementById('mark-paid-modal').style.display = 'flex';
+    }
+
+    async function submitMarkPaid() {
+      const id        = document.getElementById('mark-paid-payout-id').value;
+      const method    = document.getElementById('mark-paid-method').value;
+      const reference = document.getElementById('mark-paid-ref').value.trim();
+      const errEl     = document.getElementById('mark-paid-err');
+      errEl.style.display = 'none';
+      if (!reference) { errEl.textContent = 'Payment reference is required.'; errEl.style.display = 'block'; return; }
+      const btn = document.getElementById('mark-paid-submit-btn');
+      btn.disabled = true; btn.textContent = 'Saving…';
+      const token = sessionStorage.getItem('perkfinity_admin_token');
+      try {
+        const res  = await fetch(API_BASE + '/admin/contractor-payouts/' + id + '/mark-paid', {
+          method: 'PATCH', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({ payment_method: method, payment_reference: reference })
+        });
+        const json = await res.json();
+        if (json.success) {
+          document.getElementById('mark-paid-modal').style.display = 'none';
+          showToast('✅ Payout marked as paid!');
+          loadContractorPayouts();
+        } else { errEl.textContent = json.error||'Failed.'; errEl.style.display = 'block'; }
+      } catch(e) { errEl.textContent = 'Connection error.'; errEl.style.display = 'block'; }
+      finally { btn.disabled = false; btn.textContent = 'Mark as Paid'; }
+    }
+
+    function exportPayoutsCSV() {
+      if (!allContractorPayouts.length) { showToast('No payouts to export.'); return; }
+      const headers = ['Contractor','Period','Commission','Retainer','Milestone Bonus','Retention Bonus','Special Bonus','Total','W-9 Status','Status','Payment Ref'];
+      const rows = allContractorPayouts.map(p => [
+        p.contractor_name||'', p.period_start ? new Date(p.period_start).toLocaleDateString() : '',
+        ((p.commission_cents||0)/100).toFixed(2), ((p.retainer_cents||0)/100).toFixed(2),
+        ((p.milestone_bonus_cents||0)/100).toFixed(2), ((p.retention_bonus_cents||0)/100).toFixed(2),
+        ((p.special_bonus_cents||0)/100).toFixed(2), ((p.total_cents||0)/100).toFixed(2),
+        p.w9_status||'', p.status||'', p.payment_reference||''
+      ]);
+      const csv = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+      const a = document.createElement('a');
+      a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+      a.download = `contractor-payouts-${new Date().toISOString().slice(0,10)}.csv`;
+      a.click();
+    }
+
+    // ── Program Settings (Milestone Config) ───────────────────────
+    async function loadMilestoneConfig() {
+      const body = document.getElementById('milestone-config-body');
+      if (!body) return;
+      body.innerHTML = '<div style="color:var(--muted);text-align:center;padding:20px;">Loading…</div>';
+      try {
+        const res = await adminFetch('/admin/milestone-config');
+        _milestoneConfig = res.data || [];
+        renderMilestoneConfig();
+      } catch(e) { body.innerHTML = '<div style="color:var(--red);padding:20px;">Error loading milestone config.</div>'; }
+    }
+
+    function renderMilestoneConfig() {
+      const body = document.getElementById('milestone-config-body');
+      if (!_milestoneConfig.length) { body.innerHTML = '<div style="color:var(--muted);padding:20px;text-align:center;">No tiers configured.</div>'; return; }
+      body.innerHTML = _milestoneConfig.map(m => `
+        <div style="display:flex;align-items:center;gap:16px;padding:16px;border:1px solid var(--border);border-radius:12px;margin-bottom:12px;background:${m.is_active?'rgba(22,163,74,0.04)':'rgba(100,116,139,0.04)'};">
+          <div style="width:70px;text-align:center;">
+            <div style="font-size:24px;font-weight:900;color:${m.is_active?'#5b3fa5':'#94a3b8'};">${m.threshold}</div>
+            <div style="font-size:11px;color:#64748b;font-weight:700;">MERCHANTS</div>
+          </div>
+          <div style="flex:1;">
+            <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px;">${m.label||m.threshold+' Paying Subscribers'}</div>
+            <div style="font-size:12px;color:var(--mutedLight);">One-time bonus when a rep first crosses this threshold.</div>
+          </div>
+          <div style="display:flex;align-items:flex-end;gap:10px;">
+            <div>
+              <label style="font-size:11px;color:#64748b;font-weight:700;display:block;margin-bottom:4px;">Bonus $</label>
+              <input type="number" id="mc-bonus-${m.id}" value="${(m.bonus_cents||0)/100}" min="0" step="1"
+                style="width:90px;padding:6px 10px;border-radius:8px;border:1px solid var(--border);background:#fff;color:#1a1a2e;font-size:13px;font-family:inherit;"/>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:4px;align-items:center;">
+              <label style="font-size:11px;color:#64748b;font-weight:700;">Active</label>
+              <input type="checkbox" id="mc-active-${m.id}" ${m.is_active?'checked':''} style="width:18px;height:18px;cursor:pointer;"/>
+            </div>
+            <button onclick="saveMilestoneTier('${m.id}')" style="padding:7px 14px;border-radius:8px;border:none;background:#5b3fa5;color:#fff;font-size:12px;font-weight:700;cursor:pointer;align-self:flex-end;">Save</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function saveMilestoneTier(id) {
+      const bonus_cents = Math.round(parseFloat(document.getElementById('mc-bonus-'  + id)?.value || 0) * 100);
+      const is_active   = document.getElementById('mc-active-' + id)?.checked;
+      const token = sessionStorage.getItem('perkfinity_admin_token');
+      try {
+        const res  = await fetch(API_BASE + '/admin/milestone-config/' + id, {
+          method: 'PATCH', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({ bonus_cents, is_active })
+        });
+        const json = await res.json();
+        if (json.success) { showToast('✅ Milestone tier saved.'); loadMilestoneConfig(); }
+        else { showToast('⚠️ ' + (json.error||'Failed.')); }
+      } catch(e) { showToast('⚠️ Connection error.'); }
+    }
+
+    // ── 1099 Report ────────────────────────────────────────────────
+    function _init1099YearSelect() {
+      const sel = document.getElementById('report-1099-year');
+      if (!sel || sel.options.length > 0) return;
+      const y = new Date().getFullYear();
+      for (let i = y; i >= y - 4; i--) sel.innerHTML += `<option value="${i}">${i}</option>`;
+    }
+
+    async function load1099Report() {
+      _init1099YearSelect();
+      const year  = document.getElementById('report-1099-year')?.value || new Date().getFullYear();
+      const tbody = document.getElementById('tbody-1099');
+      if (!tbody) return;
+      tbody.innerHTML = '<tr><td colspan="7" style="padding:40px;text-align:center;color:var(--muted);">Loading report…</td></tr>';
+      try {
+        const res = await adminFetch('/admin/contractors/1099-report?year=' + year);
+        _1099Data = res.data || [];
+        render1099Table();
+      } catch(e) { tbody.innerHTML = '<tr><td colspan="7" style="padding:40px;text-align:center;color:var(--red);">Error loading report.</td></tr>'; }
+    }
+
+    function render1099Table() {
+      const tbody = document.getElementById('tbody-1099');
+      if (!_1099Data.length) { tbody.innerHTML = '<tr><td colspan="7" style="padding:40px;text-align:center;color:var(--muted);">No earnings data for this year.</td></tr>'; return; }
+      tbody.innerHTML = _1099Data.map(r => {
+        const ytd   = ((r.total_ytd_cents||0)/100).toFixed(2);
+        const needs = r.requires_1099;
+        return `
+          <tr style="border-bottom:1px solid var(--border);${needs?'background:rgba(220,38,38,0.03);':''}">
+            <td style="padding:12px 16px;font-weight:700;font-size:13px;">${r.legal_name||r.full_name||'—'}</td>
+            <td style="padding:12px;font-size:12px;color:var(--mutedLight);">${r.email||'—'}</td>
+            <td style="padding:12px;text-align:right;font-size:13px;">$${((r.total_commission_ytd_cents||0)/100).toFixed(2)}</td>
+            <td style="padding:12px;text-align:right;font-size:13px;">$${((r.total_retainer_ytd_cents||0)/100).toFixed(2)}</td>
+            <td style="padding:12px;text-align:right;font-size:13px;">$${((r.total_bonus_ytd_cents||0)/100).toFixed(2)}</td>
+            <td style="padding:12px;text-align:right;font-size:13px;font-weight:800;${needs?'color:#dc2626;':''}">${ytd === '0.00' ? '—' : '$'+ytd}</td>
+            <td style="padding:12px;text-align:center;">${needs
+              ? '<span style="padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;background:#fef2f2;color:#dc2626;">🔴 YES (≥$600)</span>'
+              : '<span style="padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;background:#f0fdf4;color:#166534;">No</span>'}</td>
+          </tr>`;
+      }).join('');
+    }
+
+    function export1099CSV() {
+      if (!_1099Data.length) { showToast('No data to export.'); return; }
+      const year    = document.getElementById('report-1099-year')?.value || new Date().getFullYear();
+      const headers = ['Legal Name','Full Name','Email','Commission YTD','Retainer YTD','Bonus YTD','Total YTD','Requires 1099'];
+      const rows    = _1099Data.map(r => [
+        r.legal_name||'', r.full_name||'', r.email||'',
+        ((r.total_commission_ytd_cents||0)/100).toFixed(2),
+        ((r.total_retainer_ytd_cents||0)/100).toFixed(2),
+        ((r.total_bonus_ytd_cents||0)/100).toFixed(2),
+        ((r.total_ytd_cents||0)/100).toFixed(2),
+        r.requires_1099 ? 'YES' : 'No'
+      ]);
+      const csv = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+      const a = document.createElement('a');
+      a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+      a.download = `1099-report-${year}.csv`;
+      a.click();
+    }
+    // ════════════════════════════════════════════════════════════════
+    // END CONTRACTORS TAB
+    // ════════════════════════════════════════════════════════════════
 
     // Init on tab show — reset wizard to step 1
     const _origShowTab = showTab;
@@ -4248,6 +5776,9 @@
       }
       if (name === 'ann-history') {
         annLoadHistory();
+      }
+      if (name === 'contractors') {
+        loadContractors();
       }
     };
 
