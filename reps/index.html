@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <script src="/config.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -162,10 +163,7 @@
 <div id="login-screen">
   <div class="login-card">
     <div class="login-logo">
-      <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="40" height="40" rx="10" fill="#5b3fa5"/>
-        <text x="20" y="27" text-anchor="middle" fill="white" font-size="20" font-weight="900" font-family="Inter,sans-serif">P</text>
-      </svg>
+      <img src="/assets/Perkfinity-App-Icon.png" alt="Perkfinity" style="width:40px;height:40px;border-radius:10px;"/>
       <span>Perkfinity</span>
     </div>
     <div class="login-title">Rep Portal</div>
@@ -176,7 +174,20 @@
     </div>
     <div class="field-group">
       <div class="field-label">PASSWORD</div>
-      <input class="field-input" id="login-password" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"/>
+      <div style="position:relative;">
+        <input class="field-input" id="login-password" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()" style="padding-right:44px;"/>
+        <span onclick="const i=document.getElementById('login-password');i.type=i.type==='password'?'text':'password';this.textContent=i.type==='password'?'👁️':'🙈';" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:17px;user-select:none;opacity:0.5;">👁️</span>
+      </div>
+    </div>
+    <div style="text-align:right;margin-top:-10px;margin-bottom:18px;">
+      <button onclick="toggleForgot()" id="forgot-link" style="background:none;border:none;color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;padding:0;font-family:inherit;">Forgot password?</button>
+    </div>
+    <div id="forgot-section" style="display:none;margin-top:4px;margin-bottom:16px;">
+      <div style="display:flex;gap:8px;">
+        <input class="field-input" id="forgot-email" type="email" placeholder="your@email.com" style="flex:1;padding:10px 14px;"/>
+        <button onclick="doForgotPassword()" id="forgot-send-btn" style="padding:10px 16px;border-radius:10px;border:none;background:var(--brand);color:#fff;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap;">Send Link</button>
+      </div>
+      <div id="forgot-msg" style="margin-top:8px;font-size:12px;display:none;"></div>
     </div>
     <button class="btn-login" id="login-btn" onclick="doLogin()">Sign In</button>
     <div class="login-spinner" id="login-spinner"><div class="spinner"></div></div>
@@ -280,6 +291,12 @@
       <div class="section-title">🏪 Your Merchants</div>
       <div id="merchants-content"></div>
     </div>
+
+    <!-- Compliance -->
+    <div class="section-card" id="compliance-card">
+      <div class="section-title">🔒 Compliance</div>
+      <div id="compliance-content"></div>
+    </div>
   </div>
 </div>
 
@@ -289,7 +306,7 @@
   'use strict';
 
   // ── Config ──────────────────────────────────────────────────────────
-  const API_BASE = 'https://api.perkfinity.com/api/v1';
+  const API_BASE = (window.PerkfinityConfig?.BACKEND_URL || 'http://localhost:3001') + '/api/v1';
   const TOKEN_KEY = 'perkfinity_rep_token';
   const REP_KEY   = 'perkfinity_rep_data';
 
@@ -506,6 +523,74 @@
         ${qs === 'missed' ? '<div style="margin-top:12px;padding:12px 16px;background:#450a0a;border-radius:10px;color:#fca5a5;font-size:13px;font-weight:700;">⚠️ Quota period ended without reaching target. Please contact your administrator.</div>' : ''}
         ${qs === 'met' ? '<div style="margin-top:12px;padding:12px 16px;background:#052e16;border-radius:10px;color:#86efac;font-size:13px;font-weight:700;">🎉 Congratulations! You\'ve met your quota and your territory is permanently locked in.</div>' : ''}
       `;
+    }
+
+    // ── Compliance ───────────────────────────────────────────────────
+    const profile = profileR?.data;
+    if (profile) {
+      const W9_STATUS = { not_submitted: { label: 'Not Submitted', color: '#ef4444', bg: '#450a0a' }, pending: { label: 'Submitted — Pending Review', color: '#f59e0b', bg: '#451a03' }, verified: { label: 'Verified ✅', color: '#22c55e', bg: '#052e16' } };
+      const ICA_STATUS = { not_sent: { label: 'Not Sent', color: '#ef4444', bg: '#450a0a' }, sent: { label: 'Sent — Awaiting Signature', color: '#f59e0b', bg: '#451a03' }, signed: { label: 'Signed ✅', color: '#22c55e', bg: '#052e16' } };
+      const w9 = W9_STATUS[profile.w9_status] || { label: profile.w9_status || 'Unknown', color: '#94a3b8', bg: '#1e293b' };
+      const ica = ICA_STATUS[profile.ica_status] || { label: profile.ica_status || 'Unknown', color: '#94a3b8', bg: '#1e293b' };
+      const w9Action = profile.w9_status !== 'verified'
+        ? `<a href="https://app.taxbandits.com" target="_blank" style="display:inline-block;margin-top:10px;padding:9px 18px;border-radius:9px;background:linear-gradient(135deg,#7c5cc2,#5b3fa5);color:#fff;font-size:13px;font-weight:700;text-decoration:none;">Complete W-9 →</a>`
+        : '';
+      const icaAction = profile.ica_status !== 'signed'
+        ? `<span style="display:inline-block;margin-top:10px;padding:9px 18px;border-radius:9px;background:var(--card2);color:var(--muted);font-size:13px;font-weight:700;">ICA Link Coming Soon</span>`
+        : '';
+      document.getElementById('compliance-content').innerHTML = `
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          <div style="padding:16px;border-radius:12px;background:${w9.bg};border:1px solid ${w9.color}30;">
+            <div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:0.06em;margin-bottom:8px;">W-9 STATUS</div>
+            <div style="font-size:14px;font-weight:800;color:${w9.color};">${w9.label}</div>
+            ${w9Action}
+          </div>
+          <div style="padding:16px;border-radius:12px;background:${ica.bg};border:1px solid ${ica.color}30;">
+            <div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:0.06em;margin-bottom:8px;">ICA STATUS</div>
+            <div style="font-size:14px;font-weight:800;color:${ica.color};">${ica.label}</div>
+            ${icaAction}
+          </div>
+        </div>
+        ${profile.w9_status !== 'verified' ? '<div style="margin-top:14px;padding:10px 14px;background:#1e293b;border-radius:8px;font-size:12px;color:var(--muted);">⚠️ Your W-9 must be verified before earnings and payout history are visible.</div>' : ''}
+      `;
+    }
+  }
+
+  // ── Forgot Password ──────────────────────────────────────────────────
+  function toggleForgot() {
+    const section = document.getElementById('forgot-section');
+    const link    = document.getElementById('forgot-link');
+    const isOpen  = section.style.display !== 'none';
+    section.style.display = isOpen ? 'none' : 'block';
+    link.textContent = isOpen ? 'Forgot password?' : 'Cancel';
+    if (!isOpen) {
+      document.getElementById('forgot-email').value = '';
+      document.getElementById('forgot-msg').style.display = 'none';
+      setTimeout(() => document.getElementById('forgot-email').focus(), 50);
+    }
+  }
+
+  async function doForgotPassword() {
+    const email   = document.getElementById('forgot-email').value.trim();
+    const msgEl   = document.getElementById('forgot-msg');
+    const btn     = document.getElementById('forgot-send-btn');
+    if (!email) { msgEl.style.color='#ef4444'; msgEl.textContent='Please enter your email.'; msgEl.style.display='block'; return; }
+    btn.disabled = true; btn.textContent = 'Sending…';
+    try {
+      await fetch(API_BASE + '/rep/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      msgEl.style.color = '#22c55e';
+      msgEl.textContent = 'If that email is registered, a reset link was sent. Check your inbox.';
+      msgEl.style.display = 'block';
+      btn.disabled = false; btn.textContent = 'Send Link';
+    } catch(e) {
+      msgEl.style.color = '#ef4444';
+      msgEl.textContent = 'Connection error. Please try again.';
+      msgEl.style.display = 'block';
+      btn.disabled = false; btn.textContent = 'Send Link';
     }
   }
 

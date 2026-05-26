@@ -190,20 +190,33 @@ By using this plan, members and performance across all locations will be aggrega
 <div class="step-pane" id="step2">
 <div class="step-title">Choose Your Plan</div>
 <div class="step-sub">You won't be charged until your application is approved.</div>
+
+<!-- Billing cycle toggle -->
+<div style="text-align:center;margin-bottom:20px;">
+  <span style="font-size:13px;color:rgba(31,32,48,.55);margin-right:12px;font-weight:700;">Billing:</span>
+  <div style="display:inline-flex;background:#f1f0f6;border-radius:50px;padding:4px;gap:4px;">
+    <button id="apply-btn-monthly" onclick="setApplyBillingCycle('monthly')" style="padding:7px 18px;border:none;border-radius:50px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;background:#5B3FA5;color:#fff;transition:all .2s;">Monthly</button>
+    <button id="apply-btn-annual" onclick="setApplyBillingCycle('annual')" style="padding:7px 18px;border:none;border-radius:50px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;background:transparent;color:#3F2B8A;transition:all .2s;">Annual <span style="color:#16a34a;font-size:11px;">Save 15%</span></button>
+  </div>
+</div>
+
 <div class="tier-grid">
 <div class="tier-opt" id="t-starter" onclick="selectTier('online_starter',this)">
 <div class="tier-name">Starter</div>
-<div class="tier-price">$149<span>/mo</span></div>
+<div class="tier-price" id="price-starter">$149<span>/mo</span></div>
+<div style="display:none;font-size:11px;font-weight:700;color:#16a34a;margin-bottom:4px" id="savings-starter">Save $268.20/year</div>
 <div class="tier-cap">Up to 500 members</div>
 </div>
 <div class="tier-opt selected" id="t-growth" onclick="selectTier('online_growth',this)">
 <div class="tier-name">Growth</div>
-<div class="tier-price">$299<span>/mo</span></div>
+<div class="tier-price" id="price-growth">$299<span>/mo</span></div>
+<div style="display:none;font-size:11px;font-weight:700;color:#16a34a;margin-bottom:4px" id="savings-growth">Save $538.20/year</div>
 <div class="tier-cap">Up to 2,500 members</div>
 </div>
 <div class="tier-opt" id="t-scale" onclick="selectTier('online_scale',this)">
 <div class="tier-name">Scale</div>
-<div class="tier-price">$499<span>/mo</span></div>
+<div class="tier-price" id="price-scale">$499<span>/mo</span></div>
+<div style="display:none;font-size:11px;font-weight:700;color:#16a34a;margin-bottom:4px" id="savings-scale">Save $898.20/year</div>
 <div class="tier-cap">Unlimited members</div>
 </div>
 </div>
@@ -252,6 +265,18 @@ By using this plan, members and performance across all locations will be aggrega
 <input type="password" id="f-pass2" placeholder="Repeat password" style="padding-right:45px;width:100%;box-sizing:border-box;">
 <span onclick="togglePassword('f-pass2', this)" style="position:absolute;right:15px;top:50%;transform:translateY(-50%);cursor:pointer;opacity:0.6;font-size:18px;user-select:none;">👁️</span>
 </div>
+</div>
+</div>
+<!-- Referral Code (Task 3) -->
+<div style="margin:18px 0 10px;">
+<label style="font-size:13px;font-weight:600;color:#1f2030;display:block;margin-bottom:6px;">Were you referred by a Perkfinity Sales Partner?</label>
+<input type="text" id="f-referral-code" placeholder="Referral code (e.g. REF-JOHNM1234)" maxlength="15"
+  style="width:100%;padding:11px 14px;border-radius:10px;border:1.5px solid #e2e8f0;font-size:14px;box-sizing:border-box;text-transform:uppercase;letter-spacing:0.05em;"
+  oninput="this.value=this.value.toUpperCase();document.getElementById('f-no-referral').checked=false;"
+  onblur="validateApplyReferralCode(this.value)">
+<div class="agree-row" style="margin-top:8px">
+<input type="checkbox" id="f-no-referral" onchange="if(this.checked)document.getElementById('f-referral-code').value='';">
+<label for="f-no-referral">I don't have a referral code</label>
 </div>
 </div>
 <div class="agree-row" style="margin-top:4px">
@@ -370,6 +395,7 @@ const STRIPE_PK=(typeof PerkfinityConfig!=='undefined')?PerkfinityConfig.STRIPE_
 const TOTAL_STEPS=5;
 let stripe,cardEl;
 let selectedTier='online_growth';
+let selectedBillingCycle='monthly'; // 'monthly' | 'annual'
 function formatPhone(el){let x=el.value.replace(/\D/g,'').match(/(\d{0,3})(\d{0,3})(\d{0,4})/);el.value=!x[2]?x[1]:x[1]+'-'+x[2]+(x[3]?'-'+x[3]:'');}
 let promoApplied=null;
 let currentStep=1;
@@ -400,10 +426,12 @@ if(resumeMode==='step4'||resumeMode==='step5'){
   isFFL=localStorage.getItem('applyIsFFL')==='1';
   if(currentMerchantId&&currentAccessToken){
     if(resumeMode==='step4'&&!isFFL){
-      document.getElementById('resume-banner-s4').style.display='block';
-      document.getElementById('btn-back4').style.display='none';
-      initStripe();
-      goTo(4);
+      ensureReferralCodeSet(currentMerchantId,currentAccessToken).then(()=>{
+        document.getElementById('resume-banner-s4').style.display='block';
+        document.getElementById('btn-back4').style.display='none';
+        initStripe();
+        goTo(4);
+      });
     } else {
       // FFL or step5 resume: skip straight to review
       document.getElementById('resume-banner-s5').style.display='block';
@@ -472,6 +500,23 @@ function updateBar(n){
     const l=document.getElementById('sl'+i);
     if(l)l.className='s-line'+(i<n?' done':'');
   }
+}
+
+function setApplyBillingCycle(cycle){
+  selectedBillingCycle=cycle;
+  const btnM=document.getElementById('apply-btn-monthly');
+  const btnA=document.getElementById('apply-btn-annual');
+  btnM.style.background=cycle==='monthly'?'#5B3FA5':'transparent'; btnM.style.color=cycle==='monthly'?'#fff':'#3F2B8A';
+  btnA.style.background=cycle==='annual'?'#5B3FA5':'transparent'; btnA.style.color=cycle==='annual'?'#fff':'#3F2B8A';
+  const prices={online_starter:['$149<span>/mo</span>','$1,519.80<span>/yr</span>'],online_growth:['$299<span>/mo</span>','$3,049.80<span>/yr</span>'],online_scale:['$499<span>/mo</span>','$5,089.80<span>/yr</span>']};
+  const savings={online_starter:'savings-starter',online_growth:'savings-growth',online_scale:'savings-scale'};
+  const priceIds={online_starter:'price-starter',online_growth:'price-growth',online_scale:'price-scale'};
+  ['online_starter','online_growth','online_scale'].forEach(t=>{
+    const pel=document.getElementById(priceIds[t]);
+    const sel=document.getElementById(savings[t]);
+    if(pel)pel.innerHTML=prices[t][cycle==='annual'?1:0];
+    if(sel)sel.style.display=cycle==='annual'?'block':'none';
+  });
 }
 
 function selectTier(tier,el){
@@ -671,6 +716,9 @@ async function validate3(){
   if(p.length<8)return'Password must be at least 8 characters.';
   if(!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/.test(p))return'Password must contain at least 1 uppercase, 1 lowercase, and 1 number.';
   if(p!==p2)return'Passwords do not match.';
+  const refCode=(document.getElementById('f-referral-code')?.value||'').trim();
+  const noRef=!!(document.getElementById('f-no-referral')?.checked);
+  if(!refCode&&!noRef)return'Please enter a referral code, or check "I don\'t have a referral code".';
   if(!terms)return'You must agree to the Terms of Use and Privacy Policy.';
   return'';
 }
@@ -721,6 +769,7 @@ async function createAccount(){
     category:document.getElementById('f-category').value,
     welcome_offer_text:getOfferValue(),
     tier:selectedTier,
+    billing_cycle:selectedBillingCycle,
     promo_code:promoApplied?.code||null,
     sales_volume_range:null,
     contactName:document.getElementById('f-contact').value.trim(),
@@ -728,6 +777,7 @@ async function createAccount(){
     email:document.getElementById('f-email').value.trim(),
     password:document.getElementById('f-pass').value,
     is_multi_location:isMulti||false,
+    contractor_code:(document.getElementById('f-referral-code')?.value||'').trim().toUpperCase()||null,
     ...(isHybrid&&!isMulti?{
       address:document.getElementById('f-address').value.trim(),
       suite:document.getElementById('f-suite').value.trim(),
@@ -746,6 +796,7 @@ async function createAccount(){
     localStorage.setItem('applyMerchantId',currentMerchantId);
     localStorage.setItem('applyAccessToken',currentAccessToken);
     if(isFFL) localStorage.setItem('applyIsFFL','1');
+    localStorage.setItem('applyReferralCodeSet','1');
     btn.disabled=false;btn.textContent='Next \u2192';
     if(isFFL){
       // Free For Life: skip payment, go straight to review
@@ -822,7 +873,10 @@ function buildSummary(){
   return;
   const offerVal=getOfferValue();
   const helloCode=document.getElementById('hello-code-display').textContent;
-  const tierLabel={online_starter:'Starter ($149/mo)',online_growth:'Growth ($299/mo)',online_scale:'Scale ($499/mo)'}[selectedTier]||selectedTier;
+  const tierPrices=selectedBillingCycle==='annual'
+    ?{online_starter:'Starter ($1,519.80/yr — Annual)',online_growth:'Growth ($3,049.80/yr — Annual)',online_scale:'Scale ($5,089.80/yr — Annual)'}
+    :{online_starter:'Starter ($149/mo)',online_growth:'Growth ($299/mo)',online_scale:'Scale ($499/mo)'};
+  const tierLabel=tierPrices[selectedTier]||selectedTier;
   const editBadge=(step)=>`<button onclick="editSection(${step})" style="margin-left:auto;padding:3px 10px;border:1.5px solid rgba(91,63,165,.4);border-radius:8px;font-size:11px;font-weight:800;color:#5B3FA5;background:#f8f6ff;cursor:pointer;font-family:inherit">Edit</button>`;
   const row=(l,v)=>`<div class="summary-row"><span class="summary-label">${l}</span><span class="summary-val">${v||'\u2014'}</span></div>`;
   let html=`<div style="border:1.5px solid rgba(230,230,240,.95);border-radius:14px;overflow:hidden;margin-bottom:12px">`;
@@ -919,6 +973,7 @@ async function submitApp(){
     localStorage.removeItem('applyMerchantId');
     localStorage.removeItem('applyAccessToken');
     localStorage.removeItem('applyIsFFL');
+    localStorage.removeItem('applyReferralCodeSet');
     // Session cleared — show confirmation screen
     document.querySelectorAll('.step-pane').forEach(p=>p.classList.remove('active'));
     document.getElementById('step-confirm').classList.add('active');
@@ -928,6 +983,95 @@ async function submitApp(){
     errEl.textContent=e.message||'Submission failed. Please try again.';
     btn.disabled=false;btn.textContent='Submit Application \u2192';
   }
+}
+
+// ── Task 3: Live referral code validator (onblur) ───────────────────────
+async function validateApplyReferralCode(code){
+  if(!code||!code.trim())return;
+  const c=code.trim().toUpperCase();
+  const errElId='err3'; // re-use the step 3 error area for live feedback
+  // Use a small inline element instead so we don't disrupt the err3 flow
+  let liveEl=document.getElementById('applyRefLiveFeedback');
+  if(!liveEl){liveEl=document.createElement('p');liveEl.id='applyRefLiveFeedback';liveEl.style.cssText='font-size:13px;margin-top:4px;display:none;';document.getElementById('f-referral-code').parentNode.appendChild(liveEl);}
+  if(!c.startsWith('REF-')||c.length<10){
+    liveEl.style.color='#dc2626';liveEl.innerText='Code format looks off — codes start with REF- (e.g. REF-JOHNM1234).';liveEl.style.display='block';
+    return;
+  }
+  try{
+    const r=await fetch(`${BACKEND}/api/v1/contractors/validate-code?code=${encodeURIComponent(c)}`);
+    const j=await r.json();
+    const inp=document.getElementById('f-referral-code');
+    if(j.valid){
+      liveEl.style.color='#15803d';liveEl.innerText=`✓ Code verified — referred by ${j.contractor_name}.`;liveEl.style.display='block';
+      if(inp)inp.style.borderColor='#15803d';
+    }else{
+      liveEl.style.color='#dc2626';liveEl.innerText='This code isn\'t recognized. Double-check with your rep.';liveEl.style.display='block';
+      if(inp)inp.style.borderColor='#dc2626';
+    }
+  }catch(_){}
+}
+
+// ── Task 3: Referral Code Interstitial (Resume Flow) ─────────────────────────
+// Creates the modal overlay dynamically so no HTML changes are required.
+(function _createReferralModal(){
+  const overlay=document.createElement('div');
+  overlay.id='referralInterstitialOverlay';
+  overlay.style.cssText='display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9999;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px);';
+  overlay.innerHTML=`
+    <div style="background:#fff;border-radius:20px;padding:36px;max-width:480px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
+      <h3 style="margin:0 0 8px;font-size:20px;color:#1e1b4b;">One last thing \u{1F44B}</h3>
+      <p style="color:#64748b;font-size:14px;margin:0 0 24px;">Were you referred to Perkfinity by one of our Sales Partners? Enter their code below, or confirm you weren&#39;t.</p>
+      <label style="font-size:13px;font-weight:600;color:#334155;display:block;margin-bottom:6px;">Referral Code</label>
+      <input type="text" id="referralCodeInterstitial" placeholder="REF-XXXXX1234" maxlength="15"
+        style="width:100%;padding:12px 16px;border-radius:10px;border:1.5px solid #e2e8f0;font-size:15px;box-sizing:border-box;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:14px;"
+        oninput="this.value=this.value.toUpperCase();document.getElementById('noReferralInterstitial').checked=false;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+        <input type="checkbox" id="noReferralInterstitial" style="width:16px;height:16px;accent-color:#7c3aed;cursor:pointer;" onchange="if(this.checked)document.getElementById('referralCodeInterstitial').value=''">
+        <label for="noReferralInterstitial" style="font-size:13px;color:#64748b;cursor:pointer;">I don&#39;t have a referral code</label>
+      </div>
+      <p id="referralInterstitialError" style="color:#dc2626;font-size:13px;margin:8px 0;display:none;"></p>
+      <button id="referralInterstitialSubmit" style="width:100%;padding:14px;background:linear-gradient(135deg,#7c3aed,#6d28d9);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;margin-top:12px;">Continue \u2192</button>
+    </div>`;
+  document.body.appendChild(overlay);
+})();
+
+async function ensureReferralCodeSet(merchantId,accessToken){
+  if(localStorage.getItem('applyReferralCodeSet'))return;
+  const overlay=document.getElementById('referralInterstitialOverlay');
+  overlay.style.display='flex';
+  return new Promise(resolve=>{
+    const submitBtn=document.getElementById('referralInterstitialSubmit');
+    const noRefChk=document.getElementById('noReferralInterstitial');
+    const codeInput=document.getElementById('referralCodeInterstitial');
+    const errEl=document.getElementById('referralInterstitialError');
+    codeInput.value='';noRefChk.checked=false;errEl.style.display='none';
+    async function handleSubmit(){
+      const code=codeInput.value.trim().toUpperCase();
+      const noRef=noRefChk.checked;
+      errEl.style.display='none';
+      if(!code&&!noRef){
+        errEl.innerText='Please enter a referral code or check "I don\'t have a referral code".';
+        errEl.style.display='block';
+        return;
+      }
+      submitBtn.disabled=true;submitBtn.textContent='Saving\u2026';
+      try{
+        await fetch(`${BACKEND}/api/v1/merchants/referral-code`,{
+          method:'PATCH',
+          headers:{'Content-Type':'application/json','Authorization':'Bearer '+accessToken},
+          body:JSON.stringify({contractor_code:code||null})
+        });
+        localStorage.setItem('applyReferralCodeSet','1');
+        overlay.style.display='none';
+        resolve();
+      }catch(e){
+        errEl.innerText='Something went wrong. Please try again.';
+        errEl.style.display='block';
+        submitBtn.disabled=false;submitBtn.textContent='Continue \u2192';
+      }
+    }
+    submitBtn.onclick=handleSubmit;
+  });
 }
 </script>
 </body></html>

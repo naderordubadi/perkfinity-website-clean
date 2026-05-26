@@ -1986,7 +1986,8 @@
           <div class="plan-card">
             <div class="plan-details">
               <span class="plan-badge tier1" id="oa-badge">Plan</span>
-              <div class="plan-price"><span id="oa-price-display">—</span> <span>/month</span></div>
+              <span id="oa-cycle-badge" style="display:none;margin-left:6px;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:800;background:rgba(22,163,74,.12);color:#16a34a;border:1px solid rgba(22,163,74,.3);">Annual</span>
+              <div class="plan-price"><span id="oa-price-display">—</span> <span id="oa-price-suffix">/month</span></div>
               <ul class="plan-features">
                 <li>Online brand discovery listing</li>
                 <li>Unlimited digital promotions &amp; promo codes</li>
@@ -3942,6 +3943,7 @@
         if (!json.success) return console.error('Failed to load billing:', json.error);
         const d = json.data;
         window.currentInvoices = d.invoices || [];
+        window._lastBillingCycle = d.billing_cycle || 'monthly'; // for reactivateSubscription
 
         // ── Online brand: pending application banner ──────────────
         if (d.application_status === 'pending') {
@@ -4170,12 +4172,17 @@
             }
           }
 
-          // Dynamic reactivate button price for scene-blocked
+          // Dynamic reactivate button price for scene-blocked — billing_cycle-aware
           if (sceneName === 'blocked') {
             const blockedBtn = sceneEl.querySelector('.btn-green');
             if (blockedBtn) {
-              const priceLabel = { tier1:'$29.99', online_starter:'$149', online_growth:'$299', online_scale:'$499' }[d.tier] || '$29.99';
-              blockedBtn.innerHTML = `🔄 Reactivate Subscription — ${priceLabel}/mo`;
+              const isAnnual = d.billing_cycle === 'annual';
+              const priceAnnual = { tier1:'$305.89', online_starter:'$1,519.80', online_growth:'$3,049.80', online_scale:'$5,089.80' };
+              const priceMonthly = { tier1:'$29.99', online_starter:'$149', online_growth:'$299', online_scale:'$499' };
+              const priceLabel = isAnnual
+                ? (priceAnnual[d.tier] || '$305.89') + '/yr'
+                : (priceMonthly[d.tier] || '$29.99') + '/mo';
+              blockedBtn.innerHTML = `🔄 Reactivate Subscription — ${priceLabel}`;
             }
           }
 
@@ -4230,7 +4237,9 @@
           }
 
           let nextBillingStr = d.next_billing_date;
-          if (!nextBillingStr && d.created_at) {
+          // Also recalculate if the stored date is in the past (stale DB data before webhook fix)
+          const nextBillingInPast = nextBillingStr && new Date(nextBillingStr) < new Date();
+          if ((!nextBillingStr || nextBillingInPast) && d.created_at) {
             const cDt = new Date(d.created_at);
             const nDt = new Date();
             let nextDt = new Date(cDt);
@@ -4268,18 +4277,35 @@
 
           // ── Populate online-active scene ───────────────────────
           if (sceneName === 'online-active') {
+            const isAnnual = d.billing_cycle === 'annual';
             const onlineTierMap = {
-              online_starter: { name:'Starter', price:'$149', limit:'500',       limitNum:500,  emoji:'🌱', color:'#0d9488', bg:'rgba(13,148,136,0.1)' },
-              online_growth:  { name:'Growth',  price:'$299', limit:'2,500',     limitNum:2500, emoji:'🚀', color:'#5b3fa5', bg:'rgba(91,63,165,0.1)'  },
-              online_scale:     { name:'Scale',   price:'$499', limit:'Unlimited', limitNum:null, emoji:'🏆', color:'#b45309', bg:'rgba(180,83,9,0.1)'   },
+              online_starter: { name:'Starter', price:'$149',  priceAnnual:'$1,519.80', limit:'500',       limitNum:500,  emoji:'🌱', color:'#0d9488', bg:'rgba(13,148,136,0.1)' },
+              online_growth:  { name:'Growth',  price:'$299',  priceAnnual:'$3,049.80', limit:'2,500',     limitNum:2500, emoji:'🚀', color:'#5b3fa5', bg:'rgba(91,63,165,0.1)'  },
+              online_scale:   { name:'Scale',   price:'$499',  priceAnnual:'$5,089.80', limit:'Unlimited', limitNum:null, emoji:'🏆', color:'#b45309', bg:'rgba(180,83,9,0.1)'   },
             };
-            const ti = onlineTierMap[d.tier] || { name:d.tier, price:'—', limit:'—', emoji:'📦', color:'#666', bg:'rgba(100,100,100,0.1)' };
+            const ti = onlineTierMap[d.tier] || { name:d.tier, price:'—', priceAnnual:'—', limit:'—', emoji:'📦', color:'#666', bg:'rgba(100,100,100,0.1)' };
 
             const badge = document.getElementById('oa-badge');
             if (badge) { badge.textContent=`${ti.emoji} ${ti.name}`; badge.style.color=ti.color; badge.style.background=ti.bg; badge.style.borderColor=ti.color+'66'; }
 
+            // Billing cycle badge (show Annual pill if annual)
+            const cycleBadgeEl = document.getElementById('oa-cycle-badge');
+            if (cycleBadgeEl) {
+              if (isAnnual) {
+                cycleBadgeEl.textContent = 'Annual';
+                cycleBadgeEl.style.display = 'inline-block';
+              } else {
+                cycleBadgeEl.style.display = 'none';
+              }
+            }
+
+            const activePrice = isAnnual ? ti.priceAnnual : ti.price;
+            const activeSuffix = isAnnual ? '/yr' : '/mo';
+
             const priceDisp = document.getElementById('oa-price-display');
-            if (priceDisp) priceDisp.textContent = ti.price;
+            if (priceDisp) priceDisp.textContent = activePrice;
+            const priceSuffix = document.getElementById('oa-price-suffix');
+            if (priceSuffix) priceSuffix.textContent = activeSuffix === '/yr' ? '/year' : '/month';
 
             const planName = document.getElementById('oa-plan-name');
             if (planName) planName.textContent = ti.name;
@@ -4288,7 +4314,7 @@
             if (nextChargeEl) nextChargeEl.textContent = nextBillingStr ? formatDt(nextBillingStr) : '—';
 
             const oaPrice = document.getElementById('oa-price');
-            if (oaPrice) oaPrice.textContent = ti.price + '/mo';
+            if (oaPrice) oaPrice.textContent = activePrice + activeSuffix;
 
             const limitLabel = document.getElementById('oa-member-limit-label');
             if (limitLabel) limitLabel.textContent = ti.limitNum ? `Up to ${ti.limit} Members` : 'Unlimited Members';
@@ -4438,12 +4464,15 @@
       btn.disabled = true;
       btn.textContent = 'Reactivating...';
 
+      // Pass billing_cycle so backend uses the correct annual or monthly price ID
+      const billingCycle = window._lastBillingCycle || 'monthly';
+
       try {
         const token = localStorage.getItem('perkfinity_token');
         const res = await fetch(`${BACKEND_URL}/api/v1/merchants/${merchantId}/billing/reactivate`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-          body: JSON.stringify({ origin: window.location.origin })
+          body: JSON.stringify({ origin: window.location.origin, billing_cycle: billingCycle })
         });
         const json = await res.json();
         if (json.success) {
@@ -4459,7 +4488,7 @@
         alert('❌ Network error. Please try again.');
       } finally {
         btn.disabled = false;
-        btn.textContent = '🔄 Reactivate Subscription — $29.99/mo';
+        btn.textContent = '🔄 Reactivate Subscription';
       }
     }
 

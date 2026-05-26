@@ -286,6 +286,16 @@
           <!-- STEP 2: Tier -->
           <div id="step-2" class="wizard-step" style="display:none;">
             <h3 style="margin-top:0;margin-bottom:20px;color:var(--purpleDark)">Step 2: Choose Your Plan</h3>
+
+            <!-- Billing cycle toggle (only relevant if Connect is selected) -->
+            <div id="billing-cycle-toggle-wrap" style="display:none;margin-bottom:20px;text-align:center;">
+              <span style="font-size:13px;color:var(--muted);margin-right:12px;font-weight:600;">Billing:</span>
+              <div style="display:inline-flex;background:#f1f0f6;border-radius:50px;padding:4px;gap:4px;">
+                <button id="btn-billing-monthly" onclick="setBillingCycle('monthly')" style="padding:7px 18px;border:none;border-radius:50px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;background:var(--purple);color:#fff;transition:all .2s;">Monthly</button>
+                <button id="btn-billing-annual" onclick="setBillingCycle('annual')" style="padding:7px 18px;border:none;border-radius:50px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;background:transparent;color:var(--purpleDark);transition:all .2s;">Annual <span style="color:#16a34a;font-size:11px;">Save 15%</span></button>
+              </div>
+            </div>
+
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:30px">
 
               <div class="tier-select-card selected" onclick="selectTier(this, 'trial')"
@@ -299,9 +309,11 @@
               <div class="tier-select-card" onclick="selectTier(this, 'tier1')"
                 style="border:2px solid var(--border);padding:20px;border-radius:16px;cursor:pointer">
                 <h4 style="margin:0 0 10px">Connect</h4>
-                <div style="font-size:24px;font-weight:900;color:var(--purple);margin-bottom:10px">$29.99<span
-                    style="font-size:14px;color:var(--muted)">/mo</span></div>
-                <p style="font-size:14px;margin:0;color:var(--muted)">Unlimited digital coupons & Daily Digest
+                <div id="connect-price-display" style="font-size:24px;font-weight:900;color:var(--purple);margin-bottom:6px">
+                  $29.99<span style="font-size:14px;color:var(--muted)">/mo</span>
+                </div>
+                <div id="connect-savings-display" style="display:none;font-size:12px;font-weight:700;color:#16a34a;margin-bottom:8px;">Save $53.99/year vs monthly</div>
+                <p style="font-size:14px;margin:0;color:var(--muted)">Unlimited digital coupons &amp; Daily Digest
                   inclusions.</p>
               </div>
 
@@ -369,6 +381,24 @@
             <p style="font-size:13px;color:var(--muted);margin-top:-10px;margin-bottom:20px;">Must contain at least 1
               uppercase, 1 lowercase, and 1 number.</p>
             <div id="step3Error" style="color:red;margin-bottom:12px;display:none;"></div>
+
+            <!-- Referral Code (Task 3) -->
+            <div style="margin:0 0 18px;">
+              <label style="font-size:13px;font-weight:600;color:var(--dark);display:block;margin-bottom:6px;">
+                Were you referred by a Perkfinity Sales Partner?
+              </label>
+              <input type="text" id="contractor_code_signup" placeholder="Enter referral code (e.g. REF-JOHNM1234)" maxlength="15"
+                style="width:100%;padding:12px 16px;border-radius:10px;border:1.5px solid var(--border);font-size:14px;background:#fff;box-sizing:border-box;text-transform:uppercase;letter-spacing:0.05em;"
+                oninput="this.value=this.value.toUpperCase();document.getElementById('noReferralCheckbox_signup').checked=false;"
+                onblur="validateSignupReferralCode(this.value)">
+              <label style="display:flex;align-items:center;gap:8px;margin-top:10px;font-size:13px;color:var(--muted);cursor:pointer;">
+                <input type="checkbox" id="noReferralCheckbox_signup"
+                  style="width:16px;height:16px;accent-color:var(--purple);cursor:pointer;"
+                  onchange="if(this.checked)document.getElementById('contractor_code_signup').value='';">
+                <span>I don't have a referral code</span>
+              </label>
+              <p id="referralCodeError_signup" style="color:#dc2626;font-size:13px;margin-top:6px;display:none;"></p>
+            </div>
 
             <label
               style="display:flex;align-items:start;gap:10px;font-size:13px;color:var(--muted);margin-bottom:15px;cursor:pointer;">
@@ -656,6 +686,7 @@
     <script src="https://js.stripe.com/v3/"></script>
     <script>
       let selectedTier = 'trial';
+      let selectedBillingCycle = 'monthly'; // 'monthly' | 'annual'
       let currentMerchantId = null;
       let currentAccessToken = null;
       let currentPlaidToken = null;
@@ -961,21 +992,22 @@
             buildSignupSummary();
           }
         } else if (paymentStatus === 'cancelled' && returnMerchantId) {
-          // User cancelled checkout — show Step 4 with card form
+          // User cancelled checkout — show Step 4 with card form (after referral gate)
           currentMerchantId = returnMerchantId;
           currentAccessToken = localStorage.getItem('perkfinity_token');
           selectedTier = 'tier1';
-
-          document.querySelectorAll('.wizard-step').forEach(el => el.style.display = 'none');
-          document.getElementById('step-4-bank').style.display = 'block';
-          updateSignupStepBar(4);
-          showPaymentStep();
-
-          const errEl = document.getElementById('signupError');
-          errEl.innerText = 'Payment was not completed. Please try again.';
-          errEl.style.display = 'block';
-
           window.history.replaceState({}, document.title, window.location.pathname);
+
+          ensureSignupReferralSet(currentMerchantId, currentAccessToken).then(() => {
+            document.querySelectorAll('.wizard-step').forEach(el => el.style.display = 'none');
+            document.getElementById('step-4-bank').style.display = 'block';
+            updateSignupStepBar(4);
+            showPaymentStep();
+
+            const errEl = document.getElementById('signupError');
+            errEl.innerText = 'Payment was not completed. Please try again.';
+            errEl.style.display = 'block';
+          });
         } else if (urlParams.get('resume') === 'true') {
           // ── Resume Incomplete Setup ──────────────────────────────────
           currentMerchantId = localStorage.getItem('perkfinity_merchant_id');
@@ -988,44 +1020,43 @@
 
           window._resumeMode = true;
           window._resumeHasLogo = false;
-
-          // Show Step 4 with a welcome-back banner
-          const step4El = document.getElementById('step-4-bank');
-          const resumeBanner = document.createElement('div');
-          resumeBanner.style.cssText = 'padding:14px 18px;background:linear-gradient(135deg,#fef3c7,#fde68a);border:2px solid #f59e0b;border-radius:12px;margin-bottom:18px;font-size:14px;color:#92400e;display:flex;align-items:flex-start;gap:10px;';
-          resumeBanner.innerHTML = '<span style="font-size:20px;flex-shrink:0;margin-top:1px;">&#x1F501;</span><div><strong>Welcome back! Your account was created but payment info wasn&#x27;t saved.</strong><br>Please complete this step to access your dashboard.</div>';
-          step4El.insertBefore(resumeBanner, step4El.firstChild);
-
-          // Fetch profile to detect tier, existing logo, and QR URL
-          fetch(`${BACKEND_URL}/api/v1/merchants/${currentMerchantId}/profile`, {
-            headers: { 'Authorization': `Bearer ${currentAccessToken}` }
-          }).then(r => r.json()).then(json => {
-            if (!json.success) { window.location.href = 'login.html'; return; }
-            const d = json.data;
-            const tier = d.subscription_tier || 'trial';
-            window._resumeHasLogo = !!d.logo_url;
-            window._resumeOnboardingComplete = !!d.onboarding_complete;
-            if (d.logo_url) localStorage.setItem('perkfinity_logo_url', d.logo_url);
-            if (d.business_name) localStorage.setItem('perkfinity_business_name', d.business_name);
-            if (d.perk) localStorage.setItem('perkfinity_member_perk', d.perk);
-            if (d.qr_url) currentQrUrl = d.qr_url;
-
-            // All tiers: use inline card form
-            selectedTier = tier;
-            document.getElementById('trial-bank-notice').style.display = tier === 'trial' ? 'block' : 'none';
-            createSetupIntent();
-
-            // Show Step 4 here — after _resumeHasLogo is set — so the payment
-            // form never appears before we know the merchant's logo/tier state.
-            document.querySelectorAll('.wizard-step').forEach(el => el.style.display = 'none');
-            step4El.style.display = 'block';
-            updateSignupStepBar(4);
-          }).catch(() => { window.location.href = 'login.html'; });
-
-          // NOTE: Step 4 is shown INSIDE the .then() above after tier is detected.
-          // Do NOT show it here — doing so before the fetch resolves causes the
-          // _resumeHasLogo race condition (Issue 3).
           window.history.replaceState({}, document.title, window.location.pathname);
+
+          // Gate: ensure referral preference is recorded before showing Step 4
+          ensureSignupReferralSet(currentMerchantId, currentAccessToken).then(() => {
+            // Show Step 4 with a welcome-back banner
+            const step4El = document.getElementById('step-4-bank');
+            const resumeBanner = document.createElement('div');
+            resumeBanner.style.cssText = 'padding:14px 18px;background:linear-gradient(135deg,#fef3c7,#fde68a);border:2px solid #f59e0b;border-radius:12px;margin-bottom:18px;font-size:14px;color:#92400e;display:flex;align-items:flex-start;gap:10px;';
+            resumeBanner.innerHTML = '<span style="font-size:20px;flex-shrink:0;margin-top:1px;">&#x1F501;</span><div><strong>Welcome back! Your account was created but payment info wasn&#x27;t saved.</strong><br>Please complete this step to access your dashboard.</div>';
+            step4El.insertBefore(resumeBanner, step4El.firstChild);
+
+            // Fetch profile to detect tier, existing logo, and QR URL
+            fetch(`${BACKEND_URL}/api/v1/merchants/${currentMerchantId}/profile`, {
+              headers: { 'Authorization': `Bearer ${currentAccessToken}` }
+            }).then(r => r.json()).then(json => {
+              if (!json.success) { window.location.href = 'login.html'; return; }
+              const d = json.data;
+              const tier = d.subscription_tier || 'trial';
+              window._resumeHasLogo = !!d.logo_url;
+              window._resumeOnboardingComplete = !!d.onboarding_complete;
+              if (d.logo_url) localStorage.setItem('perkfinity_logo_url', d.logo_url);
+              if (d.business_name) localStorage.setItem('perkfinity_business_name', d.business_name);
+              if (d.perk) localStorage.setItem('perkfinity_member_perk', d.perk);
+              if (d.qr_url) currentQrUrl = d.qr_url;
+
+              // All tiers: use inline card form
+              selectedTier = tier;
+              document.getElementById('trial-bank-notice').style.display = tier === 'trial' ? 'block' : 'none';
+              createSetupIntent();
+
+              // Show Step 4 here — after _resumeHasLogo is set.
+              document.querySelectorAll('.wizard-step').forEach(el => el.style.display = 'none');
+              step4El.style.display = 'block';
+              updateSignupStepBar(4);
+            }).catch(() => { window.location.href = 'login.html'; });
+          });
+          // NOTE: Step 4 shown inside ensureSignupReferralSet().then() above.
 
         } else if (urlParams.get('resume') === 'step5') {
           // ── Resume at Step 5: payment done, logo/QR step was skipped ─────────
@@ -1248,6 +1279,25 @@
       }
 
 
+      function setBillingCycle(cycle) {
+        selectedBillingCycle = cycle;
+        const btnM = document.getElementById('btn-billing-monthly');
+        const btnA = document.getElementById('btn-billing-annual');
+        const priceEl = document.getElementById('connect-price-display');
+        const savingsEl = document.getElementById('connect-savings-display');
+        if (cycle === 'annual') {
+          btnA.style.background = 'var(--purple)'; btnA.style.color = '#fff';
+          btnM.style.background = 'transparent'; btnM.style.color = 'var(--purpleDark)';
+          if (priceEl) priceEl.innerHTML = '$305.89<span style="font-size:14px;color:var(--muted)">/yr</span>';
+          if (savingsEl) savingsEl.style.display = 'block';
+        } else {
+          btnM.style.background = 'var(--purple)'; btnM.style.color = '#fff';
+          btnA.style.background = 'transparent'; btnA.style.color = 'var(--purpleDark)';
+          if (priceEl) priceEl.innerHTML = '$29.99<span style="font-size:14px;color:var(--muted)">/mo</span>';
+          if (savingsEl) savingsEl.style.display = 'none';
+        }
+      }
+
       function selectTier(element, tier) {
         selectedTier = tier;
         document.querySelectorAll('.tier-select-card').forEach(el => {
@@ -1256,9 +1306,13 @@
         });
         element.style.border = '2px solid var(--purple)';
         element.style.background = 'rgba(91,63,165,.05)';
-        // Show promo code only for trial
+        // Show promo code only for trial; show billing toggle only for Connect
         const promoSection = document.getElementById('promoCodeSection');
         if (promoSection) promoSection.style.display = tier === 'trial' ? 'block' : 'none';
+        const toggleWrap = document.getElementById('billing-cycle-toggle-wrap');
+        if (toggleWrap) toggleWrap.style.display = tier === 'tier1' ? 'block' : 'none';
+        // Reset billing cycle to monthly when switching back to trial
+        if (tier === 'trial') { selectedBillingCycle = 'monthly'; setBillingCycle('monthly'); }
       }
 
       async function executeSignup() {
@@ -1298,6 +1352,17 @@
           return;
         }
 
+        // ── Referral code gate (Task 3) ─────────────────────────────
+        const _rcVal = (document.getElementById('contractor_code_signup')?.value || '').trim();
+        const _rcNo = document.getElementById('noReferralCheckbox_signup')?.checked;
+        const _rcErrEl = document.getElementById('referralCodeError_signup');
+        if (_rcErrEl) _rcErrEl.style.display = 'none';
+        if (!_rcVal && !_rcNo) {
+          if (_rcErrEl) { _rcErrEl.innerText = 'Please enter a referral code or check "I don\'t have a referral code".'; _rcErrEl.style.display = 'block'; }
+          document.getElementById('contractor_code_signup')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          return;
+        }
+
         btn.disabled = true;
         btn.innerText = "Creating account...";
 
@@ -1316,7 +1381,8 @@
           business_category: document.getElementById('business_category').value,
           promo_code: document.getElementById('promo_code').value.trim(),
           tier: selectedTier,
-          password: password
+          password: password,
+          contractor_code: (document.getElementById('contractor_code_signup')?.value || '').trim().toUpperCase() || null
         };
 
         // Conditionally include address fields
@@ -1356,6 +1422,7 @@
           localStorage.setItem('perkfinity_email', payload.email);
           localStorage.setItem('perkfinity_member_perk', payload.welcome_offer_text);
           if (returnedPromoCode) localStorage.setItem('perkfinity_welcome_promo_code', returnedPromoCode);
+          localStorage.setItem('perkfinity_referral_code_set', '1');
 
           // For online merchants, inject HELLO code into the logo step success screen
           if (presence === 'online' && returnedPromoCode) {
@@ -1508,21 +1575,27 @@
           const res = await fetch(`${BACKEND_URL}/api/v1/stripe/create-checkout-session`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ merchant_id: currentMerchantId, origin: window.location.origin })
+            body: JSON.stringify({
+              merchant_id: currentMerchantId,
+              origin: window.location.origin,
+              billing_cycle: selectedBillingCycle
+            })
           });
           const data = await res.json();
           if (data.success && data.data.checkout_url) {
+            // Store billing_cycle locally so confirm-checkout can reference it
+            localStorage.setItem('perkfinity_billing_cycle', selectedBillingCycle);
             window.location.href = data.data.checkout_url;
           } else {
             const errEl = document.getElementById('signupError');
             errEl.innerText = data.error || 'Failed to start checkout.';
             errEl.style.display = 'block';
             btn.disabled = false;
-            btn.innerText = '💳 Pay $29.99 & Continue →';
+            btn.innerText = selectedBillingCycle === 'annual' ? '💳 Pay $305.89/yr & Continue →' : '💳 Pay $29.99/mo & Continue →';
           }
         } catch (e) {
           btn.disabled = false;
-          btn.innerText = '💳 Pay $29.99 & Continue →';
+          btn.innerText = selectedBillingCycle === 'annual' ? '💳 Pay $305.89/yr & Continue →' : '💳 Pay $29.99/mo & Continue →';
         }
       }
 
@@ -1812,6 +1885,94 @@
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     </script>
+
+  <!-- Referral Code Interstitial (Task 3: Resume Flows) -->
+  <div id="signupReferralOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9999;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px);">
+    <div style="background:#fff;border-radius:20px;padding:36px;max-width:480px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
+      <h3 style="margin:0 0 8px;font-size:20px;color:#1e1b4b;">One last thing &#x1F44B;</h3>
+      <p style="color:#64748b;font-size:14px;margin:0 0 24px;">Were you referred to Perkfinity by one of our Sales Partners? Enter their code below, or confirm you weren&#x27;t referred.</p>
+      <label style="font-size:13px;font-weight:600;color:#334155;display:block;margin-bottom:6px;">Referral Code</label>
+      <input type="text" id="signupReferralInput" placeholder="REF-XXXXX1234" maxlength="15"
+        style="width:100%;padding:12px 16px;border-radius:10px;border:1.5px solid #e2e8f0;font-size:15px;box-sizing:border-box;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:14px;"
+        oninput="this.value=this.value.toUpperCase();document.getElementById('signupNoReferralChk').checked=false;">
+      <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer;">
+        <input type="checkbox" id="signupNoReferralChk" style="width:16px;height:16px;accent-color:#7c3aed;cursor:pointer;"
+          onchange="if(this.checked)document.getElementById('signupReferralInput').value=''">
+        <span style="font-size:13px;color:#64748b;">I don&#x27;t have a referral code</span>
+      </label>
+      <p id="signupReferralError" style="color:#dc2626;font-size:13px;margin:8px 0;display:none;"></p>
+      <button id="signupReferralSubmit"
+        style="width:100%;padding:14px;background:linear-gradient(135deg,#7c3aed,#6d28d9);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;margin-top:12px;">
+        Continue &#x2192;
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // ── Task 3: Live referral code validator (onblur) ─────────────────────
+    async function validateSignupReferralCode(code) {
+      const errEl = document.getElementById('referralCodeError_signup');
+      const input = document.getElementById('contractor_code_signup');
+      if (!code || !code.trim()) return;
+      const c = code.trim().toUpperCase();
+      if (!c.startsWith('REF-') || c.length < 10) {
+        if (errEl) { errEl.innerText = 'Code format looks off — codes start with REF- (e.g. REF-JOHNM1234).'; errEl.style.display = 'block'; }
+        return;
+      }
+      try {
+        const r = await fetch(`${BACKEND_URL}/api/v1/contractors/validate-code?code=${encodeURIComponent(c)}`);
+        const j = await r.json();
+        if (j.valid) {
+          if (errEl) { errEl.style.color = '#15803d'; errEl.innerText = `✓ Code verified — referred by ${j.contractor_name}.`; errEl.style.display = 'block'; }
+          if (input) input.style.borderColor = '#15803d';
+        } else {
+          if (errEl) { errEl.style.color = '#dc2626'; errEl.innerText = 'This code isn\'t recognized. Double-check with your rep.'; errEl.style.display = 'block'; }
+          if (input) input.style.borderColor = '#dc2626';
+        }
+      } catch (_) { /* non-fatal — form submit will catch it */ }
+    }
+
+    // ── Task 3: Referral gate for resume flows ─────────────────────────────
+    async function ensureSignupReferralSet(merchantId, accessToken) {
+      if (localStorage.getItem('perkfinity_referral_code_set')) return;
+      const overlay = document.getElementById('signupReferralOverlay');
+      overlay.style.display = 'flex';
+      return new Promise(resolve => {
+        const submitBtn = document.getElementById('signupReferralSubmit');
+        const noRefChk  = document.getElementById('signupNoReferralChk');
+        const codeInput = document.getElementById('signupReferralInput');
+        const errEl     = document.getElementById('signupReferralError');
+        codeInput.value = ''; noRefChk.checked = false; errEl.style.display = 'none';
+        async function handleSubmit() {
+          const code  = codeInput.value.trim().toUpperCase();
+          const noRef = noRefChk.checked;
+          errEl.style.display = 'none';
+          if (!code && !noRef) {
+            errEl.innerText = 'Please enter a referral code or check "I don\'t have a referral code".';
+            errEl.style.display = 'block';
+            return;
+          }
+          submitBtn.disabled = true; submitBtn.innerText = 'Saving\u2026';
+          try {
+            await fetch(`${BACKEND_URL}/api/v1/merchants/referral-code`, {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` },
+              body: JSON.stringify({ contractor_code: code || null })
+            });
+            localStorage.setItem('perkfinity_referral_code_set', '1');
+            overlay.style.display = 'none';
+            resolve();
+          } catch (e) {
+            errEl.innerText = 'Something went wrong. Please try again.';
+            errEl.style.display = 'block';
+            submitBtn.disabled = false; submitBtn.innerText = 'Continue \u2192';
+          }
+        }
+        submitBtn.onclick = handleSubmit;
+      });
+    }
+  </script>
+
   </main>
 
   <footer class="site-footer" id="contact">

@@ -233,6 +233,29 @@
     #add-contractor-modal .form-label { color:#475569; }
     #add-contractor-modal label { color:#1a1a2e; }
 
+    #assign-territory-modal .form-input,
+    #assign-territory-modal .form-textarea {
+      color:#1a1a2e; background:#f8fafc; border-color:#e2e8f0;
+    }
+    #assign-territory-modal .form-input::placeholder,
+    #assign-territory-modal .form-textarea::placeholder { color:#94a3b8; }
+    #assign-territory-modal .form-input:focus,
+    #assign-territory-modal .form-textarea:focus { border-color:#5b3fa5; background:#fff; }
+    #assign-territory-modal .form-label { color:#475569; }
+    #assign-territory-modal label { color:#1a1a2e; }
+
+    /* Same fix for dynamically-created white-bg modals (Add Bonus, Edit Comp) */
+    #sb-overlay .form-input,
+    #sb-overlay .form-textarea {
+      color:#1a1a2e; background:#f8fafc; border-color:#e2e8f0;
+    }
+    #sb-overlay .form-input::placeholder,
+    #sb-overlay .form-textarea::placeholder { color:#94a3b8; }
+    #sb-overlay .form-input:focus,
+    #sb-overlay .form-textarea:focus { border-color:#5b3fa5; background:#fff; }
+    #sb-overlay .form-label { color:#475569; }
+    #sb-overlay label { color:#1a1a2e; }
+
     .form-textarea { resize:vertical; min-height:120px; }
 
     /* Loading */
@@ -492,7 +515,7 @@
         </div>
         <div class="form-group">
           <label class="form-label">ZIP Codes <span style="color:#ef4444;">*</span></label>
-          <textarea class="form-input" id="terr-zips" rows="4" placeholder="Enter 5-digit ZIP codes separated by commas, spaces, or new lines&#10;e.g. 33101, 33102, 33103&#10;&#10;Tip: you can paste a list directly" style="resize:vertical;font-family:monospace;"></textarea>
+          <textarea class="form-input" id="terr-zips" rows="4" placeholder="Enter 5-digit ZIP codes separated by commas, spaces, or new lines&#10;e.g. 90001, 90210, 91101&#10;&#10;Tip: you can paste a list directly" style="resize:vertical;"></textarea>
           <div style="font-size:11px;color:#94a3b8;margin-top:4px;">Each valid 5-digit ZIP becomes part of this territory. The system will warn you if any ZIPs overlap with another active rep.</div>
         </div>
         <div id="terr-err" style="color:#ef4444;font-size:13px;margin-bottom:12px;padding:10px 14px;background:#fef2f2;border-radius:8px;display:none;"></div>
@@ -4848,11 +4871,11 @@
           ? new Date(m.commission_end_date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})
           : '—';
         return `<tr style="border-bottom:1px solid #f1f5f9;">
-          <td style="padding:8px 10px;font-weight:600;font-size:12px;">${m.business_name||'—'}</td>
-          <td style="padding:8px 10px;font-size:12px;">${tierMap[m.tier]||m.tier||'—'}</td>
-          <td style="padding:8px 10px;font-size:12px;">${commStart}</td>
-          <td style="padding:8px 10px;font-size:12px;">${commEnd}</td>
-          <td style="padding:8px 10px;font-size:12px;text-align:center;">${m.retention_bonuses_paid||0}</td>
+          <td style="padding:8px 10px;font-weight:600;font-size:12px;color:#1a1a2e;">${m.business_name||'—'}</td>
+          <td style="padding:8px 10px;font-size:12px;color:#1a1a2e;">${tierMap[m.tier]||m.tier||'—'}</td>
+          <td style="padding:8px 10px;font-size:12px;color:#1a1a2e;">${commStart}</td>
+          <td style="padding:8px 10px;font-size:12px;color:#1a1a2e;">${commEnd}</td>
+          <td style="padding:8px 10px;font-size:12px;text-align:center;color:#1a1a2e;">${m.retention_bonuses_paid||0}</td>
           <td style="padding:8px 10px;font-size:12px;text-align:center;">${!m.commission_start_date
             ? `<button onclick="removeContractorAttribution('${m.merchant_id}','${c.id}')" style="padding:3px 8px;border-radius:6px;border:1px solid #fecaca;background:#fef2f2;color:#dc2626;font-size:11px;font-weight:700;cursor:pointer;">Remove</button>`
             : '<span style="color:#94a3b8;font-size:11px;">Active</span>'}</td>
@@ -4864,10 +4887,10 @@
       const bRows = bonuses.length ? bonuses.map(b => {
         const bc = bColors[b.status]||'#94a3b8';
         return `<tr style="border-bottom:1px solid #f1f5f9;">
-          <td style="padding:8px 10px;font-size:12px;font-weight:600;">${b.label||'—'}</td>
-          <td style="padding:8px 10px;font-size:12px;font-weight:700;">$${((b.amount_cents||0)/100).toFixed(2)}</td>
+          <td style="padding:8px 10px;font-size:12px;font-weight:600;color:#1a1a2e;">${b.label||'—'}</td>
+          <td style="padding:8px 10px;font-size:12px;font-weight:700;color:#1a1a2e;">$${((b.amount_cents||0)/100).toFixed(2)}</td>
           <td style="padding:8px 10px;font-size:12px;"><span style="padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700;background:${bc}18;color:${bc};">${b.status||'?'}</span></td>
-          <td style="padding:8px 10px;font-size:12px;">${b.created_at ? new Date(b.created_at).toLocaleDateString() : '—'}</td>
+          <td style="padding:8px 10px;font-size:12px;color:#1a1a2e;">${b.created_at ? new Date(b.created_at).toLocaleDateString() : '—'}</td>
           <td style="padding:8px 10px;font-size:12px;text-align:center;">${b.status==='pending'
             ? `<button onclick="cancelSpecialBonus('${c.id}','${b.id}')" style="padding:3px 8px;border-radius:6px;border:1px solid #fecaca;background:#fef2f2;color:#dc2626;font-size:11px;font-weight:700;cursor:pointer;">Cancel</button>`
             : '—'}</td>
@@ -4881,11 +4904,11 @@
         const ps = p.period_start ? new Date(p.period_start).toLocaleDateString('en-US',{month:'short',year:'numeric'}) : '—';
         const bonTotal = ((p.milestone_bonus_cents||0)+(p.retention_bonus_cents||0)+(p.special_bonus_cents||0));
         return `<tr style="border-bottom:1px solid #f1f5f9;">
-          <td style="padding:8px 10px;font-size:12px;">${ps}</td>
-          <td style="padding:8px 10px;font-size:12px;">$${((p.commission_cents||0)/100).toFixed(2)}</td>
-          <td style="padding:8px 10px;font-size:12px;">$${((p.retainer_cents||0)/100).toFixed(2)}</td>
-          <td style="padding:8px 10px;font-size:12px;">$${(bonTotal/100).toFixed(2)}</td>
-          <td style="padding:8px 10px;font-size:12px;font-weight:700;">$${((p.total_cents||0)/100).toFixed(2)}</td>
+          <td style="padding:8px 10px;font-size:12px;color:#1a1a2e;">${ps}</td>
+          <td style="padding:8px 10px;font-size:12px;color:#1a1a2e;">$${((p.commission_cents||0)/100).toFixed(2)}</td>
+          <td style="padding:8px 10px;font-size:12px;color:#1a1a2e;">$${((p.retainer_cents||0)/100).toFixed(2)}</td>
+          <td style="padding:8px 10px;font-size:12px;color:#1a1a2e;">$${(bonTotal/100).toFixed(2)}</td>
+          <td style="padding:8px 10px;font-size:12px;font-weight:700;color:#1a1a2e;">$${((p.total_cents||0)/100).toFixed(2)}</td>
           <td style="padding:8px 10px;font-size:12px;text-align:center;"><span style="padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700;background:${pc}18;color:${pc};">${p.status||'?'}</span></td>
         </tr>`;
       }).join('') : '<tr><td colspan="6" style="padding:20px;text-align:center;color:#94a3b8;font-size:13px;">No payout history.</td></tr>';
@@ -4930,7 +4953,7 @@
               <div style="display:flex;align-items:center;gap:8px;">
                 <span style="font-size:13px;font-weight:700;color:${icac};">${icaLabel}</span>
                 ${c.ica_status!=='signed' ? `<button onclick="markICASigned('${c.id}')" style="padding:3px 10px;border-radius:6px;border:1px solid #bbf7d0;background:#f0fdf4;color:#166534;font-size:11px;font-weight:700;cursor:pointer;">Mark Signed</button>` : ''}
-                ${c.ica_status==='not_sent' ? `<a href="https://app.dropboxsign.com" target="_blank" style="padding:3px 10px;border-radius:6px;border:1px solid #e2e8f0;background:#f8fafc;color:#475569;font-size:11px;font-weight:700;text-decoration:none;">Send ICA ↗</a>` : ''}
+                ${c.ica_status==='not_sent' ? `<button id="ica-send-btn-${c.id}" onclick="sendICARequest('${c.id}')" style="padding:3px 10px;border-radius:6px;border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8;font-size:11px;font-weight:700;cursor:pointer;">Send ICA</button>` : ''}${c.ica_status==='sent' ? `<button id="ica-send-btn-${c.id}" onclick="sendICARequest('${c.id}')" style="padding:3px 10px;border-radius:6px;border:1px solid #fed7aa;background:#fff7ed;color:#c2410c;font-size:11px;font-weight:700;cursor:pointer;">Resend ICA</button>` : ''}
               </div>
             </div>
             <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;">
@@ -4948,6 +4971,10 @@
                   <option value="other" ${c.entity_type==='other'?'selected':''}>Other</option>
                 </select>
               </div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;">
+              <span style="color:#64748b;font-weight:600;font-size:13px;">Portal Access</span>
+              <button onclick="sendPortalInvite('${c.id}', '${c.email}', ${!!c.password_hash})" style="padding:3px 10px;border-radius:6px;border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8;font-size:11px;font-weight:700;cursor:pointer;">${c.password_hash ? '🔁 Send Reset Link' : '📧 Send Portal Invite'}</button>
             </div>
             ${!canActivate ? `<div style="margin-top:10px;font-size:12px;color:#f59e0b;font-weight:600;">⚠️ ICA must be signed before setting status to Active.</div>` : ''}
           </div>
@@ -4984,7 +5011,7 @@
             ? `<div style="font-weight:700;font-size:13px;">${c.territory.label}</div><div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px;">${(c.territory.zip_codes||[]).map(z=>`<span style="padding:2px 8px;border-radius:6px;background:#eff6ff;color:#1d4ed8;font-size:12px;font-weight:700;font-family:monospace;">${z}</span>`).join('')}</div><div style="margin-top:8px;font-size:11px;color:#94a3b8;">Assigned ${c.territory.assigned_at?new Date(c.territory.assigned_at).toLocaleDateString():''}</div>`
             : '<div style="color:#94a3b8;font-size:13px;">No territory assigned.</div>'}
         </div>
-        ${(()=>{const qd=c.quota;if(!qd)return`<div style="background:#f8fafc;border-radius:12px;padding:18px 20px;margin-bottom:20px;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><div style="font-size:13px;font-weight:800;color:#1a1a2e;">🎯 Quota Period</div><button onclick="startQuotaPeriod('${c.id}')" style="padding:5px 12px;border-radius:7px;border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8;font-size:12px;font-weight:700;cursor:pointer;">▶ Start</button></div><div style="color:#94a3b8;font-size:13px;">No quota period started yet.</div></div>`;const qs=qd.status,qc={active:'#3b82f6',met:'#22c55e',missed:'#ef4444'}[qs]||'#94a3b8',cur=qd.current_count||0,target=qd.quota_target||30,pct=qd.percent||0,days=qd.days_remaining;return`<div style="background:#f8fafc;border-radius:12px;padding:18px 20px;margin-bottom:20px;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><div style="font-size:13px;font-weight:800;color:#1a1a2e;">🎯 Quota Period</div><div style="display:flex;gap:8px;">${qs==='active'?`<button onclick="evaluateQuota('${c.id}')" style="padding:5px 12px;border-radius:7px;border:1px solid #bbf7d0;background:#f0fdf4;color:#166534;font-size:12px;font-weight:700;cursor:pointer;">✓ Evaluate</button>`:''} ${qs==='active'?`<button onclick="extendQuota('${c.id}')" style="padding:5px 12px;border-radius:7px;border:1px solid #fde68a;background:#fffbeb;color:#92400e;font-size:12px;font-weight:700;cursor:pointer;">📅 Extend</button>`:''} ${(qs==='active'||qs==='missed')?`<button onclick="sendQuotaReminder('${c.id}')" style="padding:5px 12px;border-radius:7px;border:1px solid #e2e8f0;background:#f8fafc;color:#475569;font-size:12px;font-weight:700;cursor:pointer;">📧 Remind</button>`:''}</div></div><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span style="font-size:13px;font-weight:700;">${cur}/${target} active merchants</span><span style="padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;background:${qc}18;color:${qc};">${(qs||'?').toUpperCase()}</span></div><div style="height:10px;background:#e2e8f0;border-radius:999px;overflow:hidden;margin-bottom:8px;"><div style="height:100%;width:${pct}%;background:${qc};border-radius:999px;"></div></div><div style="display:flex;justify-content:space-between;font-size:11px;color:#64748b;"><span>Start:${qd.period_start?new Date(qd.period_start).toLocaleDateString():'-'}</span><span>${pct}%</span><span>End:${qd.period_end?new Date(qd.period_end).toLocaleDateString():'-'}</span></div>${qs==='active'&&days!==undefined?`<div style="margin-top:6px;font-size:12px;color:${days<=14?'#ef4444':'#64748b'};font-weight:600;">${days} days remaining</div>`:''}${qs==='missed'?'<div style="margin-top:8px;padding:8px 12px;background:#fef2f2;border-radius:8px;color:#dc2626;font-size:12px;font-weight:700;">⚠️ Quota missed — extend, assign new rep, or cancel territory.</div>':''}${qs==='met'?'<div style="margin-top:8px;padding:8px 12px;background:#f0fdf4;border-radius:8px;color:#166534;font-size:12px;font-weight:700;">🎉 Quota met! Territory locked in.</div>':''}</div>`;})()}
+        ${(()=>{const qd=c.quota;if(!qd)return`<div style="background:#f8fafc;border-radius:12px;padding:18px 20px;margin-bottom:20px;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><div style="font-size:13px;font-weight:800;color:#1a1a2e;">🎯 Quota Period</div><button onclick="startQuotaPeriod('${c.id}')" style="padding:5px 12px;border-radius:7px;border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8;font-size:12px;font-weight:700;cursor:pointer;">▶ Manual Start</button></div><div style="color:#94a3b8;font-size:13px;">No quota period yet. Auto-starts when ICA is marked signed.</div></div>`;const qs=qd.status,qc={active:'#3b82f6',met:'#22c55e',missed:'#ef4444'}[qs]||'#94a3b8',cur=qd.current_count||0,target=qd.quota_target||30,pct=qd.percent||0,days=qd.days_remaining;const psRaw=qd.period_start?qd.period_start.split('T')[0]:'';return`<div style="background:#f8fafc;border-radius:12px;padding:18px 20px;margin-bottom:20px;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><div style="font-size:13px;font-weight:800;color:#1a1a2e;">🎯 Quota Period</div><div style="display:flex;gap:8px;">${qs==='active'?`<button onclick="adjustQuotaDates('${c.id}','${psRaw}')" style="padding:5px 12px;border-radius:7px;border:1px solid #e2e8f0;background:#f8fafc;color:#475569;font-size:12px;font-weight:700;cursor:pointer;">✏️ Adjust Dates</button>`:''} ${qs==='active'?`<button onclick="evaluateQuota('${c.id}')" style="padding:5px 12px;border-radius:7px;border:1px solid #bbf7d0;background:#f0fdf4;color:#166534;font-size:12px;font-weight:700;cursor:pointer;">✓ Evaluate</button>`:''} ${qs==='active'?`<button onclick="extendQuota('${c.id}')" style="padding:5px 12px;border-radius:7px;border:1px solid #fde68a;background:#fffbeb;color:#92400e;font-size:12px;font-weight:700;cursor:pointer;">📅 Extend</button>`:''} ${(qs==='active'||qs==='missed')?`<button onclick="sendQuotaReminder('${c.id}')" style="padding:5px 12px;border-radius:7px;border:1px solid #e2e8f0;background:#f8fafc;color:#475569;font-size:12px;font-weight:700;cursor:pointer;">📧 Remind</button>`:''}</div></div><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span style="font-size:13px;font-weight:700;color:#1a1a2e;">${cur}/${target} active merchants</span><span style="padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;background:${qc}18;color:${qc};">${(qs||'?').toUpperCase()}</span></div><div style="height:10px;background:#e2e8f0;border-radius:999px;overflow:hidden;margin-bottom:8px;"><div style="height:100%;width:${pct}%;background:${qc};border-radius:999px;"></div></div><div style="display:flex;justify-content:space-between;font-size:11px;color:#64748b;"><span>Start: ${qd.period_start?new Date(qd.period_start).toLocaleDateString():'-'}</span><span>${pct}%</span><span>End: ${qd.period_end?new Date(qd.period_end).toLocaleDateString():'-'}</span></div>${qs==='active'&&days!==undefined?`<div style="margin-top:6px;font-size:12px;color:${days<=14?'#ef4444':'#64748b'};font-weight:600;">${days} days remaining</div>`:''}${qs==='missed'?'<div style="margin-top:8px;padding:8px 12px;background:#fef2f2;border-radius:8px;color:#dc2626;font-size:12px;font-weight:700;">⚠️ Quota missed — extend, assign new rep, or cancel territory.</div>':''}${qs==='met'?'<div style="margin-top:8px;padding:8px 12px;background:#f0fdf4;border-radius:8px;color:#166534;font-size:12px;font-weight:700;">🎉 Quota met! Territory locked in.</div>':''}</div>`;})()}
         <div style="background:#f8fafc;border-radius:12px;padding:18px 20px;margin-bottom:20px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
             <div style="font-size:13px;font-weight:800;color:#1a1a2e;">🏪 Attributed Merchants (${merchants.length})</div>
@@ -5182,6 +5209,36 @@
       } catch(e) { showToast('⚠️ Connection error.'); }
     }
 
+    // ── Send ICA via Dropbox Sign API ────────────────────────────────
+    async function sendICARequest(id) {
+      const ctr = allContractors.find(c => c.id === id);
+      const isResend = ctr?.ica_status === 'sent';
+      const confirmMsg = isResend
+        ? 'Resend the ICA to this contractor via Dropbox Sign? A new signing request will be created.'
+        : 'Send ICA to this contractor via Dropbox Sign? They will receive an email with a signing link.';
+      if (!confirm(confirmMsg)) return;
+      const btn = document.getElementById('ica-send-btn-' + id);
+      if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
+      const token = sessionStorage.getItem('perkfinity_admin_token');
+      try {
+        const res  = await fetch(API_BASE + '/admin/contractors/' + id + '/send-ica', {
+          method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token }
+        });
+        const json = await res.json();
+        if (json.success) {
+          showToast('✅ ICA sent via Dropbox Sign. Rep will receive an email shortly.');
+          allContractors = allContractors.map(c => c.id===id ? {...c, ica_status:'sent'} : c);
+          openContractorDetail(id);
+        } else {
+          showToast('⚠️ ' + (json.error || 'Failed to send ICA.'));
+          if (btn) { btn.disabled = false; btn.textContent = isResend ? 'Resend ICA' : 'Send ICA'; }
+        }
+      } catch(e) {
+        showToast('⚠️ Connection error.');
+        if (btn) { btn.disabled = false; btn.textContent = isResend ? 'Resend ICA' : 'Send ICA'; }
+      }
+    }
+
     // ── Update contractor entity type ────────────────────────────────
     async function updateContractorEntityType(id, entityType) {
       if (!entityType) return;
@@ -5248,7 +5305,80 @@
     }
 
     // ── Quota management ─────────────────────────────────────────────
-    async function startQuotaPeriod(repId) {
+    async function adjustQuotaDates(repId, currentStart) {
+      document.getElementById('qadj-overlay')?.remove();
+      const el = document.createElement('div');
+      el.id = 'qadj-overlay';
+      el.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:10010;display:flex;align-items:center;justify-content:center;';
+      el.innerHTML = `
+        <div style="width:380px;background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.3);padding:28px;">
+          <div style="font-size:17px;font-weight:800;color:#1a1a2e;margin-bottom:4px;">✏️ Adjust Quota Dates</div>
+          <div style="font-size:12px;color:#64748b;margin-bottom:20px;">Change the start date. End date auto-calculates as start + 3 months.</div>
+          <div style="margin-bottom:14px;">
+            <label style="font-size:12px;font-weight:700;color:#475569;display:block;margin-bottom:6px;">START DATE</label>
+            <input type="date" id="qadj-start" value="${currentStart}"
+              style="width:100%;padding:10px 14px;border-radius:10px;border:1px solid #e2e8f0;background:#f8fafc;color:#1a1a2e;font-size:14px;font-family:inherit;outline:none;"
+              oninput="qAdjUpdateEnd()" />
+          </div>
+          <div style="margin-bottom:20px;">
+            <label style="font-size:12px;font-weight:700;color:#475569;display:block;margin-bottom:6px;">END DATE (auto)</label>
+            <div id="qadj-end-display" style="padding:10px 14px;border-radius:10px;border:1px solid #e2e8f0;background:#f1f5f9;color:#64748b;font-size:14px;">—</div>
+          </div>
+          <div id="qadj-err" style="display:none;color:#ef4444;font-size:12px;font-weight:600;margin-bottom:10px;padding:8px 12px;background:#fef2f2;border-radius:8px;"></div>
+          <div style="display:flex;gap:10px;justify-content:flex-end;">
+            <button onclick="document.getElementById('qadj-overlay').remove()" style="padding:10px 20px;border-radius:10px;border:1px solid #e2e8f0;background:#f8fafc;color:#64748b;font-weight:700;font-size:14px;cursor:pointer;">Cancel</button>
+            <button id="qadj-save-btn" onclick="_doAdjustQuotaDates(\`${repId}\`)" style="padding:10px 22px;border-radius:10px;border:none;background:#5b3fa5;color:#fff;font-weight:800;font-size:14px;cursor:pointer;">Apply</button>
+          </div>
+        </div>`;
+      el.onclick = e => { if (e.target === el) el.remove(); };
+      document.body.appendChild(el);
+      qAdjUpdateEnd();
+    }
+
+    function qAdjUpdateEnd() {
+      const startVal = document.getElementById('qadj-start')?.value;
+      const display  = document.getElementById('qadj-end-display');
+      if (!display) return;
+      if (!startVal) { display.textContent = '—'; return; }
+      const end = new Date(startVal + 'T00:00:00');
+      end.setMonth(end.getMonth() + 3);
+      display.textContent = end.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    }
+
+    async function _doAdjustQuotaDates(repId) {
+      const startVal = document.getElementById('qadj-start')?.value;
+      const errEl    = document.getElementById('qadj-err');
+      const btn      = document.getElementById('qadj-save-btn');
+      if (!startVal) {
+        errEl.textContent = 'Please select a start date.';
+        errEl.style.display = 'block'; return;
+      }
+      btn.disabled = true; btn.textContent = 'Saving…';
+      const token = sessionStorage.getItem('perkfinity_admin_token');
+      try {
+        const res  = await fetch(API_BASE + '/admin/contractors/' + repId + '/quota/adjust-dates', {
+          method: 'PATCH',
+          headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ period_start: startVal })
+        });
+        const json = await res.json();
+        if (json.success) {
+          document.getElementById('qadj-overlay').remove();
+          showToast('✅ Quota dates updated.');
+          openContractorDetail(repId);
+        } else {
+          errEl.textContent = json.error || 'Failed to update dates.';
+          errEl.style.display = 'block';
+          btn.disabled = false; btn.textContent = 'Apply';
+        }
+      } catch(e) {
+        errEl.textContent = 'Connection error. Please try again.';
+        errEl.style.display = 'block';
+        btn.disabled = false; btn.textContent = 'Apply';
+      }
+    }
+
+        async function startQuotaPeriod(repId) {
       if (!confirm('Start a 3-month quota period (30 merchants target) for this rep?')) return;
       const token = sessionStorage.getItem('perkfinity_admin_token');
       try {
@@ -5303,6 +5433,60 @@
         if (json.success) { showToast('✅ Reminder logged. ' + (json.message||'')); }
         else { showToast('⚠️ ' + (json.error||'Failed.')); }
       } catch(e) { showToast('⚠️ Connection error.'); }
+    }
+
+    async function sendPortalInvite(repId, repEmail, hasPassword) {
+      const action = hasPassword ? 'send a password reset link' : 'send a portal invite';
+      const label  = hasPassword ? 'Send Reset Link' : 'Send Portal Invite';
+      // Remove any existing overlay
+      document.getElementById('pi-overlay')?.remove();
+      const el = document.createElement('div');
+      el.id = 'pi-overlay';
+      el.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:10010;display:flex;align-items:center;justify-content:center;';
+      el.innerHTML = `
+        <div id="pi-modal" style="width:400px;background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.3);padding:28px;">
+          <div style="font-size:18px;font-weight:800;color:#1a1a2e;margin-bottom:6px;">${hasPassword ? '🔁 Send Reset Link' : '📧 Send Portal Invite'}</div>
+          <div style="font-size:13px;color:#64748b;margin-bottom:20px;">This will ${action} to <strong>${repEmail}</strong>. The link expires in ${hasPassword ? '48 hours' : '48 hours'} and is single-use.</div>
+          <div id="pi-result" style="display:none;text-align:center;padding:16px 0;">
+            <div style="font-size:36px;margin-bottom:8px;">✅</div>
+            <div style="font-size:15px;font-weight:800;color:#166534;">${hasPassword ? 'Reset link sent!' : 'Invite sent!'}</div>
+            <div style="font-size:13px;color:#64748b;margin-top:4px;">Email delivered to ${repEmail}</div>
+          </div>
+          <div id="pi-err" style="display:none;color:#ef4444;font-size:12px;font-weight:600;margin-bottom:10px;padding:8px 12px;background:#fef2f2;border-radius:8px;"></div>
+          <div id="pi-btns" style="display:flex;gap:10px;justify-content:flex-end;">
+            <button onclick="document.getElementById('pi-overlay').remove()" style="padding:10px 20px;border-radius:10px;border:1px solid #e2e8f0;background:#f8fafc;color:#64748b;font-weight:700;font-size:14px;cursor:pointer;">Cancel</button>
+            <button id="pi-send-btn" onclick="_doSendPortalInvite('${repId}')" style="padding:10px 22px;border-radius:10px;border:none;background:#1d4ed8;color:#fff;font-weight:800;font-size:14px;cursor:pointer;">${label}</button>
+          </div>
+        </div>`;
+      el.onclick = e => { if (e.target === el) el.remove(); };
+      document.body.appendChild(el);
+    }
+
+    async function _doSendPortalInvite(repId) {
+      const btn   = document.getElementById('pi-send-btn');
+      const errEl = document.getElementById('pi-err');
+      btn.disabled = true; btn.textContent = 'Sending…';
+      const token = sessionStorage.getItem('perkfinity_admin_token');
+      try {
+        const res  = await fetch(API_BASE + '/admin/contractors/' + repId + '/send-invite', {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        const json = await res.json();
+        if (json.success) {
+          document.getElementById('pi-btns').style.display   = 'none';
+          document.getElementById('pi-result').style.display = 'block';
+          setTimeout(() => document.getElementById('pi-overlay')?.remove(), 3000);
+        } else {
+          errEl.textContent = json.error || 'Failed to send.';
+          errEl.style.display = 'block';
+          btn.disabled = false; btn.textContent = 'Send';
+        }
+      } catch(e) {
+        errEl.textContent = 'Connection error. Please try again.';
+        errEl.style.display = 'block';
+        btn.disabled = false; btn.textContent = 'Send';
+      }
     }
 
     // ── Edit Compensation Modal ────────────────────────────────────

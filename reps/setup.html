@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Set Your Password — Perkfinity Rep Portal</title>
+  <meta name="robots" content="noindex,nofollow"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <script src="/config.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --brand: #5b3fa5;
+      --brand-light: #7c5cc2;
+      --bg: #0f0f1a;
+      --card: #1e2035;
+      --border: rgba(255,255,255,0.08);
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --green: #22c55e;
+      --red: #ef4444;
+    }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: radial-gradient(ellipse at 30% 30%, #2a1a5e 0%, #0f0f1a 60%);
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 44px 48px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 24px 80px rgba(91,63,165,0.3);
+    }
+    .logo { display: flex; align-items: center; gap: 12px; margin-bottom: 32px; }
+    .logo img { width: 40px; height: 40px; border-radius: 10px; }
+    .logo span { font-size: 22px; font-weight: 900; background: linear-gradient(135deg,#a78bfa,#5b3fa5); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    h1 { font-size: 22px; font-weight: 800; margin-bottom: 6px; }
+    .sub { font-size: 13px; color: var(--muted); margin-bottom: 28px; }
+    .field-label { font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 6px; letter-spacing: 0.05em; display: block; }
+    .field-group { margin-bottom: 18px; position: relative; }
+    .field-input {
+      width: 100%; padding: 12px 44px 12px 16px;
+      border-radius: 10px; border: 1px solid var(--border);
+      background: #0f1020; color: var(--text);
+      font-size: 14px; font-family: inherit;
+      outline: none; transition: border-color 0.2s;
+    }
+    .field-input:focus { border-color: var(--brand-light); }
+    .eye-btn {
+      position: absolute; right: 14px; top: 50%;
+      transform: translateY(-50%); cursor: pointer;
+      font-size: 16px; user-select: none; opacity: 0.5;
+      background: none; border: none; padding: 0;
+    }
+    .btn-submit {
+      width: 100%; padding: 14px; border-radius: 12px; border: none;
+      background: linear-gradient(135deg, #7c5cc2, #5b3fa5);
+      color: #fff; font-size: 15px; font-weight: 800; cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s; margin-top: 6px;
+    }
+    .btn-submit:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .err-box {
+      display: none; margin-bottom: 16px;
+      padding: 10px 14px; background: #450a0a;
+      border: 1px solid #7f1d1d; border-radius: 8px;
+      color: #fca5a5; font-size: 13px;
+    }
+
+    /* States */
+    #state-loading, #state-form, #state-success, #state-expired { display: none; }
+    .spinner { width: 28px; height: 28px; border: 3px solid rgba(255,255,255,0.1); border-top-color: var(--brand-light); border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto 12px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .success-icon { font-size: 52px; margin-bottom: 16px; display: block; }
+    .btn-signin {
+      display: inline-block; margin-top: 20px; padding: 12px 28px;
+      border-radius: 10px; background: linear-gradient(135deg,#7c5cc2,#5b3fa5);
+      color: #fff; font-weight: 800; font-size: 14px; text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .btn-signin:hover { opacity: 0.9; }
+
+    @media (max-width: 480px) { .card { padding: 28px 22px; } }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">
+      <img src="/assets/Perkfinity-App-Icon.png" alt="Perkfinity"/>
+      <span>Perkfinity</span>
+    </div>
+
+    <!-- Loading -->
+    <div id="state-loading" style="text-align:center;padding:16px 0;">
+      <div class="spinner"></div>
+      <div style="color:var(--muted);font-size:14px;">Validating your link…</div>
+    </div>
+
+    <!-- Form -->
+    <div id="state-form">
+      <h1>Set Your Password</h1>
+      <div class="sub">Choose a secure password for your rep portal account. Minimum 8 characters.</div>
+      <div class="err-box" id="err-box"></div>
+      <div class="field-group">
+        <label class="field-label" for="pw-input">NEW PASSWORD</label>
+        <div style="position:relative;">
+          <input class="field-input" id="pw-input" type="password" placeholder="Min 8 characters" autocomplete="new-password" oninput="clearErr()"/>
+          <span class="eye-btn" onclick="toggleEye('pw-input',this)">👁️</span>
+        </div>
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="pw-confirm">CONFIRM PASSWORD</label>
+        <div style="position:relative;">
+          <input class="field-input" id="pw-confirm" type="password" placeholder="Re-enter your password" autocomplete="new-password" onkeydown="if(event.key==='Enter')doSetPassword()" oninput="clearErr()"/>
+          <span class="eye-btn" onclick="toggleEye('pw-confirm',this)">👁️</span>
+        </div>
+      </div>
+      <button class="btn-submit" id="submit-btn" onclick="doSetPassword()">Set Password</button>
+    </div>
+
+    <!-- Success -->
+    <div id="state-success" style="text-align:center;padding:12px 0;">
+      <span class="success-icon">✅</span>
+      <h1 style="margin-bottom:8px;">Password Set!</h1>
+      <p style="color:var(--muted);font-size:14px;line-height:1.6;">You can now sign in to the Rep Portal with your email and new password.</p>
+      <a href="/reps/" class="btn-signin">Sign In to Rep Portal →</a>
+    </div>
+
+    <!-- Expired / Invalid -->
+    <div id="state-expired" style="text-align:center;padding:12px 0;">
+      <span class="success-icon">⚠️</span>
+      <h1 style="margin-bottom:8px;font-size:20px;">Link Expired</h1>
+      <p style="color:var(--muted);font-size:14px;line-height:1.6;margin-bottom:20px;">This setup link has expired or already been used. Request a new one from the sign-in page.</p>
+      <a href="/reps/" class="btn-signin" style="background:linear-gradient(135deg,#475569,#334155);">← Back to Sign In</a>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = (window.PerkfinityConfig?.BACKEND_URL || 'http://localhost:3001') + '/api/v1';
+
+    function show(state) {
+      ['loading','form','success','expired'].forEach(s =>
+        document.getElementById('state-' + s).style.display = (s === state ? 'block' : 'none')
+      );
+    }
+
+    function toggleEye(inputId, btn) {
+      const inp = document.getElementById(inputId);
+      inp.type = inp.type === 'password' ? 'text' : 'password';
+      btn.textContent = inp.type === 'password' ? '👁️' : '🙈';
+    }
+
+    function clearErr() {
+      document.getElementById('err-box').style.display = 'none';
+    }
+
+    function showErr(msg) {
+      const el = document.getElementById('err-box');
+      el.textContent = msg;
+      el.style.display = 'block';
+    }
+
+    // Read token from URL
+    const token = new URLSearchParams(window.location.search).get('token');
+
+    if (!token) {
+      show('expired');
+    } else {
+      // Show form immediately — token validity is checked on submit
+      show('form');
+      setTimeout(() => document.getElementById('pw-input')?.focus(), 100);
+    }
+
+    async function doSetPassword() {
+      const pw  = document.getElementById('pw-input').value;
+      const pw2 = document.getElementById('pw-confirm').value;
+      const btn = document.getElementById('submit-btn');
+
+      clearErr();
+      if (pw.length < 8) { showErr('Password must be at least 8 characters.'); return; }
+      if (pw !== pw2)    { showErr('Passwords do not match.'); return; }
+
+      btn.disabled = true; btn.textContent = 'Saving…';
+      try {
+        const res  = await fetch(API_BASE + '/rep/setup-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token, password: pw })
+        });
+        const json = await res.json();
+        if (json.success) {
+          show('success');
+        } else if (res.status === 400 && json.error?.includes('expired')) {
+          show('expired');
+        } else {
+          showErr(json.error || 'Something went wrong. Please try again.');
+          btn.disabled = false; btn.textContent = 'Set Password';
+        }
+      } catch(e) {
+        showErr('Connection error. Please try again.');
+        btn.disabled = false; btn.textContent = 'Set Password';
+      }
+    }
+  </script>
+</body>
+</html>
