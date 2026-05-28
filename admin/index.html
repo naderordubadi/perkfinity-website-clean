@@ -760,7 +760,7 @@
             <option value="">All Tiers</option>
             <option value="free">Free Trial</option>
             <option value="free_for_life">Free For Life</option>
-            <option value="tier1">Tier 1</option>
+            <option value="tier1">Connect</option>
           </select>
           <select class="toolbar-select" id="merchant-filter-presence" onchange="filterTable('merchants')">
             <option value="">All Presence</option>
@@ -2916,7 +2916,7 @@
             <td>${m.member_count || 0}</td>
             <td>${m.campaign_count || 0}</td>
             <td>${m.redemption_count || 0}</td>
-            <td><span class="badge ${m.tier === 'tier1' ? 'tier1' : 'free'}">${m.tier === 'tier1' ? 'Tier 1' : 'Free'}</span></td>
+            <td><span class="badge ${m.tier === 'tier1' ? 'tier1' : 'free'}">${m.tier === 'tier1' ? 'Connect' : 'Free'}</span></td>
           </tr>
         `).join('') || '<tr><td colspan="5" style="color:var(--muted);">No merchants yet</td></tr>';
       }
@@ -4943,8 +4943,7 @@
               <span style="color:#64748b;font-weight:600;font-size:13px;">W-9 Status</span>
               <div style="display:flex;align-items:center;gap:8px;">
                 <span style="font-size:13px;font-weight:700;color:${w9c};">${w9Label}</span>
-                ${c.w9_status === 'not_submitted' ? `<button id="w9-send-btn-${c.id}" onclick="sendW9Request('${c.id}')" style="padding:3px 10px;border-radius:6px;border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8;font-size:11px;font-weight:700;cursor:pointer;">Send W-9 Request</button>` : ''}
-                ${c.w9_status === 'pending'       ? `<button id="w9-send-btn-${c.id}" onclick="sendW9Request('${c.id}')" style="padding:3px 10px;border-radius:6px;border:1px solid #fed7aa;background:#fff7ed;color:#c2410c;font-size:11px;font-weight:700;cursor:pointer;">Resend W-9 Request</button>` : ''}
+
                 ${c.w9_status !== 'verified'      ? `<button onclick="markW9Verified('${c.id}')" style="padding:3px 10px;border-radius:6px;border:1px solid #bbf7d0;background:#f0fdf4;color:#166534;font-size:11px;font-weight:700;cursor:pointer;">Mark Verified</button>` : ''}
               </div>
             </div>
@@ -5157,39 +5156,6 @@
       } catch(e) { showToast('⚠️ Connection error.'); }
     }
 
-    async function sendW9Request(id) {
-      const contractor = allContractors.find(c => c.id === id);
-      const isResend   = contractor && contractor.w9_status === 'pending';
-      const label      = isResend ? 'Resend' : 'Send';
-      if (!confirm(`${label} W-9 request email to this contractor via TaxBandits?`)) return;
-      const btn = document.getElementById(`w9-send-btn-${id}`);
-      if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
-      const token = sessionStorage.getItem('perkfinity_admin_token');
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 30000); // 30-second timeout
-      try {
-        const res  = await fetch(`${API_BASE}/admin/contractors/${id}/send-w9-request`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-          signal: controller.signal
-        });
-        clearTimeout(timeout);
-        const json = await res.json();
-        if (json.success) {
-          showToast('✅ W-9 request sent to contractor.');
-          allContractors = allContractors.map(c => c.id === id ? { ...c, w9_status: 'pending' } : c);
-          openContractorDetail(id);
-        } else {
-          showToast('⚠️ ' + (json.error || 'Failed to send W-9 request.'));
-          if (btn) { btn.disabled = false; btn.textContent = isResend ? 'Resend W-9 Request' : 'Send W-9 Request'; }
-        }
-      } catch(e) {
-        clearTimeout(timeout);
-        const msg = e.name === 'AbortError' ? 'Timed out — TaxBandits is slow, try again.' : 'Connection error sending W-9 request.';
-        showToast('⚠️ ' + msg);
-        if (btn) { btn.disabled = false; btn.textContent = isResend ? 'Resend W-9 Request' : 'Send W-9 Request'; }
-      }
-    }
 
 
     async function markICASigned(id) {
