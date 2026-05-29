@@ -2905,8 +2905,9 @@
       const memberRes = await adminFetch('/admin/members');
       if (memberRes.success) {
         allMembers = memberRes.data.members || [];
+        const activeMembers = allMembers.filter(m => m.email !== null);
         const stats = memberRes.data.stats || {};
-        document.getElementById('ov-members').textContent = stats.total || allMembers.length;
+        document.getElementById('ov-members').textContent = activeMembers.length;
         document.getElementById('ov-push').textContent = stats.push_enabled || '0';
         renderTable('members');
         // Populate city and ZIP tag-pickers
