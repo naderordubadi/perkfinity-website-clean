@@ -825,6 +825,9 @@
             <div class="page-title">Members</div>
             <div class="page-subtitle">All registered consumers on the platform</div>
           </div>
+          <div>
+            <button class="btn btn-outline" id="member-deleted-toggle" onclick="toggleDeletedMembers()" style="font-size: 13px; padding: 6px 14px; border-radius: 8px;">View Deleted Accounts</button>
+          </div>
         </div>
 
         <div class="toolbar" style="flex-wrap:wrap;row-gap:8px;">
@@ -2509,6 +2512,25 @@
     let allMembers = [];
     let allCampaigns = [];
     let allBilling = [];
+    // ── Search & Filter ──────────────────────────────────────────────
+    
+    // Toggle for Deleted Members
+    window.showDeletedMembers = false;
+    window.toggleDeletedMembers = function() {
+      window.showDeletedMembers = !window.showDeletedMembers;
+      const btn = document.getElementById('member-deleted-toggle');
+      if (window.showDeletedMembers) {
+        btn.textContent = 'View Active Accounts';
+        btn.classList.add('btn-primary');
+        btn.classList.remove('btn-outline');
+      } else {
+        btn.textContent = 'View Deleted Accounts';
+        btn.classList.remove('btn-primary');
+        btn.classList.add('btn-outline');
+      }
+      filterTable('members');
+    };
+
     let sortState = {};
 
     // ── Tab Navigation ──────────────────────────────────────────
@@ -3198,6 +3220,14 @@
           const pushFilter = document.getElementById('member-filter-push').value;
           const platformFilter = document.getElementById('member-filter-platform').value;
           const redeemedFilter = document.getElementById('member-filter-redeemed').value;
+          
+          if (typeof window.showDeletedMembers === 'undefined') window.showDeletedMembers = false;
+          if (window.showDeletedMembers) {
+            data = data.filter(m => m.email === null);
+          } else {
+            data = data.filter(m => m.email !== null);
+          }
+
           const joinedFilter = document.getElementById('member-filter-joined').value;
           const selectedCities = tagPickerGetSelected('member-filter-city');
           const selectedZips = tagPickerGetSelected('member-filter-zip');
