@@ -2417,10 +2417,15 @@
         const ps = new Date(inv.period_start);
         const pe = inv.period_end ? new Date(inv.period_end) : null;
         if (!pe || Math.abs(pe - ps) < 2 * 86400000) {
-          const monthEnd = new Date(ps);
-          monthEnd.setMonth(monthEnd.getMonth() + 1);
-          monthEnd.setDate(monthEnd.getDate() - 1);
-          period = formatDate(ps) + ' \u2014 ' + formatDate(monthEnd);
+          const isAnnual = inv.billing_cycle === 'annual';
+          const periodEnd = new Date(ps);
+          if (isAnnual) {
+            periodEnd.setFullYear(periodEnd.getFullYear() + 1);
+          } else {
+            periodEnd.setMonth(periodEnd.getMonth() + 1);
+          }
+          periodEnd.setDate(periodEnd.getDate() - 1);
+          period = formatDate(ps) + ' \u2014 ' + formatDate(periodEnd);
         } else {
           period = formatDate(ps) + ' \u2014 ' + formatDate(pe);
         }
@@ -3090,17 +3095,22 @@
             const isPendingCancel = inv.billing_status === 'pending_cancellation';
             const statusClass = isDeleted ? 'deleted' : isPendingCancel ? 'inactive' : inv.status === 'paid' ? 'active' : inv.status === 'failed' ? 'inactive' : 'pending';
             const statusLabel = isDeleted ? 'Deleted' : isPendingCancel ? 'Pending Cancel' : inv.status || '\u2014';
-            // Show full month period: period_start to end of that month
+            // Show full month period: period_start to end of that month (or year if annual)
             let period = '\u2014';
             if (inv.period_start) {
               const ps = new Date(inv.period_start);
               const pe = inv.period_end ? new Date(inv.period_end) : null;
-              // If period_end is same day or within 1 day of start, compute end of billing month
+              // If period_end is same day or within 1 day of start, compute end of billing period
               if (!pe || Math.abs(pe - ps) < 2 * 86400000) {
-                const monthEnd = new Date(ps);
-                monthEnd.setMonth(monthEnd.getMonth() + 1);
-                monthEnd.setDate(monthEnd.getDate() - 1);
-                period = formatDate(ps) + ' \u2014 ' + formatDate(monthEnd);
+                const isAnnual = inv.billing_cycle === 'annual';
+                const periodEnd = new Date(ps);
+                if (isAnnual) {
+                  periodEnd.setFullYear(periodEnd.getFullYear() + 1);
+                } else {
+                  periodEnd.setMonth(periodEnd.getMonth() + 1);
+                }
+                periodEnd.setDate(periodEnd.getDate() - 1);
+                period = formatDate(ps) + ' \u2014 ' + formatDate(periodEnd);
               } else {
                 period = formatDate(ps) + ' \u2014 ' + formatDate(pe);
               }
