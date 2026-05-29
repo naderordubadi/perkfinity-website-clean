@@ -199,6 +199,32 @@
      APP SHELL
 ══════════════════════════════════════════════════════ -->
 <div id="app">
+  <!-- ICA Sign Modal -->
+  <div id="ica-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(4px);padding:20px;box-sizing:border-box;">
+    <div style="background:var(--card1);padding:30px;border-radius:16px;max-width:800px;width:100%;max-height:90vh;display:flex;flex-direction:column;border:1px solid var(--border);box-shadow:0 10px 40px rgba(0,0,0,0.5);">
+      <h2 style="margin:0 0 10px;font-size:18px;">Independent Contractor Agreement</h2>
+      <p style="color:var(--muted);font-size:14px;margin-bottom:16px;line-height:1.5;">Please review the agreement below. You can print or save a copy for your records.</p>
+      
+      <div style="flex:1;min-height:300px;background:#1e293b;border-radius:8px;overflow:hidden;margin-bottom:20px;border:1px solid var(--border);position:relative;">
+        <div id="ica-pdf-loader" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:var(--muted);font-size:14px;">Loading agreement...</div>
+        <iframe id="ica-pdf-frame" style="width:100%;height:100%;border:none;display:none;"></iframe>
+      </div>
+
+      <div style="background:var(--card2);padding:16px;border-radius:12px;border:1px solid var(--border);">
+        <p style="margin:0 0 12px;font-size:13px;color:var(--muted);">Type your full legal name below to electronically sign this agreement.</p>
+        <div style="display:flex;gap:12px;align-items:center;">
+          <input type="text" id="ica-sig-name" placeholder="John Doe" style="flex:1;padding:12px 16px;background:var(--bg);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:15px;box-sizing:border-box;" />
+          <button id="ica-sig-submit" onclick="submitSignICA()" style="padding:12px 24px;border-radius:10px;border:none;background:linear-gradient(135deg,#7c5cc2,#5b3fa5);color:#fff;font-weight:700;cursor:pointer;white-space:nowrap;">Sign Agreement</button>
+        </div>
+        <div id="ica-sig-error" style="color:#ef4444;font-size:13px;margin-top:8px;display:none;font-weight:600;"></div>
+      </div>
+      
+      <div style="display:flex;justify-content:flex-end;margin-top:16px;">
+        <button onclick="document.getElementById('ica-modal').style.display='none'" style="padding:8px 16px;border-radius:8px;border:none;background:transparent;color:var(--muted);font-weight:600;cursor:pointer;">Cancel</button>
+      </div>
+    </div>
+  </div>
+
   <div class="topbar">
     <div class="topbar-left">
       <div class="topbar-logo">Perkfinity</div>
@@ -535,9 +561,9 @@
       const w9Action = profile.w9_status !== 'verified'
         ? `<a href="https://app.taxbandits.com" target="_blank" style="display:inline-block;margin-top:10px;padding:9px 18px;border-radius:9px;background:linear-gradient(135deg,#7c5cc2,#5b3fa5);color:#fff;font-size:13px;font-weight:700;text-decoration:none;">Complete W-9 →</a>`
         : '';
-      const icaAction = profile.ica_status !== 'signed'
-        ? `<span style="display:inline-block;margin-top:10px;padding:9px 18px;border-radius:9px;background:var(--card2);color:var(--muted);font-size:13px;font-weight:700;">ICA Link Coming Soon</span>`
-        : '';
+      const icaAction = profile.ica_status === 'sent'
+        ? `<button onclick="openICAModal()" style="margin-top:10px;padding:9px 18px;border:none;border-radius:9px;background:linear-gradient(135deg,#7c5cc2,#5b3fa5);color:#fff;font-size:13px;font-weight:700;cursor:pointer;">Sign Agreement →</button>`
+        : (profile.ica_status === 'signed' ? `<button onclick="viewSignedICA()" style="margin-top:10px;padding:9px 18px;border:none;border-radius:9px;background:#1e293b;border:1px solid #334155;color:#f8fafc;font-size:13px;font-weight:700;cursor:pointer;">📄 View Signed PDF</button>` : `<span style="display:inline-block;margin-top:10px;padding:9px 18px;border-radius:9px;background:var(--card2);color:var(--muted);font-size:13px;font-weight:700;">Not yet available</span>`);
       document.getElementById('compliance-content').innerHTML = `
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
           <div style="padding:16px;border-radius:12px;background:${w9.bg};border:1px solid ${w9.color}30;">
@@ -567,6 +593,78 @@
       document.getElementById('forgot-email').value = '';
       document.getElementById('forgot-msg').style.display = 'none';
       setTimeout(() => document.getElementById('forgot-email').focus(), 50);
+    }
+  }
+
+  // ── Document Rendering ───────────────────────────────────────────────
+  async function viewSignedICA() {
+    showToast('Loading PDF...');
+    try {
+      const r = await fetch(API_BASE + '/rep/ica-pdf', {
+        headers: { 'Authorization': 'Bearer ' + getToken() }
+      });
+      if (!r.ok) throw new Error('Failed to load PDF');
+      const blob = await r.blob();
+      const url = URL.createObjectURL(blob);
+      window.open(url, '_blank');
+    } catch (e) {
+      showToast('⚠️ Could not load signed agreement.');
+    }
+  }
+
+  async function openICAModal() {
+    document.getElementById('ica-modal').style.display = 'flex';
+    document.getElementById('ica-sig-name').value = '';
+    document.getElementById('ica-sig-error').style.display = 'none';
+    const iframe = document.getElementById('ica-pdf-frame');
+    const loader = document.getElementById('ica-pdf-loader');
+    iframe.style.display = 'none';
+    loader.style.display = 'block';
+    loader.textContent = 'Loading agreement...';
+
+    try {
+      const r = await fetch(API_BASE + '/rep/ica-pdf', {
+        headers: { 'Authorization': 'Bearer ' + getToken() }
+      });
+      if (!r.ok) throw new Error('Failed to load PDF');
+      const blob = await r.blob();
+      const url = URL.createObjectURL(blob);
+      iframe.src = url;
+      iframe.onload = () => {
+        loader.style.display = 'none';
+        iframe.style.display = 'block';
+      };
+    } catch (e) {
+      loader.textContent = '⚠️ Could not load agreement document.';
+    }
+  }
+
+  async function submitSignICA() {
+    const name = document.getElementById('ica-sig-name').value.trim();
+    const errEl = document.getElementById('ica-sig-error');
+    const btn = document.getElementById('ica-sig-submit');
+    if (!name) { errEl.textContent = 'Please type your name to sign.'; errEl.style.display = 'block'; return; }
+    
+    errEl.style.display = 'none';
+    btn.disabled = true; btn.textContent = 'Signing...';
+    try {
+      const r = await fetch(API_BASE + '/rep/sign-ica', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getToken() },
+        body: JSON.stringify({ signatureName: name })
+      });
+      const data = await r.json();
+      if (!r.ok || !data.success) {
+        throw new Error(data.error || 'Failed to sign ICA');
+      }
+      document.getElementById('ica-modal').style.display = 'none';
+      showToast('ICA signed successfully!');
+      setTimeout(() => window.location.reload(), 1500);
+    } catch(e) {
+      errEl.textContent = e.message;
+      errEl.style.display = 'block';
+    } finally {
+      btn.disabled = false; btn.textContent = 'Sign Agreement';
     }
   }
 

@@ -4951,6 +4951,7 @@
               <span style="color:#64748b;font-weight:600;font-size:13px;">ICA Status</span>
               <div style="display:flex;align-items:center;gap:8px;">
                 <span style="font-size:13px;font-weight:700;color:${icac};">${icaLabel}</span>
+                ${c.ica_status==='signed' ? `<button onclick="openAdminICAPDF('${c.id}')" style="padding:3px 10px;border-radius:6px;border:1px solid #d8b4fe;background:#faf5ff;color:#7e22ce;font-size:11px;font-weight:700;cursor:pointer;">📄 View Signed PDF</button>` : ''}
                 ${c.ica_status!=='signed' ? `<button onclick="markICASigned('${c.id}')" style="padding:3px 10px;border-radius:6px;border:1px solid #bbf7d0;background:#f0fdf4;color:#166534;font-size:11px;font-weight:700;cursor:pointer;">Mark Signed</button>` : ''}
                 ${c.ica_status==='not_sent' ? `<button id="ica-send-btn-${c.id}" onclick="sendICARequest('${c.id}')" style="padding:3px 10px;border-radius:6px;border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8;font-size:11px;font-weight:700;cursor:pointer;">Send ICA</button>` : ''}${c.ica_status==='sent' ? `<button id="ica-send-btn-${c.id}" onclick="sendICARequest('${c.id}')" style="padding:3px 10px;border-radius:6px;border:1px solid #fed7aa;background:#fff7ed;color:#c2410c;font-size:11px;font-weight:700;cursor:pointer;">Resend ICA</button>` : ''}
               </div>
@@ -5158,8 +5159,24 @@
 
 
 
+    async function openAdminICAPDF(id) {
+      const token = sessionStorage.getItem('perkfinity_admin_token');
+      showToast('Generating PDF...');
+      try {
+        const res = await fetch(API_BASE + '/admin/contractors/' + id + '/ica-pdf', {
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        if (!res.ok) throw new Error('Failed to load PDF');
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
+      } catch(e) {
+        showToast('⚠️ Could not generate PDF.');
+      }
+    }
+
     async function markICASigned(id) {
-      if (!confirm('Mark ICA as signed? Only do this after Dropbox Sign confirms the signature.')) return;
+      if (!confirm('Mark ICA as signed manually? This should automatically update when the rep signs via the portal.')) return;
       const token = sessionStorage.getItem('perkfinity_admin_token');
       try {
         const res  = await fetch(API_BASE + '/admin/contractors/' + id, {
@@ -5175,13 +5192,13 @@
       } catch(e) { showToast('⚠️ Connection error.'); }
     }
 
-    // ── Send ICA via Dropbox Sign API ────────────────────────────────
+    // ── Send ICA via Internal Portal ────────────────────────────────
     async function sendICARequest(id) {
       const ctr = allContractors.find(c => c.id === id);
       const isResend = ctr?.ica_status === 'sent';
       const confirmMsg = isResend
-        ? 'Resend the ICA to this contractor via Dropbox Sign? A new signing request will be created.'
-        : 'Send ICA to this contractor via Dropbox Sign? They will receive an email with a signing link.';
+        ? 'Resend the ICA to this contractor? A new email notification will be sent.'
+        : 'Send ICA to this contractor? They will receive an email with a link to sign via their portal.';
       if (!confirm(confirmMsg)) return;
       const btn = document.getElementById('ica-send-btn-' + id);
       if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
@@ -5192,7 +5209,7 @@
         });
         const json = await res.json();
         if (json.success) {
-          showToast('✅ ICA sent via Dropbox Sign. Rep will receive an email shortly.');
+          showToast('✅ ICA sent. Rep will receive an email shortly.');
           allContractors = allContractors.map(c => c.id===id ? {...c, ica_status:'sent'} : c);
           openContractorDetail(id);
         } else {
