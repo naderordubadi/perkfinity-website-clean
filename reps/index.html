@@ -168,27 +168,40 @@
     </div>
     <div class="login-title">Rep Portal</div>
     <div class="login-sub">Sign in to view your merchants, earnings, and territory.</div>
-    <div class="field-group">
-      <div class="field-label">EMAIL</div>
-      <input class="field-input" id="login-email" type="email" placeholder="your@email.com" autocomplete="username"/>
-    </div>
-    <div class="field-group">
-      <div class="field-label">PASSWORD</div>
-      <div style="position:relative;">
-        <input class="field-input" id="login-password" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()" style="padding-right:44px;"/>
-        <span onclick="const i=document.getElementById('login-password');i.type=i.type==='password'?'text':'password';this.textContent=i.type==='password'?'👁️':'🙈';" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:17px;user-select:none;opacity:0.5;">👁️</span>
+    <div id="login-fields">
+      <div class="field-group">
+        <div class="field-label">EMAIL</div>
+        <input class="field-input" id="login-email" type="email" placeholder="your@email.com" autocomplete="username"/>
+      </div>
+      <div class="field-group">
+        <div class="field-label">PASSWORD</div>
+        <div style="position:relative;">
+          <input class="field-input" id="login-password" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()" style="padding-right:44px;"/>
+          <span onclick="const i=document.getElementById('login-password');i.type=i.type==='password'?'text':'password';this.textContent=i.type==='password'?'👁️':'🙈';" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:17px;user-select:none;opacity:0.5;">👁️</span>
+        </div>
+      </div>
+      <div style="text-align:right;margin-top:-10px;margin-bottom:18px;">
+        <button onclick="toggleForgot()" id="forgot-link" style="background:none;border:none;color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;padding:0;font-family:inherit;">Forgot password?</button>
+      </div>
+      <div id="forgot-section" style="display:none;margin-top:4px;margin-bottom:16px;">
+        <div style="display:flex;gap:8px;">
+          <input class="field-input" id="forgot-email" type="email" placeholder="your@email.com" style="flex:1;padding:10px 14px;"/>
+          <button onclick="doForgotPassword()" id="forgot-send-btn" style="padding:10px 16px;border-radius:10px;border:none;background:var(--brand);color:#fff;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap;">Send Link</button>
+        </div>
+        <div id="forgot-msg" style="margin-top:8px;font-size:12px;display:none;"></div>
       </div>
     </div>
-    <div style="text-align:right;margin-top:-10px;margin-bottom:18px;">
-      <button onclick="toggleForgot()" id="forgot-link" style="background:none;border:none;color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;padding:0;font-family:inherit;">Forgot password?</button>
-    </div>
-    <div id="forgot-section" style="display:none;margin-top:4px;margin-bottom:16px;">
-      <div style="display:flex;gap:8px;">
-        <input class="field-input" id="forgot-email" type="email" placeholder="your@email.com" style="flex:1;padding:10px 14px;"/>
-        <button onclick="doForgotPassword()" id="forgot-send-btn" style="padding:10px 16px;border-radius:10px;border:none;background:var(--brand);color:#fff;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap;">Send Link</button>
+
+    <div id="reset-fields" style="display:none;">
+      <div class="field-group">
+        <div class="field-label">NEW PASSWORD</div>
+        <div style="position:relative;">
+          <input class="field-input" id="reset-password" type="password" placeholder="Min 8 characters" onkeydown="if(event.key==='Enter')doResetPassword()" style="padding-right:44px;"/>
+          <span onclick="const i=document.getElementById('reset-password');i.type=i.type==='password'?'text':'password';this.textContent=i.type==='password'?'👁️':'🙈';" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:17px;user-select:none;opacity:0.5;">👁️</span>
+        </div>
       </div>
-      <div id="forgot-msg" style="margin-top:8px;font-size:12px;display:none;"></div>
     </div>
+
     <button class="btn-login" id="login-btn" onclick="doLogin()">Sign In</button>
     <div class="login-spinner" id="login-spinner"><div class="spinner"></div></div>
     <div class="login-err" id="login-err"></div>
@@ -200,27 +213,23 @@
 ══════════════════════════════════════════════════════ -->
 <div id="app">
   <!-- ICA Sign Modal -->
-  <div id="ica-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(4px);padding:20px;box-sizing:border-box;">
-    <div style="background:var(--card1);padding:30px;border-radius:16px;max-width:800px;width:100%;max-height:90vh;display:flex;flex-direction:column;border:1px solid var(--border);box-shadow:0 10px 40px rgba(0,0,0,0.5);">
-      <h2 style="margin:0 0 10px;font-size:18px;">Independent Contractor Agreement</h2>
-      <p style="color:var(--muted);font-size:14px;margin-bottom:16px;line-height:1.5;">Please review the agreement below. You can print or save a copy for your records.</p>
-      
-      <div style="flex:1;min-height:300px;background:#1e293b;border-radius:8px;overflow:hidden;margin-bottom:20px;border:1px solid var(--border);position:relative;">
-        <div id="ica-pdf-loader" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:var(--muted);font-size:14px;">Loading agreement...</div>
-        <iframe id="ica-pdf-frame" style="width:100%;height:100%;border:none;display:none;"></iframe>
+  <div id="ica-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:11000;align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:12px;width:95%;max-width:900px;height:90%;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 25px 50px rgba(0,0,0,0.5);">
+      <div style="padding:16px 24px;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;background:#f8fafc;">
+        <h2 style="margin:0;font-size:18px;font-weight:800;color:#1e293b;font-family:'Inter',sans-serif;">Independent Contractor Agreement</h2>
+        <button onclick="document.getElementById('ica-modal').style.display='none'" style="background:none;border:none;font-size:24px;color:#94a3b8;cursor:pointer;">&times;</button>
       </div>
-
-      <div style="background:var(--card2);padding:16px;border-radius:12px;border:1px solid var(--border);">
-        <p style="margin:0 0 12px;font-size:13px;color:var(--muted);">Type your full legal name below to electronically sign this agreement.</p>
-        <div style="display:flex;gap:12px;align-items:center;">
-          <input type="text" id="ica-sig-name" placeholder="John Doe" style="flex:1;padding:12px 16px;background:var(--bg);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:15px;box-sizing:border-box;" />
-          <button id="ica-sig-submit" onclick="submitSignICA()" style="padding:12px 24px;border-radius:10px;border:none;background:linear-gradient(135deg,#7c5cc2,#5b3fa5);color:#fff;font-weight:700;cursor:pointer;white-space:nowrap;">Sign Agreement</button>
+      <div style="flex:1;background:#e2e8f0;position:relative;">
+        <div id="ica-pdf-loader" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#64748b;font-size:14px;font-weight:600;">Loading agreement...</div>
+        <iframe id="ica-pdf-frame" src="" style="width:100%;height:100%;border:none;display:none;"></iframe>
+      </div>
+      <div style="padding:20px 24px;background:#f8fafc;border-top:1px solid #e2e8f0;">
+        <p style="margin:0 0 12px;font-size:13px;color:#475569;font-weight:600;">Type your full legal name below to electronically sign this agreement.</p>
+        <div style="display:flex;gap:16px;align-items:center;">
+          <input type="text" id="ica-sig-name" placeholder="John Doe" style="flex:1;padding:12px 16px;border-radius:8px;border:1px solid #cbd5e1;font-size:14px;outline:none;color:#0f172a;background:#fff;font-family:inherit;" />
+          <button id="ica-sig-submit" onclick="submitSignICA()" style="padding:12px 24px;background:#5b3fa5;color:#fff;border:none;border-radius:8px;font-weight:700;font-size:14px;cursor:pointer;transition:all 0.2s;">Sign Agreement</button>
         </div>
         <div id="ica-sig-error" style="color:#ef4444;font-size:13px;margin-top:8px;display:none;font-weight:600;"></div>
-      </div>
-      
-      <div style="display:flex;justify-content:flex-end;margin-top:16px;">
-        <button onclick="document.getElementById('ica-modal').style.display='none'" style="padding:8px 16px;border-radius:8px;border:none;background:transparent;color:var(--muted);font-weight:600;cursor:pointer;">Cancel</button>
       </div>
     </div>
   </div>
@@ -281,7 +290,7 @@
 
     <!-- Quota -->
     <div class="section-card" id="quota-card" style="display:none;">
-      <div class="section-title">🎯 Quota Period</div>
+      <div class="section-title" id="quota-card-title">🎯 Quota Period</div>
       <div id="quota-content"></div>
     </div>
 
@@ -305,6 +314,7 @@
               <th>Total</th>
               <th>Status</th>
               <th>Paid On</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody id="payouts-tbody"></tbody>
@@ -322,6 +332,16 @@
     <div class="section-card" id="compliance-card">
       <div class="section-title">🔒 Compliance</div>
       <div id="compliance-content"></div>
+    </div>
+  </div>
+</div>
+
+<div id="payout-breakdown-modal" onclick="if(event.target===this)this.style.display='none'" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:11004;align-items:center;justify-content:center;">
+  <div style="width:500px;max-height:85vh;overflow-y:auto;background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.3);padding:28px;">
+    <div style="font-size:18px;font-weight:800;color:var(--text);margin-bottom:16px;">📊 Payout Breakdown</div>
+    <div id="breakdown-content" style="font-size:13px;color:var(--muted);"></div>
+    <div style="margin-top:20px;text-align:right;">
+      <button onclick="document.getElementById('payout-breakdown-modal').style.display='none'" style="padding:8px 16px;border-radius:8px;border:1px solid var(--border);background:var(--card2);color:var(--text);font-size:13px;font-weight:700;cursor:pointer;">Close</button>
     </div>
   </div>
 </div>
@@ -421,14 +441,14 @@
     if (profileR?.success) {
       const p = profileR.data;
       document.getElementById('welcome-sub').textContent = 'Referral Code: ' + (p.referral_code || '—') + ' · Member since ' + fmtDate(p.created_at);
-      const W9_LABELS = { not_submitted:'Not Submitted', pending:'Submitted — Pending Review', verified:'Verified ✅' };
+      const STRIPE_LABELS = { pending:'Action Required', complete:'Complete ✅' };
       const ICA_LABELS = { not_sent:'Not Sent', sent:'Sent — Awaiting Signature', signed:'Signed ✅' };
       const ENTITY_LABELS = { individual:'👤 Individual', sole_proprietor:'👤 Sole Proprietor', llc_single:'🏢 LLC (Single Member)', llc_partnership:'🏢 LLC (Partnership)', s_corporation:'🏛️ S Corporation', c_corporation:'🏛️ C Corporation', other:'Other' };
       const rows = [
         ['Full Name', p.full_name],
         ['Email', p.email],
         ['Phone', p.phone || '—'],
-        ['W-9 Status', W9_LABELS[p.w9_status] || p.w9_status],
+        ['Stripe Connect', STRIPE_LABELS[p.stripe_onboarding_status] || p.stripe_onboarding_status],
         ['ICA Status', ICA_LABELS[p.ica_status] || p.ica_status],
         ['Entity Type', p.entity_type ? (ENTITY_LABELS[p.entity_type] || p.entity_type) : '—'],
       ];
@@ -439,6 +459,7 @@
 
     // ── Merchants ────────────────────────────────────────────────────
     const merchants = merchantsR?.data || [];
+    window.allRepMerchants = merchants;
     document.getElementById('kpi-merchants').textContent = merchants.length;
     if (merchants.length) {
       document.getElementById('merchants-content').innerHTML = `
@@ -462,7 +483,7 @@
 
     // ── Earnings ────────────────────────────────────────────────────
     if (earningsR?.gated) {
-      document.getElementById('earnings-content').innerHTML = `<div class="w9-gate"><h3>🔒 W-9 Required</h3><p>${earningsR.message}</p></div>`;
+      document.getElementById('earnings-content').innerHTML = `<div class="w9-gate"><h3>🔒 Stripe Onboarding Required</h3><p>${earningsR.message}</p></div>`;
     } else if (earningsR?.success) {
       const e = earningsR.data;
       document.getElementById('kpi-total').textContent = fmt$(e.total_earned_cents);
@@ -490,6 +511,7 @@
     // ── Payouts ──────────────────────────────────────────────────────
     if (payoutsR?.success && !payoutsR.gated) {
       const payouts = payoutsR.data || [];
+      window.allRepPayouts = payouts;
       if (payouts.length) {
         document.getElementById('payouts-card').style.display = 'block';
         document.getElementById('payouts-tbody').innerHTML = payouts.map(p => {
@@ -502,6 +524,7 @@
             <td style="font-weight:800;">${fmt$(p.total_cents)}</td>
             <td><span class="badge badge-${p.status}">${(p.status||'?').toUpperCase()}</span></td>
             <td style="color:var(--muted);">${fmtDate(p.paid_at)}</td>
+            <td><button onclick="viewPayoutBreakdown('${p.id}')" style="padding:4px 9px;border-radius:6px;border:1px solid var(--border);background:var(--card2);color:var(--text);font-size:11px;font-weight:700;cursor:pointer;">ℹ️ Details</button></td>
           </tr>`;
         }).join('');
       }
@@ -554,22 +577,23 @@
     // ── Compliance ───────────────────────────────────────────────────
     const profile = profileR?.data;
     if (profile) {
-      const W9_STATUS = { not_submitted: { label: 'Not Submitted', color: '#ef4444', bg: '#450a0a' }, pending: { label: 'Submitted — Pending Review', color: '#f59e0b', bg: '#451a03' }, verified: { label: 'Verified ✅', color: '#22c55e', bg: '#052e16' } };
+      const STRIPE_STATUS = { pending: { label: 'Action Required', color: '#f59e0b', bg: '#451a03' }, complete: { label: 'Complete ✅', color: '#22c55e', bg: '#052e16' } };
       const ICA_STATUS = { not_sent: { label: 'Not Sent', color: '#ef4444', bg: '#450a0a' }, sent: { label: 'Sent — Awaiting Signature', color: '#f59e0b', bg: '#451a03' }, signed: { label: 'Signed ✅', color: '#22c55e', bg: '#052e16' } };
-      const w9 = W9_STATUS[profile.w9_status] || { label: profile.w9_status || 'Unknown', color: '#94a3b8', bg: '#1e293b' };
+      const stripeSt = STRIPE_STATUS[profile.stripe_onboarding_status] || { label: profile.stripe_onboarding_status || 'Unknown', color: '#94a3b8', bg: '#1e293b' };
       const ica = ICA_STATUS[profile.ica_status] || { label: profile.ica_status || 'Unknown', color: '#94a3b8', bg: '#1e293b' };
-      const w9Action = profile.w9_status !== 'verified'
-        ? `<a href="https://app.taxbandits.com" target="_blank" style="display:inline-block;margin-top:10px;padding:9px 18px;border-radius:9px;background:linear-gradient(135deg,#7c5cc2,#5b3fa5);color:#fff;font-size:13px;font-weight:700;text-decoration:none;">Complete W-9 →</a>`
+      
+      const stripeAction = profile.stripe_onboarding_status !== 'complete'
+        ? `<button onclick="startStripeOnboarding()" style="margin-top:10px;padding:9px 18px;border-radius:9px;border:none;background:linear-gradient(135deg,#7c5cc2,#5b3fa5);color:#fff;font-size:13px;font-weight:700;cursor:pointer;">Complete Onboarding →</button>`
         : '';
       const icaAction = profile.ica_status === 'sent'
         ? `<button onclick="openICAModal()" style="margin-top:10px;padding:9px 18px;border:none;border-radius:9px;background:linear-gradient(135deg,#7c5cc2,#5b3fa5);color:#fff;font-size:13px;font-weight:700;cursor:pointer;">Sign Agreement →</button>`
         : (profile.ica_status === 'signed' ? `<button onclick="viewSignedICA()" style="margin-top:10px;padding:9px 18px;border:none;border-radius:9px;background:#1e293b;border:1px solid #334155;color:#f8fafc;font-size:13px;font-weight:700;cursor:pointer;">📄 View Signed PDF</button>` : `<span style="display:inline-block;margin-top:10px;padding:9px 18px;border-radius:9px;background:var(--card2);color:var(--muted);font-size:13px;font-weight:700;">Not yet available</span>`);
       document.getElementById('compliance-content').innerHTML = `
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-          <div style="padding:16px;border-radius:12px;background:${w9.bg};border:1px solid ${w9.color}30;">
-            <div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:0.06em;margin-bottom:8px;">W-9 STATUS</div>
-            <div style="font-size:14px;font-weight:800;color:${w9.color};">${w9.label}</div>
-            ${w9Action}
+          <div style="padding:16px;border-radius:12px;background:${stripeSt.bg};border:1px solid ${stripeSt.color}30;">
+            <div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:0.06em;margin-bottom:8px;">STRIPE STATUS</div>
+            <div style="font-size:14px;font-weight:800;color:${stripeSt.color};">${stripeSt.label}</div>
+            ${stripeAction}
           </div>
           <div style="padding:16px;border-radius:12px;background:${ica.bg};border:1px solid ${ica.color}30;">
             <div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:0.06em;margin-bottom:8px;">ICA STATUS</div>
@@ -577,8 +601,32 @@
             ${icaAction}
           </div>
         </div>
-        ${profile.w9_status !== 'verified' ? '<div style="margin-top:14px;padding:10px 14px;background:#1e293b;border-radius:8px;font-size:12px;color:var(--muted);">⚠️ Your W-9 must be verified before earnings and payout history are visible.</div>' : ''}
+        ${profile.stripe_onboarding_status !== 'complete' ? '<div style="margin-top:14px;padding:10px 14px;background:#1e293b;border-radius:8px;font-size:12px;color:var(--muted);">⚠️ Stripe Connect onboarding must be completed before earnings and payout history are visible.</div>' : ''}
       `;
+    }
+  }
+
+  // ── Stripe Onboarding ───────────────────────────────────────────────
+  async function startStripeOnboarding() {
+    showToast('Initializing Stripe Connect...', 5000);
+    try {
+      // Step 1: Create Stripe Account if needed
+      let r = await fetch(API_BASE + '/contractors/stripe/create-account', {
+        method: 'POST', headers: { 'Authorization': 'Bearer ' + getToken() }
+      });
+      let json = await r.json();
+      if (!json.success) throw new Error(json.error || 'Failed to create account.');
+
+      // Step 2: Generate Onboarding Link
+      r = await fetch(API_BASE + '/contractors/stripe/onboarding-link', {
+        method: 'POST', headers: { 'Authorization': 'Bearer ' + getToken() }
+      });
+      json = await r.json();
+      if (!json.success) throw new Error(json.error || 'Failed to get link.');
+      
+      window.location.href = json.url;
+    } catch(e) {
+      showToast('⚠️ Stripe Error: ' + e.message);
     }
   }
 
@@ -694,6 +742,19 @@
 
   // ── Auto sign-in if token exists ─────────────────────────────────────
   (async () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const inviteToken = urlParams.get('token');
+
+    if (inviteToken) {
+      document.getElementById('login-fields').style.display = 'none';
+      document.getElementById('reset-fields').style.display = 'block';
+      document.querySelector('.login-sub').textContent = 'Please set your portal password to continue.';
+      const btn = document.getElementById('login-btn');
+      btn.textContent = 'Set Password';
+      btn.onclick = doResetPassword;
+      return;
+    }
+
     const token = getToken();
     const rep   = getRepData();
     if (token && rep) {
@@ -705,6 +766,91 @@
       try { await launchApp(rep); } catch(e) { signOut(); }
     }
   })();
+
+  // ── Set New Password via Token ────────────────────────────────────────
+  async function doResetPassword() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+    const password = document.getElementById('reset-password').value;
+    const errEl = document.getElementById('login-err');
+    const spinner = document.getElementById('login-spinner');
+    const btn = document.getElementById('login-btn');
+
+    errEl.style.display = 'none';
+    if (!password || password.length < 8) {
+      errEl.textContent = 'Password must be at least 8 characters long.';
+      errEl.style.display = 'block';
+      return;
+    }
+
+    btn.disabled = true; btn.textContent = 'Setting password…'; spinner.style.display = 'flex';
+    try {
+      const res = await fetch(API_BASE + '/rep/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token, password })
+      });
+      const json = await res.json();
+      if (json.success) {
+        showToast('Password set successfully! Please log in.', 5000);
+        setTimeout(() => {
+          window.location.href = window.location.pathname; // Remove token from URL
+        }, 1500);
+      } else {
+        errEl.textContent = json.error || 'Failed to set password.';
+        errEl.style.display = 'block';
+        btn.disabled = false; btn.textContent = 'Set Password';
+      }
+    } catch(e) {
+      errEl.textContent = 'Connection error. Please try again.';
+      errEl.style.display = 'block';
+      btn.disabled = false; btn.textContent = 'Set Password';
+    } finally {
+      spinner.style.display = 'none';
+    }
+  }
+  function viewPayoutBreakdown(payoutId) {
+    const payout = window.allRepPayouts.find(p => p.id === payoutId);
+    if (!payout) return;
+    let b;
+    try { b = typeof payout.breakdown === 'string' ? JSON.parse(payout.breakdown) : payout.breakdown; } catch(e) {}
+    if (!b) { showToast('No breakdown available for this payout.'); return; }
+    
+    const pStart = payout.period_start ? new Date(payout.period_start).toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'}) : '';
+    const pEnd = payout.period_end ? new Date(payout.period_end).toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'}) : '';
+    const periodStr = pStart && pEnd ? `<div style="font-size:14px;color:var(--muted);margin-bottom:16px;">Period: <b style="color:var(--text);">${pStart} - ${pEnd}</b></div>` : '';
+
+    let html = periodStr;
+    if (b.merchant_breakdown && b.merchant_breakdown.length) {
+      html += `<div style="font-weight:800;margin-bottom:8px;color:var(--text);">Merchant Commissions</div>`;
+      html += `<table style="width:100%;border-collapse:collapse;margin-bottom:16px;">
+        <tr style="border-bottom:1px solid var(--border);"><th style="text-align:left;padding:6px 0;color:var(--muted);font-size:11px;font-weight:700;">Merchant</th><th style="text-align:right;color:var(--muted);font-size:11px;font-weight:700;">Calculation</th><th style="text-align:right;color:var(--muted);font-size:11px;font-weight:700;">Bonus</th></tr>`;
+      for (const mb of b.merchant_breakdown) {
+        const m = (window.allRepMerchants||[]).find(x => x.merchant_id === mb.merchant_id);
+        const name = m ? m.business_name : 'Unknown Merchant';
+        const comm = '$' + ((mb.commission||0)/100).toFixed(2);
+        const rBon = '$' + ((mb.retention_bonus||0)/100).toFixed(2);
+        const inv = '$' + ((mb.invoice_total||0)/100).toFixed(2);
+        const rate = mb.invoice_total ? Math.round((mb.commission / mb.invoice_total) * 100) : 0;
+        const calcStr = mb.invoice_total ? `${inv} x ${rate}% = <b style="color:var(--text);">${comm}</b>` : `<b style="color:var(--text);">${comm}</b>`;
+
+        html += `<tr style="border-bottom:1px solid rgba(255,255,255,0.04);"><td style="padding:6px 0;font-weight:600;color:var(--text);">${name}</td><td style="text-align:right;color:var(--text);">${calcStr}</td><td style="text-align:right;color:var(--text);">${rBon}</td></tr>`;
+      }
+      html += `</table>`;
+    }
+    if (b.milestones && b.milestones.length) {
+      html += `<div style="font-weight:800;margin-bottom:8px;color:var(--text);">Milestones Hit</div>`;
+      html += `<ul style="margin:0 0 16px 20px;padding:0;color:var(--text);">` + b.milestones.map(ms => `<li>${ms}</li>`).join('') + `</ul>`;
+    }
+    if (b.special_bonuses && b.special_bonuses.length) {
+      html += `<div style="font-weight:800;margin-bottom:8px;color:var(--text);">Special Bonuses</div>`;
+      html += `<ul style="margin:0 0 16px 20px;padding:0;color:var(--text);">` + b.special_bonuses.map(sb => `<li>${sb}</li>`).join('') + `</ul>`;
+    }
+    if (!html) html = 'No details generated for this payout yet.';
+    
+    document.getElementById('breakdown-content').innerHTML = html;
+    document.getElementById('payout-breakdown-modal').style.display = 'flex';
+  }
 </script>
 </body>
 </html>

@@ -585,8 +585,8 @@
               <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:9px 16px;border:1.5px solid #e2e8f0;border-radius:8px;flex:1;font-size:13px;">
                 <input type="radio" name="nc-payment-method" value="ach"/> ACH Transfer
               </label>
-              <label style="display:flex;align-items:center;gap:8px;cursor:not-allowed;padding:9px 16px;border:1.5px dashed #e2e8f0;border-radius:8px;flex:1;opacity:0.5;font-size:13px;" title="Available in Phase 3">
-                <input type="radio" name="nc-payment-method" value="stripe_connect" disabled/> Stripe Connect <span style="font-size:10px;color:#94a3b8;font-weight:700;margin-left:4px;">Phase 3</span>
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:9px 16px;border:1.5px solid #e2e8f0;border-radius:8px;flex:1;font-size:13px;">
+                <input type="radio" name="nc-payment-method" value="stripe_connect"/> Stripe Connect
               </label>
             </div>
           </div>
@@ -627,6 +627,16 @@
     </div>
 
     <!-- ═══ Mark as Paid Modal ═══ -->
+    <div id="payout-breakdown-modal" onclick="if(event.target===this)this.style.display='none'" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:10004;align-items:center;justify-content:center;">
+      <div style="width:500px;max-height:85vh;overflow-y:auto;background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.3);padding:28px;">
+        <div style="font-size:18px;font-weight:800;color:#1a1a2e;margin-bottom:16px;">📊 Payout Breakdown</div>
+        <div id="breakdown-content" style="font-size:13px;color:#475569;"></div>
+        <div style="margin-top:20px;text-align:right;">
+          <button onclick="document.getElementById('payout-breakdown-modal').style.display='none'" class="toolbar-btn" style="padding:8px 16px;">Close</button>
+        </div>
+      </div>
+    </div>
+
     <div id="mark-paid-modal" onclick="if(event.target===this)this.style.display='none'" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:10004;align-items:center;justify-content:center;">
       <div style="width:460px;background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.3);padding:28px;">
         <div style="font-size:18px;font-weight:800;color:#1a1a2e;margin-bottom:20px;">💰 Mark Payout as Paid</div>
@@ -1764,11 +1774,10 @@
               <option value="inactive">⏸ Inactive</option>
               <option value="suspended">🚫 Suspended</option>
             </select>
-            <select class="toolbar-select" id="ctr-filter-w9" onchange="filterContractors()">
-              <option value="">All W-9</option>
-              <option value="verified">🟢 Verified</option>
-              <option value="pending">🟡 Pending</option>
-              <option value="not_submitted">🔴 Not Submitted</option>
+            <select class="toolbar-select" id="ctr-filter-stripe" onchange="filterContractors()">
+              <option value="">All Stripe</option>
+              <option value="complete">🟢 Complete</option>
+              <option value="pending">🔴 Action Required</option>
             </select>
           </div>
           <div class="section-card" style="padding:0;overflow:hidden;">
@@ -1778,7 +1787,7 @@
                   <th style="padding:14px 16px;text-align:left;color:var(--mutedLight);font-weight:700;">Rep</th>
                   <th style="padding:14px 12px;text-align:left;color:var(--mutedLight);font-weight:700;">Referral Code</th>
                   <th style="padding:14px 12px;text-align:center;color:var(--mutedLight);font-weight:700;">Status</th>
-                  <th style="padding:14px 12px;text-align:center;color:var(--mutedLight);font-weight:700;">W-9</th>
+                  <th style="padding:14px 12px;text-align:center;color:var(--mutedLight);font-weight:700;">Stripe</th>
                   <th style="padding:14px 12px;text-align:center;color:var(--mutedLight);font-weight:700;">ICA</th>
                   <th style="padding:14px 12px;text-align:center;color:var(--mutedLight);font-weight:700;">Merchants</th>
                   <th style="padding:14px 12px;text-align:right;color:var(--mutedLight);font-weight:700;">YTD Earnings</th>
@@ -1819,8 +1828,9 @@
                   <th style="padding:14px 12px;text-align:right;color:var(--mutedLight);font-weight:700;">Retainer</th>
                   <th style="padding:14px 12px;text-align:right;color:var(--mutedLight);font-weight:700;">Bonuses</th>
                   <th style="padding:14px 12px;text-align:right;color:var(--mutedLight);font-weight:700;">Total</th>
-                  <th style="padding:14px 12px;text-align:center;color:var(--mutedLight);font-weight:700;">W-9</th>
+                  <th style="padding:14px 12px;text-align:center;color:var(--mutedLight);font-weight:700;">Stripe</th>
                   <th style="padding:14px 12px;text-align:center;color:var(--mutedLight);font-weight:700;">Status</th>
+                  <th style="padding:14px 12px;text-align:center;color:var(--mutedLight);font-weight:700;">Paid On</th>
                   <th style="padding:14px 12px;text-align:center;color:var(--mutedLight);font-weight:700;">Actions</th>
                 </tr>
               </thead>
@@ -4810,14 +4820,14 @@
     function filterContractors() {
       const search  = (document.getElementById('ctr-search')?.value || '').toLowerCase();
       const statusF = document.getElementById('ctr-filter-status')?.value || '';
-      const w9F     = document.getElementById('ctr-filter-w9')?.value || '';
+      const stripeF     = document.getElementById('ctr-filter-stripe')?.value || '';
       let data = allContractors;
       if (search)  data = data.filter(c =>
         (c.full_name||'').toLowerCase().includes(search) ||
         (c.email||'').toLowerCase().includes(search) ||
         (c.referral_code||'').toLowerCase().includes(search));
       if (statusF) data = data.filter(c => c.status === statusF);
-      if (w9F)     data = data.filter(c => c.w9_status === w9F);
+      if (stripeF) data = data.filter(c => c.stripe_onboarding_status === stripeF);
       renderContractorTable(data);
     }
 
@@ -4835,7 +4845,7 @@
       };
       tbody.innerHTML = data.map(c => {
         const sc  = sColors[c.status] || '#94a3b8';
-        const w9b = c.w9_status  === 'verified' ? '🟢' : c.w9_status  === 'pending' ? '🟡' : '🔴';
+        const stripeb = c.stripe_onboarding_status === 'complete' ? '🟢' : '🔴';
         const icb = c.ica_status === 'signed'   ? '🟢' : c.ica_status === 'sent'    ? '🟡' : '⚫';
         const ytd = ((c.total_ytd_cents||0)/100).toFixed(2);
         const entityBadge = c.entity_type ? `<div style="font-size:10px;color:#64748b;margin-top:2px;">${ENTITY_BADGE[c.entity_type]||c.entity_type}</div>` : '';
@@ -4850,7 +4860,7 @@
             </td>
             <td style="padding:12px;font-family:monospace;font-size:12px;font-weight:700;color:#5b3fa5;">${c.referral_code||'—'}</td>
             <td style="padding:12px;text-align:center;"><span style="padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;background:${sc}18;color:${sc};">${(c.status||'?').toUpperCase()}</span></td>
-            <td style="padding:12px;text-align:center;font-size:16px;" title="W-9: ${c.w9_status||'not_submitted'}">${w9b}</td>
+            <td style="padding:12px;text-align:center;font-size:16px;" title="Stripe: ${c.stripe_onboarding_status||'pending'}">${stripeb}</td>
             <td style="padding:12px;text-align:center;font-size:16px;" title="ICA: ${c.ica_status||'not_sent'}">${icb}</td>
             <td style="padding:12px;text-align:center;font-weight:700;">${c.merchant_count||0}</td>
             <td style="padding:12px;text-align:right;font-weight:700;${(c.total_ytd_cents||0)>=60000?'color:#16a34a;':'color:var(--text);'}">$${ytd}</td>
@@ -4887,12 +4897,11 @@
     function _renderContractorDetail(c) {
       document.getElementById('ctr-detail-title').textContent = c.full_name || 'Contractor';
       const sColors  = { active:'#22c55e', inactive:'#94a3b8', suspended:'#ef4444' };
-      const w9Colors = { verified:'#22c55e', pending:'#f59e0b', not_submitted:'#ef4444' };
       const icaColor_m = { signed:'#22c55e', sent:'#f59e0b', not_sent:'#94a3b8' };
       const sc  = sColors[c.status]  || '#94a3b8';
-      const w9c = w9Colors[c.w9_status]  || '#ef4444';
+      const stripec = {complete:'#22c55e', pending:'#f59e0b'}[c.stripe_onboarding_status] || '#f59e0b';
       const icac = icaColor_m[c.ica_status] || '#94a3b8';
-      const w9Label  = { verified:'🟢 Verified', pending:'🟡 Pending', not_submitted:'🔴 Not Submitted' }[c.w9_status]  || '🔴 Not Submitted';
+      const stripeLabel = {complete:'🟢 Complete', pending:'🔴 Action Required'}[c.stripe_onboarding_status] || '🔴 Action Required';
       const icaLabel = { signed:'🟢 Signed', sent:'🟡 Sent', not_sent:'⚫ Not Sent' }[c.ica_status] || '⚫ Not Sent';
       const ir = (label, value) => `<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f1f5f9;"><span style="color:#64748b;font-weight:600;font-size:13px;">${label}</span><span style="font-weight:700;font-size:13px;color:#1a1a2e;text-align:right;max-width:60%;">${value ?? '—'}</span></div>`;
       const rule = c.compensation_rule || c; // GET /admin/contractors/:id returns fields flat (commission_rate, etc.)
@@ -4951,8 +4960,9 @@
           <td style="padding:8px 10px;font-size:12px;color:#1a1a2e;">$${(bonTotal/100).toFixed(2)}</td>
           <td style="padding:8px 10px;font-size:12px;font-weight:700;color:#1a1a2e;">$${((p.total_cents||0)/100).toFixed(2)}</td>
           <td style="padding:8px 10px;font-size:12px;text-align:center;"><span style="padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700;background:${pc}18;color:${pc};">${p.status||'?'}</span></td>
+          <td style="padding:8px 10px;font-size:12px;text-align:center;color:#64748b;">${p.paid_at ? new Date(p.paid_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—'}</td>
         </tr>`;
-      }).join('') : '<tr><td colspan="6" style="padding:20px;text-align:center;color:#94a3b8;font-size:13px;">No payout history.</td></tr>';
+      }).join('') : '<tr><td colspan="7" style="padding:20px;text-align:center;color:#94a3b8;font-size:13px;">No payout history.</td></tr>';
 
       document.getElementById('ctr-detail-body').innerHTML = `
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
@@ -4981,11 +4991,10 @@
               </div>
             </div>
             <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f1f5f9;">
-              <span style="color:#64748b;font-weight:600;font-size:13px;">W-9 Status</span>
+              <span style="color:#64748b;font-weight:600;font-size:13px;">Stripe Onboarding</span>
               <div style="display:flex;align-items:center;gap:8px;">
-                <span style="font-size:13px;font-weight:700;color:${w9c};">${w9Label}</span>
-
-                ${c.w9_status !== 'verified'      ? `<button onclick="markW9Verified('${c.id}')" style="padding:3px 10px;border-radius:6px;border:1px solid #bbf7d0;background:#f0fdf4;color:#166534;font-size:11px;font-weight:700;cursor:pointer;">Mark Verified</button>` : ''}
+                <span style="font-size:13px;font-weight:700;color:${stripec};">${stripeLabel}</span>
+                ${c.stripe_onboarding_status !== 'complete' ? `<button onclick="manualKYCOverride('${c.id}')" style="padding:3px 10px;border-radius:6px;border:1px solid #bbf7d0;background:#f0fdf4;color:#166534;font-size:11px;font-weight:700;cursor:pointer;">Manual Approve</button>` : ''}
               </div>
             </div>
             <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f1f5f9;">
@@ -4994,7 +5003,7 @@
                 <span style="font-size:13px;font-weight:700;color:${icac};">${icaLabel}</span>
                 ${c.ica_status==='signed' ? `<button onclick="openAdminICAPDF('${c.id}')" style="padding:3px 10px;border-radius:6px;border:1px solid #d8b4fe;background:#faf5ff;color:#7e22ce;font-size:11px;font-weight:700;cursor:pointer;">📄 View Signed PDF</button>` : ''}
                 ${c.ica_status!=='signed' ? `<button onclick="markICASigned('${c.id}')" style="padding:3px 10px;border-radius:6px;border:1px solid #bbf7d0;background:#f0fdf4;color:#166534;font-size:11px;font-weight:700;cursor:pointer;">Mark Signed</button>` : ''}
-                ${c.ica_status==='not_sent' ? `<button id="ica-send-btn-${c.id}" onclick="sendICARequest('${c.id}')" style="padding:3px 10px;border-radius:6px;border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8;font-size:11px;font-weight:700;cursor:pointer;">Send ICA</button>` : ''}${c.ica_status==='sent' ? `<button id="ica-send-btn-${c.id}" onclick="sendICARequest('${c.id}')" style="padding:3px 10px;border-radius:6px;border:1px solid #fed7aa;background:#fff7ed;color:#c2410c;font-size:11px;font-weight:700;cursor:pointer;">Resend ICA</button>` : ''}
+                ${c.ica_status==='not_sent' ? `<button id="ica-send-btn-${c.id}" onclick="${c.stripe_onboarding_status==='complete' ? `openICAReviewModal('${c.id}')` : `alert('KYC verification is needed before sending ICA.')`}" style="padding:3px 10px;border-radius:6px;border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8;font-size:11px;font-weight:700;cursor:${c.stripe_onboarding_status==='complete'?'pointer':'not-allowed'};opacity:${c.stripe_onboarding_status==='complete'?'1':'0.5'};">Review & Send ICA</button>` : ''}${c.ica_status==='sent' ? `<button id="ica-send-btn-${c.id}" onclick="${c.stripe_onboarding_status==='complete' ? `openICAReviewModal('${c.id}')` : `alert('KYC verification is needed before sending ICA.')`}" style="padding:3px 10px;border-radius:6px;border:1px solid #fed7aa;background:#fff7ed;color:#c2410c;font-size:11px;font-weight:700;cursor:${c.stripe_onboarding_status==='complete'?'pointer':'not-allowed'};opacity:${c.stripe_onboarding_status==='complete'?'1':'0.5'};">Review & Resend ICA</button>` : ''}
               </div>
             </div>
             <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;">
@@ -5052,7 +5061,7 @@
             ? `<div style="font-weight:700;font-size:13px;">${c.territory.label}</div><div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px;">${(c.territory.zip_codes||[]).map(z=>`<span style="padding:2px 8px;border-radius:6px;background:#eff6ff;color:#1d4ed8;font-size:12px;font-weight:700;font-family:monospace;">${z}</span>`).join('')}</div><div style="margin-top:8px;font-size:11px;color:#94a3b8;">Assigned ${c.territory.assigned_at?new Date(c.territory.assigned_at).toLocaleDateString():''}</div>`
             : '<div style="color:#94a3b8;font-size:13px;">No territory assigned.</div>'}
         </div>
-        ${(()=>{const qd=c.quota;if(!qd)return`<div style="background:#f8fafc;border-radius:12px;padding:18px 20px;margin-bottom:20px;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><div style="font-size:13px;font-weight:800;color:#1a1a2e;">🎯 Quota Period</div><button onclick="startQuotaPeriod('${c.id}')" style="padding:5px 12px;border-radius:7px;border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8;font-size:12px;font-weight:700;cursor:pointer;">▶ Manual Start</button></div><div style="color:#94a3b8;font-size:13px;">No quota period yet. Auto-starts when ICA is marked signed.</div></div>`;const qs=qd.status,qc={active:'#3b82f6',met:'#22c55e',missed:'#ef4444'}[qs]||'#94a3b8',cur=qd.current_count||0,target=qd.quota_target||30,pct=qd.percent||0,days=qd.days_remaining;const psRaw=qd.period_start?qd.period_start.split('T')[0]:'';return`<div style="background:#f8fafc;border-radius:12px;padding:18px 20px;margin-bottom:20px;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><div style="font-size:13px;font-weight:800;color:#1a1a2e;">🎯 Quota Period</div><div style="display:flex;gap:8px;">${qs==='active'?`<button onclick="adjustQuotaDates('${c.id}','${psRaw}')" style="padding:5px 12px;border-radius:7px;border:1px solid #e2e8f0;background:#f8fafc;color:#475569;font-size:12px;font-weight:700;cursor:pointer;">✏️ Adjust Dates</button>`:''} ${qs==='active'?`<button onclick="evaluateQuota('${c.id}')" style="padding:5px 12px;border-radius:7px;border:1px solid #bbf7d0;background:#f0fdf4;color:#166534;font-size:12px;font-weight:700;cursor:pointer;">✓ Evaluate</button>`:''} ${qs==='active'?`<button onclick="extendQuota('${c.id}')" style="padding:5px 12px;border-radius:7px;border:1px solid #fde68a;background:#fffbeb;color:#92400e;font-size:12px;font-weight:700;cursor:pointer;">📅 Extend</button>`:''} ${(qs==='active'||qs==='missed')?`<button onclick="sendQuotaReminder('${c.id}')" style="padding:5px 12px;border-radius:7px;border:1px solid #e2e8f0;background:#f8fafc;color:#475569;font-size:12px;font-weight:700;cursor:pointer;">📧 Remind</button>`:''}</div></div><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span style="font-size:13px;font-weight:700;color:#1a1a2e;">${cur}/${target} active merchants</span><span style="padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;background:${qc}18;color:${qc};">${(qs||'?').toUpperCase()}</span></div><div style="height:10px;background:#e2e8f0;border-radius:999px;overflow:hidden;margin-bottom:8px;"><div style="height:100%;width:${pct}%;background:${qc};border-radius:999px;"></div></div><div style="display:flex;justify-content:space-between;font-size:11px;color:#64748b;"><span>Start: ${qd.period_start?new Date(qd.period_start).toLocaleDateString():'-'}</span><span>${pct}%</span><span>End: ${qd.period_end?new Date(qd.period_end).toLocaleDateString():'-'}</span></div>${qs==='active'&&days!==undefined?`<div style="margin-top:6px;font-size:12px;color:${days<=14?'#ef4444':'#64748b'};font-weight:600;">${days} days remaining</div>`:''}${qs==='missed'?'<div style="margin-top:8px;padding:8px 12px;background:#fef2f2;border-radius:8px;color:#dc2626;font-size:12px;font-weight:700;">⚠️ Quota missed — extend, assign new rep, or cancel territory.</div>':''}${qs==='met'?'<div style="margin-top:8px;padding:8px 12px;background:#f0fdf4;border-radius:8px;color:#166534;font-size:12px;font-weight:700;">🎉 Quota met! Territory locked in.</div>':''}</div>`;})()}
+        ${(()=>{const qd=c.quota;if(!qd)return`<div style="background:#f8fafc;border-radius:12px;padding:18px 20px;margin-bottom:20px;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><div style="font-size:13px;font-weight:800;color:#1a1a2e;">🎯 Quota Period</div><button onclick="startQuotaPeriod('${c.id}')" style="padding:5px 12px;border-radius:7px;border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8;font-size:12px;font-weight:700;cursor:pointer;">▶ Manual Start</button></div><div style="color:#94a3b8;font-size:13px;">No quota period yet. Auto-starts when ICA is marked signed.</div></div>`;const qs=qd.status,qc={active:'#3b82f6',met:'#22c55e',missed:'#ef4444'}[qs]||'#94a3b8',cur=qd.current_count||0,target=qd.quota_target||30,pct=qd.percent||0,days=qd.days_remaining;const psRaw=qd.period_start?qd.period_start.split('T')[0]:'';const quotaLabel=target>30?'📈 Ongoing Quota':'🎯 Initial Quota';return`<div style="background:#f8fafc;border-radius:12px;padding:18px 20px;margin-bottom:20px;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><div style="font-size:13px;font-weight:800;color:#1a1a2e;">${quotaLabel}</div><div style="display:flex;gap:8px;">${qs==='active'?`<button onclick="adjustQuotaDates('${c.id}','${psRaw}')" style="padding:5px 12px;border-radius:7px;border:1px solid #e2e8f0;background:#f8fafc;color:#475569;font-size:12px;font-weight:700;cursor:pointer;">✏️ Adjust Dates</button>`:''} ${qs==='active'?`<button onclick="evaluateQuota('${c.id}')" style="padding:5px 12px;border-radius:7px;border:1px solid #bbf7d0;background:#f0fdf4;color:#166534;font-size:12px;font-weight:700;cursor:pointer;">✓ Evaluate</button>`:''} ${qs==='active'?`<button onclick="extendQuota('${c.id}')" style="padding:5px 12px;border-radius:7px;border:1px solid #fde68a;background:#fffbeb;color:#92400e;font-size:12px;font-weight:700;cursor:pointer;">📅 Extend</button>`:''} ${(qs==='active'||qs==='missed')?`<button onclick="sendQuotaReminder('${c.id}')" style="padding:5px 12px;border-radius:7px;border:1px solid #e2e8f0;background:#f8fafc;color:#475569;font-size:12px;font-weight:700;cursor:pointer;">📧 Remind</button>`:''}</div></div><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span style="font-size:13px;font-weight:700;color:#1a1a2e;">${cur}/${target} active merchants</span><span style="padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;background:${qc}18;color:${qc};">${(qs||'?').toUpperCase()}</span></div><div style="height:10px;background:#e2e8f0;border-radius:999px;overflow:hidden;margin-bottom:8px;"><div style="height:100%;width:${pct}%;background:${qc};border-radius:999px;"></div></div><div style="display:flex;justify-content:space-between;font-size:11px;color:#64748b;"><span>Start: ${qd.period_start?new Date(qd.period_start).toLocaleDateString():'-'}</span><span>${pct}%</span><span>End: ${qd.period_end?new Date(qd.period_end).toLocaleDateString():'-'}</span></div>${qs==='active'&&days!==undefined?`<div style="margin-top:6px;font-size:12px;color:${days<=14?'#ef4444':'#64748b'};font-weight:600;">${days} days remaining</div>`:''}${qs==='missed'?'<div style="margin-top:8px;padding:8px 12px;background:#fef2f2;border-radius:8px;color:#dc2626;font-size:12px;font-weight:700;">⚠️ Quota missed — territory exclusivity revoked.</div>':''}</div>`;})()}
         <div style="background:#f8fafc;border-radius:12px;padding:18px 20px;margin-bottom:20px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
             <div style="font-size:13px;font-weight:800;color:#1a1a2e;">🏪 Attributed Merchants (${merchants.length})</div>
@@ -5098,6 +5107,7 @@
               <th style="padding:8px 10px;text-align:right;color:#64748b;font-weight:700;">Bonuses</th>
               <th style="padding:8px 10px;text-align:right;color:#64748b;font-weight:700;">Total</th>
               <th style="padding:8px 10px;text-align:center;color:#64748b;font-weight:700;">Status</th>
+              <th style="padding:8px 10px;text-align:center;color:#64748b;font-weight:700;">Paid On</th>
             </tr></thead>
             <tbody>${pRows}</tbody>
           </table>
@@ -5216,6 +5226,22 @@
       }
     }
 
+    async function manualKYCOverride(id) {
+      if (!confirm('Manually approve Stripe KYC? Use this ONLY if Stripe automation fails.')) return;
+      const token = sessionStorage.getItem('perkfinity_admin_token');
+      try {
+        const res  = await fetch(API_BASE + '/admin/contractors/' + id + '/manual-kyc', {
+          method: 'PATCH', headers: { 'Authorization': 'Bearer ' + token }
+        });
+        const json = await res.json();
+        if (json.success) {
+          showToast('✅ KYC manually approved.');
+          allContractors = allContractors.map(c => c.id===id?{...c,stripe_onboarding_status:'complete'}:c);
+          openContractorDetail(id);
+        } else { showToast('⚠️ ' + (json.error||'Failed.')); }
+      } catch(e) { showToast('⚠️ Connection error.'); }
+    }
+
     async function markICASigned(id) {
       if (!confirm('Mark ICA as signed manually? This should automatically update when the rep signs via the portal.')) return;
       const token = sessionStorage.getItem('perkfinity_admin_token');
@@ -5233,20 +5259,62 @@
       } catch(e) { showToast('⚠️ Connection error.'); }
     }
 
+    // ── Pre-Send ICA Review Flow ─────────────────────────────────────
+    let _icaReviewContractorId = null;
+    function openICAReviewModal(id) {
+      _icaReviewContractorId = id;
+      document.getElementById('ica-review-checkbox').checked = false;
+      document.getElementById('ica-admin-signature').value = '';
+      checkICAReviewStatus();
+      document.getElementById('ica-review-modal').style.display = 'flex';
+      const iframe = document.getElementById('ica-review-iframe');
+      iframe.src = '';
+      
+      const token = sessionStorage.getItem('perkfinity_admin_token');
+      fetch(API_BASE + '/admin/contractors/' + id + '/ica-pdf', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      }).then(r => r.blob()).then(blob => {
+        iframe.src = URL.createObjectURL(blob);
+      }).catch(e => {
+        showToast('⚠️ Could not load PDF preview.');
+      });
+    }
+    function closeICAReviewModal() {
+      document.getElementById('ica-review-modal').style.display = 'none';
+      _icaReviewContractorId = null;
+    }
+    function checkICAReviewStatus() {
+      const checked = document.getElementById('ica-review-checkbox').checked;
+      const sig = document.getElementById('ica-admin-signature').value.trim();
+      const btn = document.getElementById('ica-confirm-send-btn');
+      if (checked && sig.length >= 2) {
+        btn.disabled = false;
+        btn.style.background = '#2563eb';
+        btn.style.cursor = 'pointer';
+      } else {
+        btn.disabled = true;
+        btn.style.background = '#94a3b8';
+        btn.style.cursor = 'not-allowed';
+      }
+    }
+    function submitICAReview() {
+      const sig = document.getElementById('ica-admin-signature').value.trim();
+      if (!_icaReviewContractorId || !sig) return;
+      sendICARequest(_icaReviewContractorId, sig);
+      closeICAReviewModal();
+    }
+
     // ── Send ICA via Internal Portal ────────────────────────────────
-    async function sendICARequest(id) {
+    async function sendICARequest(id, companySignatory) {
       const ctr = allContractors.find(c => c.id === id);
       const isResend = ctr?.ica_status === 'sent';
-      const confirmMsg = isResend
-        ? 'Resend the ICA to this contractor? A new email notification will be sent.'
-        : 'Send ICA to this contractor? They will receive an email with a link to sign via their portal.';
-      if (!confirm(confirmMsg)) return;
       const btn = document.getElementById('ica-send-btn-' + id);
       if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
       const token = sessionStorage.getItem('perkfinity_admin_token');
       try {
         const res  = await fetch(API_BASE + '/admin/contractors/' + id + '/send-ica', {
-          method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token }
+          method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({ company_signatory: companySignatory })
         });
         const json = await res.json();
         if (json.success) {
@@ -5424,7 +5492,11 @@
         });
         const json = await res.json();
         if (json.success) {
-          const labels = { met:'🎉 Quota MET! Territory locked in.', missed:'⚠️ Quota MISSED. Consider next steps.', active:'📊 Quota is still active.' };
+          const labels = { 
+            rolled_forward:'🎉 Target hit! Quota rolled forward 3 months (+10 target).', 
+            missed:'⚠️ Quota MISSED. Territory exclusivity revoked.', 
+            active:'📊 Quota is still active.' 
+          };
           showToast(labels[json.result]||'✅ Done.');
           openContractorDetail(repId);
         } else { showToast('⚠️ ' + (json.error||'Failed.')); }
@@ -5723,9 +5795,9 @@
         const pc  = pColors[p.status]||'#94a3b8';
         const ps  = p.period_start ? new Date(p.period_start).toLocaleDateString('en-US',{month:'short',year:'numeric'}) : '—';
         const bon = ((p.milestone_bonus_cents||0)+(p.retention_bonus_cents||0)+(p.special_bonus_cents||0));
-        const w9i = p.w9_status==='verified' ? '🟢' : p.w9_status==='pending' ? '🟡' : '🔴';
-        const canApprove  = p.status==='pending'  && p.w9_status==='verified';
-        const canMarkPaid = p.status==='approved' && p.w9_status==='verified';
+        const stripei = p.stripe_onboarding_status === 'complete' ? '🟢' : '🔴';
+        const canApprove  = p.status === 'pending' && p.stripe_onboarding_status === 'complete';
+        const canMarkPaid = p.status === 'approved' && p.stripe_onboarding_status === 'complete';
         const canVoid     = p.status==='pending'  || p.status==='approved';
         return `
           <tr style="border-bottom:1px solid var(--border);">
@@ -5735,10 +5807,12 @@
             <td style="padding:12px;text-align:right;font-size:13px;">$${((p.retainer_cents||0)/100).toFixed(2)}</td>
             <td style="padding:12px;text-align:right;font-size:13px;">$${(bon/100).toFixed(2)}</td>
             <td style="padding:12px;text-align:right;font-size:13px;font-weight:800;">$${((p.total_cents||0)/100).toFixed(2)}</td>
-            <td style="padding:12px;text-align:center;font-size:14px;" title="W-9: ${p.w9_status||'?'}">${w9i}</td>
+            <td style="padding:12px;text-align:center;font-size:14px;" title="Stripe: ${p.stripe_onboarding_status||'?'}">${stripei}</td>
             <td style="padding:12px;text-align:center;"><span style="padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;background:${pc}18;color:${pc};">${p.status||'?'}</span></td>
+            <td style="padding:12px;text-align:center;font-size:12px;color:var(--mutedLight);">${p.paid_at ? new Date(p.paid_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—'}</td>
             <td style="padding:12px;text-align:center;">
               <div style="display:flex;gap:4px;justify-content:center;flex-wrap:wrap;">
+                <button onclick="viewPayoutBreakdown('${p.id}')" style="padding:4px 9px;border-radius:6px;border:1px solid #e2e8f0;background:#f8fafc;color:#475569;font-size:11px;font-weight:700;cursor:pointer;">ℹ️ Details</button>
                 ${canApprove  ? `<button onclick="approveContractorPayout('${p.id}')" style="padding:4px 9px;border-radius:6px;border:1px solid #bbf7d0;background:#f0fdf4;color:#166534;font-size:11px;font-weight:700;cursor:pointer;">Approve</button>` : ''}
                 ${canMarkPaid ? `<button onclick="openMarkPaidModal('${p.id}')" style="padding:4px 9px;border-radius:6px;border:none;background:#22c55e;color:#fff;font-size:11px;font-weight:700;cursor:pointer;">Mark Paid</button>` : ''}
                 ${canVoid     ? `<button onclick="voidContractorPayout('${p.id}')" style="padding:4px 9px;border-radius:6px;border:1px solid #fecaca;background:#fef2f2;color:#dc2626;font-size:11px;font-weight:700;cursor:pointer;">Void</button>` : ''}
@@ -5746,6 +5820,49 @@
             </td>
           </tr>`;
       }).join('');
+    }
+
+    function viewPayoutBreakdown(payoutId) {
+      const payout = allContractorPayouts.find(p => p.id === payoutId);
+      if (!payout) return;
+      let b;
+      try { b = typeof payout.breakdown === 'string' ? JSON.parse(payout.breakdown) : payout.breakdown; } catch(e) {}
+      if (!b) { showToast('No breakdown available for this payout.'); return; }
+      
+      const pStart = payout.period_start ? new Date(payout.period_start).toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'}) : '';
+      const pEnd = payout.period_end ? new Date(payout.period_end).toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'}) : '';
+      const periodStr = pStart && pEnd ? `<div style="font-size:14px;color:#64748b;margin-bottom:16px;">Period: <b>${pStart} - ${pEnd}</b></div>` : '';
+
+      let html = periodStr;
+      if (b.merchant_breakdown && b.merchant_breakdown.length) {
+        html += `<div style="font-weight:800;margin-bottom:8px;color:#1a1a2e;">Merchant Commissions</div>`;
+        html += `<table style="width:100%;border-collapse:collapse;margin-bottom:16px;">
+          <tr style="border-bottom:1px solid #e2e8f0;"><th style="text-align:left;padding:6px 0;color:#64748b;font-size:11px;">Merchant</th><th style="text-align:right;color:#64748b;font-size:11px;">Calculation</th><th style="text-align:right;color:#64748b;font-size:11px;">Bonus</th></tr>`;
+        for (const mb of b.merchant_breakdown) {
+          const m = allMerchants.find(x => x.id === mb.merchant_id);
+          const name = m ? m.business_name : 'Unknown Merchant';
+          const comm = '$' + ((mb.commission||0)/100).toFixed(2);
+          const rBon = '$' + ((mb.retention_bonus||0)/100).toFixed(2);
+          const inv = '$' + ((mb.invoice_total||0)/100).toFixed(2);
+          const rate = mb.invoice_total ? Math.round((mb.commission / mb.invoice_total) * 100) : 0;
+          const calcStr = mb.invoice_total ? `${inv} x ${rate}% = <b>${comm}</b>` : `<b>${comm}</b>`;
+          
+          html += `<tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:6px 0;font-weight:600;">${name}</td><td style="text-align:right;">${calcStr}</td><td style="text-align:right;">${rBon}</td></tr>`;
+        }
+        html += `</table>`;
+      }
+      if (b.milestones && b.milestones.length) {
+        html += `<div style="font-weight:800;margin-bottom:8px;color:#1a1a2e;">Milestones Hit</div>`;
+        html += `<ul style="margin:0 0 16px 20px;padding:0;">` + b.milestones.map(ms => `<li>${ms}</li>`).join('') + `</ul>`;
+      }
+      if (b.special_bonuses && b.special_bonuses.length) {
+        html += `<div style="font-weight:800;margin-bottom:8px;color:#1a1a2e;">Special Bonuses</div>`;
+        html += `<ul style="margin:0 0 16px 20px;padding:0;">` + b.special_bonuses.map(sb => `<li>${sb}</li>`).join('') + `</ul>`;
+      }
+      if (!html) html = 'No details generated for this payout yet.';
+      
+      document.getElementById('breakdown-content').innerHTML = html;
+      document.getElementById('payout-breakdown-modal').style.display = 'flex';
     }
 
     async function generatePayoutsFlow() {
@@ -5767,8 +5884,8 @@
           const skipped = json.skipped || [];
           if (skipped.length && banner) {
             banner.style.display = 'block';
-            banner.innerHTML = `⚠️ <strong>${skipped.length} contractor(s) skipped</strong> due to unverified W-9:<br>` +
-              skipped.map(s => `• ${s.name||s.id} — ${s.reason||'w9_not_verified'}`).join('<br>');
+            banner.innerHTML = `⚠️ <strong>${skipped.length} contractor(s) skipped</strong> due to incomplete Stripe KYC:<br>` +
+              skipped.map(s => `• ${s.name||s.id} — ${s.reason||'stripe_kyc_incomplete'}`).join('<br>');
           }
           showToast(`✅ ${json.created||0} payout(s) generated.`);
           loadContractorPayouts();
@@ -5837,13 +5954,13 @@
 
     function exportPayoutsCSV() {
       if (!allContractorPayouts.length) { showToast('No payouts to export.'); return; }
-      const headers = ['Contractor','Period','Commission','Retainer','Milestone Bonus','Retention Bonus','Special Bonus','Total','W-9 Status','Status','Payment Ref'];
+      const headers = ['Contractor','Period','Commission','Retainer','Milestone Bonus','Retention Bonus','Special Bonus','Total','Stripe Status','Status','Payment Ref'];
       const rows = allContractorPayouts.map(p => [
         p.contractor_name||'', p.period_start ? new Date(p.period_start).toLocaleDateString() : '',
         ((p.commission_cents||0)/100).toFixed(2), ((p.retainer_cents||0)/100).toFixed(2),
         ((p.milestone_bonus_cents||0)/100).toFixed(2), ((p.retention_bonus_cents||0)/100).toFixed(2),
         ((p.special_bonus_cents||0)/100).toFixed(2), ((p.total_cents||0)/100).toFixed(2),
-        p.w9_status||'', p.status||'', p.payment_reference||''
+        p.stripe_onboarding_status||'', p.status||'', p.payment_reference||''
       ]);
       const csv = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
       const a = document.createElement('a');
@@ -6022,5 +6139,27 @@
       </div>
     </div>
   </div>
-</body>
+    <!-- ICA Review Modal -->
+    <div id="ica-review-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:11000;align-items:center;justify-content:center;">
+      <div style="background:#fff;border-radius:12px;width:95%;max-width:900px;height:90%;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 25px 50px rgba(0,0,0,0.25);">
+        <div style="padding:16px 24px;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;background:#f8fafc;">
+          <h2 style="margin:0;font-size:18px;font-weight:800;color:#1e293b;">Review Independent Contractor Agreement</h2>
+          <button onclick="closeICAReviewModal()" style="background:none;border:none;font-size:24px;color:#94a3b8;cursor:pointer;">&times;</button>
+        </div>
+        <div style="flex:1;background:#e2e8f0;position:relative;">
+          <iframe id="ica-review-iframe" src="" style="width:100%;height:100%;border:none;"></iframe>
+        </div>
+        <div style="padding:20px 24px;background:#f8fafc;border-top:1px solid #e2e8f0;">
+          <label style="display:flex;gap:12px;align-items:center;margin-bottom:16px;cursor:pointer;">
+            <input type="checkbox" id="ica-review-checkbox" style="width:18px;height:18px;cursor:pointer;" onchange="checkICAReviewStatus()">
+            <span style="font-weight:600;color:#1e293b;font-size:14px;">I have reviewed this ICA and confirm all territory, commission, and payment details are correct.</span>
+          </label>
+          <div style="display:flex;gap:16px;align-items:center;">
+            <input type="text" id="ica-admin-signature" placeholder="Type your name to electronically approve" style="flex:1;padding:12px 16px;border-radius:8px;border:1px solid #cbd5e1;font-size:14px;outline:none;" oninput="checkICAReviewStatus()">
+            <button id="ica-confirm-send-btn" disabled onclick="submitICAReview()" style="padding:12px 24px;background:#94a3b8;color:#fff;border:none;border-radius:8px;font-weight:700;font-size:14px;cursor:not-allowed;transition:all 0.2s;">Sign & Send to Rep</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
 </html>
