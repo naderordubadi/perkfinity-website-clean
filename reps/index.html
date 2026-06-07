@@ -758,6 +758,17 @@
     const token = getToken();
     const rep   = getRepData();
     if (token && rep) {
+      if (urlParams.get('onboarding') === 'return') {
+         showToast('Verifying Stripe Onboarding...');
+         try {
+           await fetch(API_BASE + '/rep/stripe-sync', {
+             method: 'POST',
+             headers: { 'Authorization': 'Bearer ' + token }
+           });
+           window.history.replaceState({}, document.title, window.location.pathname);
+         } catch(e) {}
+      }
+
       document.getElementById('login-screen').style.display = 'none';
       document.getElementById('app').style.display = 'block';
       document.getElementById('top-rep-name').textContent = rep.full_name;
