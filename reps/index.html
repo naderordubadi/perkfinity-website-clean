@@ -492,17 +492,17 @@
       if (e.rule) {
         const rate = ((e.rule.commission_rate || 0.25) * 100).toFixed(0);
         const dur  = e.rule.commission_duration_months || 12;
-        const ret  = e.rule.retainer_cents ? fmt$(e.rule.retainer_cents) + '/mo' : 'None';
+        const retainerHtml = e.rule.retainer_cents ? `
+          <div class="kpi-card" style="--kpi-color:#22c55e;flex:1;min-width:120px;padding:14px 16px;">
+            <div class="kpi-label">RETAINER</div><div class="kpi-value" style="font-size:22px;">${fmt$(e.rule.retainer_cents)}/mo</div>
+          </div>` : '';
         rateInfo = `<div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;">
           <div class="kpi-card" style="--kpi-color:#5b3fa5;flex:1;min-width:120px;padding:14px 16px;">
             <div class="kpi-label">COMMISSION RATE</div><div class="kpi-value" style="font-size:22px;">${rate}%</div>
           </div>
           <div class="kpi-card" style="--kpi-color:#3b82f6;flex:1;min-width:120px;padding:14px 16px;">
             <div class="kpi-label">DURATION</div><div class="kpi-value" style="font-size:22px;">${dur} mo</div>
-          </div>
-          <div class="kpi-card" style="--kpi-color:#22c55e;flex:1;min-width:120px;padding:14px 16px;">
-            <div class="kpi-label">RETAINER</div><div class="kpi-value" style="font-size:22px;">${ret}</div>
-          </div>
+          </div>${retainerHtml}
         </div>`;
       }
       document.getElementById('earnings-content').innerHTML = rateInfo || '<div style="color:var(--muted);font-size:13px;">Compensation rule not yet assigned. Contact your administrator.</div>';
@@ -550,7 +550,7 @@
       const qs = quota.period?.status || quota.status || 'active';
       const qc = { active:'#3b82f6', met:'#22c55e', missed:'#ef4444' }[qs] || '#94a3b8';
       const cur = quota.current_count || 0;
-      const target = quota.quota_target || 30;
+      const target = quota.quota_target || quota.period?.quota_target || 30;
       const pct = quota.percent || 0;
       const days = quota.days_remaining;
       document.getElementById('kpi-quota').textContent = `${cur}/${target}`;
