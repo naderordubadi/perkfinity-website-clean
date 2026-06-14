@@ -200,24 +200,44 @@
       color: var(--muted);
     }
     .merchants-list {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 20px;
+      padding-bottom: 60px;
     }
     .merchant-row {
       background: #fff;
       border: 1px solid var(--border);
-      border-radius: 20px;
+      border-radius: 24px;
       box-shadow: var(--shadow2);
-      padding: 20px 24px;
       display: flex;
-      align-items: center;
-      gap: 18px;
+      flex-direction: column;
+      overflow: hidden;
       transition: transform .2s, box-shadow .2s;
       cursor: pointer;
     }
+    .merch-card-top {
+      padding: 24px 24px 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .merch-card-body {
+      padding: 16px 24px 20px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .brand-cover-photo {
+      height: 140px;
+      width: 100%;
+      object-fit: cover;
+      background: linear-gradient(135deg, rgba(107,193,122,.05), rgba(91,63,165,.05));
+    }
     .merchant-row:hover {
-      transform: translateY(-2px);
+      transform: translateY(-4px);
       box-shadow: var(--shadow);
     }
     .merch-logo {
@@ -246,21 +266,19 @@
       font-size: 16px;
       font-weight: 900;
       color: var(--ink);
-      margin: 0 0 4px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      margin: 0 0 3px;
     }
     .merch-location {
-      font-size: 13px;
-      font-weight: 700;
+      font-size: 11px;
+      font-weight: 800;
       color: var(--muted);
-      margin: 0 0 6px;
     }
     .merch-offer {
-      font-size: 13px;
+      font-size: 14px;
       font-weight: 800;
       color: var(--purpleDark);
+      line-height: 1.45;
+      flex: 1;
     }
     .merch-offer::before { content: "🎁 "; }
     .pres-badge {
@@ -277,18 +295,17 @@
     .pres-badge.mobile   { background: rgba(96,165,250,.12); color: #2563eb; }
     .pres-badge.hybrid   { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
     .join-btn {
-      padding: 10px 20px;
-      border-radius: 10px;
+      width: 100%;
+      padding: 12px;
+      border-radius: 12px;
       border: none;
       background: linear-gradient(135deg, var(--green), var(--greenDark));
       color: #fff;
-      font-size: 13px;
+      font-size: 14px;
       font-weight: 900;
       cursor: pointer;
-      font-family: inherit;
-      white-space: nowrap;
       transition: transform .15s, box-shadow .15s;
-      flex-shrink: 0;
+      font-family: inherit;
     }
     .join-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(107,193,122,.40); }
 
@@ -622,18 +639,49 @@
             ? '<span class="pres-badge hybrid">📱 Claim &amp; Visit</span>'
             : '<span class="pres-badge physical">🏪 Store</span>';
           const loc = [m.city, m.state, m.postal_code].filter(Boolean).join(', ');
+          const gradients = [
+            'linear-gradient(135deg, #FF9A9E 0%, #FECFEF 100%)',
+            'linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%)',
+            'linear-gradient(120deg, #d4fc79 0%, #96e6a1 100%)',
+            'linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%)',
+            'linear-gradient(120deg, #fccb90 0%, #d57eeb 100%)',
+            'linear-gradient(120deg, #e0c3fc 0%, #8ec5fc 100%)',
+            'linear-gradient(120deg, #f093fb 0%, #f5576c 100%)',
+            'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+          ];
+          const bgGradient = gradients[(m.business_name.charCodeAt(0) || 0) % gradients.length];
+          let coverHtml = '';
+          if (m.cover_photo_url) {
+            coverHtml = `<img class="brand-cover-photo" src="${m.cover_photo_url}" alt="Cover" onerror="this.style.display='none'">`;
+          } else if (m.logo_url) {
+            coverHtml = `<div class="brand-cover-photo" style="background: ${bgGradient}; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                           <img src="${m.logo_url}" style="width: 150%; height: 150%; object-fit: cover; opacity: 0.35; filter: blur(4px);">
+                         </div>`;
+          } else {
+            coverHtml = `<div class="brand-cover-photo" style="background: ${bgGradient}; display: flex; align-items: center; justify-content: center;">
+                           <span style="color: rgba(255,255,255,0.6); font-size: 24px; font-weight: 900; letter-spacing: 1px; text-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center; padding: 0 10px;">${m.business_name}</span>
+                         </div>`;
+          }
+
           const row = document.createElement('article');
           row.className = 'merchant-row';
           row.onclick = () => openPopup(m);
           row.innerHTML = `
-            ${logoHtml}
-            <div class="merch-info">
-              <div class="merch-name">${m.business_name}</div>
-              ${loc ? `<div class="merch-location">📍 ${loc}</div>` : ''}
-              <div class="merch-offer">${m.welcome_offer_text || 'Exclusive member perk'}</div>
+            ${coverHtml}
+            <div class="merch-card-top">
+              ${logoHtml}
+              <div>
+                <div class="merch-name">${m.business_name}</div>
+                <div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px;margin-top:3px;">
+                  ${loc ? `<span class="merch-location">📍 ${loc}</span>` : ''}
+                  ${presLabel}
+                </div>
+              </div>
             </div>
-            ${presLabel}
-            <button class="join-btn" onclick="event.stopPropagation();openPopup(${JSON.stringify(m).replace(/"/g,'&quot;')})">Get Perk →</button>`;
+            <div class="merch-card-body">
+              <div class="merch-offer">${m.welcome_offer_text || 'Exclusive member perk'}</div>
+              <button class="join-btn" onclick="event.stopPropagation();openPopup(${JSON.stringify(m).replace(/"/g,'&quot;')})">Get Perk →</button>
+            </div>`;
           listEl.appendChild(row);
         });
       } catch (e) {

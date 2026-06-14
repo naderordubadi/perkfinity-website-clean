@@ -160,6 +160,12 @@
       transform: translateY(-4px);
       box-shadow: var(--shadow);
     }
+    .brand-cover-photo {
+      height: 140px;
+      width: 100%;
+      object-fit: cover;
+      background: linear-gradient(135deg, rgba(91,63,165,.05), rgba(107,193,122,.05));
+    }
     .brand-card-top {
       padding: 24px 24px 16px;
       display: flex;
@@ -663,9 +669,34 @@
         const hybridBadge = isHybrid
           ? `<span class="hybrid-badge">📱 Claim &amp; Visit</span>`
           : '';
+        const gradients = [
+          'linear-gradient(135deg, #FF9A9E 0%, #FECFEF 100%)',
+          'linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%)',
+          'linear-gradient(120deg, #d4fc79 0%, #96e6a1 100%)',
+          'linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%)',
+          'linear-gradient(120deg, #fccb90 0%, #d57eeb 100%)',
+          'linear-gradient(120deg, #e0c3fc 0%, #8ec5fc 100%)',
+          'linear-gradient(120deg, #f093fb 0%, #f5576c 100%)',
+          'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+        ];
+        const bgGradient = gradients[(b.business_name.charCodeAt(0) || 0) % gradients.length];
+        let coverHtml = '';
+        if (b.cover_photo_url) {
+          coverHtml = `<img class="brand-cover-photo" src="${b.cover_photo_url}" alt="Cover" onerror="this.style.display='none'">`;
+        } else if (b.logo_url) {
+          coverHtml = `<div class="brand-cover-photo" style="background: ${bgGradient}; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                         <img src="${b.logo_url}" style="width: 150%; height: 150%; object-fit: cover; opacity: 0.35; filter: blur(4px);">
+                       </div>`;
+        } else {
+          coverHtml = `<div class="brand-cover-photo" style="background: ${bgGradient}; display: flex; align-items: center; justify-content: center;">
+                         <span style="color: rgba(255,255,255,0.6); font-size: 24px; font-weight: 900; letter-spacing: 1px; text-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center; padding: 0 10px;">${b.business_name}</span>
+                       </div>`;
+        }
+
         const card = document.createElement('article');
         card.className = 'brand-card';
         card.innerHTML = `
+          ${coverHtml}
           <div class="brand-card-top">
             ${logoHtml}
             <div>
