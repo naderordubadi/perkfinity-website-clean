@@ -129,6 +129,7 @@
     .badge-inactive { background:#94a3b818; color:#94a3b8; }
     .badge-paid { background:#22c55e18; color:#22c55e; }
     .badge-approved { background:#3b82f618; color:#3b82f6; }
+    .badge-processing { background:#8b5cf618; color:#8b5cf6; }
 
     /* ── W-9 gate ── */
     .w9-gate {
@@ -309,7 +310,7 @@
             <tr>
               <th>Period</th>
               <th>Commission</th>
-              <th>Retainer</th>
+              <th id="th-retainer" style="display:none;">Retainer</th>
               <th>Bonus</th>
               <th>Total</th>
               <th>Status</th>
@@ -340,7 +341,11 @@
   <div style="width:500px;max-height:85vh;overflow-y:auto;background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.3);padding:28px;">
     <div style="font-size:18px;font-weight:800;color:var(--text);margin-bottom:16px;">📊 Payout Breakdown</div>
     <div id="breakdown-content" style="font-size:13px;color:var(--muted);"></div>
-    <div style="margin-top:20px;text-align:right;">
+    <div style="margin-top:20px;display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <button onclick="exportBreakdownCSV()" style="padding:8px 16px;border-radius:8px;border:1px solid var(--border);background:var(--card2);color:var(--text);font-size:13px;font-weight:700;cursor:pointer;margin-right:8px;">Export CSV</button>
+        <button onclick="printBreakdown()" style="padding:8px 16px;border-radius:8px;border:1px solid var(--border);background:var(--card2);color:var(--text);font-size:13px;font-weight:700;cursor:pointer;">Print</button>
+      </div>
       <button onclick="document.getElementById('payout-breakdown-modal').style.display='none'" style="padding:8px 16px;border-radius:8px;border:1px solid var(--border);background:var(--card2);color:var(--text);font-size:13px;font-weight:700;cursor:pointer;">Close</button>
     </div>
   </div>
@@ -465,15 +470,39 @@
       document.getElementById('merchants-content').innerHTML = `
         <div style="overflow-x:auto;">
           <table class="tbl">
-            <thead><tr><th>Business</th><th>Tier</th><th>Status</th><th>Since</th></tr></thead>
+            <thead><tr><th>Business</th><th>Tier</th><th>Type</th><th>Pay Frequency</th><th>Est. Gross</th><th>Est. Commission</th><th>Status</th><th>Since</th></tr></thead>
             <tbody>
-              ${merchants.map(m => `
-                <tr>
+              ${merchants.map(m => {
+                const tierMap = { tier1:'Connect', free_for_life:'Free For Life', online_starter:'Starter', online_growth:'Growth', online_scale:'Scale', enterprise:'Enterprise', trial:'Free Trial', free_trial:'Free Trial' };
+                const typeMap = { monthly:'Monthly', annual:'Annual', lifetime:'POUF' };
+                const freq = (m.billing_cycle === 'monthly') ? 'Recurring' : (m.billing_cycle === 'lifetime' || m.billing_cycle === 'annual') ? 'Single' : '—';
+                
+                const priceMap = {
+                  tier1: { monthly: 29.99, annual: 305.89, lifetime: 305.89 },
+                  online_starter: { monthly: 149, annual: 1519.80, lifetime: 1519.80 },
+                  online_growth: { monthly: 299, annual: 3049.80, lifetime: 3049.80 },
+                  online_scale: { monthly: 499, annual: 5089.80, lifetime: 5089.80 }
+                };
+                const commRate = earningsR?.data?.rule?.commission_rate || 0.25;
+                const estGross = priceMap[m.tier]?.[m.billing_cycle || 'monthly'] || 0;
+                const estComm = estGross * commRate;
+                const grossFmt = estGross ? `$${estGross.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}` : '—';
+                const commFmt = estComm ? `$${estComm.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}` : '—';
+
+                  const displayStatus = (m.application_status === 'pending') ? 'pending' : (m.billing_status || '—');
+                  const badgeClass = displayStatus === 'active' ? 'active' : displayStatus === 'pending' ? 'pending' : 'inactive';
+
+                  return `<tr>
                   <td style="font-weight:700;">${m.business_name || '—'}</td>
-                  <td><span class="badge badge-${m.tier}">${(m.tier||'—').toUpperCase()}</span></td>
-                  <td><span class="badge badge-${m.billing_status==='active'?'active':m.billing_status==='pending'?'pending':'inactive'}">${(m.billing_status||'—').toUpperCase()}</span></td>
+                  <td><span class="badge badge-${m.tier}">${tierMap[m.tier] || (m.tier||'—').toUpperCase()}</span></td>
+                  <td><span style="font-size:12px;font-weight:700;color:var(--muted);">${typeMap[m.billing_cycle] || (m.billing_cycle||'—').toUpperCase()}</span></td>
+                  <td><span style="font-size:12px;font-weight:700;color:var(--muted);">${freq}</span></td>
+                  <td style="font-size:12px;font-weight:700;">${grossFmt}</td>
+                  <td style="font-size:12px;font-weight:800;color:#22c55e;">${commFmt}</td>
+                  <td><span class="badge badge-${badgeClass}">${displayStatus.toUpperCase()}</span></td>
                   <td style="color:var(--muted);">${fmtDate(m.attributed_at)}</td>
-                </tr>`).join('')}
+                </tr>`;
+              }).join('')}
             </tbody>
           </table>
         </div>`;
@@ -512,14 +541,18 @@
     if (payoutsR?.success && !payoutsR.gated) {
       const payouts = payoutsR.data || [];
       window.allRepPayouts = payouts;
+      const hasRetainer = (earningsR?.data?.rule?.retainer_cents > 0) || (payoutsR?.data || []).some(p => p.retainer_cents > 0);
+      document.getElementById('th-retainer').style.display = hasRetainer ? '' : 'none';
+
       if (payouts.length) {
         document.getElementById('payouts-card').style.display = 'block';
         document.getElementById('payouts-tbody').innerHTML = payouts.map(p => {
           const bonuses = (p.milestone_bonus_cents||0) + (p.retention_bonus_cents||0) + (p.special_bonus_cents||0);
+          const retainerTd = hasRetainer ? `<td>${p.retainer_cents ? fmt$(p.retainer_cents) : '—'}</td>` : '';
           return `<tr>
             <td style="color:var(--muted);">${fmtDate(p.period_start)} – ${fmtDate(p.period_end)}</td>
             <td>${fmt$(p.commission_cents)}</td>
-            <td>${p.retainer_cents ? fmt$(p.retainer_cents) : '—'}</td>
+            ${retainerTd}
             <td>${bonuses ? fmt$(bonuses) : '—'}</td>
             <td style="font-weight:800;">${fmt$(p.total_cents)}</td>
             <td><span class="badge badge-${p.status}">${(p.status||'?').toUpperCase()}</span></td>
@@ -832,35 +865,104 @@
     const periodStr = pStart && pEnd ? `<div style="font-size:14px;color:var(--muted);margin-bottom:16px;">Period: <b style="color:var(--text);">${pStart} - ${pEnd}</b></div>` : '';
 
     let html = periodStr;
-    if (b.merchant_breakdown && b.merchant_breakdown.length) {
-      html += `<div style="font-weight:800;margin-bottom:8px;color:var(--text);">Merchant Commissions</div>`;
-      html += `<table style="width:100%;border-collapse:collapse;margin-bottom:16px;">
-        <tr style="border-bottom:1px solid var(--border);"><th style="text-align:left;padding:6px 0;color:var(--muted);font-size:11px;font-weight:700;">Merchant</th><th style="text-align:right;color:var(--muted);font-size:11px;font-weight:700;">Calculation</th><th style="text-align:right;color:var(--muted);font-size:11px;font-weight:700;">Bonus</th></tr>`;
-      for (const mb of b.merchant_breakdown) {
-        const m = (window.allRepMerchants||[]).find(x => x.merchant_id === mb.merchant_id);
-        const name = m ? m.business_name : 'Unknown Merchant';
-        const comm = '$' + ((mb.commission||0)/100).toFixed(2);
-        const rBon = '$' + ((mb.retention_bonus||0)/100).toFixed(2);
-        const inv = '$' + ((mb.invoice_total||0)/100).toFixed(2);
-        const rate = mb.invoice_total ? Math.round((mb.commission / mb.invoice_total) * 100) : 0;
-        const calcStr = mb.invoice_total ? `${inv} x ${rate}% = <b style="color:var(--text);">${comm}</b>` : `<b style="color:var(--text);">${comm}</b>`;
+    let csvRows = ["Item,Amount"];
 
-        html += `<tr style="border-bottom:1px solid rgba(255,255,255,0.04);"><td style="padding:6px 0;font-weight:600;color:var(--text);">${name}</td><td style="text-align:right;color:var(--text);">${calcStr}</td><td style="text-align:right;color:var(--text);">${rBon}</td></tr>`;
+    if ((b.merchant_breakdown && b.merchant_breakdown.length) || (b.milestones && b.milestones.length) || (b.special_bonuses && b.special_bonuses.length) || payout.retainer_cents > 0) {
+      html += `<div style="font-weight:800;margin-bottom:8px;color:var(--text);">Payout Details</div>`;
+      html += `<table style="width:100%;border-collapse:collapse;margin-bottom:16px;">
+        <tr style="border-bottom:1px solid var(--border);"><th style="text-align:left;padding:6px 0;color:var(--muted);font-size:11px;font-weight:700;">Item</th><th style="text-align:right;color:var(--muted);font-size:11px;font-weight:700;">Amount</th></tr>`;
+      
+      if (payout.retainer_cents > 0) {
+        const retFmt = '$' + (payout.retainer_cents / 100).toFixed(2);
+        html += `<tr style="border-bottom:1px solid rgba(255,255,255,0.04);"><td style="padding:6px 0;font-weight:600;color:var(--text);">Base Retainer</td><td style="text-align:right;color:var(--text);"><b style="color:var(--text);">${retFmt}</b></td></tr>`;
+        csvRows.push(`"Base Retainer",${retFmt}`);
       }
+      
+      if (b.merchant_breakdown) {
+        for (const mb of b.merchant_breakdown) {
+          const m = (window.allRepMerchants||[]).find(x => x.merchant_id === mb.merchant_id);
+          const name = m ? m.business_name : 'Unknown Merchant';
+          const invSuffix = mb.invoice_id ? ` <span style="color:var(--muted);font-size:11px;font-weight:500;">(...${mb.invoice_id.slice(-5)})</span>` : '';
+          const comm = '$' + ((mb.commission||0)/100).toFixed(2);
+          const rBon = '$' + ((mb.retention_bonus||0)/100).toFixed(2);
+          const inv = '$' + ((mb.invoice_total||0)/100).toFixed(2);
+          const rate = mb.invoice_total ? Math.round((mb.commission / mb.invoice_total) * 100) : 0;
+          const calcStr = mb.invoice_total ? `<span style="color:var(--muted);margin-right:8px;font-size:12px;">${inv} x ${rate}%</span> <b style="color:var(--text);">${comm}</b>` : `<b style="color:var(--text);">${comm}</b>`;
+
+          if (mb.commission > 0 || mb.invoice_total > 0) {
+            html += `<tr style="border-bottom:1px solid rgba(255,255,255,0.04);"><td style="padding:6px 0;font-weight:600;color:var(--text);">${name}${invSuffix}</td><td style="text-align:right;color:var(--text);">${calcStr}</td></tr>`;
+            csvRows.push(`"${name} Commission (Calculation: ${inv} x ${rate}%)",${comm}`);
+          }
+          if (mb.retention_bonus > 0) {
+            html += `<tr style="border-bottom:1px solid rgba(255,255,255,0.04);"><td style="padding:6px 0;font-weight:600;color:var(--text);">${name} Retention Bonus</td><td style="text-align:right;color:var(--text);"><b style="color:var(--text);">${rBon}</b></td></tr>`;
+            csvRows.push(`"${name} Retention Bonus",${rBon}`);
+          }
+        }
+      }
+      
+      if (b.milestones && b.milestones.length) {
+        for (const ms of b.milestones) {
+          const label = typeof ms === 'string' ? ms : ms.label;
+          let amtCents = typeof ms === 'object' && ms.amount ? ms.amount : 0;
+          if (!amtCents && payout.milestone_bonus_cents) amtCents = payout.milestone_bonus_cents / b.milestones.length;
+          const amtHtml = amtCents ? `<b style="color:var(--text);">$${(amtCents/100).toFixed(2)}</b>` : '';
+          html += `<tr style="border-bottom:1px solid rgba(255,255,255,0.04);"><td style="padding:6px 0;font-weight:600;color:var(--text);">${label}</td><td style="text-align:right;color:var(--text);">${amtHtml}</td></tr>`;
+          csvRows.push(`"${label}",${amtCents ? '$'+(amtCents/100).toFixed(2) : ''}`);
+        }
+      }
+      
+      if (b.special_bonuses && b.special_bonuses.length) {
+        for (const sb of b.special_bonuses) {
+          const label = typeof sb === 'string' ? sb : sb.label;
+          let amtCents = typeof sb === 'object' && sb.amount ? sb.amount : 0;
+          if (!amtCents && payout.special_bonus_cents) amtCents = payout.special_bonus_cents / b.special_bonuses.length;
+          const amtHtml = amtCents ? `<b style="color:var(--text);">$${(amtCents/100).toFixed(2)}</b>` : '';
+          html += `<tr style="border-bottom:1px solid rgba(255,255,255,0.04);"><td style="padding:6px 0;font-weight:600;color:var(--text);">${label}</td><td style="text-align:right;color:var(--text);">${amtHtml}</td></tr>`;
+          csvRows.push(`"${label}",${amtCents ? '$'+(amtCents/100).toFixed(2) : ''}`);
+        }
+      }
+      
+      const totalStr = '$' + ((payout.total_cents||0)/100).toFixed(2);
+      html += `<tr style="border-top:1px solid rgba(255,255,255,0.2);"><td style="padding:10px 0;font-weight:800;font-size:14px;color:var(--text);">Total Payout</td><td style="text-align:right;font-weight:800;font-size:14px;color:var(--text);">${totalStr}</td></tr>`;
+      csvRows.push(`"Total Payout",${totalStr}`);
+
       html += `</table>`;
-    }
-    if (b.milestones && b.milestones.length) {
-      html += `<div style="font-weight:800;margin-bottom:8px;color:var(--text);">Milestones Hit</div>`;
-      html += `<ul style="margin:0 0 16px 20px;padding:0;color:var(--text);">` + b.milestones.map(ms => `<li>${ms}</li>`).join('') + `</ul>`;
-    }
-    if (b.special_bonuses && b.special_bonuses.length) {
-      html += `<div style="font-weight:800;margin-bottom:8px;color:var(--text);">Special Bonuses</div>`;
-      html += `<ul style="margin:0 0 16px 20px;padding:0;color:var(--text);">` + b.special_bonuses.map(sb => `<li>${sb}</li>`).join('') + `</ul>`;
     }
     if (!html) html = 'No details generated for this payout yet.';
     
+    window._currentBreakdownCSV = csvRows.join('\n');
+    window._currentBreakdownHTML = html;
+
     document.getElementById('breakdown-content').innerHTML = html;
     document.getElementById('payout-breakdown-modal').style.display = 'flex';
+  }
+
+  function exportBreakdownCSV() {
+    if (!window._currentBreakdownCSV) return;
+    const blob = new Blob([window._currentBreakdownCSV], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.setAttribute('hidden', '');
+    a.setAttribute('href', url);
+    a.setAttribute('download', 'payout_breakdown.csv');
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+
+  function printBreakdown() {
+    if (!window._currentBreakdownHTML) return;
+    const printWindow = window.open('', '', 'height=600,width=800');
+    printWindow.document.write('<html><head><title>Payout Breakdown</title>');
+    printWindow.document.write('<style>body{font-family:sans-serif;color:#111;padding:20px;} table{width:100%;border-collapse:collapse;margin-top:10px;} th,td{padding:8px 0;border-bottom:1px solid #ddd;text-align:left;} th:last-child,td:last-child{text-align:right;} .text-muted{color:#666;}</style>');
+    printWindow.document.write('</head><body>');
+    printWindow.document.write('<h2>Payout Breakdown</h2>');
+    let printable = window._currentBreakdownHTML.replace(/color:var\([^)]+\);?/g, '').replace(/border-bottom:1px solid rgba[^;]+;?/g, '');
+    printWindow.document.write(printable);
+    printWindow.document.write('</body></html>');
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => { printWindow.print(); printWindow.close(); }, 250);
   }
 </script>
 </body>

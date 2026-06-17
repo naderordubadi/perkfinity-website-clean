@@ -94,6 +94,9 @@
       outline:none; cursor:pointer;
     }
     .toolbar-select option { background:#1E293B; color:#fff; }
+    .badge-paid { background:#22c55e18; color:#22c55e; }
+    .badge-approved { background:#3b82f618; color:#3b82f6; }
+    .badge-processing { background:#8b5cf618; color:#8b5cf6; }
     .toolbar-btn {
       padding:8px 16px; border-radius:10px; border:1px solid var(--border);
       background:rgba(255,255,255,0.06); color:#fff; font-size:13px; font-weight:600;
@@ -480,7 +483,7 @@
     </nav>
 
     <!-- Merchant Detail Overlay -->
-    <div id="merchant-detail-overlay" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:10000;justify-content:center;align-items:center;">
+    <div id="merchant-detail-overlay" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:10005;justify-content:center;align-items:center;">
       <div style="width:720px;max-height:90vh;overflow-y:auto;background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.3);padding:0;position:relative;">
         <div style="position:sticky;top:0;background:#fff;padding:20px 28px 12px;border-bottom:1px solid #e2e8f0;border-radius:16px 16px 0 0;display:flex;justify-content:space-between;align-items:center;z-index:2;">
           <div style="font-size:20px;font-weight:800;color:#1a1a2e;" id="detail-title">Merchant Details</div>
@@ -631,8 +634,12 @@
       <div style="width:500px;max-height:85vh;overflow-y:auto;background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.3);padding:28px;">
         <div style="font-size:18px;font-weight:800;color:#1a1a2e;margin-bottom:16px;">📊 Payout Breakdown</div>
         <div id="breakdown-content" style="font-size:13px;color:#475569;"></div>
-        <div style="margin-top:20px;text-align:right;">
-          <button onclick="document.getElementById('payout-breakdown-modal').style.display='none'" class="toolbar-btn" style="padding:8px 16px;">Close</button>
+        <div style="margin-top:20px;display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <button onclick="exportBreakdownCSV()" style="padding:8px 16px;border-radius:8px;border:1px solid #cbd5e1;background:#f1f5f9;color:#0f172a;font-size:13px;font-weight:600;cursor:pointer;margin-right:8px;">Export CSV</button>
+            <button onclick="printBreakdown()" style="padding:8px 16px;border-radius:8px;border:1px solid #cbd5e1;background:#f1f5f9;color:#0f172a;font-size:13px;font-weight:600;cursor:pointer;">Print</button>
+          </div>
+          <button onclick="document.getElementById('payout-breakdown-modal').style.display='none'" style="padding:8px 16px;border-radius:8px;border:1px solid #cbd5e1;background:#f1f5f9;color:#0f172a;font-size:13px;font-weight:600;cursor:pointer;">Close</button>
         </div>
       </div>
     </div>
@@ -770,6 +777,7 @@
             <option value="">All Tiers</option>
             <option value="free">Free Trial</option>
             <option value="free_for_life">Free For Life</option>
+            <option value="pouf">Pay Once Use Forever (POUF)</option>
             <option value="tier1">Connect</option>
           </select>
           <select class="toolbar-select" id="merchant-filter-presence" onchange="filterTable('merchants')">
@@ -1496,6 +1504,7 @@
         <div style="display:flex; border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-bottom:24px;">
           <div class="ann-step-tab active" id="tab-btn-cp" onclick="switchAcTab('cp')">Community Promos (Multi-use)</div>
           <div class="ann-step-tab" id="tab-btn-ffl" onclick="switchAcTab('ffl')">Free For Life (Single-use)</div>
+          <div class="ann-step-tab" id="tab-btn-pouf" onclick="switchAcTab('pouf')">POUF (Pay Once Use Forever)</div>
         </div>
 
         <!-- COMMUNITY PROMOS VIEW -->
@@ -1571,12 +1580,13 @@
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; align-items:start;">
             <div class="section-card" style="margin-bottom:0">
               <div class="section-title">🔑 Generate Free For Life Code</div>
+              
               <div class="form-group">
                 <label class="form-label">Label / Note <span style="color:var(--mutedLight);font-weight:400">(internal use only)</span></label>
                 <input type="text" class="form-input" id="ac-ffl-label" placeholder="e.g. Dental office — Dr. Smith" maxlength="100"/>
               </div>
-              <button class="toolbar-btn primary" style="width:100%;padding:12px;font-size:14px;justify-content:center" onclick="generateFFLCode()">
-                ✨ Generate Standard Code
+              <button class="toolbar-btn primary" style="width:100%;padding:12px;font-size:14px;justify-content:center" onclick="generateFFLCode('free_for_life')">
+                ✨ Generate Free For Life Code
               </button>
               
               <div id="ac-ffl-result" style="margin-top:16px;display:none">
@@ -1616,6 +1626,64 @@
                 </tr>
               </thead>
               <tbody id="tbody-ffl">
+                <tr><td colspan="8" style="color:var(--muted);text-align:center;padding:40px">Loading codes...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- POUF VIEW -->
+        <div id="ac-view-pouf" style="display:none;">
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; align-items:start;">
+            <div class="section-card" style="margin-bottom:0">
+              <div class="section-title">🔑 Generate POUF Code</div>
+              
+              <div class="form-group">
+                <label class="form-label">Label / Note <span style="color:var(--mutedLight);font-weight:400">(internal use only)</span></label>
+                <input type="text" class="form-input" id="ac-pouf-label" placeholder="e.g. Holiday Special" maxlength="100"/>
+              </div>
+
+              <button class="toolbar-btn purple" style="width:100%;padding:12px;font-size:14px;justify-content:center" onclick="generateFFLCode('pouf')">
+                ✨ Generate POUF Code
+              </button>
+              
+              <div id="ac-pouf-result" style="margin-top:16px;display:none">
+                <div class="form-label" style="margin-bottom:8px">Generated Code — click to copy</div>
+                <div class="code-box" style="border-color:rgba(147,112,219,0.3);color:var(--purple);background:rgba(147,112,219,0.1)" onclick="copyText(document.getElementById('ac-pouf-code-value').textContent, 'ac-pouf-copy-confirm')">
+                  <span id="ac-pouf-code-value"></span>
+                  <span class="copy-hint" style="color:var(--purple)">📋 Click to copy</span>
+                </div>
+                <div id="ac-pouf-copy-confirm" style="font-size:12px;color:var(--purple);margin-top:6px;display:none">✓ Copied to clipboard!</div>
+                <div style="margin-top:10px;font-size:12px;color:var(--muted);">Expires in <strong>30 days</strong> if unused.</div>
+              </div>
+              <div id="ac-pouf-err" style="color:var(--red);font-size:13px;margin-top:10px;display:none"></div>
+            </div>
+
+            <!-- Stats -->
+            <div>
+              <div class="stat-grid" style="grid-template-columns:1fr 1fr;margin-bottom:0">
+                <div class="stat-card"><div class="stat-value green" id="ac-stat-pouf-available">—</div><div class="stat-label">Available</div></div>
+                <div class="stat-card"><div class="stat-value purple" id="ac-stat-pouf-used">—</div><div class="stat-label">Redeemed</div></div>
+                <div class="stat-card"><div class="stat-value amber" id="ac-stat-pouf-expired">—</div><div class="stat-label">Expired</div></div>
+                <div class="stat-card"><div class="stat-value" id="ac-stat-pouf-total">—</div><div class="stat-label">Total Generated</div></div>
+              </div>
+            </div>
+          </div>
+          <div class="table-wrap" style="margin-top:20px">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Code</th>
+                  <th>Label</th>
+                  <th>Status</th>
+                  <th>Used By</th>
+                  <th>Used At</th>
+                  <th>Expires</th>
+                  <th>Created</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-pouf">
                 <tr><td colspan="8" style="color:var(--muted);text-align:center;padding:40px">Loading codes...</td></tr>
               </tbody>
             </table>
@@ -1816,6 +1884,7 @@
             <button class="toolbar-btn green" onclick="generatePayoutsFlow()">⚡ Generate Payouts</button>
             <button class="toolbar-btn" onclick="loadContractorPayouts()">🔄 Refresh</button>
             <button class="toolbar-btn" onclick="exportPayoutsCSV()">📥 CSV</button>
+            <button class="toolbar-btn" onclick="printPayoutsTable()">🖨️ Print</button>
           </div>
           <div id="cpay-skipped-banner" style="display:none;background:#fef3c7;border:1px solid #fcd34d;border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#78350f;"></div>
           <div class="section-card" style="padding:0;overflow:hidden;">
@@ -2031,7 +2100,11 @@
       return formatDate(dateStr);
     }
 
-    function cycleBadge(cycle) {
+    function cycleBadge(cycle, tier) {
+      if (tier === 'free_for_life')
+        return '<span style="font-size:11px;font-weight:700;color:#f472b6;background:rgba(244,114,182,0.12);border:1px solid rgba(244,114,182,0.35);border-radius:6px;padding:2px 7px;">FFL</span>';
+      if (cycle === 'lifetime')
+        return '<span style="font-size:11px;font-weight:700;color:#c084fc;background:rgba(192,132,252,0.12);border:1px solid rgba(192,132,252,0.35);border-radius:6px;padding:2px 7px;">POUF</span>';
       if (cycle === 'annual')
         return '<span style="font-size:11px;font-weight:700;color:#34d399;background:rgba(52,211,153,0.12);border:1px solid rgba(52,211,153,0.35);border-radius:6px;padding:2px 7px;">Annual</span>';
       return '<span style="font-size:11px;font-weight:700;color:#facc15;background:rgba(250,204,21,0.12);border:1px solid rgba(250,204,21,0.35);border-radius:6px;padding:2px 7px;">Monthly</span>';
@@ -2113,11 +2186,11 @@
         <div style="background:#f8fafc;border-radius:12px;padding:18px 20px;margin-bottom:20px;">
           <div style="font-size:14px;font-weight:800;color:#1a1a2e;margin-bottom:10px;">💳 Billing & Account</div>
           ${infoRow('Tier', tierLabel)}
-          ${infoRow('Sub Type', cycleBadge(m.billing_cycle))}
+          ${infoRow('Sub Type', cycleBadge(m.billing_cycle, m.tier))}
           ${infoRow('Status', statusLabel)}
           ${infoRow('Billing Status', m.billing_status || '\u2014')}
           ${infoRow('Member Limit', m.member_limit || 'Unlimited')}
-          ${infoRow('Next Billing Date', staleDateWarn(m.next_billing_date))}
+          ${infoRow('Next Billing Date', m.billing_cycle === 'lifetime' || m.tier === 'free_for_life' ? '<span style="color:var(--purple);font-weight:700;">Lifetime Plan</span>' : staleDateWarn(m.next_billing_date, m))}
           ${infoRow('Stripe Customer ID', m.stripe_customer_id || 'None')}
           ${infoRow('Stripe Subscription ID', m.stripe_subscription_id || 'None')}
           ${infoRow('Account Blocked', m.account_blocked ? 'Yes' : 'No')}
@@ -2455,12 +2528,12 @@
           <div style="font-size:14px;font-weight:800;color:#1a1a2e;margin-bottom:10px;">\ud83e\uddf3 Invoice Details</div>
           ${infoRow('Merchant', inv.merchant_name)}
           ${infoRow('Invoice ID', inv.id)}
-          ${infoRow('Sub Type', cycleBadge(inv.billing_cycle))}
+          ${infoRow('Sub Type', cycleBadge(inv.billing_cycle, inv.subscription_tier))}
           ${infoRow('Status', statusLabel)}
           ${infoRow('Amount', '$' + amt)}
           ${infoRow('Billing Period', period)}
           ${infoRow('Paid At', inv.paid_at ? formatDate(inv.paid_at) : '\u2014')}
-          ${infoRow('Next Billing Date', staleDateWarn(inv.next_billing_date))}
+          ${infoRow('Next Billing Date', inv.billing_cycle === 'lifetime' || inv.subscription_tier === 'free_for_life' ? '<span style="color:var(--purple);font-weight:700;">Lifetime Plan</span>' : staleDateWarn(inv.next_billing_date, inv))}
           ${infoRow('Billing Status', inv.billing_status || '\u2014')}
           ${inv.stripe_invoice_id ? infoRow('Stripe Invoice ID', inv.stripe_invoice_id) : ''}
           ${infoRow('Created', formatDate(inv.created_at))}
@@ -3052,10 +3125,12 @@
             else { statusLabel = 'Active'; statusClass = 'active'; }
             let billingDate = '\u2014';
             if (bs !== 'deleted') {
-              if (bs === 'pending_cancellation' && m.next_billing_date) {
+              if (m.billing_cycle === 'lifetime' || m.tier === 'free_for_life') {
+                billingDate = '<span style="color:var(--purple);font-weight:700;">Lifetime Plan</span>';
+              } else if (bs === 'pending_cancellation' && m.next_billing_date) {
                 billingDate = '<span style="color:#ef4444;font-weight:600;">\ud83d\udeab ' + formatDate(m.next_billing_date) + '</span>';
               } else if (m.next_billing_date) {
-                billingDate = staleDateWarn(m.next_billing_date);
+                billingDate = staleDateWarn(m.next_billing_date, m);
               }
             }
             return `
@@ -3066,7 +3141,7 @@
               <td>${m.location_zip || '\u2014'}</td>
               <td><span style="font-size:12px;font-weight:700;color:${m.business_presence==='online'?'#5b3fa5':m.business_presence==='hybrid'?'#7c3aed':m.business_presence==='mobile'?'#0891b2':'#16a34a'}">${m.business_presence==='online'?'🌐 Online':m.business_presence==='hybrid'?'📱 Hybrid':m.business_presence==='mobile'?'🚐 Mobile':'📍 Local'}</span></td>
               <td><span class="badge ${tierClass}">${tierLabel}</span></td>
-              <td>${cycleBadge(m.billing_cycle)}</td>
+              <td>${cycleBadge(m.billing_cycle, m.tier)}</td>
               <td><span class="badge ${statusClass}">${statusLabel}</span></td>
               <td>${m.member_count || 0}</td>
               <td>${billingDate}</td>
@@ -3150,8 +3225,8 @@
             }
             const nextBilling = isDeleted ? '—'
               : isPendingCancel && inv.next_billing_date
-                ? `<span style="color:#ef4444;font-weight:600;">🚫 ${staleDateWarn(inv.next_billing_date)}</span>`
-                : inv.next_billing_date ? staleDateWarn(inv.next_billing_date) : '—';
+                ? `<span style="color:#ef4444;font-weight:600;">🚫 ${staleDateWarn(inv.next_billing_date, inv)}</span>`
+                : inv.next_billing_date ? staleDateWarn(inv.next_billing_date, inv) : '—';
             const tierClass = inv.subscription_tier === 'tier1' ? 'tier1'
               : inv.subscription_tier === 'free_for_life' ? 'ffl'
               : ['online_starter','online_growth','online_scale','enterprise'].includes(inv.subscription_tier) ? 'tier1'
@@ -3167,7 +3242,7 @@
             <tr style="cursor:pointer;" onclick="showInvoiceDetail('${inv.id}')">
               <td><strong>${inv.merchant_name || '—'}</strong></td>
               <td><span class="badge ${tierClass}">${tierLabel}</span></td>
-              <td>${cycleBadge(inv.billing_cycle)}</td>
+              <td>${cycleBadge(inv.billing_cycle, inv.subscription_tier)}</td>
               <td><span class="badge ${statusClass}">${statusLabel}</span></td>
               <td>$${amt}</td>
               <td>${period}</td>
@@ -3426,17 +3501,30 @@
     }
 
     // Stale date: show formatted date + ⚠️ if the date is in the past
-    function staleDateWarn(d) {
+    // Workaround: Fix backend bug where Annual plans get next billing date 1 month away instead of 1 year
+    function staleDateWarn(d, obj) {
       if (!d) return '—';
-      const formatted = formatDate(d);
-      const isPast = new Date(d) < new Date();
+      let dateObj = new Date(d);
+      if (obj && obj.billing_cycle === 'annual' && obj.created_at) {
+        const diffDays = (dateObj - new Date(obj.created_at)) / (1000 * 60 * 60 * 24);
+        if (diffDays < 100) {
+          dateObj = new Date(obj.created_at);
+          dateObj.setFullYear(dateObj.getFullYear() + 1);
+        }
+      }
+      const formatted = formatDate(dateObj);
+      const isPast = dateObj < new Date();
       return isPast
         ? `${formatted} <span title="Stale — will auto-correct on next Stripe invoice event" style="cursor:help;font-size:12px;">⚠️</span>`
         : formatted;
     }
 
     // Billing cycle badge
-    function cycleBadge(cycle) {
+    function cycleBadge(cycle, tier) {
+      if (tier === 'free_for_life')
+        return '<span style="font-size:11px;font-weight:700;color:#f472b6;background:rgba(244,114,182,0.12);border:1px solid rgba(244,114,182,0.35);border-radius:6px;padding:2px 7px;">FFL</span>';
+      if (cycle === 'lifetime')
+        return '<span style="font-size:11px;font-weight:700;color:#c084fc;background:rgba(192,132,252,0.12);border:1px solid rgba(192,132,252,0.35);border-radius:6px;padding:2px 7px;">POUF</span>';
       if (cycle === 'annual')
         return '<span style="font-size:11px;font-weight:700;color:#34d399;background:rgba(52,211,153,0.12);border:1px solid rgba(52,211,153,0.35);border-radius:6px;padding:2px 7px;">Annual</span>';
       return '<span style="font-size:11px;font-weight:700;color:#facc15;background:rgba(250,204,21,0.12);border:1px solid rgba(250,204,21,0.35);border-radius:6px;padding:2px 7px;">Monthly</span>';
@@ -3596,8 +3684,10 @@
     function switchAcTab(tab) {
       document.getElementById('tab-btn-cp').className = tab === 'cp' ? 'ann-step-tab active' : 'ann-step-tab';
       document.getElementById('tab-btn-ffl').className = tab === 'ffl' ? 'ann-step-tab active' : 'ann-step-tab';
+      document.getElementById('tab-btn-pouf').className = tab === 'pouf' ? 'ann-step-tab active' : 'ann-step-tab';
       document.getElementById('ac-view-cp').style.display = tab === 'cp' ? 'block' : 'none';
       document.getElementById('ac-view-ffl').style.display = tab === 'ffl' ? 'block' : 'none';
+      document.getElementById('ac-view-pouf').style.display = tab === 'pouf' ? 'block' : 'none';
     }
 
     async function generateCommunityPromo() {
@@ -3645,11 +3735,13 @@
       }
     }
 
-    async function generateFFLCode() {
-      const label = document.getElementById('ac-ffl-label').value.trim();
-      const payload = { type: 'free_for_life', label: label || null };
+    async function generateFFLCode(type = 'free_for_life') {
+      const prefix = type === 'pouf' ? 'pouf' : 'ffl';
+      const label = document.getElementById(`ac-${prefix}-label`).value.trim();
+      const payloadType = type;
+      const payload = { type: payloadType, label: label || null };
 
-      const errEl = document.getElementById('ac-ffl-err');
+      const errEl = document.getElementById(`ac-${prefix}-err`);
       errEl.style.display = 'none';
       try {
         const res = await fetch(API_BASE + '/admin/access-codes', {
@@ -3660,12 +3752,12 @@
         const json = await res.json();
         if (!json.success) throw new Error(json.error);
         
-        document.getElementById('ac-ffl-code-value').textContent = json.data.code;
-        document.getElementById('ac-ffl-result').style.display = 'block';
-        document.getElementById('ac-ffl-copy-confirm').style.display = 'none';
+        document.getElementById(`ac-${prefix}-code-value`).textContent = json.data.code;
+        document.getElementById(`ac-${prefix}-result`).style.display = 'block';
+        document.getElementById(`ac-${prefix}-copy-confirm`).style.display = 'none';
         
-        document.getElementById('ac-ffl-label').value = '';
-        showToast('✅ Free For Life Code Generated');
+        document.getElementById(`ac-${prefix}-label`).value = '';
+        showToast(type === 'pouf' ? '✅ POUF Code Generated' : '✅ Free For Life Code Generated');
         loadAccessCodes();
       } catch(e) {
         errEl.textContent = 'Error: ' + e.message;
@@ -3986,7 +4078,8 @@
         const codes = json.data.codes || [];
         
         const cpCodes = codes.filter(c => c.type === 'extended_trial');
-        const fflCodes = codes.filter(c => c.type === 'free_for_life' || !c.type);
+        const fflCodes = codes.filter(c => c.type === 'free_for_life' || (!c.type && c.code && c.code.startsWith('FREE')));
+        const poufCodes = codes.filter(c => c.type === 'pouf' || (!c.type && c.code && c.code.startsWith('POUF')));
         
         const fmt = (d) => d ? new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '\u2014';
         const statusBadge = (s) => s === 'available' ? '<span class="badge available">Available</span>' : s === 'used' ? '<span class="badge tier1">Used</span>' : '<span class="badge expired">Expired</span>';
@@ -4044,6 +4137,32 @@
         document.getElementById('ac-stat-ffl-used').textContent = fflCodes.filter(c=>c.status==='used').length;
         document.getElementById('ac-stat-ffl-expired').textContent = fflCodes.filter(c=>c.status==='expired').length;
         document.getElementById('ac-stat-ffl-total').textContent = fflCodes.length;
+
+        // Render POUF Table
+        document.getElementById('tbody-pouf').innerHTML = poufCodes.map(c => `
+          <tr>
+            <td style="font-family:monospace;font-weight:800;color:var(--purple);letter-spacing:1px">${c.code}</td>
+            <td>${c.label || '<em style="color:var(--mutedLight)">—</em>'}</td>
+            <td>${statusBadge(c.status)}</td>
+            <td>${c.status === 'used' && c.used_by
+              ? `<div onclick="fetchAndShowMerchantDetail('${c.used_by}')"
+                   style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;background:rgba(91,63,165,0.1);border:1.5px solid rgba(91,63,165,0.25);border-radius:8px;cursor:pointer;font-size:12px;font-weight:700;color:var(--purple);transition:all 0.15s;white-space:nowrap;"
+                   onmouseover="this.style.background='rgba(91,63,165,0.2)'"
+                   onmouseout="this.style.background='rgba(91,63,165,0.1)'">
+                 🏪 ${c.used_by_name || 'View Merchant'}
+               </div>`
+              : '<span style="color:var(--muted)">—</span>'
+            }</td>
+            <td>${fmt(c.used_at)}</td>
+            <td>${fmt(c.expires_at)}</td>
+            <td>${fmt(c.created_at)}</td>
+            <td>${c.status === 'available' ? `<button onclick="expireAccessCode('${c.id}','${c.code}')" style="padding:4px 10px;font-size:11px;font-weight:700;border:1.5px solid #ef4444;background:rgba(239,68,68,0.08);color:#ef4444;border-radius:8px;cursor:pointer;transition:all 0.15s;" onmouseover="this.style.background='#ef4444';this.style.color='#fff';" onmouseout="this.style.background='rgba(239,68,68,0.08)';this.style.color='#ef4444';">Expire</button>` : '<span style="color:var(--mutedLight);font-size:11px;">—</span>'}</td>
+          </tr>`).join('') || '<tr><td colspan="8" style="color:var(--muted);text-align:center;padding:40px">No POUF codes yet</td></tr>';
+          
+        document.getElementById('ac-stat-pouf-available').textContent = poufCodes.filter(c=>c.status==='available').length;
+        document.getElementById('ac-stat-pouf-used').textContent = poufCodes.filter(c=>c.status==='used').length;
+        document.getElementById('ac-stat-pouf-expired').textContent = poufCodes.filter(c=>c.status==='expired').length;
+        document.getElementById('ac-stat-pouf-total').textContent = poufCodes.length;
         showToast('✅ Access Codes refreshed');
       } catch(e) { console.error('loadAccessCodes failed', e); }
     }
@@ -4786,6 +4905,7 @@
     // ════════════════════════════════════════════════════════════════
     let allContractors = [];
     let allContractorPayouts = [];
+    let _currentContractorPayouts = [];
     let _currentContractorId = null;
     let _pendingSpecialBonus = null;
     let _milestoneConfig = [];
@@ -4921,7 +5041,7 @@
           ? new Date(m.commission_end_date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})
           : '—';
         return `<tr style="border-bottom:1px solid #f1f5f9;">
-          <td style="padding:8px 10px;font-weight:600;font-size:12px;color:#1a1a2e;">${m.business_name||'—'}</td>
+          <td style="padding:8px 10px;font-weight:600;font-size:12px;"><a href="#" onclick="fetchAndShowMerchantDetail('${m.merchant_id}'); return false;" style="color:#2563eb;text-decoration:none;cursor:pointer;">${m.business_name||'—'}</a></td>
           <td style="padding:8px 10px;font-size:12px;color:#1a1a2e;">${tierMap[m.tier]||m.tier||'—'}</td>
           <td style="padding:8px 10px;font-size:12px;color:#1a1a2e;">${commStart}</td>
           <td style="padding:8px 10px;font-size:12px;color:#1a1a2e;">${commEnd}</td>
@@ -4948,21 +5068,23 @@
       }).join('') : '<tr><td colspan="5" style="padding:20px;text-align:center;color:#94a3b8;font-size:13px;">No special bonuses.</td></tr>';
 
       const payouts = c.payouts || [];
-      const pColors = { pending:'#f59e0b', approved:'#3b82f6', paid:'#22c55e', voided:'#94a3b8' };
+      _currentContractorPayouts = payouts;
+      const pColors = { pending:'#f59e0b', approved:'#3b82f6', processing:'#8b5cf6', paid:'#22c55e', voided:'#94a3b8' };
       const pRows = payouts.length ? payouts.map(p => {
         const pc = pColors[p.status]||'#94a3b8';
         const ps = p.period_start ? new Date(p.period_start).toLocaleDateString('en-US',{month:'short',year:'numeric'}) : '—';
         const bonTotal = ((p.milestone_bonus_cents||0)+(p.retention_bonus_cents||0)+(p.special_bonus_cents||0));
         return `<tr style="border-bottom:1px solid #f1f5f9;">
           <td style="padding:8px 10px;font-size:12px;color:#1a1a2e;">${ps}</td>
-          <td style="padding:8px 10px;font-size:12px;color:#1a1a2e;">$${((p.commission_cents||0)/100).toFixed(2)}</td>
-          <td style="padding:8px 10px;font-size:12px;color:#1a1a2e;">$${((p.retainer_cents||0)/100).toFixed(2)}</td>
-          <td style="padding:8px 10px;font-size:12px;color:#1a1a2e;">$${(bonTotal/100).toFixed(2)}</td>
-          <td style="padding:8px 10px;font-size:12px;font-weight:700;color:#1a1a2e;">$${((p.total_cents||0)/100).toFixed(2)}</td>
-          <td style="padding:8px 10px;font-size:12px;text-align:center;"><span style="padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700;background:${pc}18;color:${pc};">${p.status||'?'}</span></td>
+          <td style="padding:8px 10px;font-size:12px;color:#1a1a2e;text-align:right;">$${((p.commission_cents||0)/100).toFixed(2)}</td>
+          <td style="padding:8px 10px;font-size:12px;color:#1a1a2e;text-align:right;">$${((p.retainer_cents||0)/100).toFixed(2)}</td>
+          <td style="padding:8px 10px;font-size:12px;color:#1a1a2e;text-align:right;">$${(bonTotal/100).toFixed(2)}</td>
+          <td style="padding:8px 10px;font-size:12px;font-weight:700;color:#1a1a2e;text-align:right;">$${((p.total_cents||0)/100).toFixed(2)}</td>
+          <td style="padding:8px 10px;font-size:12px;text-align:center;"><span style="padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700;background:${pc}18;color:${pc};">${(p.status||'?').toUpperCase()}</span></td>
           <td style="padding:8px 10px;font-size:12px;text-align:center;color:#64748b;">${p.paid_at ? new Date(p.paid_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—'}</td>
+          <td style="padding:8px 10px;font-size:12px;text-align:center;"><button onclick="viewPayoutBreakdown('${p.id}')" style="padding:4px 9px;border-radius:6px;border:1px solid #e2e8f0;background:#fff;color:#1a1a2e;font-size:11px;font-weight:700;cursor:pointer;">ℹ️ Details</button></td>
         </tr>`;
-      }).join('') : '<tr><td colspan="7" style="padding:20px;text-align:center;color:#94a3b8;font-size:13px;">No payout history.</td></tr>';
+      }).join('') : '<tr><td colspan="8" style="padding:20px;text-align:center;color:#94a3b8;font-size:13px;">No payout history.</td></tr>';
 
       document.getElementById('ctr-detail-body').innerHTML = `
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
@@ -5098,8 +5220,14 @@
           </table>
         </div>
         <div style="background:#f8fafc;border-radius:12px;padding:18px 20px;">
-          <div style="font-size:13px;font-weight:800;color:#1a1a2e;margin-bottom:12px;">📋 Payout History</div>
-          <table style="width:100%;border-collapse:collapse;font-size:12px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <div style="font-size:13px;font-weight:800;color:#1a1a2e;">📋 Payout History</div>
+            <div>
+              <button onclick="exportContractorHistoryCSV()" style="padding:6px 12px;border-radius:6px;border:1px solid #cbd5e1;background:#fff;color:#0f172a;font-size:11px;font-weight:600;cursor:pointer;margin-right:6px;">Export CSV</button>
+              <button onclick="printContractorHistory()" style="padding:6px 12px;border-radius:6px;border:1px solid #cbd5e1;background:#fff;color:#0f172a;font-size:11px;font-weight:600;cursor:pointer;">Print</button>
+            </div>
+          </div>
+          <table id="c-history-table" style="width:100%;border-collapse:collapse;font-size:12px;">
             <thead><tr style="border-bottom:1px solid #e2e8f0;">
               <th style="padding:8px 10px;text-align:left;color:#64748b;font-weight:700;">Period</th>
               <th style="padding:8px 10px;text-align:right;color:#64748b;font-weight:700;">Commission</th>
@@ -5108,6 +5236,7 @@
               <th style="padding:8px 10px;text-align:right;color:#64748b;font-weight:700;">Total</th>
               <th style="padding:8px 10px;text-align:center;color:#64748b;font-weight:700;">Status</th>
               <th style="padding:8px 10px;text-align:center;color:#64748b;font-weight:700;">Paid On</th>
+              <th style="padding:8px 10px;text-align:center;color:#64748b;font-weight:700;">Action</th>
             </tr></thead>
             <tbody>${pRows}</tbody>
           </table>
@@ -5790,7 +5919,7 @@
     function renderContractorPayoutsTable(data) {
       const tbody = document.getElementById('cpay-tbody');
       if (!data.length) { tbody.innerHTML = '<tr><td colspan="9" style="padding:40px;text-align:center;color:var(--muted);">No payouts found.</td></tr>'; return; }
-      const pColors = { pending:'#f59e0b', approved:'#3b82f6', paid:'#22c55e', voided:'#94a3b8' };
+      const pColors = { pending:'#f59e0b', approved:'#3b82f6', processing:'#8b5cf6', paid:'#22c55e', voided:'#94a3b8' };
       tbody.innerHTML = data.map(p => {
         const pc  = pColors[p.status]||'#94a3b8';
         const ps  = p.period_start ? new Date(p.period_start).toLocaleDateString('en-US',{month:'short',year:'numeric'}) : '—';
@@ -5808,7 +5937,7 @@
             <td style="padding:12px;text-align:right;font-size:13px;">$${(bon/100).toFixed(2)}</td>
             <td style="padding:12px;text-align:right;font-size:13px;font-weight:800;">$${((p.total_cents||0)/100).toFixed(2)}</td>
             <td style="padding:12px;text-align:center;font-size:14px;" title="Stripe: ${p.stripe_onboarding_status||'?'}">${stripei}</td>
-            <td style="padding:12px;text-align:center;"><span style="padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;background:${pc}18;color:${pc};">${p.status||'?'}</span></td>
+            <td style="padding:12px;text-align:center;"><span style="padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;background:${pc}18;color:${pc};">${(p.status||'?').toUpperCase()}</span></td>
             <td style="padding:12px;text-align:center;font-size:12px;color:var(--mutedLight);">${p.paid_at ? new Date(p.paid_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—'}</td>
             <td style="padding:12px;text-align:center;">
               <div style="display:flex;gap:4px;justify-content:center;flex-wrap:wrap;">
@@ -5823,7 +5952,10 @@
     }
 
     function viewPayoutBreakdown(payoutId) {
-      const payout = allContractorPayouts.find(p => p.id === payoutId);
+      let payout = allContractorPayouts.find(p => p.id === payoutId);
+      if (!payout && typeof _currentContractorPayouts !== 'undefined') {
+        payout = _currentContractorPayouts.find(p => p.id === payoutId);
+      }
       if (!payout) return;
       let b;
       try { b = typeof payout.breakdown === 'string' ? JSON.parse(payout.breakdown) : payout.breakdown; } catch(e) {}
@@ -5834,35 +5966,104 @@
       const periodStr = pStart && pEnd ? `<div style="font-size:14px;color:#64748b;margin-bottom:16px;">Period: <b>${pStart} - ${pEnd}</b></div>` : '';
 
       let html = periodStr;
-      if (b.merchant_breakdown && b.merchant_breakdown.length) {
-        html += `<div style="font-weight:800;margin-bottom:8px;color:#1a1a2e;">Merchant Commissions</div>`;
+      let csvRows = ["Item,Amount"];
+
+      if ((b.merchant_breakdown && b.merchant_breakdown.length) || (b.milestones && b.milestones.length) || (b.special_bonuses && b.special_bonuses.length) || payout.retainer_cents > 0) {
+        html += `<div style="font-weight:800;margin-bottom:8px;color:#1a1a2e;">Payout Details</div>`;
         html += `<table style="width:100%;border-collapse:collapse;margin-bottom:16px;">
-          <tr style="border-bottom:1px solid #e2e8f0;"><th style="text-align:left;padding:6px 0;color:#64748b;font-size:11px;">Merchant</th><th style="text-align:right;color:#64748b;font-size:11px;">Calculation</th><th style="text-align:right;color:#64748b;font-size:11px;">Bonus</th></tr>`;
-        for (const mb of b.merchant_breakdown) {
-          const m = allMerchants.find(x => x.id === mb.merchant_id);
-          const name = m ? m.business_name : 'Unknown Merchant';
-          const comm = '$' + ((mb.commission||0)/100).toFixed(2);
-          const rBon = '$' + ((mb.retention_bonus||0)/100).toFixed(2);
-          const inv = '$' + ((mb.invoice_total||0)/100).toFixed(2);
-          const rate = mb.invoice_total ? Math.round((mb.commission / mb.invoice_total) * 100) : 0;
-          const calcStr = mb.invoice_total ? `${inv} x ${rate}% = <b>${comm}</b>` : `<b>${comm}</b>`;
-          
-          html += `<tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:6px 0;font-weight:600;">${name}</td><td style="text-align:right;">${calcStr}</td><td style="text-align:right;">${rBon}</td></tr>`;
+          <tr style="border-bottom:1px solid #e2e8f0;"><th style="text-align:left;padding:6px 0;color:#64748b;font-size:11px;">Item</th><th style="text-align:right;color:#64748b;font-size:11px;">Amount</th></tr>`;
+        
+        if (payout.retainer_cents > 0) {
+          const retFmt = '$' + (payout.retainer_cents / 100).toFixed(2);
+          html += `<tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:6px 0;font-weight:600;">Base Retainer</td><td style="text-align:right;"><b>${retFmt}</b></td></tr>`;
+          csvRows.push(`"Base Retainer",${retFmt}`);
         }
+        
+        if (b.merchant_breakdown) {
+          for (const mb of b.merchant_breakdown) {
+            const m = allMerchants.find(x => x.id === mb.merchant_id);
+            const name = m ? m.business_name : 'Unknown Merchant';
+            const invSuffix = mb.invoice_id ? ` <span style="color:#64748b;font-size:11px;font-weight:500;">(...${mb.invoice_id.slice(-5)})</span>` : '';
+            const comm = '$' + ((mb.commission||0)/100).toFixed(2);
+            const rBon = '$' + ((mb.retention_bonus||0)/100).toFixed(2);
+            const inv = '$' + ((mb.invoice_total||0)/100).toFixed(2);
+            const rate = mb.invoice_total ? Math.round((mb.commission / mb.invoice_total) * 100) : 0;
+            const calcStr = mb.invoice_total ? `<span style="color:#64748b;margin-right:8px;font-size:12px;">${inv} x ${rate}%</span> <b>${comm}</b>` : `<b>${comm}</b>`;
+            
+            if (mb.commission > 0 || mb.invoice_total > 0) {
+              html += `<tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:6px 0;font-weight:600;">${name}${invSuffix}</td><td style="text-align:right;">${calcStr}</td></tr>`;
+              csvRows.push(`"${name} Commission (Calculation: ${inv} x ${rate}%)",${comm}`);
+            }
+            if (mb.retention_bonus > 0) {
+              html += `<tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:6px 0;font-weight:600;">${name} Retention Bonus</td><td style="text-align:right;"><b>${rBon}</b></td></tr>`;
+              csvRows.push(`"${name} Retention Bonus",${rBon}`);
+            }
+          }
+        }
+        
+        if (b.milestones && b.milestones.length) {
+          for (const ms of b.milestones) {
+            const label = typeof ms === 'string' ? ms : ms.label;
+            let amtCents = typeof ms === 'object' && ms.amount ? ms.amount : 0;
+            if (!amtCents && payout.milestone_bonus_cents) amtCents = payout.milestone_bonus_cents / b.milestones.length;
+            const amtHtml = amtCents ? `<b>$${(amtCents/100).toFixed(2)}</b>` : '';
+            html += `<tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:6px 0;font-weight:600;">${label}</td><td style="text-align:right;">${amtHtml}</td></tr>`;
+            csvRows.push(`"${label}",${amtCents ? '$'+(amtCents/100).toFixed(2) : ''}`);
+          }
+        }
+        
+        if (b.special_bonuses && b.special_bonuses.length) {
+          for (const sb of b.special_bonuses) {
+            const label = typeof sb === 'string' ? sb : sb.label;
+            let amtCents = typeof sb === 'object' && sb.amount ? sb.amount : 0;
+            if (!amtCents && payout.special_bonus_cents) amtCents = payout.special_bonus_cents / b.special_bonuses.length;
+            const amtHtml = amtCents ? `<b>$${(amtCents/100).toFixed(2)}</b>` : '';
+            html += `<tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:6px 0;font-weight:600;">${label}</td><td style="text-align:right;">${amtHtml}</td></tr>`;
+            csvRows.push(`"${label}",${amtCents ? '$'+(amtCents/100).toFixed(2) : ''}`);
+          }
+        }
+        
+        const totalStr = '$' + ((payout.total_cents||0)/100).toFixed(2);
+        html += `<tr style="border-top:2px solid #e2e8f0;"><td style="padding:10px 0;font-weight:800;font-size:14px;color:#1a1a2e;">Total Payout</td><td style="text-align:right;font-weight:800;font-size:14px;color:#1a1a2e;">${totalStr}</td></tr>`;
+        csvRows.push(`"Total Payout",${totalStr}`);
+
         html += `</table>`;
-      }
-      if (b.milestones && b.milestones.length) {
-        html += `<div style="font-weight:800;margin-bottom:8px;color:#1a1a2e;">Milestones Hit</div>`;
-        html += `<ul style="margin:0 0 16px 20px;padding:0;">` + b.milestones.map(ms => `<li>${ms}</li>`).join('') + `</ul>`;
-      }
-      if (b.special_bonuses && b.special_bonuses.length) {
-        html += `<div style="font-weight:800;margin-bottom:8px;color:#1a1a2e;">Special Bonuses</div>`;
-        html += `<ul style="margin:0 0 16px 20px;padding:0;">` + b.special_bonuses.map(sb => `<li>${sb}</li>`).join('') + `</ul>`;
       }
       if (!html) html = 'No details generated for this payout yet.';
       
+      window._currentBreakdownCSV = csvRows.join('\n');
+      window._currentBreakdownHTML = html;
+
       document.getElementById('breakdown-content').innerHTML = html;
       document.getElementById('payout-breakdown-modal').style.display = 'flex';
+    }
+
+    function exportBreakdownCSV() {
+      if (!window._currentBreakdownCSV) return;
+      const blob = new Blob([window._currentBreakdownCSV], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.setAttribute('hidden', '');
+      a.setAttribute('href', url);
+      a.setAttribute('download', 'payout_breakdown.csv');
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+
+    function printBreakdown() {
+      if (!window._currentBreakdownHTML) return;
+      const printWindow = window.open('', '', 'height=600,width=800');
+      printWindow.document.write('<html><head><title>Payout Breakdown</title>');
+      printWindow.document.write('<style>body{font-family:sans-serif;color:#111;padding:20px;} table{width:100%;border-collapse:collapse;margin-top:10px;} th,td{padding:8px 0;border-bottom:1px solid #ddd;text-align:left;} th:last-child,td:last-child{text-align:right;} .text-muted{color:#666;}</style>');
+      printWindow.document.write('</head><body>');
+      printWindow.document.write('<h2>Payout Breakdown</h2>');
+      let printable = window._currentBreakdownHTML.replace(/color:#(?:[0-9a-fA-F]{3}){1,2};?/g, '').replace(/border-bottom:1px solid #[a-fA-F0-9]+;?/g, '');
+      printWindow.document.write(printable);
+      printWindow.document.write('</body></html>');
+      printWindow.document.close();
+      printWindow.focus();
+      setTimeout(() => { printWindow.print(); printWindow.close(); }, 250);
     }
 
     async function generatePayoutsFlow() {

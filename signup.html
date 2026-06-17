@@ -327,13 +327,12 @@
                 <input type="text" id="promo_code" placeholder="Enter promo code"
                   style="flex:1;padding:12px 16px;border-radius:12px;border:1.5px solid var(--border);font-size:15px;outline:none;font-family:inherit;background:#fdfdfd;"
                   oninput="this.value = this.value.toUpperCase()" />
-                <div id="promoStatus" style="font-size:13px;font-weight:600;min-width:80px;"></div>
+                <button onclick="applyPromo()" style="padding:12px 18px;border-radius:12px;border:1.5px solid rgba(91,63,165,.4);background:#f8f6ff;color:var(--purple);font-weight:900;cursor:pointer;font-family:inherit;white-space:nowrap;">Apply</button>
               </div>
               <p style="margin:6px 0 0;font-size:12px;color:var(--muted);">
-                Enter a promo code to extend your free trial member limit
+                Enter a promo code to extend your free trial member limit or apply a special offer
               </p>
-              <div id="promoError" style="color:#dc3545;font-size:13px;font-weight:600;margin-top:6px;display:none;">
-              </div>
+              <div id="promoStatus" style="display:none;margin-top:10px;"></div>
             </div>
 
             <div style="display:flex;gap:15px">
@@ -387,7 +386,7 @@
               <label style="font-size:13px;font-weight:600;color:var(--dark);display:block;margin-bottom:6px;">
                 Were you referred by a Perkfinity Sales Partner?
               </label>
-              <input type="text" id="contractor_code_signup" placeholder="Enter referral code (e.g. REF-JOHNM1234)" maxlength="15"
+              <input type="text" id="contractor_code_signup" placeholder="Enter referral code (e.g. REP-JOHNM1234)" maxlength="15"
                 style="width:100%;padding:12px 16px;border-radius:10px;border:1.5px solid var(--border);font-size:14px;background:#fff;box-sizing:border-box;text-transform:uppercase;letter-spacing:0.05em;"
                 oninput="this.value=this.value.toUpperCase();document.getElementById('noReferralCheckbox_signup').checked=false;"
                 onblur="validateSignupReferralCode(this.value)">
@@ -1288,13 +1287,24 @@
         if (cycle === 'annual') {
           btnA.style.background = 'var(--purple)'; btnA.style.color = '#fff';
           btnM.style.background = 'transparent'; btnM.style.color = 'var(--purpleDark)';
-          if (priceEl) priceEl.innerHTML = '$305.89<span style="font-size:14px;color:var(--muted)">/yr</span>';
+          if (priceEl) priceEl.innerHTML = window._isPoufApplied ? '$305.89<span style="font-size:14px;color:var(--muted)"> (Fully Paid)</span>' : '$305.89<span style="font-size:14px;color:var(--muted)">/yr</span>';
           if (savingsEl) savingsEl.style.display = 'block';
         } else {
           btnM.style.background = 'var(--purple)'; btnM.style.color = '#fff';
           btnA.style.background = 'transparent'; btnA.style.color = 'var(--purpleDark)';
           if (priceEl) priceEl.innerHTML = '$29.99<span style="font-size:14px;color:var(--muted)">/mo</span>';
           if (savingsEl) savingsEl.style.display = 'none';
+        }
+
+        // Clear promo code when toggling to monthly to prevent bypass
+        if (cycle === 'monthly') {
+          const promoInput = document.getElementById('promo_code');
+          if (promoInput && promoInput.value.trim()) {
+            promoInput.value = '';
+            const statusEl = document.getElementById('promoStatus');
+            if (statusEl) statusEl.style.display = 'none';
+          }
+          window._isPoufApplied = false;
         }
       }
 
@@ -1306,13 +1316,44 @@
         });
         element.style.border = '2px solid var(--purple)';
         element.style.background = 'rgba(91,63,165,.05)';
-        // Show promo code only for trial; show billing toggle only for Connect
+        // Show promo code for all tiers so POUF codes can be applied
         const promoSection = document.getElementById('promoCodeSection');
-        if (promoSection) promoSection.style.display = tier === 'trial' ? 'block' : 'none';
+        if (promoSection) promoSection.style.display = 'block';
         const toggleWrap = document.getElementById('billing-cycle-toggle-wrap');
         if (toggleWrap) toggleWrap.style.display = tier === 'tier1' ? 'block' : 'none';
         // Reset billing cycle to monthly when switching back to trial
         if (tier === 'trial') { selectedBillingCycle = 'monthly'; setBillingCycle('monthly'); }
+      }
+
+      async function applyPromo() {
+        const code = document.getElementById('promo_code').value.trim().toUpperCase();
+        const res = document.getElementById('promoStatus');
+        if (!code) { res.style.display = 'none'; return; }
+        try {
+          const r = await fetch(`${PerkfinityConfig.BACKEND_URL}/api/v1/admin/access-codes/validate?code=${encodeURIComponent(code)}`);
+          const j = await r.json();
+          if (j.success && j.data?.type === 'pouf') {
+            if (selectedBillingCycle !== 'annual') {
+              res.style.cssText = 'display:block;background:rgba(245,158,11,.08);border:1.5px solid rgba(245,158,11,.35);border-radius:12px;padding:12px 16px;font-size:13px;font-weight:800;color:#d97706;margin-top:10px';
+              res.textContent = '⚠️ This Pay Once Use Forever code requires Annual billing. Switch to Annual to apply.';
+            } else {
+              res.style.cssText = 'display:block;background:rgba(107,193,122,.10);border:1.5px solid rgba(107,193,122,.35);border-radius:12px;padding:12px 16px;font-size:13px;font-weight:800;color:#1e5c38;margin-top:10px';
+              res.textContent = '✓ Pay Once Use Forever applied — you will only be charged a one-time lifetime fee!';
+              const priceEl = document.getElementById('connect-price-display');
+              if (priceEl) priceEl.innerHTML = '$305.89<span style="font-size:14px;color:var(--muted)"> (Fully Paid)</span>';
+              window._isPoufApplied = true;
+            }
+          } else if (j.success && j.data?.type === 'extended_trial') {
+            res.style.cssText = 'display:block;background:rgba(107,193,122,.10);border:1.5px solid rgba(107,193,122,.35);border-radius:12px;padding:12px 16px;font-size:13px;font-weight:800;color:#1e5c38;margin-top:10px';
+            res.textContent = `✓ Promo applied — first ${j.data.member_limit || 150} members FREE before billing starts!`;
+          } else {
+            res.style.cssText = 'display:block;background:rgba(220,38,38,.08);border:1.5px solid rgba(220,38,38,.35);border-radius:12px;padding:12px 16px;font-size:13px;font-weight:800;color:#dc2626;margin-top:10px';
+            res.textContent = '✗ Invalid or expired promo code.';
+          }
+        } catch (e) {
+          res.style.cssText = 'display:block;color:#dc2626;';
+          res.textContent = 'Could not validate code. Continue without it.';
+        }
       }
 
       async function executeSignup() {
@@ -1381,6 +1422,7 @@
           business_category: document.getElementById('business_category').value,
           promo_code: document.getElementById('promo_code').value.trim(),
           tier: selectedTier,
+          billing_cycle: selectedBillingCycle,
           password: password,
           contractor_code: (document.getElementById('contractor_code_signup')?.value || '').trim().toUpperCase() || null
         };
@@ -1539,7 +1581,7 @@
               await fetch(`${BACKEND_URL}/api/v1/stripe/confirm-setup`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${currentAccessToken}` },
-                body: JSON.stringify({ merchant_id: currentMerchantId, payment_method_id: setupIntent.payment_method, tier: selectedTier })
+                body: JSON.stringify({ merchant_id: currentMerchantId, payment_method_id: setupIntent.payment_method, tier: selectedTier, billing_cycle: selectedBillingCycle })
               });
             } catch (e) { console.error('confirm-setup failed:', e); }
 
@@ -1591,11 +1633,11 @@
             errEl.innerText = data.error || 'Failed to start checkout.';
             errEl.style.display = 'block';
             btn.disabled = false;
-            btn.innerText = selectedBillingCycle === 'annual' ? '💳 Pay $305.89/yr & Continue →' : '💳 Pay $29.99/mo & Continue →';
+            btn.innerText = selectedBillingCycle === 'annual' ? (window._isPoufApplied ? '💳 Pay $305.89 & Continue →' : '💳 Pay $305.89/yr & Continue →') : '💳 Pay $29.99/mo & Continue →';
           }
         } catch (e) {
           btn.disabled = false;
-          btn.innerText = selectedBillingCycle === 'annual' ? '💳 Pay $305.89/yr & Continue →' : '💳 Pay $29.99/mo & Continue →';
+          btn.innerText = selectedBillingCycle === 'annual' ? (window._isPoufApplied ? '💳 Pay $305.89 & Continue →' : '💳 Pay $305.89/yr & Continue →') : '💳 Pay $29.99/mo & Continue →';
         }
       }
 
@@ -1892,7 +1934,7 @@
       <h3 style="margin:0 0 8px;font-size:20px;color:#1e1b4b;">One last thing &#x1F44B;</h3>
       <p style="color:#64748b;font-size:14px;margin:0 0 24px;">Were you referred to Perkfinity by one of our Sales Partners? Enter their code below, or confirm you weren&#x27;t referred.</p>
       <label style="font-size:13px;font-weight:600;color:#334155;display:block;margin-bottom:6px;">Referral Code</label>
-      <input type="text" id="signupReferralInput" placeholder="REF-XXXXX1234" maxlength="15"
+      <input type="text" id="signupReferralInput" placeholder="REP-XXXXX1234" maxlength="15"
         style="width:100%;padding:12px 16px;border-radius:10px;border:1.5px solid #e2e8f0;font-size:15px;box-sizing:border-box;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:14px;"
         oninput="this.value=this.value.toUpperCase();document.getElementById('signupNoReferralChk').checked=false;">
       <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer;">
@@ -1915,8 +1957,8 @@
       const input = document.getElementById('contractor_code_signup');
       if (!code || !code.trim()) return;
       const c = code.trim().toUpperCase();
-      if (!c.startsWith('REF-') || c.length < 10) {
-        if (errEl) { errEl.innerText = 'Code format looks off — codes start with REF- (e.g. REF-JOHNM1234).'; errEl.style.display = 'block'; }
+      if (!c.startsWith('REP-') || c.length < 10) {
+        if (errEl) { errEl.innerText = 'Code format looks off — codes start with REP- (e.g. REP-JOHNM1234).'; errEl.style.display = 'block'; }
         return;
       }
       try {

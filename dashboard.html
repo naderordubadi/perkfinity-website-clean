@@ -1842,14 +1842,15 @@
         <div id="tier1-status-wrapper" class="alert alert-success">
           <span id="tier1-status-icon" class="icon">✅</span>
           <div id="tier1-status-text">Your <strong>Connect</strong> subscription is active. Next charge: <strong
-              class="tier1-next-charge">April 27, 2026</strong> — $29.99.</div>
+              class="tier1-next-charge">April 27, 2026</strong><span id="tier1-status-price-suffix"> — $29.99.</span></div>
         </div>
         <div class="billing-section">
           <h3>Your Plan</h3>
           <div class="plan-card">
             <div class="plan-details">
               <span class="plan-badge tier1">💎 Connect</span>
-              <div class="plan-price">$29.99 <span>/month</span></div>
+              <span id="tier1-cycle-badge" style="display:none;margin-left:6px;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:800;background:rgba(22,163,74,.12);color:#16a34a;border:1px solid rgba(22,163,74,.3);">Annual</span>
+              <div class="plan-price"><span id="tier1-plan-price-val">$29.99</span> <span id="tier1-plan-price-suffix">/month</span></div>
               <ul class="plan-features">
                 <li>Unlimited digital promotions</li>
                 <li>Weekly newsletter inclusions</li>
@@ -2833,6 +2834,18 @@
             }
           })();
         }
+      }
+
+      if (urlParams.get('upgrade_success') === 'true') {
+        history.replaceState({}, '', window.location.pathname);
+        const banner = document.createElement('div');
+        banner.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#6BC17A;color:#fff;padding:14px 28px;border-radius:12px;font-weight:800;font-size:15px;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.15)';
+        banner.innerHTML = '✅ Plan Upgraded Successfully! Your new limits and monthly cycle are active.';
+        document.body.appendChild(banner);
+        setTimeout(() => banner.remove(), 4000);
+        switchTab('billing');
+        // Give webhook a tiny bit of time to complete before reloading billing data
+        setTimeout(loadBilling, 1000);
       }
 
       const bName = localStorage.getItem('perkfinity_business_name');
@@ -3856,6 +3869,10 @@
         });
         const json = await res.json();
         if (json.success) {
+          if (json.checkout_url) {
+            window.location.href = json.checkout_url;
+            return;
+          }
           if (warningBox) warningBox.style.display = 'none';
           // Show congratulations modal, then refresh billing after dismiss
           const tierNames = { tier1:'Connect', online_starter:'Starter', online_growth:'Growth', online_scale:'Scale', free_for_life:'Free For Life' };
@@ -3944,6 +3961,16 @@
         const d = json.data;
         window.currentInvoices = d.invoices || [];
         window._lastBillingCycle = d.billing_cycle || 'monthly'; // for reactivateSubscription
+
+        // Backend bug workaround: If annual, but the stored date is < 6 months from created_at, it's wrong (it was set as monthly)
+        if (d.billing_cycle === 'annual' && d.next_billing_date && d.created_at) {
+          const diffDays = (new Date(d.next_billing_date) - new Date(d.created_at)) / (1000 * 60 * 60 * 24);
+          if (diffDays < 100) {
+            const correctedDt = new Date(d.created_at);
+            correctedDt.setFullYear(correctedDt.getFullYear() + 1);
+            d.next_billing_date = correctedDt.toISOString();
+          }
+        }
 
         // ── Online brand: pending application banner ──────────────
         if (d.application_status === 'pending') {
@@ -4237,6 +4264,7 @@
           }
 
           let nextBillingStr = d.next_billing_date;
+          
           // Also recalculate if the stored date is in the past (stale DB data before webhook fix)
           const nextBillingInPast = nextBillingStr && new Date(nextBillingStr) < new Date();
           if ((!nextBillingStr || nextBillingInPast) && d.created_at) {
@@ -4245,9 +4273,15 @@
             let nextDt = new Date(cDt);
             nextDt.setFullYear(nDt.getFullYear());
             nextDt.setMonth(nDt.getMonth());
-            if (nextDt <= nDt) nextDt.setMonth(nextDt.getMonth() + 1);
+            if (d.billing_cycle === 'annual') {
+              if (nextDt <= nDt) nextDt.setFullYear(nextDt.getFullYear() + 1);
+            } else {
+              if (nextDt <= nDt) nextDt.setMonth(nextDt.getMonth() + 1);
+            }
             nextBillingStr = nextDt.toISOString();
           }
+
+          const isAnnualTier1 = d.billing_cycle === 'annual';
 
           if (d.billing_status === 'pending_cancellation') {
             const banner = document.getElementById('tier1-status-wrapper');
@@ -4265,11 +4299,46 @@
             }
           } else {
             if (sceneEl.querySelector('.tier1-next-charge')) {
-              sceneEl.querySelector('.tier1-next-charge').innerText = nextBillingStr ? formatDt(nextBillingStr) : 'N/A';
+              sceneEl.querySelector('.tier1-next-charge').innerText = (d.billing_cycle === 'lifetime') ? 'Lifetime Plan' : (nextBillingStr ? formatDt(nextBillingStr) : 'N/A');
+            }
+            if (document.getElementById('tier1-status-price-suffix')) {
+              if (d.billing_cycle === 'lifetime') {
+                document.getElementById('tier1-status-price-suffix').style.display = 'none';
+              } else {
+                document.getElementById('tier1-status-price-suffix').style.display = 'inline';
+                document.getElementById('tier1-status-price-suffix').textContent = isAnnualTier1 ? ' — $305.89.' : ' — $29.99.';
+              }
+            }
+          }
+
+          if (document.getElementById('tier1-plan-price-val')) {
+            document.getElementById('tier1-plan-price-val').textContent = (d.billing_cycle === 'lifetime') ? 'Paid in Full' : (isAnnualTier1 ? '$305.89' : '$29.99');
+          }
+          if (document.getElementById('tier1-plan-price-suffix')) {
+            if (d.billing_cycle === 'lifetime') {
+              document.getElementById('tier1-plan-price-suffix').style.display = 'none';
+            } else {
+              document.getElementById('tier1-plan-price-suffix').style.display = 'inline';
+              document.getElementById('tier1-plan-price-suffix').textContent = isAnnualTier1 ? '/year' : '/month';
+            }
+          }
+          
+          const t1CycleBadge = document.getElementById('tier1-cycle-badge');
+          if (t1CycleBadge) {
+            if (d.billing_cycle === 'lifetime') {
+              t1CycleBadge.textContent = 'Lifetime';
+              t1CycleBadge.style.display = 'inline-block';
+              t1CycleBadge.style.backgroundColor = 'var(--purple)';
+              t1CycleBadge.style.color = '#fff';
+            } else if (isAnnualTier1) {
+              t1CycleBadge.textContent = 'Annual';
+              t1CycleBadge.style.display = 'inline-block';
+            } else {
+              t1CycleBadge.style.display = 'none';
             }
           }
           if (sceneEl.querySelector('.tier1-next-billing')) {
-            sceneEl.querySelector('.tier1-next-billing').innerText = nextBillingStr ? formatDt(nextBillingStr) : 'N/A';
+            sceneEl.querySelector('.tier1-next-billing').innerText = (d.billing_cycle === 'lifetime') ? 'Lifetime Plan' : (nextBillingStr ? formatDt(nextBillingStr) : 'N/A');
           }
           if (sceneEl.querySelector('.tier1-member-since')) {
             sceneEl.querySelector('.tier1-member-since').innerText = d.created_at ? formatDt(d.created_at) : 'Unknown';
@@ -4288,10 +4357,15 @@
             const badge = document.getElementById('oa-badge');
             if (badge) { badge.textContent=`${ti.emoji} ${ti.name}`; badge.style.color=ti.color; badge.style.background=ti.bg; badge.style.borderColor=ti.color+'66'; }
 
-            // Billing cycle badge (show Annual pill if annual)
+            // Billing cycle badge (show Annual/Lifetime pill)
             const cycleBadgeEl = document.getElementById('oa-cycle-badge');
             if (cycleBadgeEl) {
-              if (isAnnual) {
+              if (d.billing_cycle === 'lifetime') {
+                cycleBadgeEl.textContent = 'Lifetime';
+                cycleBadgeEl.style.display = 'inline-block';
+                cycleBadgeEl.style.backgroundColor = 'var(--purple)';
+                cycleBadgeEl.style.color = '#fff';
+              } else if (isAnnual) {
                 cycleBadgeEl.textContent = 'Annual';
                 cycleBadgeEl.style.display = 'inline-block';
               } else {
@@ -4299,22 +4373,39 @@
               }
             }
 
-            const activePrice = isAnnual ? ti.priceAnnual : ti.price;
-            const activeSuffix = isAnnual ? '/yr' : '/mo';
+            const activePrice = d.billing_cycle === 'lifetime' ? 'Paid in Full' : (isAnnual ? ti.priceAnnual : ti.price);
+            const activeSuffix = d.billing_cycle === 'lifetime' ? '' : (isAnnual ? '/yr' : '/mo');
 
             const priceDisp = document.getElementById('oa-price-display');
             if (priceDisp) priceDisp.textContent = activePrice;
             const priceSuffix = document.getElementById('oa-price-suffix');
-            if (priceSuffix) priceSuffix.textContent = activeSuffix === '/yr' ? '/year' : '/month';
+            if (priceSuffix) {
+              if (d.billing_cycle === 'lifetime') {
+                priceSuffix.style.display = 'none';
+              } else {
+                priceSuffix.style.display = 'inline';
+                priceSuffix.textContent = activeSuffix === '/yr' ? '/year' : '/month';
+              }
+            }
 
             const planName = document.getElementById('oa-plan-name');
             if (planName) planName.textContent = ti.name;
 
             const nextChargeEl = document.getElementById('oa-next-charge');
-            if (nextChargeEl) nextChargeEl.textContent = nextBillingStr ? formatDt(nextBillingStr) : '—';
+            if (nextChargeEl) nextChargeEl.textContent = (d.billing_cycle === 'lifetime') ? 'None (Lifetime Plan)' : (nextBillingStr ? formatDt(nextBillingStr) : '—');
 
             const oaPrice = document.getElementById('oa-price');
-            if (oaPrice) oaPrice.textContent = activePrice + activeSuffix;
+            if (oaPrice) {
+              if (d.billing_cycle === 'lifetime') {
+                 oaPrice.style.display = 'none';
+                 // remove the preceding emdash by hiding its previous text node if we wanted to be perfect, 
+                 // but for now setting it to empty is easiest
+                 oaPrice.previousSibling.textContent = '';
+              } else {
+                 oaPrice.style.display = 'inline';
+                 oaPrice.textContent = activePrice + activeSuffix;
+              }
+            }
 
             const limitLabel = document.getElementById('oa-member-limit-label');
             if (limitLabel) limitLabel.textContent = ti.limitNum ? `Up to ${ti.limit} Members` : 'Unlimited Members';
@@ -4326,7 +4417,7 @@
             if (membCount) membCount.textContent = `Currently: ${d.member_count || 0} active members`;
 
             const nextBillingEl = document.getElementById('oa-next-billing');
-            if (nextBillingEl) nextBillingEl.textContent = nextBillingStr ? formatDt(nextBillingStr) : '—';
+            if (nextBillingEl) nextBillingEl.textContent = (d.billing_cycle === 'lifetime') ? 'Lifetime Plan' : (nextBillingStr ? formatDt(nextBillingStr) : '—');
 
             const memberSince = document.getElementById('oa-member-since');
             if (memberSince) memberSince.textContent = d.created_at ? formatDt(d.created_at) : 'Unknown';
@@ -4365,13 +4456,23 @@
               if (upgradeInfo && d.billing_status !== 'pending_cancellation') {
                 oaUpgradeLink.style.display = '';
                 document.getElementById('oa-upgrade-label').textContent = upgradeInfo.label;
-                document.getElementById('oa-upgrade-subtext').textContent = upgradeInfo.subtext;
                 document.getElementById('oa-upgrade-confirm-title').textContent = `🚀 ${upgradeInfo.label}?`;
-                document.getElementById('oa-upgrade-confirm-list').innerHTML = `
-                  <li>Your member limit increases to <strong>${upgradeInfo.limit} immediately</strong></li>
-                  <li>Pricing changes to <strong>${upgradeInfo.price}/mo</strong> at your next billing cycle</li>
-                  <li>No charge today — pricing change takes effect on <strong>${nextBillingStr ? formatDt(nextBillingStr) : 'your renewal date'}</strong></li>
-                `;
+                
+                if (d.billing_cycle === 'lifetime') {
+                  document.getElementById('oa-upgrade-subtext').textContent = `Move to ${upgradeInfo.limit} members — switches to monthly subscription`;
+                  document.getElementById('oa-upgrade-confirm-list').innerHTML = `
+                    <li><b style="color:var(--orange)">WARNING:</b> You will lose your Lifetime access and switch to a recurring monthly subscription immediately.</li>
+                    <li>Your member limit increases to <strong>${upgradeInfo.limit} immediately</strong></li>
+                    <li>Pricing changes to <strong>${upgradeInfo.price}/mo</strong> starting today</li>
+                  `;
+                } else {
+                  document.getElementById('oa-upgrade-subtext').textContent = upgradeInfo.subtext;
+                  document.getElementById('oa-upgrade-confirm-list').innerHTML = `
+                    <li>Your member limit increases to <strong>${upgradeInfo.limit} immediately</strong></li>
+                    <li>Pricing changes to <strong>${upgradeInfo.price}/mo</strong> at your next billing cycle</li>
+                    <li>No charge today — pricing change takes effect on <strong>${nextBillingStr ? formatDt(nextBillingStr) : 'your renewal date'}</strong></li>
+                  `;
+                }
                 const oaUpgradeBtn = document.getElementById('oa-upgrade-confirm-btn');
                 if (oaUpgradeBtn) oaUpgradeBtn.onclick = () => doUpgrade(upgradeInfo.next, 'upgrade-warning-online');
               } else {
@@ -4413,6 +4514,10 @@
             if (link.innerHTML.includes('Update Payment Method') || link.innerHTML.includes('Download Invoices')) {
               link.onclick = goToCustomerPortal;
             } else if (link.innerHTML.includes('Cancel Subscription')) {
+              if (d.billing_cycle === 'lifetime') {
+                const h4 = link.querySelector('h4');
+                if (h4) h4.textContent = 'Cancel Account';
+              }
               link.onclick = () => showCancelWarning(); // arrow fn prevents MouseEvent being passed as id
             } else if (link.innerHTML.includes('Cancel Account')) {
               link.onclick = () => showFFLCancelWarning(); // same fix

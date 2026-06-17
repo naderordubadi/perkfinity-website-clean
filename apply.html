@@ -270,7 +270,7 @@ By using this plan, members and performance across all locations will be aggrega
 <!-- Referral Code (Task 3) -->
 <div style="margin:18px 0 10px;">
 <label style="font-size:13px;font-weight:600;color:#1f2030;display:block;margin-bottom:6px;">Were you referred by a Perkfinity Sales Partner?</label>
-<input type="text" id="f-referral-code" placeholder="Referral code (e.g. REF-JOHNM1234)" maxlength="15"
+<input type="text" id="f-referral-code" placeholder="Referral code (e.g. REP-JOHNM1234)" maxlength="15"
   style="width:100%;padding:11px 14px;border-radius:10px;border:1.5px solid #e2e8f0;font-size:14px;box-sizing:border-box;text-transform:uppercase;letter-spacing:0.05em;"
   oninput="this.value=this.value.toUpperCase();document.getElementById('f-no-referral').checked=false;"
   onblur="validateApplyReferralCode(this.value)">
@@ -517,6 +517,18 @@ function setApplyBillingCycle(cycle){
     if(pel)pel.innerHTML=prices[t][cycle==='annual'?1:0];
     if(sel)sel.style.display=cycle==='annual'?'block':'none';
   });
+  // Clear promo code when toggling to monthly to prevent bypass
+  if (cycle === 'monthly') {
+    const accessCodeInput = document.getElementById('f-access-code');
+    if (accessCodeInput && accessCodeInput.value.trim()) {
+      accessCodeInput.value = '';
+      promoApplied = null;
+      const res = document.getElementById('promo-result');
+      if (res) res.style.display = 'none';
+      const fflNote = document.getElementById('ffl-tier-note');
+      if (fflNote) fflNote.style.display = 'none';
+    }
+  }
 }
 
 function selectTier(tier,el){
@@ -652,6 +664,18 @@ async function applyPromo(){
       res.style.cssText='display:block;background:rgba(107,193,122,.10);border:1.5px solid rgba(107,193,122,.35);border-radius:12px;padding:12px 16px;font-size:13px;font-weight:800;color:#1e5c38;margin-top:10px';
       res.textContent=`\u2713 Promo applied \u2014 first ${promoApplied.member_limit} members FREE before billing starts!`;
       if(fflNote)fflNote.style.display='none';
+    }else if(j.success&&j.data?.type==='pouf'){
+      if(selectedBillingCycle !== 'annual'){
+        res.style.cssText='display:block;background:rgba(245,158,11,.08);border:1.5px solid rgba(245,158,11,.35);border-radius:12px;padding:12px 16px;font-size:13px;font-weight:800;color:#d97706;margin-top:10px';
+        res.textContent='\u26A0\uFE0F This Pay Once Use Forever code requires Annual billing. Switch to Annual to apply.';
+        promoApplied=null;
+        if(fflNote)fflNote.style.display='none';
+      } else {
+        promoApplied={code,isPOUF:true};
+        res.style.cssText='display:block;background:rgba(107,193,122,.10);border:1.5px solid rgba(107,193,122,.35);border-radius:12px;padding:12px 16px;font-size:13px;font-weight:800;color:#1e5c38;margin-top:10px';
+        res.innerHTML='\u2713 Pay Once Use Forever applied \u2014 you will only be charged a one-time lifetime fee!<br><span style="display:block;margin-top:6px;font-size:12px;font-weight:600;opacity:0.9">Please choose wisely! In case you need to upgrade later, you will lose your Pay Once Use Forever privilege and you will need to subscribe for a monthly or annual plan.</span>';
+        if(fflNote)fflNote.style.display='none';
+      }
     }else{
       res.style.cssText='display:block;background:rgba(220,38,38,.08);border:1.5px solid rgba(220,38,38,.35);border-radius:12px;padding:12px 16px;font-size:13px;font-weight:800;color:#dc2626;margin-top:10px';
       res.textContent='\u2717 Invalid or expired promo code.';promoApplied=null;
@@ -993,8 +1017,8 @@ async function validateApplyReferralCode(code){
   // Use a small inline element instead so we don't disrupt the err3 flow
   let liveEl=document.getElementById('applyRefLiveFeedback');
   if(!liveEl){liveEl=document.createElement('p');liveEl.id='applyRefLiveFeedback';liveEl.style.cssText='font-size:13px;margin-top:4px;display:none;';document.getElementById('f-referral-code').parentNode.appendChild(liveEl);}
-  if(!c.startsWith('REF-')||c.length<10){
-    liveEl.style.color='#dc2626';liveEl.innerText='Code format looks off — codes start with REF- (e.g. REF-JOHNM1234).';liveEl.style.display='block';
+  if(!c.startsWith('REP-')||c.length<10){
+    liveEl.style.color='#dc2626';liveEl.innerText='Code format looks off — codes start with REP- (e.g. REP-JOHNM1234).';liveEl.style.display='block';
     return;
   }
   try{
@@ -1022,7 +1046,7 @@ async function validateApplyReferralCode(code){
       <h3 style="margin:0 0 8px;font-size:20px;color:#1e1b4b;">One last thing \u{1F44B}</h3>
       <p style="color:#64748b;font-size:14px;margin:0 0 24px;">Were you referred to Perkfinity by one of our Sales Partners? Enter their code below, or confirm you weren&#39;t.</p>
       <label style="font-size:13px;font-weight:600;color:#334155;display:block;margin-bottom:6px;">Referral Code</label>
-      <input type="text" id="referralCodeInterstitial" placeholder="REF-XXXXX1234" maxlength="15"
+      <input type="text" id="referralCodeInterstitial" placeholder="REP-XXXXX1234" maxlength="15"
         style="width:100%;padding:12px 16px;border-radius:10px;border:1.5px solid #e2e8f0;font-size:15px;box-sizing:border-box;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:14px;"
         oninput="this.value=this.value.toUpperCase();document.getElementById('noReferralInterstitial').checked=false;">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
