@@ -4982,7 +4982,7 @@
             <td style="padding:12px;text-align:center;"><span style="padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;background:${sc}18;color:${sc};">${(c.status||'?').toUpperCase()}</span></td>
             <td style="padding:12px;text-align:center;font-size:16px;" title="Stripe: ${c.stripe_onboarding_status||'pending'}">${stripeb}</td>
             <td style="padding:12px;text-align:center;font-size:16px;" title="ICA: ${c.ica_status||'not_sent'}">${icb}</td>
-            <td style="padding:12px;text-align:center;font-weight:700;">${c.merchant_count||0}</td>
+            <td style="padding:12px;text-align:center;font-weight:700;">${c.attributed_merchants||0}</td>
             <td style="padding:12px;text-align:right;font-weight:700;${(c.total_ytd_cents||0)>=60000?'color:#16a34a;':'color:var(--text);'}">$${ytd}</td>
             <td style="padding:12px;text-align:center;">
               <button onclick="event.stopPropagation();openContractorDetail('${c.id}')" style="padding:5px 12px;border-radius:7px;border:1px solid var(--border);background:none;color:var(--text);font-size:12px;font-weight:700;cursor:pointer;">View</button>
