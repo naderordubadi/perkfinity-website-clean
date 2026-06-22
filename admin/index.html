@@ -2100,7 +2100,10 @@
       return formatDate(dateStr);
     }
 
-    function cycleBadge(cycle, tier) {
+    function cycleBadge(cycle, tier, m = null) {
+      if (m && m.billing_status === 'active' && !m.stripe_subscription_id && !m.stripe_payment_method_id && m.member_limit === null && m.billing_cycle === 'monthly' && tier !== 'free_for_life') {
+        return '<span style="font-size:11px;font-weight:700;color:#0ea5e9;background:rgba(14,165,233,0.12);border:1px solid rgba(14,165,233,0.35);border-radius:6px;padding:2px 7px;">Demo</span>';
+      }
       if (tier === 'free_for_life')
         return '<span style="font-size:11px;font-weight:700;color:#f472b6;background:rgba(244,114,182,0.12);border:1px solid rgba(244,114,182,0.35);border-radius:6px;padding:2px 7px;">FFL</span>';
       if (cycle === 'lifetime')
@@ -2118,13 +2121,15 @@
       overlay.style.display = 'flex';
       document.getElementById('detail-title').textContent = m.business_name || 'Merchant Details';
 
-      const tierLabel = m.tier === 'tier1' ? 'Connect'
-        : m.tier === 'free_for_life' ? 'Free For Life'
-        : m.tier === 'online_starter' ? 'Starter'
-        : m.tier === 'online_growth' ? 'Growth'
-        : m.tier === 'online_scale' ? 'Scale'
-        : m.tier === 'enterprise' ? 'Enterprise'
-        : 'Free Trial';
+      let tierLabel = '—';
+      if (m.tier === 'tier1') tierLabel = 'Connect';
+      else if (m.tier === 'free_for_life') tierLabel = 'Free For Life';
+      else if (m.tier === 'online_starter') tierLabel = 'Starter';
+      else if (m.tier === 'online_growth') tierLabel = 'Growth';
+      else if (m.tier === 'online_scale') tierLabel = 'Scale';
+      else if (m.tier === 'enterprise') tierLabel = 'Enterprise';
+      else if (m.tier === 'trial' || m.tier === 'free_trial' || m.tier === 'extended_trial') tierLabel = 'Free Trial';
+      else if (m.tier) tierLabel = m.tier.replace('online_','').replace(/_/g, ' ').replace(/\b\w/g, c=>c.toUpperCase());
       const bs = m.billing_status || m.status || 'active';
       let statusLabel = bs;
       if (bs === 'deleted') { statusLabel = 'Deleted'; }
@@ -2186,9 +2191,9 @@
         <div style="background:#f8fafc;border-radius:12px;padding:18px 20px;margin-bottom:20px;">
           <div style="font-size:14px;font-weight:800;color:#1a1a2e;margin-bottom:10px;">💳 Billing & Account</div>
           ${infoRow('Tier', tierLabel)}
-          ${infoRow('Sub Type', cycleBadge(m.billing_cycle, m.tier))}
+          ${infoRow('Sub Type', cycleBadge(m.billing_cycle, m.tier, m))}
           ${infoRow('Status', statusLabel)}
-          ${infoRow('Billing Status', m.billing_status || '\u2014')}
+          ${infoRow('Billing Status', m.billing_status ? m.billing_status.charAt(0).toUpperCase() + m.billing_status.slice(1).replace('_', ' ') : '—')}
           ${infoRow('Member Limit', m.member_limit || 'Unlimited')}
           ${infoRow('Next Billing Date', m.billing_cycle === 'lifetime' || m.tier === 'free_for_life' ? '<span style="color:var(--purple);font-weight:700;">Lifetime Plan</span>' : staleDateWarn(m.next_billing_date, m))}
           ${infoRow('Stripe Customer ID', m.stripe_customer_id || 'None')}
@@ -2365,7 +2370,7 @@
         <div style="background:#f8fafc;border-radius:12px;padding:18px 20px;margin-bottom:16px;">
           <div style="font-size:14px;font-weight:800;color:#1a1a2e;margin-bottom:10px;">💳 Plan & Billing</div>
           ${infoRow('Selected Plan', tierLabel)}
-          ${infoRow('Billing Status', a.billing_status)}
+          ${infoRow('Billing Status', a.billing_status ? a.billing_status.charAt(0).toUpperCase() + a.billing_status.slice(1).replace('_', ' ') : '—')}
           ${infoRow('Members Joined', a.member_count || 0)}
           ${infoRow('Stripe Customer ID', a.stripe_customer_id ? `<span style="font-family:monospace;font-size:11px;">${a.stripe_customer_id}</span>` : 'None')}
           ${infoRow('Payment Method ID', a.stripe_payment_method_id ? `<span style="font-family:monospace;font-size:11px;">${a.stripe_payment_method_id}</span>` : 'None')}
@@ -2388,6 +2393,7 @@
         <div style="display:flex;gap:10px;justify-content:flex-end;padding-top:4px;flex-wrap:wrap;">
           <button onclick="closeMerchantDetail();declineApp('${a.id}');" style="padding:10px 20px;border-radius:10px;border:1px solid rgba(239,68,68,0.4);background:rgba(239,68,68,0.08);color:#ef4444;font-size:13px;font-weight:800;cursor:pointer;">❌ Decline</button>
           <button onclick="closeMerchantDetail();followUpApp('${a.id}');" style="padding:10px 20px;border-radius:10px;border:1px solid rgba(59,130,246,0.4);background:rgba(59,130,246,0.08);color:#3b82f6;font-size:13px;font-weight:800;cursor:pointer;">💬 Follow Up</button>
+          <button onclick="closeMerchantDetail();approveAppAsDemoRow('${a.id}');" style="padding:10px 20px;border-radius:10px;border:none;background:linear-gradient(135deg,#7c3aed,#5b21b6);color:#fff;font-size:13px;font-weight:800;cursor:pointer;">🎭 Demo</button>
           <button onclick="closeMerchantDetail();approveApp('${a.id}');" style="padding:10px 20px;border-radius:10px;border:none;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-size:13px;font-weight:800;cursor:pointer;">✅ Approve</button>
         </div>` : ''}
       `;
@@ -3141,7 +3147,7 @@
               <td>${m.location_zip || '\u2014'}</td>
               <td><span style="font-size:12px;font-weight:700;color:${m.business_presence==='online'?'#5b3fa5':m.business_presence==='hybrid'?'#7c3aed':m.business_presence==='mobile'?'#0891b2':'#16a34a'}">${m.business_presence==='online'?'🌐 Online':m.business_presence==='hybrid'?'📱 Hybrid':m.business_presence==='mobile'?'🚐 Mobile':'📍 Local'}</span></td>
               <td><span class="badge ${tierClass}">${tierLabel}</span></td>
-              <td>${cycleBadge(m.billing_cycle, m.tier)}</td>
+              <td>${cycleBadge(m.billing_cycle, m.tier, m)}</td>
               <td><span class="badge ${statusClass}">${statusLabel}</span></td>
               <td>${m.member_count || 0}</td>
               <td>${billingDate}</td>
@@ -3520,7 +3526,10 @@
     }
 
     // Billing cycle badge
-    function cycleBadge(cycle, tier) {
+    function cycleBadge(cycle, tier, m = null) {
+      if (m && m.billing_status === 'active' && !m.stripe_subscription_id && !m.billing_starts_at_member_count && ['online_starter', 'online_growth', 'online_scale'].includes(m.tier)) {
+        return '<span style="font-size:11px;font-weight:700;color:#0ea5e9;background:rgba(14,165,233,0.12);border:1px solid rgba(14,165,233,0.35);border-radius:6px;padding:2px 7px;">Demo</span>';
+      }
       if (tier === 'free_for_life')
         return '<span style="font-size:11px;font-weight:700;color:#f472b6;background:rgba(244,114,182,0.12);border:1px solid rgba(244,114,182,0.35);border-radius:6px;padding:2px 7px;">FFL</span>';
       if (cycle === 'lifetime')
@@ -3830,11 +3839,16 @@
           <td style="padding:14px 12px;color:var(--muted);">${tierLabel(a.subscription_tier)}</td>
           <td style="padding:14px 12px;color:var(--muted);">${a.member_count||0}</td>
           <td style="padding:14px 12px;color:var(--muted);">${a.billing_starts_at_member_count ? a.billing_starts_at_member_count + ' members' : 'On approval'}</td>
-          <td style="padding:14px 12px;">${statusBadge(a.application_status)}</td>
+          <td style="padding:14px 12px;">${
+            a.billing_status === 'active' && !a.stripe_subscription_id && !a.stripe_payment_method_id && a.member_limit === null && a.billing_cycle === 'monthly' && a.subscription_tier !== 'free_for_life'
+              ? '<span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:800;background:#7c3aed22;color:#7c3aed;">🎭 Demo</span>'
+              : statusBadge(a.application_status)
+          }</td>
           <td style="padding:14px 12px;color:var(--muted);font-size:12px;">${new Date(a.created_at).toLocaleDateString()}</td>
           <td style="padding:14px 12px;text-align:center;">
             ${a.application_status === 'pending' || a.application_status === 'followup' ? `
               <button onclick="event.stopPropagation();approveApp('${a.id}')" style="padding:6px 12px;border-radius:8px;border:none;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-size:11px;font-weight:800;cursor:pointer;margin-right:4px;">Approve</button>
+              <button onclick="event.stopPropagation();approveAppAsDemoRow('${a.id}')" style="padding:6px 12px;border-radius:8px;border:none;background:linear-gradient(135deg,#7c3aed,#5b21b6);color:#fff;font-size:11px;font-weight:800;cursor:pointer;margin-right:4px;">Demo</button>
               <button onclick="event.stopPropagation();followUpApp('${a.id}')" style="padding:6px 12px;border-radius:8px;border:none;background:rgba(59,130,246,0.15);color:#3b82f6;font-size:11px;font-weight:800;cursor:pointer;border:1px solid rgba(59,130,246,0.3);margin-right:4px;">💬 Follow Up</button>
               <button onclick="event.stopPropagation();declineApp('${a.id}')" style="padding:6px 12px;border-radius:8px;border:none;background:rgba(239,68,68,0.12);color:#ef4444;font-size:11px;font-weight:800;cursor:pointer;border:1px solid rgba(239,68,68,0.3);">Decline</button>
             ` : `<span style="font-size:12px;color:var(--mutedLight);">${a.application_status}</span>`}
@@ -3902,6 +3916,24 @@
       applyApplicationFilters();
     }
 
+    async function approveAppAsDemoRow(id) {
+      if (!confirm('Approve this as a Demo Account? This will detach the payment method and mark the account active with unlimited members.')) return;
+      try {
+        const res = await fetch(API_BASE + '/admin/online-applications/' + id + '/approve-demo', {
+          method: 'PUT',
+          headers: getAdminHeaders(),
+        });
+        const json = await res.json();
+        if (json.success) {
+          showToast('✅ Demo account approved!');
+          loadApplications();
+        } else {
+          showToast('⚠️ ' + (json.error || 'Failed to approve'));
+        }
+      } catch (err) {
+        showToast('⚠️ Error connecting to server');
+      }
+    }
 
     async function approveApp(id) {
       const app = (_allApplications || []).find(a => a.id === id);
@@ -3916,18 +3948,21 @@
             <p style="color:#aaa;margin:0 0 24px;font-size:14px;line-height:1.5;">Approve <strong style="color:#fff;">${brandName}</strong>?<br>Their account will be activated and a subscription started (unless promo delay applies).</p>
             <div style="display:flex;gap:12px;justify-content:center;">
               <button id="appr-cancel" style="padding:10px 24px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:transparent;color:#aaa;font-size:14px;cursor:pointer;font-weight:600;">Cancel</button>
+              <button id="appr-demo" style="padding:10px 24px;border-radius:8px;border:none;background:linear-gradient(135deg,#7c3aed,#5b21b6);color:#fff;font-weight:800;font-size:14px;cursor:pointer;">🎭 Demo Account</button>
               <button id="appr-confirm" style="padding:10px 24px;border-radius:8px;border:none;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-weight:800;font-size:14px;cursor:pointer;">✅ Approve</button>
             </div>
           </div>`;
         document.body.appendChild(overlay);
         document.getElementById('appr-cancel').onclick  = () => { overlay.remove(); resolve(false); };
-        document.getElementById('appr-confirm').onclick = () => { overlay.remove(); resolve(true); };
+        document.getElementById('appr-demo').onclick    = () => { overlay.remove(); resolve('demo'); };
+        document.getElementById('appr-confirm').onclick = () => { overlay.remove(); resolve('standard'); };
         overlay.onclick = (e) => { if (e.target === overlay) { overlay.remove(); resolve(false); } };
       });
       if (!confirmed) return;
       try {
+        const endpoint = confirmed === 'demo' ? '/approve-demo' : '/approve';
         // Use fetch + getAdminHeaders directly — adminFetch does not support method/body options
-        const res = await fetch(API_BASE + '/admin/online-applications/' + id + '/approve', {
+        const res = await fetch(API_BASE + '/admin/online-applications/' + id + endpoint, {
           method: 'PUT',
           headers: getAdminHeaders(),
         });
@@ -4212,8 +4247,18 @@
           listEl.innerHTML = '<div style="text-align:center;padding:40px;color:#94a3b8;">No merchants have used this code yet.</div>';
           return;
         }
-        const presLabel = p => p === 'online' ? '🌐 Online' : p === 'mobile' ? '🚐 Mobile' : '📍 Local';
-        const tierBadge = t => t === 'tier1' ? '<span class="badge tier1">Connect</span>' : t === 'free_for_life' ? '<span class="badge ffl">FFL</span>' : '<span class="badge free">Free Trial</span>';
+        const presLabel = p => p === 'online' ? '🌐 Online' : p === 'hybrid' ? '📱 Hybrid' : p === 'mobile' ? '🚐 Mobile' : '📍 Local';
+        const tierBadge = m => {
+          const isDemo = m.billing_status === 'active' && !m.stripe_subscription_id && !m.stripe_payment_method_id && m.member_limit === null && m.billing_cycle === 'monthly' && m.subscription_tier !== 'free_for_life';
+          if (isDemo) return '<span class="badge" style="background:rgba(14,165,233,0.12);color:#0ea5e9;border:1px solid rgba(14,165,233,0.35);">Demo</span>';
+          if (m.subscription_tier === 'free_for_life') return '<span class="badge ffl">FFL</span>';
+          const tMap = { tier1:'Connect', online_starter:'Starter', online_growth:'Growth', online_scale:'Scale', enterprise:'Enterprise' };
+          if (tMap[m.subscription_tier]) return `<span class="badge tier1">${tMap[m.subscription_tier]}</span>`;
+          if (m.subscription_tier === 'trial' || m.subscription_tier === 'free_trial' || m.subscription_tier === 'extended_trial') return '<span class="badge free">Free Trial</span>';
+          if (!m.subscription_tier) return '<span class="badge" style="background:#f1f5f9;color:#64748b;border:1px solid #cbd5e1;">—</span>';
+          const niceTier = m.subscription_tier.replace('online_','').replace(/_/g, ' ').replace(/\b\w/g, c=>c.toUpperCase());
+          return `<span class="badge tier1">${niceTier}</span>`;
+        };
         listEl.innerHTML = `
           <table style="width:100%;border-collapse:collapse;">
             <thead>
@@ -4235,7 +4280,7 @@
                   <td style="padding:10px 12px;font-weight:700;font-size:13px;color:#f1f5f9;">${m.business_name}</td>
                   <td style="padding:10px 12px;font-size:12px;color:#94a3b8;">${m.location_city || '—'}</td>
                   <td style="padding:10px 12px;font-size:12px;color:#94a3b8;">${presLabel(m.business_presence)}</td>
-                  <td style="padding:10px 12px;">${tierBadge(m.subscription_tier)}</td>
+                  <td style="padding:10px 12px;">${tierBadge(m)}</td>
                   <td style="padding:10px 12px;font-size:13px;font-weight:700;color:#5b3fa5;">${m.member_count || 0}</td>
                   <td style="padding:10px 12px;font-size:12px;color:#94a3b8;">${new Date(m.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</td>
                 </tr>`).join('')}
@@ -5034,9 +5079,16 @@
       const merchants = c.attributed_merchants || [];
       const tierMap = { tier1:'Connect', free_for_life:'Free For Life', online_starter:'Starter', online_growth:'Growth', online_scale:'Scale', enterprise:'Enterprise' };
       const mRows = merchants.length ? merchants.map(m => {
-        const commStart = m.commission_start_date
-          ? new Date(m.commission_start_date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})
-          : '⏳ Awaiting 1st payment';
+        let commStart = '⏳ Awaiting 1st payment';
+        if (m.commission_start_date) {
+          commStart = new Date(m.commission_start_date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+        } else {
+          const isDemo = m.billing_status === 'active' && !m.stripe_subscription_id && !m.stripe_payment_method_id && m.member_limit === null && m.billing_cycle === 'monthly' && m.tier !== 'free_for_life';
+          if (m.billing_status === 'cancelled') commStart = 'Cancelled';
+          else if (isDemo) commStart = 'Demo';
+          else if (m.tier === 'free_for_life') commStart = 'FFL';
+          else if (m.tier === 'trial' || m.tier === 'free_trial' || m.tier === 'extended_trial') commStart = 'Member limit not reached';
+        }
         const commEnd = m.commission_end_date
           ? new Date(m.commission_end_date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})
           : '—';

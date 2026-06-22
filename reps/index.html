@@ -475,8 +475,12 @@
               ${merchants.map(m => {
                 const tierMap = { tier1:'Connect', free_for_life:'Free For Life', online_starter:'Starter', online_growth:'Growth', online_scale:'Scale', enterprise:'Enterprise', trial:'Free Trial', free_trial:'Free Trial' };
                 const typeMap = { monthly:'Monthly', annual:'Annual', lifetime:'POUF' };
-                const freq = (m.billing_cycle === 'monthly') ? 'Recurring' : (m.billing_cycle === 'lifetime' || m.billing_cycle === 'annual') ? 'Single' : '—';
+                let freq = (m.billing_cycle === 'monthly') ? 'Recurring' : (m.billing_cycle === 'lifetime' || m.billing_cycle === 'annual') ? 'Single' : '—';
                 
+                const isDemo = m.billing_status === 'active' && !m.stripe_subscription_id && !m.stripe_payment_method_id && m.member_limit === null && m.billing_cycle === 'monthly' && m.tier !== 'free_for_life';
+
+                if (isDemo) freq = 'Demo';
+
                 const priceMap = {
                   tier1: { monthly: 29.99, annual: 305.89, lifetime: 305.89 },
                   online_starter: { monthly: 149, annual: 1519.80, lifetime: 1519.80 },
@@ -484,7 +488,7 @@
                   online_scale: { monthly: 499, annual: 5089.80, lifetime: 5089.80 }
                 };
                 const commRate = earningsR?.data?.rule?.commission_rate || 0.25;
-                const estGross = priceMap[m.tier]?.[m.billing_cycle || 'monthly'] || 0;
+                const estGross = isDemo ? 0 : (priceMap[m.tier]?.[m.billing_cycle || 'monthly'] || 0);
                 const estComm = estGross * commRate;
                 const grossFmt = estGross ? `$${estGross.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}` : '—';
                 const commFmt = estComm ? `$${estComm.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}` : '—';
