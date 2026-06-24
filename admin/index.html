@@ -5094,6 +5094,7 @@
           : '—';
         return `<tr style="border-bottom:1px solid #f1f5f9;">
           <td style="padding:8px 10px;font-weight:600;font-size:12px;"><a href="#" onclick="fetchAndShowMerchantDetail('${m.merchant_id}'); return false;" style="color:#2563eb;text-decoration:none;cursor:pointer;">${m.business_name||'—'}</a></td>
+          <td style="padding:8px 10px;font-size:12px;color:#1a1a2e;font-weight:700;">${m.member_count || 0}</td>
           <td style="padding:8px 10px;font-size:12px;color:#1a1a2e;">${tierMap[m.tier]||m.tier||'—'}</td>
           <td style="padding:8px 10px;font-size:12px;color:#1a1a2e;">${commStart}</td>
           <td style="padding:8px 10px;font-size:12px;color:#1a1a2e;">${commEnd}</td>
@@ -5245,6 +5246,7 @@
             <table style="width:100%;border-collapse:collapse;font-size:12px;">
               <thead><tr style="border-bottom:1px solid #e2e8f0;">
                 <th style="padding:8px 10px;text-align:left;color:#64748b;font-weight:700;">Business</th>
+                <th style="padding:8px 10px;text-align:left;color:#64748b;font-weight:700;">Members</th>
                 <th style="padding:8px 10px;text-align:left;color:#64748b;font-weight:700;">Tier</th>
                 <th style="padding:8px 10px;text-align:left;color:#64748b;font-weight:700;">Comm. Start</th>
                 <th style="padding:8px 10px;text-align:left;color:#64748b;font-weight:700;">Comm. End</th>

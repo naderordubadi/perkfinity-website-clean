@@ -470,7 +470,7 @@
       document.getElementById('merchants-content').innerHTML = `
         <div style="overflow-x:auto;">
           <table class="tbl">
-            <thead><tr><th>Business</th><th>Tier</th><th>Type</th><th>Pay Frequency</th><th>Est. Gross</th><th>Est. Commission</th><th>Status</th><th>Since</th></tr></thead>
+            <thead><tr><th>Business</th><th>Tier</th><th>Type</th><th>Pay Frequency</th><th>Est. Gross</th><th>Est. Commission</th><th>Status</th><th>Members</th><th>Since</th></tr></thead>
             <tbody>
               ${merchants.map(m => {
                 const tierMap = { tier1:'Connect', free_for_life:'Free For Life', online_starter:'Starter', online_growth:'Growth', online_scale:'Scale', enterprise:'Enterprise', trial:'Free Trial', free_trial:'Free Trial' };
@@ -504,6 +504,7 @@
                   <td style="font-size:12px;font-weight:700;">${grossFmt}</td>
                   <td style="font-size:12px;font-weight:800;color:#22c55e;">${commFmt}</td>
                   <td><span class="badge badge-${badgeClass}">${displayStatus.toUpperCase()}</span></td>
+                  <td style="font-size:12px;font-weight:700;color:var(--text);">${m.member_count || 0}</td>
                   <td style="color:var(--muted);">${fmtDate(m.attributed_at)}</td>
                 </tr>`;
               }).join('')}
