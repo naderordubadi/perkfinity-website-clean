@@ -386,7 +386,7 @@
               <label style="font-size:13px;font-weight:600;color:var(--dark);display:block;margin-bottom:6px;">
                 Were you referred by a Perkfinity Sales Partner?
               </label>
-              <input type="text" id="contractor_code_signup" placeholder="Enter referral code (e.g. REP-JOHNM1234)" maxlength="15"
+              <input type="text" id="contractor_code_signup" placeholder="Enter referral code (e.g. REF-JOHNM1234)" maxlength="15"
                 style="width:100%;padding:12px 16px;border-radius:10px;border:1.5px solid var(--border);font-size:14px;background:#fff;box-sizing:border-box;text-transform:uppercase;letter-spacing:0.05em;"
                 oninput="this.value=this.value.toUpperCase();document.getElementById('noReferralCheckbox_signup').checked=false;"
                 onblur="validateSignupReferralCode(this.value)">
@@ -1931,7 +1931,7 @@
       <h3 style="margin:0 0 8px;font-size:20px;color:#1e1b4b;">One last thing &#x1F44B;</h3>
       <p style="color:#64748b;font-size:14px;margin:0 0 24px;">Were you referred to Perkfinity by one of our Sales Partners? Enter their code below, or confirm you weren&#x27;t referred.</p>
       <label style="font-size:13px;font-weight:600;color:#334155;display:block;margin-bottom:6px;">Referral Code</label>
-      <input type="text" id="signupReferralInput" placeholder="REP-XXXXX1234" maxlength="15"
+      <input type="text" id="signupReferralInput" placeholder="REF-XXXXX1234" maxlength="15"
         style="width:100%;padding:12px 16px;border-radius:10px;border:1.5px solid #e2e8f0;font-size:15px;box-sizing:border-box;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:14px;"
         oninput="this.value=this.value.toUpperCase();document.getElementById('signupNoReferralChk').checked=false;">
       <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer;">
@@ -1954,8 +1954,8 @@
       const input = document.getElementById('contractor_code_signup');
       if (!code || !code.trim()) return;
       const c = code.trim().toUpperCase();
-      if (!c.startsWith('REP-') || c.length < 10) {
-        if (errEl) { errEl.innerText = 'Code format looks off — codes start with REP- (e.g. REP-JOHNM1234).'; errEl.style.display = 'block'; }
+      if (!c.startsWith('REF-') || c.length < 10) {
+        if (errEl) { errEl.innerText = 'Code format looks off — codes start with REF- (e.g. REF-JOHNM1234).'; errEl.style.display = 'block'; }
         return;
       }
       try {
