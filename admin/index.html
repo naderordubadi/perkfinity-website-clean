@@ -2191,7 +2191,7 @@
         <div style="background:#f8fafc;border-radius:12px;padding:18px 20px;margin-bottom:20px;">
           <div style="font-size:14px;font-weight:800;color:#1a1a2e;margin-bottom:10px;">💳 Billing & Account</div>
           ${infoRow('Tier', tierLabel)}
-          ${infoRow('Sub Type', cycleBadge(m.billing_cycle, m.tier, m))}
+          ${infoRow('Sub Type', cycleBadge(m.billing_cycle, m.subscription_tier, m))}
           ${infoRow('Status', statusLabel)}
           ${infoRow('Billing Status', m.billing_status ? m.billing_status.charAt(0).toUpperCase() + m.billing_status.slice(1).replace('_', ' ') : '—')}
           ${infoRow('Member Limit', m.member_limit || 'Unlimited')}
@@ -3147,7 +3147,7 @@
               <td>${m.location_zip || '\u2014'}</td>
               <td><span style="font-size:12px;font-weight:700;color:${m.business_presence==='online'?'#5b3fa5':m.business_presence==='hybrid'?'#7c3aed':m.business_presence==='mobile'?'#0891b2':'#16a34a'}">${m.business_presence==='online'?'🌐 Online':m.business_presence==='hybrid'?'📱 Hybrid':m.business_presence==='mobile'?'🚐 Mobile':'📍 Local'}</span></td>
               <td><span class="badge ${tierClass}">${tierLabel}</span></td>
-              <td>${cycleBadge(m.billing_cycle, m.tier, m)}</td>
+              <td>${cycleBadge(m.billing_cycle, m.subscription_tier, m)}</td>
               <td><span class="badge ${statusClass}">${statusLabel}</span></td>
               <td>${m.member_count || 0}</td>
               <td>${billingDate}</td>
@@ -3525,19 +3525,7 @@
         : formatted;
     }
 
-    // Billing cycle badge
-    function cycleBadge(cycle, tier, m = null) {
-      if (m && m.billing_status === 'active' && !m.stripe_subscription_id && !m.billing_starts_at_member_count && ['online_starter', 'online_growth', 'online_scale'].includes(m.tier)) {
-        return '<span style="font-size:11px;font-weight:700;color:#0ea5e9;background:rgba(14,165,233,0.12);border:1px solid rgba(14,165,233,0.35);border-radius:6px;padding:2px 7px;">Demo</span>';
-      }
-      if (tier === 'free_for_life')
-        return '<span style="font-size:11px;font-weight:700;color:#f472b6;background:rgba(244,114,182,0.12);border:1px solid rgba(244,114,182,0.35);border-radius:6px;padding:2px 7px;">FFL</span>';
-      if (cycle === 'lifetime')
-        return '<span style="font-size:11px;font-weight:700;color:#c084fc;background:rgba(192,132,252,0.12);border:1px solid rgba(192,132,252,0.35);border-radius:6px;padding:2px 7px;">POUF</span>';
-      if (cycle === 'annual')
-        return '<span style="font-size:11px;font-weight:700;color:#34d399;background:rgba(52,211,153,0.12);border:1px solid rgba(52,211,153,0.35);border-radius:6px;padding:2px 7px;">Annual</span>';
-      return '<span style="font-size:11px;font-weight:700;color:#facc15;background:rgba(250,204,21,0.12);border:1px solid rgba(250,204,21,0.35);border-radius:6px;padding:2px 7px;">Monthly</span>';
-    }
+
 
     // ── Chart Rendering ─────────────────────────────────────────
     let _memberChart = null, _merchantChart = null;
@@ -5084,7 +5072,7 @@
           commStart = new Date(m.commission_start_date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
         } else {
           const isDemo = m.billing_status === 'active' && !m.stripe_subscription_id && !m.stripe_payment_method_id && m.member_limit === null && m.billing_cycle === 'monthly' && m.tier !== 'free_for_life';
-          if (m.billing_status === 'cancelled') commStart = 'Cancelled';
+          if (m.billing_status === 'cancelled' || m.billing_status === 'deleted') commStart = 'Cancelled';
           else if (isDemo) commStart = 'Demo';
           else if (m.tier === 'free_for_life') commStart = 'FFL';
           else if (m.tier === 'trial' || m.tier === 'free_trial' || m.tier === 'extended_trial') commStart = 'Member limit not reached';
