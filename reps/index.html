@@ -488,7 +488,8 @@
                   online_scale: { monthly: 499, annual: 5089.80, lifetime: 5089.80 }
                 };
                 const commRate = earningsR?.data?.rule?.commission_rate || 0.25;
-                const estGross = isDemo ? 0 : (priceMap[m.tier]?.[m.billing_cycle || 'monthly'] || 0);
+                const isCancelledOrDeleted = m.billing_status === 'cancelled' || m.billing_status === 'deleted';
+                const estGross = (isDemo || isCancelledOrDeleted) ? 0 : (priceMap[m.tier]?.[m.billing_cycle || 'monthly'] || 0);
                 const estComm = estGross * commRate;
                 const grossFmt = estGross ? `$${estGross.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}` : '—';
                 const commFmt = estComm ? `$${estComm.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}` : '—';
