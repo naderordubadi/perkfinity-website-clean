@@ -8,6 +8,7 @@
   <meta name="robots" content="noindex, nofollow"/>
   <link rel="icon" href="../assets/Perkfinity-App-Icon.png"/>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <script src="../config.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
   <style>
     :root {
@@ -796,6 +797,11 @@
             <option value="">All Sub Types</option>
             <option value="monthly">Monthly</option>
             <option value="annual">Annual</option>
+          </select>
+          <select class="toolbar-select" id="merchant-filter-visibility" onchange="filterTable('merchants')">
+            <option value="">All Visibility</option>
+            <option value="visible">Visible Only</option>
+            <option value="hidden">Hidden Only</option>
           </select>
           <div style="flex:1;"></div>
           <button class="toolbar-btn green" onclick="exportData('merchants','csv')">📄 CSV</button>
@@ -2216,6 +2222,16 @@
           ${infoRow('Campaigns (Last 90 days)', campaigns90)}
           ${infoRow('Total Redemptions', m.redemption_count || totalRedemptions || 0)}
         </div>
+
+        <div style="background:#f8fafc;border-radius:12px;padding:18px 20px;">
+          <div style="font-size:14px;font-weight:800;color:#1a1a2e;margin-bottom:10px;">⚙️ Actions</div>
+          <div style="display:flex;gap:10px;align-items:center;">
+            <button onclick="toggleVisibility('${merchantId}', ${!m.is_hidden})" style="padding:8px 16px;border-radius:8px;border:none;background:${m.is_hidden ? '#10b981' : '#64748b'};color:white;font-weight:700;cursor:pointer;font-family:inherit;">
+              ${m.is_hidden ? '👁️ Unhide Merchant' : '🙈 Hide Merchant'}
+            </button>
+            <span style="font-size:12px;color:#64748b;">${m.is_hidden ? 'Currently hidden from consumer search.' : 'Currently visible in consumer search.'}</span>
+          </div>
+        </div>
       `;
 
       // Fetch and render contractor attribution asynchronously
@@ -2270,6 +2286,30 @@
     document.getElementById('merchant-detail-overlay')?.addEventListener('click', function(e) {
       if (e.target === this) closeMerchantDetail();
     });
+
+    async function toggleVisibility(merchantId, isHidden) {
+      if (!confirm(`Are you sure you want to ${isHidden ? 'hide' : 'unhide'} this merchant?`)) return;
+      const token = sessionStorage.getItem('perkfinity_admin_token');
+      try {
+        const res = await fetch(`${API_BASE}/admin/merchants/${merchantId}/toggle-visibility`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json', ...(token ? { 'Authorization': 'Bearer ' + token } : {}) },
+          body: JSON.stringify({ is_hidden: isHidden })
+        });
+        const j = await res.json();
+        if (j.success) {
+          showToast(`Merchant ${isHidden ? 'hidden' : 'unhidden'} successfully.`);
+          const m = allMerchants.find(x => x.id === merchantId);
+          if (m) m.is_hidden = isHidden;
+          renderTable('merchants');
+          showMerchantDetail(merchantId); // refresh detail view
+        } else {
+          showToast(j.error || 'Failed to update visibility');
+        }
+      } catch(e) {
+        showToast('Error updating visibility');
+      }
+    }
 
     // ── Manual Attribution Modal (Task 3 — stub, full UI in Part 4 Contractors tab) ──
     async function openManualAttributionModal(merchantId, existingContractorId) {
@@ -3142,7 +3182,7 @@
             return `
             <tr style="cursor:pointer;" onclick="showMerchantDetail('${m.id}')">
               <td class="cb-col" onclick="event.stopPropagation()"><input type="checkbox" class="merchant-cb" data-id="${m.id}" onchange="updateBulkBar()"></td>
-              <td><strong>${m.business_name || '\u2014'}</strong></td>
+              <td><strong>${m.business_name || '\u2014'}</strong>${m.is_hidden ? ' <span style="background:#e2e8f0;color:#475569;font-size:10px;padding:2px 6px;border-radius:4px;margin-left:4px;">HIDDEN</span>' : ''}</td>
               <td>${m.location_city || m.city || '\u2014'}</td>
               <td>${m.location_zip || '\u2014'}</td>
               <td><span style="font-size:12px;font-weight:700;color:${m.business_presence==='online'?'#5b3fa5':m.business_presence==='hybrid'?'#7c3aed':m.business_presence==='mobile'?'#0891b2':'#16a34a'}">${m.business_presence==='online'?'🌐 Online':m.business_presence==='hybrid'?'📱 Hybrid':m.business_presence==='mobile'?'🚐 Mobile':'📍 Local'}</span></td>
@@ -3276,6 +3316,7 @@
           filters.presence = document.getElementById('merchant-filter-presence').value;
           filters.joined = document.getElementById('merchant-filter-joined').value;
           filters.cycle = document.getElementById('merchant-filter-cycle')?.value || '';
+          filters.visibility = document.getElementById('merchant-filter-visibility')?.value || '';
           if (search) data = data.filter(m =>
             (m.business_name||'').toLowerCase().includes(search) ||
             (m.contact_email||m.email||'').toLowerCase().includes(search) ||
@@ -3299,6 +3340,11 @@
             data = data.filter(m => (filters.cycle === 'annual')
               ? m.billing_cycle === 'annual'
               : (!m.billing_cycle || m.billing_cycle === 'monthly'));
+          }
+          if (filters.visibility === 'hidden') {
+            data = data.filter(m => m.is_hidden);
+          } else if (filters.visibility === 'visible') {
+            data = data.filter(m => !m.is_hidden);
           }
           if (filters.joined) {
             const merchantCutoff = new Date(Date.now() - parseInt(filters.joined) * 86400000);
