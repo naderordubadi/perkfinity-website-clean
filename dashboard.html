@@ -2884,6 +2884,18 @@
         setTimeout(loadBilling, 1000);
       }
 
+      if (urlParams.get('sponsor_success') === 'true') {
+        history.replaceState({}, '', window.location.pathname);
+        const banner = document.createElement('div');
+        banner.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#6BC17A;color:#fff;padding:14px 28px;border-radius:12px;font-weight:800;font-size:15px;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.15)';
+        banner.innerHTML = '✅ Sponsorship Activated Successfully! Your campaigns are now boosted.';
+        document.body.appendChild(banner);
+        setTimeout(() => banner.remove(), 4000);
+        switchTab('billing');
+        // Give webhook a tiny bit of time to complete before reloading billing data
+        setTimeout(loadBilling, 1000);
+      }
+
       const bName = localStorage.getItem('perkfinity_business_name');
       if (bName) {
         document.getElementById('welcomeTitle').innerText = `Welcome back, ${bName}`;
