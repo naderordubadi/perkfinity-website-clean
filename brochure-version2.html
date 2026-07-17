@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perkfinity Merchant Brochure - Version 2</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: #333;
+      background: #f4f6f8;
+      -webkit-font-smoothing: antialiased;
+    }
+    /* PRINTER SETUP */
+    @page { size: letter; margin: 0; }
+    @media print {
+      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+      body { background: white; }
+      .brochure-page { box-shadow: none !important; margin: 0 !important; border: none !important; }
+    }
+
+    .brochure-page {
+      width: 8.5in; height: 11in;
+      background: #fff;
+      margin: 40px auto;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 40px 12px;
+      background: #fff;
+    }
+
+    .logo-container {
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .header-top .tagline {
+      font-weight: 900;
+      color: #5B3FA5;
+      font-size: 16px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .hero-panel {
+      position: relative;
+      background: linear-gradient(90deg, rgba(91,63,165,0.95) 0%, rgba(91,63,165,0.85) 60%, rgba(91,63,165,0.4) 100%), url('assets/homepage-hero-spa.png') center/cover no-repeat;
+      color: white;
+      padding: 24px 40px;
+    }
+    
+    .hero-panel-content {
+      position: relative;
+      z-index: 2;
+      max-width: 100%;
+    }
+
+    .hero-panel h1 {
+      font-size: 32px; font-weight: 900; line-height: 1.1; margin-bottom: 10px; letter-spacing: -1px;
+    }
+    
+    .hero-panel p {
+      font-size: 14.5px; color: rgba(255,255,255,0.95); font-weight: 500; line-height: 1.5; max-width: 65%;
+    }
+
+    .content-body {
+      padding: 10px 40px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: #f8f9fb;
+    }
+    
+    .section-title {
+      text-align: center;
+      font-size: 20px;
+      font-weight: 900;
+      color: #333;
+      margin-bottom: 10px;
+    }
+    
+    .section-title span {
+      color: #6BC17A;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: auto;
+    }
+
+    .feature-card {
+      background: #fff;
+      border-radius: 10px;
+      padding: 12px 14px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+      border: 1px solid rgba(0,0,0,0.04);
+    }
+
+    .feature-icon-wrapper {
+      width: 30px;
+      height: 30px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f0edf7;
+      margin-bottom: 8px;
+      font-size: 15px;
+    }
+    
+    .feature-card:nth-child(2) .feature-icon-wrapper { background: #edf2f7; }
+    .feature-card:nth-child(3) .feature-icon-wrapper { background: #eef2fa; }
+    .feature-card:nth-child(4) .feature-icon-wrapper { background: #f0f7f3; }
+
+    .feature-card h3 { font-size: 14px; font-weight: 800; color: #1e1e1e; margin-bottom: 4px; }
+    .feature-card p { font-size: 11.5px; color: #555; line-height: 1.4; }
+
+    .flow-section {
+      text-align: center;
+      margin-bottom: auto;
+    }
+
+    .flow-box {
+      background: #fff;
+      border-radius: 12px;
+      padding: 10px 16px;
+      border: 2px dashed rgba(91,63,165,0.2);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+    }
+    
+    .flow-step {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      padding: 0 10px;
+    }
+    
+    .flow-step-num {
+      width: 28px;
+      height: 28px;
+      background: #5B3FA5;
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+
+    .flow-step p {
+      font-size: 12px; font-weight: 700; color: #1e1e1e; line-height: 1.4;
+    }
+
+    .flow-arrow {
+      color: rgba(91,63,165,0.4);
+      font-weight: bold;
+      font-size: 18px;
+    }
+
+    .footer {
+      background: #6BC17A;
+      color: #1e1e1e;
+      padding: 12px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer-left { text-align: left; max-width: 75%; }
+    .footer-left h4 { font-size: 18px; margin-bottom: 6px; font-weight: 900; }
+    .footer-left p { color: rgba(0,0,0,0.85); font-size: 12.5px; margin-bottom: 6px; line-height: 1.5; }
+    
+    .footer-right {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    
+    .footer-right h4 {
+      font-size: 16px;
+      font-weight: 900;
+      margin-bottom: 4px;
+    }
+
+    .footer-qr {
+      background: white;
+      padding: 8px;
+      border-radius: 12px;
+      margin-top: 6px;
+      position: relative;
+    }
+
+    .migration-box {
+      margin-top: auto;
+      background: linear-gradient(135deg, #f0edf7, #e8f4ec);
+      border-radius: 8px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-left: 4px solid #5B3FA5;
+    }
+
+    .migration-box .migration-icon {
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+
+    .migration-box p {
+      font-size: 12.5px;
+      color: #333;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="brochure-page">
+    
+    <div class="header-top">
+      <div class="logo-container">
+        <img src="assets/Perkfinity-Logo.png" alt="Perkfinity Logo" style="height:32px;">
+      </div>
+      <div class="tagline">PERKS DONE RIGHT</div>
+    </div>
+    
+    <div class="hero-panel">
+      <div class="hero-panel-content">
+        <h1>Boost Online Sales,<br>Attract Local Customers,<br>&amp; Build Your Loyal Regulars.</h1>
+        <p>The modern, privacy-first loyalty network built for e-commerce and storefronts alike. Keep 100% of your revenue with our flat-rate pricing—no expensive hardware, no hidden commissions.</p>
+      </div>
+    </div>
+
+    <div class="content-body">
+      
+      <h2 class="section-title">Why Smart Businesses Choose <span>Perkfinity</span></h2>
+      
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon-wrapper">🛍️</div>
+          <h3>Built For Online &amp; In-Store</h3>
+          <p>Whether you operate a physical storefront, an e-commerce brand, or a hybrid of both, our platform seamlessly handles in-store QR code check-ins and online promo code redemptions.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon-wrapper">💸</div>
+          <h3>Flat Subscription, Zero Commissions</h3>
+          <p>Stop losing 15-30% of every sale to third-party delivery or coupon apps. With Perkfinity, you pay a simple, flat monthly subscription fee and keep 100% of the revenue you generate.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon-wrapper">🛡️</div>
+          <h3>Zero Privacy Liability</h3>
+          <p>We completely shield you from data compliance risks. Customer PII (emails/phone numbers) is never shared with you, keeping your brand safe and your reputation spotless.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon-wrapper">📈</div>
+          <h3>Automated Re-Engagement</h3>
+          <p>The moment a customer scans your code or claims your online perk, they are auto-added to your private list. We automatically drive their return visits using our "Daily Digest" emails.</p>
+        </div>
+      </div>
+
+      <div class="flow-section">
+        <h2 class="section-title" style="font-size: 20px;">The Frictionless 3-Step Flow</h2>
+        <div class="flow-box">
+          <div class="flow-step">
+            <div class="flow-step-num">1</div>
+            <p>Share Your Promo Code<br>or Print Your QR Sign</p>
+          </div>
+          <div class="flow-arrow">➔</div>
+          <div class="flow-step">
+            <div class="flow-step-num">2</div>
+            <p>Customers Claim the Offer<br>&amp; Join Your List</p>
+          </div>
+          <div class="flow-arrow">➔</div>
+          <div class="flow-step">
+            <div class="flow-step-num">3</div>
+            <p>Create New Campaigns &amp; Automate Their Return Visits</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="migration-box">
+        <div class="migration-icon">🤝</div>
+        <p><strong>Want to try it out risk-free?</strong> Before you start paying your flat subscription fee, <strong>contact your Sales Rep</strong> for an exclusive Promo Code to trial the platform entirely for free.</p>
+      </div>
+      
+    </div>
+
+    <div class="footer">
+      <div class="footer-left">
+        <h4>Ready to keep 100% of your sales?</h4>
+        <p>Learn exactly how our platform helps both online and brick-and-mortar stores scale by visiting <strong>www.perkfinity.net/how-it-works.html</strong></p>
+        
+        <div style="background: #fff; border-radius: 8px; padding: 10px 16px 8px 16px; margin-top: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+          <div style="font-size: 13px; font-weight: 900; color: #333; margin-bottom: 4px;">Questions?</div>
+          <table style="width: 100%; border-collapse: collapse;">
+            <tr>
+              <td style="font-size: 12px; font-weight: 800; color: #333; white-space: nowrap; padding-right: 8px; padding-bottom: 2px;">Please contact:</td>
+              <td style="border-bottom: 1px solid #aaa; width: 45%; padding-bottom: 2px;"></td>
+              <td style="font-size: 12px; font-weight: 800; color: #333; white-space: nowrap; padding: 0 8px; padding-bottom: 2px;">at:</td>
+              <td style="border-bottom: 1px solid #aaa; width: 55%; padding-bottom: 2px;"></td>
+            </tr>
+            <tr>
+              <td></td>
+              <td style="font-size: 9px; color: #888; text-align: center; padding-top: 4px;">(Name)</td>
+              <td></td>
+              <td style="font-size: 9px; color: #888; text-align: center; padding-top: 4px;">(Email / Phone)</td>
+            </tr>
+          </table>
+        </div>
+
+        <p style="font-size: 10.5px; color: rgba(0,0,0,0.65); margin-top: 8px; font-style: italic;">Are you an independent sales rep? Join our team by contacting support@perkfinity.net</p>
+      </div>
+      <div class="footer-right">
+        <h4>Join The Network</h4>
+        <div class="footer-qr">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=90x90&data=https://www.perkfinity.net/signup.html" alt="QR Code" width="90" height="90" style="display:block;">
+          <img src="assets/Perkfinity-App-Icon.png" alt="Icon" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 24px; height: 24px; background: white; border-radius: 6px; padding: 2px;">
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>

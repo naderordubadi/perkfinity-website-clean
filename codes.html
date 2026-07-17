@@ -137,6 +137,119 @@
       color: #fff;
     }
 
+    /* ── Carousel & Filter Toggle ── */
+    .carousel-container {
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+      border-radius: 16px;
+      margin-bottom: 24px;
+    }
+    .carousel-track {
+      display: flex;
+      gap: 16px;
+      overflow-x: auto;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .carousel-track::-webkit-scrollbar { display: none; }
+    .carousel-item {
+      flex: 0 0 100%;
+      min-width: 100%;
+      height: 360px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      background-size: cover;
+      background-position: center;
+      flex-shrink: 0;
+    }
+    .carousel-item::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.3) 50%, transparent 100%);
+      pointer-events: none;
+      z-index: 1;
+    }
+    .carousel-item-content {
+      position: absolute;
+      bottom: 24px;
+      left: 24px;
+      right: 24px;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      text-align: left;
+    }
+    .carousel-item-logo {
+      width: 64px;
+      height: 64px;
+      border-radius: 16px;
+      object-fit: contain;
+      background: var(--cream);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      flex-shrink: 0;
+    }
+    .carousel-item-name {
+      font-weight: 900;
+      font-size: 24px;
+      line-height: 1.2;
+      color: #fff;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    }
+    .carousel-item-offer {
+      font-size: 16px;
+      color: rgba(255,255,255,0.9);
+      margin-top: 4px;
+      font-weight: 700;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    }
+    .carousel-item-sponsor-badge {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: #eab308;
+      color: #111;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      z-index: 2;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+    .carousel-nav-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 10;
+      backdrop-filter: blur(4px);
+      transition: background 0.2s, transform 0.2s;
+    }
+    .carousel-nav-btn:hover {
+      background: rgba(0, 0, 0, 0.6);
+      transform: translateY(-50%) scale(1.1);
+    }
+    .carousel-nav-left { left: 16px; }
+    .carousel-nav-right { right: 16px; }
+
     /* ── Grid ── */
     .brands-grid {
       display: grid;
@@ -458,30 +571,45 @@
     <!-- Hero -->
     <section class="codes-hero">
       <div class="container">
-        <div class="section-label" style="margin:0 auto 18px;">🏷️ Promo Codes</div>
-        <h1>Online &amp; In-Store Deals</h1>
-        <p>Exclusive promo codes from top online brands — plus Claim &amp; Visit deals you find here and redeem in store.</p>
 
-        <!-- Search + Sort -->
-        <div class="search-sort-bar">
-          <input
-            class="brand-search"
-            id="brand-search"
-            type="search"
-            placeholder="Search by name…"
-            aria-label="Search brands by name"
-            oninput="applyFilters()"
-          />
-          <button
-            class="sort-toggle"
-            id="sort-toggle"
-            aria-pressed="false"
-            onclick="toggleSort(this)"
-          >A–Z</button>
+        <!-- Carousel Container -->
+        <div id="carousel-container" class="carousel-container" style="display:none; max-width:1100px; margin: 0 auto 24px;">
+          <button class="carousel-nav-btn carousel-nav-left" onclick="scrollCarousel(-1)">&#10094;</button>
+          <button class="carousel-nav-btn carousel-nav-right" onclick="scrollCarousel(1)">&#10095;</button>
+          <div class="carousel-track" id="carousel-track"></div>
         </div>
 
-        <!-- Category filter -->
-        <div class="filter-bar" id="filter-bar">
+        <div style="display: flex; align-items: center; justify-content: space-between; max-width: 1100px; margin: 0 auto 24px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 16px 24px; flex-wrap: wrap; gap: 16px;">
+          <div style="text-align: left;">
+            <h1 style="font-size: 20px; margin: 0 0 4px 0; color: #fff;">Online &amp; In-Store Deals</h1>
+            <p style="font-size: 14px; margin: 0; color: rgba(255,255,255,0.8);">Exclusive promo codes from top brands — plus Claim &amp; Visit deals.</p>
+          </div>
+          <button id="filter-toggle-btn" class="filter-toggle-btn" onclick="toggleFilters()" style="margin: 0; border-radius: 12px; padding: 12px 20px;">
+            <span style="font-size:16px;">🔍</span> Search &amp; Filters
+          </button>
+        </div>
+
+        <div id="filter-panel" class="filter-panel" style="display:none;">
+          <!-- Search + Sort -->
+          <div class="search-sort-bar">
+            <input
+              class="brand-search"
+              id="brand-search"
+              type="search"
+              placeholder="Search by name…"
+              aria-label="Search brands by name"
+              oninput="applyFilters()"
+            />
+            <button
+              class="sort-toggle"
+              id="sort-toggle"
+              aria-pressed="false"
+              onclick="toggleSort(this)"
+            >A–Z</button>
+          </div>
+
+          <!-- Category filter -->
+          <div class="filter-bar" id="filter-bar">
           <button class="filter-chip active" data-cat="all" onclick="filterCat(this)">✦ All</button>
           <button class="filter-chip" data-cat="Cafe &amp; Juice Bars" onclick="filterCat(this)">☕ Cafe &amp; Juice Bars</button>
           <button class="filter-chip" data-cat="Restaurants" onclick="filterCat(this)">🍽️ Restaurants</button>
@@ -503,6 +631,7 @@
           <button class="filter-chip" data-cat="Health &amp; Medical" onclick="filterCat(this)">🏥 Health &amp; Medical</button>
           <button class="filter-chip" data-cat="Other" onclick="filterCat(this)">🔖 Other</button>
         </div>
+        </div> <!-- End filter panel -->
       </div>
     </section>
 
@@ -661,9 +790,9 @@
       }
       state.style.display = 'none';
       brands.forEach(b => {
-        const initials = b.business_name.split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
+        const initials = (b.business_name || b.merchant_name || 'Brand').split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
         const logoHtml = b.logo_url
-          ? `<img class="brand-logo" src="${b.logo_url}" alt="${b.business_name} logo" onerror="this.style.display='none';this.nextElementSibling.style.display='grid';"><div class="brand-logo-placeholder" style="display:none;font-size:16px;font-weight:900;color:var(--purple);background:rgba(91,63,165,.1);">${initials}</div>`
+          ? `<img class="brand-logo" src="${b.logo_url}" alt="${(b.business_name || b.merchant_name || 'Brand')} logo" onerror="this.style.display='none';this.nextElementSibling.style.display='grid';"><div class="brand-logo-placeholder" style="display:none;font-size:16px;font-weight:900;color:var(--purple);background:rgba(91,63,165,.1);">${initials}</div>`
           : `<div class="brand-logo-placeholder" style="font-size:16px;font-weight:900;color:var(--purple);background:rgba(91,63,165,.1);">${initials}</div>`;
         const isHybrid = b.business_presence === 'hybrid';
         const hybridBadge = isHybrid
@@ -679,7 +808,7 @@
           'linear-gradient(120deg, #f093fb 0%, #f5576c 100%)',
           'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
         ];
-        const bgGradient = gradients[(b.business_name.charCodeAt(0) || 0) % gradients.length];
+        const bgGradient = gradients[((b.business_name || b.merchant_name || 'Brand').charCodeAt(0) || 0) % gradients.length];
         let coverHtml = '';
         if (b.cover_photo_url) {
           coverHtml = `<img class="brand-cover-photo" src="${b.cover_photo_url}" alt="Cover" onerror="this.style.display='none'">`;
@@ -689,7 +818,7 @@
                        </div>`;
         } else {
           coverHtml = `<div class="brand-cover-photo" style="background: ${bgGradient}; display: flex; align-items: center; justify-content: center;">
-                         <span style="color: rgba(255,255,255,0.6); font-size: 24px; font-weight: 900; letter-spacing: 1px; text-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center; padding: 0 10px;">${b.business_name}</span>
+                         <span style="color: rgba(255,255,255,0.6); font-size: 24px; font-weight: 900; letter-spacing: 1px; text-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center; padding: 0 10px;">${(b.business_name || b.merchant_name || 'Brand')}</span>
                        </div>`;
         }
 
@@ -700,7 +829,7 @@
           <div class="brand-card-top">
             ${logoHtml}
             <div>
-              <div class="brand-name">${b.business_name}</div>
+              <div class="brand-name">${(b.business_name || b.merchant_name || 'Brand')}</div>
               <div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px;margin-top:3px;">
                 <span class="brand-cat-badge">${catIcons[b.business_category] || ''} ${b.business_category || 'Brand'}</span>
                 ${hybridBadge}
@@ -722,8 +851,8 @@
 
     function applyFilters() {
       const q = (document.getElementById('brand-search')?.value || '').toLowerCase().trim();
-      let list = allBrands.filter(b => !q || b.business_name.toLowerCase().includes(q));
-      if (sortAZ) list = [...list].sort((a, b) => a.business_name.localeCompare(b.business_name));
+      let list = allBrands.filter(b => !q || (b.business_name || b.merchant_name || 'Brand').toLowerCase().includes(q));
+      if (sortAZ) list = [...list].sort((a, b) => a.business_name.localeCompare((b.business_name || b.merchant_name || 'Brand')));
       renderBrands(list, q || null);
     }
 
@@ -743,13 +872,13 @@
     }
 
     function openPopup(brand) {
-      document.getElementById('popup-brand-name').textContent = brand.business_name;
+      document.getElementById('popup-brand-name').textContent = (brand.business_name || brand.merchant_name || 'Brand');
       document.getElementById('popup-offer-text').textContent = brand.welcome_offer_text || 'Exclusive member perk';
 
       const logoWrap = document.getElementById('popup-logo-wrap');
-      const initials = brand.business_name.split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
+      const initials = (brand.business_name || brand.merchant_name || 'Brand').split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
       logoWrap.innerHTML = brand.logo_url
-        ? `<img class="popup-brand-logo" src="${brand.logo_url}" alt="${brand.business_name} logo" onerror="this.style.display='none';this.nextElementSibling.style.display='grid';"><div class="popup-brand-logo-placeholder" style="display:none;font-size:20px;font-weight:900;color:var(--purple);background:rgba(91,63,165,.1);">${initials}</div>`
+        ? `<img class="popup-brand-logo" src="${brand.logo_url}" alt="${(brand.business_name || brand.merchant_name || 'Brand')} logo" onerror="this.style.display='none';this.nextElementSibling.style.display='grid';"><div class="popup-brand-logo-placeholder" style="display:none;font-size:20px;font-weight:900;color:var(--purple);background:rgba(91,63,165,.1);">${initials}</div>`
         : `<div class="popup-brand-logo-placeholder" style="font-size:20px;font-weight:900;color:var(--purple);background:rgba(91,63,165,.1);">${initials}</div>`;
 
       const joinUrl = `https://perkfinity.net/join/${brand.qr_public_code}`;
@@ -772,9 +901,104 @@
     document.getElementById('reveal-popup').addEventListener('click', function(e) {
       if (e.target === this) closePopup();
     });
-    document.addEventListener('keydown', e => { if (e.key === 'Escape') closePopup(); });
+    function toggleFilters() {
+      const panel = document.getElementById('filter-panel');
+      if (panel.style.display === 'none' || !panel.style.display) {
+        panel.style.display = 'block';
+      } else {
+        panel.style.display = 'none';
+      }
+    }
+
+    async function loadCarousel() {
+      const container = document.getElementById('carousel-container');
+      const track = document.getElementById('carousel-track');
+      try {
+        const res = await fetch(`${BACKEND}/api/v1/merchants/sponsored?platform=web`);
+        const json = await res.json();
+        if (json.success && json.data && json.data.length > 0) {
+          container.style.display = 'block';
+          track.innerHTML = '';
+          json.data.forEach(m => {
+            const initials = (m.business_name || m.merchant_name || 'Brand').split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
+            const logoHtml = m.logo_url
+              ? `<img class="carousel-item-logo" src="${m.logo_url}" alt="Logo" onerror="this.src=''; this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                 <div class="carousel-item-logo" style="display:none; align-items:center; justify-content:center; font-size:18px; font-weight:900; color:var(--purple); background:rgba(91,63,165,.1);">${initials}</div>`
+              : `<div class="carousel-item-logo" style="display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:900; color:var(--purple); background:rgba(91,63,165,.1);">${initials}</div>`;
+            
+            const item = document.createElement('div');
+            item.className = 'carousel-item';
+            
+            const hue = ((m.business_name || m.merchant_name || 'Brand').charCodeAt(0) * 137) % 360;
+            const fallbackBg = `linear-gradient(135deg, hsl(${hue}, 60%, 40%), hsl(${(hue + 40) % 360}, 60%, 30%))`;
+            item.style.backgroundImage = m.cover_photo_url ? `url('${m.cover_photo_url}')` : fallbackBg;
+            
+            let centerElement = '';
+            if (!m.cover_photo_url) {
+                if (m.logo_url) {
+                    centerElement = `<img src="${m.logo_url}" style="position:absolute; top:45%; left:50%; transform:translate(-50%, -50%); max-width: 200px; max-height: 200px; border-radius: 36px; box-shadow: 0 16px 48px rgba(0,0,0,0.4); z-index: 1;" onerror="this.style.display='none'">`;
+                } else {
+                    centerElement = `<div style="position:absolute; top:45%; left:50%; transform:translate(-50%, -50%); font-size: 48px; font-weight: 900; color: rgba(255,255,255,0.9); z-index: 1; text-align: center; width: 80%; line-height: 1.2; text-shadow: 0 4px 16px rgba(0,0,0,0.4);">${(m.business_name || m.merchant_name || 'Brand')}</div>`;
+                }
+            }
+
+            item.innerHTML = `
+              <div class="carousel-item-sponsor-badge">Sponsored</div>
+              ${centerElement}
+              <div class="carousel-item-content">
+                ${logoHtml}
+                <div>
+                  <div class="carousel-item-name">${(m.business_name || m.merchant_name || 'Brand')}</div>
+                  <div class="carousel-item-offer">${m.latest_offer_title || 'Exclusive member perk'}</div>
+                </div>
+              </div>
+            `;
+            // Re-use openPopup for carousel items too!
+            item.onclick = () => openPopup(m);
+            track.appendChild(item);
+          });
+
+          // Auto-slide every 4 seconds
+          startCarouselAutoSlide();
+        }
+      } catch (e) {
+        console.error('Failed to load carousel', e);
+      }
+    }
+
+    let carouselInterval;
+    function startCarouselAutoSlide() {
+      const track = document.getElementById('carousel-track');
+      clearInterval(carouselInterval);
+      carouselInterval = setInterval(() => {
+        if (track.children.length <= 1) return;
+        const itemWidth = track.clientWidth + 16;
+        let newScroll = track.scrollLeft + itemWidth;
+        if (track.scrollLeft >= track.scrollWidth - track.clientWidth - 10) {
+          newScroll = 0;
+        }
+        track.scrollTo({ left: newScroll, behavior: 'smooth' });
+      }, 4000);
+    }
+
+    function scrollCarousel(direction) {
+      const track = document.getElementById('carousel-track');
+      if (track.children.length === 0) return;
+      const itemWidth = track.clientWidth + 16;
+      let newScroll = track.scrollLeft + direction * itemWidth;
+      
+      if (direction === 1 && track.scrollLeft >= track.scrollWidth - track.clientWidth - 10) {
+        newScroll = 0;
+      } else if (direction === -1 && track.scrollLeft <= 10) {
+        newScroll = track.scrollWidth;
+      }
+      
+      track.scrollTo({ left: newScroll, behavior: 'smooth' });
+      startCarouselAutoSlide();
+    }
 
     loadBrands('all');
+    loadCarousel();
   </script>
 </body>
 </html>

@@ -725,6 +725,7 @@
 
         <a href="#" onclick="switchTab('profile')">Profile</a>
         <a href="#" onclick="switchTab('billing')">Billing</a>
+        <a href="#" onclick="switchTab('boost')" style="color:#FDE68A;font-weight:700;">Boost Store 🚀</a>
       </div>
     </div>
   </div>
@@ -2418,6 +2419,44 @@
     </div><!-- /tab-billing -->
 
     <!-- Profile Settings -->
+
+    <!-- Boost Tab -->
+    <div id="tab-boost" style="display:none; max-width:1000px; margin:0 auto; padding-bottom:100px;">
+      <div style="background:#fff; border-radius:16px; padding:40px; box-shadow:0 4px 24px rgba(0,0,0,0.04);">
+        <h2 style="margin-top:0; margin-bottom:8px; font-weight:800; font-size:20px; color:#311C87;">Boost Your Store</h2>
+        <p style="color:#64748b; margin-bottom:32px; font-size:15px;">Get premium placement in front of users looking for deals in your area.</p>
+        
+        <div id="activeSponsorContainer" style="display:none; margin-bottom:24px;"></div>
+
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:24px;">
+          <!-- Web Promo -->
+          <div id="boost-card-web" style="border:1px solid #e2e8f0; border-radius:12px; padding:24px; display:flex; flex-direction:column;">
+            <h3 style="font-size:16px; margin:0 0 16px; font-weight:700; color:#1e293b;">Web Carousel</h3>
+            <p style="color:#475569; margin:0 0 24px; font-size:14px; line-height:1.6; flex:1;">Be featured in the scrolling carousel on our website for nearby users.</p>
+            <div style="font-size:28px; font-weight:800; margin-bottom:24px; color:#0f172a;">$49.99<span style="font-size:14px; color:#64748b; font-weight:500">/mo</span></div>
+            <button onclick="sponsorTierCheckout('web')" style="background:#8B5CF6; color:#fff; border:none; padding:12px; border-radius:20px; font-weight:600; cursor:pointer; width:100%; font-size:14px;">Boost on Web</button>
+          </div>
+          
+          <!-- App Promo -->
+          <div id="boost-card-app" style="border:1px solid #e2e8f0; border-radius:12px; padding:24px; display:flex; flex-direction:column;">
+            <h3 style="font-size:16px; margin:0 0 16px; font-weight:700; color:#1e293b;">App Home Carousel</h3>
+            <p style="color:#475569; margin:0 0 24px; font-size:14px; line-height:1.6; flex:1;">Prime placement in the mobile app carousel when users open the app.</p>
+            <div style="font-size:28px; font-weight:800; margin-bottom:24px; color:#0f172a;">$99.99<span style="font-size:14px; color:#64748b; font-weight:500">/mo</span></div>
+            <button onclick="sponsorTierCheckout('app')" style="background:#8B5CF6; color:#fff; border:none; padding:12px; border-radius:20px; font-weight:600; cursor:pointer; width:100%; font-size:14px;">Boost in App</button>
+          </div>
+          
+          <!-- Bundle -->
+          <div id="boost-card-bundle" style="background:#F8F6FF; border:none; border-radius:12px; padding:24px; display:flex; flex-direction:column; position:relative;">
+            <div style="position:absolute; top:-10px; right:20px; background:#FBBF24; color:#fff; font-size:10px; font-weight:800; padding:4px 12px; border-radius:12px; text-transform:uppercase; letter-spacing:0.5px;">BEST VALUE</div>
+            <h3 style="font-size:16px; margin:0 0 16px; font-weight:700; color:#311C87;">Everywhere Bundle</h3>
+            <p style="color:#475569; margin:0 0 24px; font-size:14px; line-height:1.6; flex:1;">Dominate both web and mobile app with maximum visibility.</p>
+            <div style="font-size:28px; font-weight:800; margin-bottom:24px; color:#0f172a;">$129.99<span style="font-size:14px; color:#64748b; font-weight:500">/mo</span></div>
+            <button onclick="sponsorTierCheckout('bundle')" style="background:#8B5CF6; color:#fff; border:none; padding:12px; border-radius:20px; font-weight:600; cursor:pointer; width:100%; font-size:14px;">Boost Everywhere</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div id="tab-profile"
       style="display:none; background:white; border-radius:16px; padding:30px; box-shadow:0 4px 20px rgba(0,0,0,0.03);">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
@@ -3588,7 +3627,7 @@
         return;
       }
 
-      document.querySelectorAll('.empty-state, #tab-members, #tab-profile, #tab-print-sign, #tab-promotion, #tab-billing').forEach(el => el.style.display = 'none');
+      document.querySelectorAll('.empty-state, #tab-members, #tab-profile, #tab-print-sign, #tab-promotion, #tab-billing, #tab-boost').forEach(el => el.style.display = 'none');
       document.querySelectorAll('.nav-tabs a').forEach(el => el.classList.remove('active'));
 
       const target = document.getElementById('tab-' + tabId);
@@ -3700,6 +3739,18 @@
           .catch(e => console.error("Failed to load profile data"));
       }
       if (tabId === 'billing') loadBilling();
+      if (tabId === 'boost') {
+        fetch(`${BACKEND_URL}/api/v1/merchants/${merchantId}/billing`, {
+          headers: { 'Authorization': `Bearer ${apiToken}` }
+        })
+        .then(res => res.json())
+        .then(json => {
+          if (json.success && json.data) {
+            checkActiveSponsorship(json.data);
+          }
+        })
+        .catch(e => console.error("Failed to load billing for boost tab", e));
+      }
     }
 
     // ── Profile presence-aware required markers ───────────────────
@@ -5654,6 +5705,125 @@ You're receiving this because you're a valued customer of ${businessName}.`;
       a.href = URL.createObjectURL(new Blob([content], { type: mime }));
       a.download = `perkfinity-members-${new Date().toISOString().slice(0, 10)}.${ext}`;
       a.click();
+    }
+    // --- Sponsorship Logic ---
+    async function sponsorTierCheckout(tier) {
+      const merchantId = localStorage.getItem('perkfinity_merchant_id');
+      const token = localStorage.getItem('perkfinity_token');
+      if (!merchantId) return alert("Merchant ID not loaded.");
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/v1/merchants/${merchantId}/billing/sponsor`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({ tier })
+        });
+        const data = await response.json();
+        if (data.url) {
+          window.location.href = data.url;
+        } else {
+          alert("Error starting checkout: " + (data.error || "Unknown error"));
+        }
+      } catch (err) {
+        console.error("Sponsor checkout error:", err);
+        alert("Could not connect to billing server.");
+      }
+    }
+
+    async function cancelSponsorship(tier) {
+      if (!tier) { alert('Unable to determine sponsorship type. Please refresh and try again.'); return; }
+      if (!confirm(`Are you sure you want to cancel your ${tier === 'bundle' ? 'Everywhere Bundle' : tier === 'web' ? 'Web Carousel' : 'App Home Carousel'} sponsorship? You will lose premium placement at the end of your billing cycle.`)) return;
+      const merchantId = localStorage.getItem('perkfinity_merchant_id');
+      const token = localStorage.getItem('perkfinity_token');
+      if (!merchantId) return;
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/v1/merchants/${merchantId}/billing/sponsor-cancel`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({ tier })
+        });
+        if (response.ok) {
+          alert("Sponsorship cancelled. It will remain active until the end of your billing cycle.");
+          window.location.reload();
+        } else {
+          const data = await response.json();
+          alert("Error cancelling: " + data.error);
+        }
+      } catch (err) {
+        console.error("Cancel sponsor error:", err);
+        alert("Failed to cancel.");
+      }
+    }
+
+    function checkActiveSponsorship(merchantData) {
+      const container = document.getElementById('activeSponsorContainer');
+      const cardWeb = document.getElementById('boost-card-web');
+      const cardApp = document.getElementById('boost-card-app');
+      const cardBundle = document.getElementById('boost-card-bundle');
+      if (!container) return;
+
+      const isWebActive    = merchantData.is_web_sponsored;
+      const isAppActive    = merchantData.is_app_sponsored;
+      const hasBundle      = merchantData.has_bundle_subscription;
+
+      let html = '';
+
+      if (hasBundle) {
+        const dt = merchantData.web_sponsored_until
+          ? new Date(merchantData.web_sponsored_until).toLocaleDateString()
+          : (merchantData.app_sponsored_until ? new Date(merchantData.app_sponsored_until).toLocaleDateString() : 'N/A');
+        html += `<div style="background: #F8F6FF; border: 1.5px solid #E9D5FF; border-radius: 12px; padding: 20px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 12px rgba(139, 92, 246, 0.05);">
+                   <div>
+                     <h4 style="margin: 0 0 4px; font-size: 15px; font-weight: 700; color: #5B3FA5;">Everywhere Bundle Sponsorship (Web + App)</h4>
+                     <p style="margin: 0; font-size: 13px; color: #6B7280;">Active until ${dt}</p>
+                   </div>
+                   <button onclick="cancelSponsorship('bundle')" style="padding: 8px 16px; font-size: 13px; background: #EF4444; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: background 0.2s;" onmouseenter="this.style.background='#DC2626'" onmouseleave="this.style.background='#EF4444'">Cancel Sponsorship</button>
+                 </div>`;
+      } else {
+        if (isWebActive) {
+          const dt = merchantData.web_sponsored_until ? new Date(merchantData.web_sponsored_until).toLocaleDateString() : 'N/A';
+          html += `<div style="background: #F0FDF4; border: 1.5px solid #DCFCE7; border-radius: 12px; padding: 20px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 12px rgba(22, 163, 74, 0.05);">
+                     <div>
+                       <h4 style="margin: 0 0 4px; font-size: 15px; font-weight: 700; color: #16A34A;">Web Carousel Sponsorship</h4>
+                       <p style="margin: 0; font-size: 13px; color: #6B7280;">Active until ${dt}</p>
+                     </div>
+                     <button onclick="cancelSponsorship('web')" style="padding: 8px 16px; font-size: 13px; background: #EF4444; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: background 0.2s;" onmouseenter="this.style.background='#DC2626'" onmouseleave="this.style.background='#EF4444'">Cancel Sponsorship</button>
+                   </div>`;
+        }
+        if (isAppActive) {
+          const dt = merchantData.app_sponsored_until ? new Date(merchantData.app_sponsored_until).toLocaleDateString() : 'N/A';
+          html += `<div style="background: #F0F9FF; border: 1.5px solid #E0F2FE; border-radius: 12px; padding: 20px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 12px rgba(2, 132, 199, 0.05);">
+                     <div>
+                       <h4 style="margin: 0 0 4px; font-size: 15px; font-weight: 700; color: #0284C7;">App Home Carousel Sponsorship</h4>
+                       <p style="margin: 0; font-size: 13px; color: #6B7280;">Active until ${dt}</p>
+                     </div>
+                     <button onclick="cancelSponsorship('app')" style="padding: 8px 16px; font-size: 13px; background: #EF4444; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: background 0.2s;" onmouseenter="this.style.background='#DC2626'" onmouseleave="this.style.background='#EF4444'">Cancel Sponsorship</button>
+                   </div>`;
+        }
+      }
+
+      if (html) {
+        container.innerHTML = `<h3 style="font-size: 16px; font-weight: 700; color: #1e293b; margin-top: 0; margin-bottom: 16px;">Active Sponsorships</h3>` + html;
+        container.style.display = 'block';
+
+        if (hasBundle || (isWebActive && isAppActive)) {
+          if (cardWeb)    cardWeb.style.display    = 'none';
+          if (cardApp)    cardApp.style.display    = 'none';
+          if (cardBundle) cardBundle.style.display = 'none';
+        } else if (isWebActive) {
+          if (cardWeb)    cardWeb.style.display    = 'none';
+          if (cardBundle) cardBundle.style.display = 'none';
+          if (cardApp)    cardApp.style.display    = 'flex';
+        } else if (isAppActive) {
+          if (cardApp)    cardApp.style.display    = 'none';
+          if (cardBundle) cardBundle.style.display = 'none';
+          if (cardWeb)    cardWeb.style.display    = 'flex';
+        }
+      } else {
+        container.style.display = 'none';
+        if (cardWeb)    cardWeb.style.display    = 'flex';
+        if (cardApp)    cardApp.style.display    = 'flex';
+        if (cardBundle) cardBundle.style.display = 'flex';
+      }
     }
   </script>
 
