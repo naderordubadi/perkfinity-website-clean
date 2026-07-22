@@ -77,6 +77,36 @@
     .stat-change { font-size:11px; color:var(--green); font-weight:600; margin-top:4px; }
     .stat-change.negative { color:var(--red); }
 
+    /* Subtabs styling */
+    .sub-tabs-container {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 12px;
+    }
+    .sub-tab {
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.2s;
+      background: transparent;
+      border: 1px solid transparent;
+      user-select: none;
+    }
+    .sub-tab:hover {
+      color: #fff;
+      background: rgba(255,255,255,0.03);
+    }
+    .sub-tab.active {
+      color: var(--purple);
+      background: rgba(139,92,246,0.12);
+      border-color: rgba(139,92,246,0.25);
+    }
+
     /* Toolbar */
     .toolbar {
       display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:16px;
@@ -497,7 +527,20 @@
         <div id="merchant-detail-body" style="padding:24px 28px 28px;"></div>
       </div>
     </div>
-
+    <!-- Billing Stats Detail Overlay -->
+    <div id="billing-stats-detail-overlay" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:10005;justify-content:center;align-items:center;">
+      <div style="width:840px;max-height:90vh;overflow-y:auto;background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.3);padding:0;position:relative;">
+        <div style="position:sticky;top:0;background:#fff;padding:20px 28px 12px;border-bottom:1px solid #e2e8f0;border-radius:16px 16px 0 0;display:flex;justify-content:space-between;align-items:center;z-index:2;">
+          <div style="font-size:20px;font-weight:800;color:#1a1a2e;" id="billing-detail-title">Merchant Category List</div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <button onclick="adminPrintDetail('billing-detail-title','billing-stats-detail-body')" style="padding:6px 14px;font-size:12px;font-weight:700;border:1.5px solid #e2e8f0;border-radius:8px;background:#f8fafc;cursor:pointer;color:#475569;font-family:inherit;">🖨️ Print</button>
+            <button onclick="adminExportCSV('billing-detail-title','billing-stats-detail-body')" style="padding:6px 14px;font-size:12px;font-weight:700;border:1.5px solid #e2e8f0;border-radius:8px;background:#f8fafc;cursor:pointer;color:#475569;font-family:inherit;">📥 CSV</button>
+            <button onclick="document.getElementById('billing-stats-detail-overlay').style.display='none'" style="background:none;border:none;font-size:22px;cursor:pointer;color:#999;padding:4px 8px;">✕</button>
+          </div>
+        </div>
+        <div id="billing-stats-detail-body" style="padding:24px 28px 28px;color:#000;"></div>
+      </div>
+    </div>
     <!-- ═══ Contractor Detail Panel (right-side drawer) ═══ -->
     <div id="ctr-detail-backdrop" onclick="closeContractorDetail()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:10001;"></div>
     <div id="contractor-detail-overlay" style="display:none;position:fixed;top:0;right:0;bottom:0;width:840px;max-width:calc(100vw - 200px);background:#fff;z-index:10002;overflow-y:auto;box-shadow:-6px 0 50px rgba(0,0,0,0.22);">
@@ -761,6 +804,9 @@
           <div>
             <div class="page-title">Merchants</div>
             <div class="page-subtitle">All registered merchants on the platform</div>
+          </div>
+          <div>
+            <button class="btn btn-outline" id="merchant-deleted-toggle" onclick="toggleDeletedMerchants()" style="font-size: 13px; padding: 6px 14px; border-radius: 8px;">View Deleted Accounts</button>
           </div>
         </div>
 
@@ -1032,46 +1078,121 @@
             <div class="page-title">Billing & Revenue</div>
             <div class="page-subtitle">Financial reports for accounting</div>
           </div>
+          <div>
+            <button class="btn btn-outline" id="billing-deleted-toggle" onclick="toggleDeletedBilling()" style="font-size: 13px; padding: 6px 14px; border-radius: 8px;">View Deleted Accounts</button>
+          </div>
         </div>
 
-        <div class="stat-grid" style="grid-template-columns:repeat(8,1fr);">
+        <div class="sub-tabs-container">
+          <div class="sub-tab active" id="bill-subtab-total" onclick="switchBillSubtab('total')">📊 Total Revenue</div>
+          <div class="sub-tab" id="bill-subtab-platform" onclick="switchBillSubtab('platform')">💳 Platform Tiers</div>
+          <div class="sub-tab" id="bill-subtab-sponsorship" onclick="switchBillSubtab('sponsorship')">🗺️ Sponsorships</div>
+          <div class="sub-tab" id="bill-subtab-pouf" onclick="switchBillSubtab('pouf')">♾️ POUF Lifetime</div>
+        </div>
+
+        <!-- Total Stats Grid -->
+        <div class="stat-grid" id="bill-stats-total" style="grid-template-columns:repeat(5,1fr);">
+          <div class="stat-card">
+            <div class="stat-value" style="color:#22c55e;" id="bill-total-revenue-agg">$0</div>
+            <div class="stat-label">Total Collected</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px;">All streams combined</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" style="color:#38bdf8;" id="bill-platform-revenue-agg">$0</div>
+            <div class="stat-label">Platform Collected</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px;">Core SaaS tiers</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" style="color:#c084fc;" id="bill-sponsor-revenue-agg">$0</div>
+            <div class="stat-label">Sponsorship Collected</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px;">Web/App placements</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" style="color:#f472b6;" id="bill-pouf-revenue-agg">$0</div>
+            <div class="stat-label">POUF Collected</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px;">One-time lifetime fees</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value green" id="bill-blended-mrr">$0</div>
+            <div class="stat-label">Blended MRR Run-rate</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px;">Platform + Sponsor MRR</div>
+          </div>
+        </div>
+
+        <!-- Platform Stats Grid -->
+        <div class="stat-grid" id="bill-stats-platform" style="grid-template-columns:repeat(8,1fr);display:none;">
           <div class="stat-card">
             <div class="stat-value green" id="bill-mrr">$0</div>
-            <div class="stat-label">Monthly Recurring Revenue</div>
+            <div class="stat-label">Monthly Recurring</div>
             <div style="font-size:10px;color:var(--muted);margin-top:2px;">Monthly subs only</div>
           </div>
           <div class="stat-card">
             <div class="stat-value" style="color:#f59e0b;" id="bill-arr">$0</div>
-            <div class="stat-label">Annual Recurring Revenue</div>
+            <div class="stat-label">Annual Recurring</div>
             <div style="font-size:10px;color:var(--muted);margin-top:2px;" id="bill-arr-equiv">≈ $0/mo equiv.</div>
           </div>
           <div class="stat-card">
-            <div class="stat-value" style="color:#22c55e;" id="bill-total-revenue">$0</div>
-            <div class="stat-label">Total Revenue</div>
-            <div style="font-size:10px;color:var(--muted);margin-top:2px;">All paid invoices</div>
+            <div class="stat-value" style="color:#22c55e;" id="bill-platform-revenue">$0</div>
+            <div class="stat-label">Total Platform Revenue</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px;">All paid core tiers</div>
           </div>
           <div class="stat-card">
             <div class="stat-value purple" id="bill-paying">0</div>
             <div class="stat-label">Paying Merchants</div>
-            <div style="font-size:10px;color:var(--muted);margin-top:2px;">Pending cancel deducted</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px;">Demo & FFL excluded</div>
           </div>
-          <div class="stat-card">
+          <div class="stat-card" style="cursor:pointer;transition:background 0.2s;" onclick="showBillingCategoryDetail('upgrade_eligible')" title="Click to view list">
             <div class="stat-value" style="color:#38bdf8;" id="bill-eligible">0</div>
             <div class="stat-label">Upgrade Eligible</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px;">Click to view list ↓</div>
           </div>
-          <div class="stat-card">
+          <div class="stat-card" style="cursor:pointer;transition:background 0.2s;" onclick="showBillingCategoryDetail('ffl')" title="Click to view list">
             <div class="stat-value" style="color:#a78bfa;" id="bill-ffl">0</div>
             <div class="stat-label">Free For Life</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px;">Click to view list ↓</div>
           </div>
-          <div class="stat-card" style="cursor:pointer;transition:background 0.2s;" onclick="billQuickFilter('pending_cancellation')" title="Click to filter">
+          <div class="stat-card" style="cursor:pointer;transition:background 0.2s;" onclick="showBillingCategoryDetail('pending_cancel')" title="Click to view list">
             <div class="stat-value amber" id="bill-pending">0</div>
             <div class="stat-label">Pending Cancel</div>
-            <div style="font-size:10px;color:var(--muted);margin-top:2px;">Click to filter ↓</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px;">Click to view list ↓</div>
           </div>
-          <div class="stat-card" style="cursor:pointer;transition:background 0.2s;" onclick="billQuickFilter('failed')" title="Click to filter">
+          <div class="stat-card" style="cursor:pointer;transition:background 0.2s;" onclick="showBillingCategoryDetail('failed')" title="Click to view list">
             <div class="stat-value red" id="bill-failed">0</div>
             <div class="stat-label">Failed Payments</div>
-            <div style="font-size:10px;color:var(--muted);margin-top:2px;">Click to filter ↓</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px;">Click to view list ↓</div>
+          </div>
+        </div>
+
+        <!-- Sponsorship Stats Grid -->
+        <div class="stat-grid" id="bill-stats-sponsorship" style="grid-template-columns:repeat(3,1fr);display:none;">
+          <div class="stat-card">
+            <div class="stat-value purple" id="bill-sponsors-count">0</div>
+            <div class="stat-label">Active Sponsors</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px;">Web/App placements</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value green" id="bill-sponsorship-mrr">$0</div>
+            <div class="stat-label">Sponsorship Run-rate</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px;">Active monthly total</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" style="color:#22c55e;" id="bill-sponsorship-total">$0</div>
+            <div class="stat-label">Total Sponsorship Revenue</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px;">All paid ad invoices</div>
+          </div>
+        </div>
+
+        <!-- POUF Stats Grid -->
+        <div class="stat-grid" id="bill-stats-pouf" style="grid-template-columns:repeat(2,1fr);display:none;">
+          <div class="stat-card">
+            <div class="stat-value purple" id="bill-pouf-count">0</div>
+            <div class="stat-label">POUF Lifetime Merchants</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px;">One-time payment plan</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" style="color:#22c55e;" id="bill-pouf-total">$0</div>
+            <div class="stat-label">Total POUF Revenue</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px;">All lifetime payments</div>
           </div>
         </div>
 
@@ -1121,6 +1242,33 @@
             </thead>
             <tbody id="stuck-payments-tbody">
               <tr><td colspan="5" style="padding:12px;text-align:center;color:#991b1b;">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Active Complimentary Sponsors Panel -->
+        <div id="complimentary-sponsors-panel" style="display:none;margin-bottom:24px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:14px;padding:20px 24px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;margin-bottom:14px;" onclick="toggleComplimentaryTable()">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span style="font-size:20px;">🎁</span>
+              <div>
+                <div style="font-weight:800;font-size:15px;color:var(--purple);">Active Complimentary Sponsorships</div>
+                <div style="font-size:12px;color:var(--muted);margin-top:2px;">Merchants granted free promo ads by admin. They are automatically removed once they expire.</div>
+              </div>
+            </div>
+            <span id="complimentary-toggle-chevron" style="font-size:16px;color:var(--muted);transition:transform 0.2s;">▼</span>
+          </div>
+          <table id="complimentary-sponsors-table" style="width:100%;border-collapse:collapse;font-size:13px;">
+            <thead>
+              <tr style="border-bottom:1.5px solid var(--border);text-align:left;">
+                <th style="padding:8px 10px;color:var(--muted);font-weight:700;">Merchant</th>
+                <th style="padding:8px 10px;color:var(--muted);font-weight:700;">Tier</th>
+                <th style="padding:8px 10px;color:var(--muted);font-weight:700;">Web Promo Expiry</th>
+                <th style="padding:8px 10px;color:var(--muted);font-weight:700;">App Promo Expiry</th>
+              </tr>
+            </thead>
+            <tbody id="complimentary-sponsors-tbody">
+              <tr><td colspan="4" style="padding:12px;text-align:center;color:var(--muted);">No active complimentary sponsorships.</td></tr>
             </tbody>
           </table>
         </div>
@@ -2170,6 +2318,8 @@
       const campaigns30 = merchantCampaigns.filter(c => new Date(c.created_at) >= d30).length;
       const campaigns90 = merchantCampaigns.filter(c => new Date(c.created_at) >= d90).length;
       const totalRedemptions = merchantCampaigns.reduce((sum, c) => sum + (parseInt(c.redemption_count) || 0), 0);
+      const isWebActive = m.is_web_sponsored && (!m.web_sponsored_until || new Date(m.web_sponsored_until) >= new Date());
+      const isAppActive = m.is_app_sponsored && (!m.app_sponsored_until || new Date(m.app_sponsored_until) >= new Date());
 
       const body = document.getElementById('merchant-detail-body');
 
@@ -2245,14 +2395,14 @@
           
           <div style="margin-bottom:12px;">
             <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:#854d0e;margin-bottom:6px;cursor:pointer;">
-              <input type="checkbox" id="overrideWebSponsored_${m.id}" ${m.is_web_sponsored ? 'checked' : ''} style="accent-color:#ca8a04;width:16px;height:16px;cursor:pointer;"> Web Sponsored
+              <input type="checkbox" id="overrideWebSponsored_${m.id}" ${isWebActive ? 'checked' : ''} style="accent-color:#ca8a04;width:16px;height:16px;cursor:pointer;"> Web Sponsored
             </label>
             <input type="date" id="overrideWebDate_${m.id}" value="${m.web_sponsored_until ? new Date(m.web_sponsored_until).toISOString().split('T')[0] : ''}" style="width:100%;padding:10px 12px;border:1px solid #fde047;border-radius:8px;font-family:inherit;font-size:13px;color:#1e293b;outline:none;box-sizing:border-box;">
           </div>
 
           <div style="margin-bottom:20px;">
             <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:#854d0e;margin-bottom:6px;cursor:pointer;">
-              <input type="checkbox" id="overrideAppSponsored_${m.id}" ${m.is_app_sponsored ? 'checked' : ''} style="accent-color:#ca8a04;width:16px;height:16px;cursor:pointer;"> App Sponsored
+              <input type="checkbox" id="overrideAppSponsored_${m.id}" ${isAppActive ? 'checked' : ''} style="accent-color:#ca8a04;width:16px;height:16px;cursor:pointer;"> App Sponsored
             </label>
             <input type="date" id="overrideAppDate_${m.id}" value="${m.app_sponsored_until ? new Date(m.app_sponsored_until).toISOString().split('T')[0] : ''}" style="width:100%;padding:10px 12px;border:1px solid #fde047;border-radius:8px;font-family:inherit;font-size:13px;color:#1e293b;outline:none;box-sizing:border-box;">
           </div>
@@ -2758,6 +2908,8 @@
     let allMembers = [];
     let allCampaigns = [];
     let allBilling = [];
+    let activeBillSubtab = 'total';
+    let lastBillingData = null;
     // ── Search & Filter ──────────────────────────────────────────────
     
     // Toggle for Deleted Members
@@ -2775,6 +2927,40 @@
         btn.classList.add('btn-outline');
       }
       filterTable('members');
+    };
+
+    // Toggle for Deleted Merchants
+    window.showDeletedMerchants = false;
+    window.toggleDeletedMerchants = function() {
+      window.showDeletedMerchants = !window.showDeletedMerchants;
+      const btn = document.getElementById('merchant-deleted-toggle');
+      if (window.showDeletedMerchants) {
+        btn.textContent = 'View Active Accounts';
+        btn.classList.add('btn-primary');
+        btn.classList.remove('btn-outline');
+      } else {
+        btn.textContent = 'View Deleted Accounts';
+        btn.classList.remove('btn-primary');
+        btn.classList.add('btn-outline');
+      }
+      filterTable('merchants');
+    };
+
+    // Toggle for Deleted Billing Invoices
+    window.showDeletedBilling = false;
+    window.toggleDeletedBilling = function() {
+      window.showDeletedBilling = !window.showDeletedBilling;
+      const btn = document.getElementById('billing-deleted-toggle');
+      if (window.showDeletedBilling) {
+        btn.textContent = 'View Active Accounts';
+        btn.classList.add('btn-primary');
+        btn.classList.remove('btn-outline');
+      } else {
+        btn.textContent = 'View Deleted Accounts';
+        btn.classList.remove('btn-primary');
+        btn.classList.add('btn-outline');
+      }
+      filterTable('billing');
     };
 
     let sortState = {};
@@ -3196,23 +3382,187 @@
       }
 
       // Load billing
+      // Load billing
       const billRes = await adminFetch('/admin/billing');
       if (billRes.success) {
         allBilling = billRes.data.invoices || [];
+        lastBillingData = billRes.data;
         const bStats = billRes.data.stats || {};
+        
+        // 1. Total (Aggregate) Stats
+        document.getElementById('bill-total-revenue-agg').textContent = '$' + ((bStats.total_revenue_cents || 0) / 100).toFixed(2);
+        document.getElementById('bill-platform-revenue-agg').textContent = '$' + ((bStats.platform_revenue_cents || 0) / 100).toFixed(2);
+        document.getElementById('bill-sponsor-revenue-agg').textContent = '$' + ((bStats.sponsorship_revenue_cents || 0) / 100).toFixed(2);
+        document.getElementById('bill-pouf-revenue-agg').textContent = '$' + ((bStats.pouf_revenue_cents || 0) / 100).toFixed(2);
+        
+        const platformMrr = parseFloat(bStats.mrr) || 0;
+        const platformArr = parseFloat(bStats.arr) || 0;
+        const blendedSaaS = platformMrr + platformArr / 12;
+        const sponsorshipMrr = parseFloat(bStats.sponsorship_mrr) || 0;
+        document.getElementById('bill-blended-mrr').textContent = '$' + (blendedSaaS + sponsorshipMrr).toFixed(2);
+
+        // 2. Platform Tiers Stats
         document.getElementById('ov-mrr').textContent = '$' + (bStats.mrr || '0');
         document.getElementById('bill-mrr').textContent = '$' + (bStats.mrr || '0');
         document.getElementById('bill-arr').textContent = '$' + (bStats.arr || '0');
         const arrMonthEquiv = bStats.arr ? (parseFloat(bStats.arr) / 12).toFixed(2) : '0';
         const arrSubEl = document.getElementById('bill-arr-equiv');
         if (arrSubEl) arrSubEl.textContent = `≈ $${arrMonthEquiv}/mo equiv. (${bStats.annual_merchant_count || 0} merchant${(bStats.annual_merchant_count || 0) === 1 ? '' : 's'})`;
-        document.getElementById('bill-total-revenue').textContent = '$' + ((bStats.total_revenue_cents || 0) / 100).toFixed(2);
+        document.getElementById('bill-platform-revenue').textContent = '$' + ((bStats.platform_revenue_cents || 0) / 100).toFixed(2);
         document.getElementById('bill-paying').textContent = bStats.paying_merchants || 0;
         document.getElementById('bill-eligible').textContent = bStats.upgrade_eligible || 0;
         document.getElementById('bill-ffl').textContent = bStats.ffl_merchants || 0;
         document.getElementById('bill-pending').textContent = bStats.pending_cancel || 0;
         document.getElementById('bill-failed').textContent = bStats.failed_payments || 0;
+
+        // 3. Sponsorship Stats
+        document.getElementById('bill-sponsors-count').textContent = bStats.sponsors_count || 0;
+        document.getElementById('bill-sponsorship-mrr').textContent = '$' + (sponsorshipMrr).toFixed(2);
+        document.getElementById('bill-sponsorship-total').textContent = '$' + ((bStats.sponsorship_revenue_cents || 0) / 100).toFixed(2);
+
+        // 4. POUF Stats
+        document.getElementById('bill-pouf-count').textContent = bStats.pouf_count || 0;
+        document.getElementById('bill-pouf-total').textContent = '$' + ((bStats.pouf_revenue_cents || 0) / 100).toFixed(2);
+
+        // Render Active Complimentary Sponsors Table
+        const compSponsors = billRes.data.complimentarySponsors || [];
+        const compTbody = document.getElementById('complimentary-sponsors-tbody');
+        if (compTbody) {
+          if (compSponsors.length > 0) {
+            compTbody.innerHTML = compSponsors.map(s => {
+              const webExpiry = s.web_sponsored_until ? formatDate(s.web_sponsored_until) : '—';
+              const appExpiry = s.app_sponsored_until ? formatDate(s.app_sponsored_until) : '—';
+              let sTier = 'Free';
+              if (s.subscription_tier === 'free_for_life') sTier = 'FFL';
+              else if (s.subscription_tier === 'tier1') sTier = 'Connect';
+              else if (s.subscription_tier === 'online_starter') sTier = 'Starter';
+              else if (s.subscription_tier === 'online_growth') sTier = 'Growth';
+              else if (s.subscription_tier === 'online_scale') sTier = 'Scale';
+              return `
+                <tr style="border-bottom:1px solid var(--border);">
+                  <td style="padding:10px;font-weight:700;"><a href="#" onclick="showMerchantDetail('${s.id}');return false;" style="color:var(--purple);text-decoration:none;">${s.business_name}</a></td>
+                  <td style="padding:10px;"><span class="badge ${s.subscription_tier === 'free_for_life' ? 'ffl' : 'tier1'}">${sTier}</span></td>
+                  <td style="padding:10px;">${webExpiry}</td>
+                  <td style="padding:10px;">${appExpiry}</td>
+                </tr>`;
+            }).join('');
+          } else {
+            compTbody.innerHTML = `<tr><td colspan="4" style="padding:16px;text-align:center;color:var(--muted);">No active complimentary sponsorships.</td></tr>`;
+          }
+        }
+
         renderTable('billing');
+
+        window.switchBillSubtab = function(tab) {
+          activeBillSubtab = tab;
+          document.querySelectorAll('.sub-tab').forEach(el => el.classList.remove('active'));
+          const activeEl = document.getElementById('bill-subtab-' + tab);
+          if (activeEl) activeEl.classList.add('active');
+
+          // Hide all grids
+          document.getElementById('bill-stats-total').style.display = 'none';
+          document.getElementById('bill-stats-platform').style.display = 'none';
+          document.getElementById('bill-stats-sponsorship').style.display = 'none';
+          document.getElementById('bill-stats-pouf').style.display = 'none';
+
+          // Show active grid
+          document.getElementById('bill-stats-' + tab).style.display = 'grid';
+
+          // Toggle complimentary panel
+          document.getElementById('complimentary-sponsors-panel').style.display = (tab === 'sponsorship') ? 'block' : 'none';
+
+          renderTable('billing');
+        };
+
+        window.toggleComplimentaryTable = function() {
+          const tbl = document.getElementById('complimentary-sponsors-table');
+          const chevron = document.getElementById('complimentary-toggle-chevron');
+          if (tbl.style.display === 'none') {
+            tbl.style.display = 'table';
+            chevron.style.transform = 'rotate(0deg)';
+          } else {
+            tbl.style.display = 'none';
+            chevron.style.transform = 'rotate(-90deg)';
+          }
+        };
+
+        window.showBillingCategoryDetail = function(category) {
+          let list = [];
+          let title = '';
+          
+          if (category === 'upgrade_eligible') {
+            title = 'Upgrade Eligible Merchants';
+            list = allMerchants.filter(m => (m.tier === 'none' || m.tier === 'trial') && !m.account_blocked);
+          } else if (category === 'ffl') {
+            title = 'Free For Life (FFL) Merchants';
+            list = allMerchants.filter(m => m.tier === 'free_for_life' && !m.account_blocked);
+          } else if (category === 'pending_cancel') {
+            title = 'Pending Cancellation Merchants';
+            list = allMerchants.filter(m => m.billing_status === 'pending_cancellation' && !m.account_blocked);
+          } else if (category === 'failed') {
+            title = 'Failed Payment Merchants';
+            list = allMerchants.filter(m => m.billing_status === 'payment_failed' && !m.account_blocked);
+          }
+
+          document.getElementById('billing-detail-title').textContent = title;
+          const body = document.getElementById('billing-stats-detail-body');
+          
+          if (list.length === 0) {
+            body.innerHTML = '<div style="padding:40px;text-align:center;color:var(--muted);font-weight:700;">No merchants in this category.</div>';
+          } else {
+            body.innerHTML = `
+              <div class="table-wrap" style="background:#fff;border:none;box-shadow:none;padding:0;margin:0;overflow-x:auto;">
+                <table class="data-table" style="width:100%;border-collapse:collapse;font-size:13px;color:#334155;">
+                  <thead>
+                    <tr style="border-bottom:2px solid #e2e8f0;text-align:left;">
+                      <th style="padding:12px 10px;color:#475569;font-weight:700;">Business Name</th>
+                      <th style="padding:12px 10px;color:#475569;font-weight:700;">Contact</th>
+                      <th style="padding:12px 10px;color:#475569;font-weight:700;">Email</th>
+                      <th style="padding:12px 10px;color:#475569;font-weight:700;">Phone</th>
+                      <th style="padding:12px 10px;color:#475569;font-weight:700;">Presence</th>
+                      <th style="padding:12px 10px;color:#475569;font-weight:700;">Tier</th>
+                      <th style="padding:12px 10px;color:#475569;font-weight:700;">Status</th>
+                      <th style="padding:12px 10px;color:#475569;font-weight:700;text-align:center;">Members</th>
+                      <th style="padding:12px 10px;color:#475569;font-weight:700;">Joined</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${list.map(m => {
+                      const tierClass = m.tier === 'tier1' ? 'tier1'
+                        : m.tier === 'free_for_life' ? 'ffl'
+                        : m.tier === 'enterprise' ? 'tier1'
+                        : ['online_starter','online_growth','online_scale'].includes(m.tier) ? 'tier1'
+                        : 'free';
+                      const tierLabel = m.tier === 'tier1' ? 'Connect'
+                        : m.tier === 'free_for_life' ? 'FFL'
+                        : m.tier === 'online_starter' ? 'Starter'
+                        : m.tier === 'online_growth' ? 'Growth'
+                        : m.tier === 'online_scale' ? 'Scale'
+                        : m.tier === 'enterprise' ? 'Enterprise'
+                        : 'Trial';
+                      const bs = m.billing_status || m.status || 'active';
+                      let statusLabel = bs === 'pending_cancellation' ? 'Pending Cancel' : bs === 'payment_failed' ? 'Failed' : bs;
+                      statusLabel = statusLabel.charAt(0).toUpperCase() + statusLabel.slice(1);
+                      const statusClass = bs === 'active' ? 'active' : 'inactive';
+                      return `
+                        <tr style="border-bottom:1px solid #f1f5f9;height:44px;">
+                          <td style="padding:12px 10px;font-weight:700;"><a href="#" onclick="showMerchantDetail('${m.id}');document.getElementById('billing-stats-detail-overlay').style.display='none';return false;" style="color:#5b3fa5;text-decoration:none;">${m.business_name || '—'}</a></td>
+                          <td style="padding:12px 10px;">${m.contact_name || '—'}</td>
+                          <td style="padding:12px 10px;"><a href="mailto:${m.contact_email || m.email}" style="color:#475569;text-decoration:none;">${m.contact_email || m.email || '—'}</a></td>
+                          <td style="padding:12px 10px;">${m.phone || '—'}</td>
+                          <td style="padding:12px 10px;font-weight:700;color:${m.business_presence==='online'?'#5b3fa5':m.business_presence==='hybrid'?'#7c3aed':m.business_presence==='mobile'?'#0891b2':'#16a34a'}">${m.business_presence==='online'?'🌐 Online':m.business_presence==='hybrid'?'📱 Hybrid':m.business_presence==='mobile'?'🚐 Mobile':'📍 Local'}</td>
+                          <td style="padding:12px 10px;"><span class="badge ${tierClass}">${tierLabel}</span></td>
+                          <td style="padding:12px 10px;"><span class="badge ${statusClass}">${statusLabel}</span></td>
+                          <td style="padding:12px 10px;text-align:center;">${m.member_count || 0}</td>
+                          <td style="padding:12px 10px;">${formatDate(m.created_at)}</td>
+                        </tr>`;
+                    }).join('')}
+                  </tbody>
+                </table>
+              </div>`;
+          }
+          document.getElementById('billing-stats-detail-overlay').style.display = 'flex';
+        };
 
         // Load stuck-payments panel (auto-upgrade failures)
         try {
@@ -3280,14 +3630,15 @@
               : ['online_starter','online_growth','online_scale'].includes(m.tier) ? 'tier1'
               : 'free';
             const bs = m.billing_status || m.status || 'active';
+            const isMerchantDeleted = bs === 'deleted' || m.business_name === '[Deleted]';
             let statusLabel, statusClass;
-            if (bs === 'deleted') { statusLabel = 'Deleted'; statusClass = 'deleted'; }
+            if (isMerchantDeleted) { statusLabel = 'Deleted'; statusClass = 'deleted'; }
             else if (m.account_blocked) { statusLabel = 'Blocked'; statusClass = 'inactive'; }
             else if (bs === 'pending_cancellation') { statusLabel = 'Pending Cancel'; statusClass = 'inactive'; }
             else if (bs === 'payment_failed') { statusLabel = 'Payment Failed'; statusClass = 'inactive'; }
             else { statusLabel = 'Active'; statusClass = 'active'; }
             let billingDate = '\u2014';
-            if (bs !== 'deleted') {
+            if (!isMerchantDeleted) {
               if (m.billing_cycle === 'lifetime' || m.tier === 'free_for_life') {
                 billingDate = '<span style="color:var(--purple);font-weight:700;">Lifetime Plan</span>';
               } else if (bs === 'pending_cancellation' && m.next_billing_date) {
@@ -3299,7 +3650,7 @@
             return `
             <tr style="cursor:pointer;" onclick="showMerchantDetail('${m.id}')">
               <td class="cb-col" onclick="event.stopPropagation()"><input type="checkbox" class="merchant-cb" data-id="${m.id}" onchange="updateBulkBar()"></td>
-              <td><strong>${m.business_name || '\u2014'}</strong>${m.is_hidden ? ' <span style="background:#e2e8f0;color:#475569;font-size:10px;padding:2px 6px;border-radius:4px;margin-left:4px;">HIDDEN</span>' : ''}</td>
+              <td><strong>${m.business_name || '\u2014'}</strong>${isMerchantDeleted ? ' <span style="background:#ef4444;color:#fff;font-size:10px;padding:2px 6px;border-radius:4px;margin-left:4px;font-weight:700;">DELETED</span>' : ''}${m.is_hidden ? ' <span style="background:#e2e8f0;color:#475569;font-size:10px;padding:2px 6px;border-radius:4px;margin-left:4px;">HIDDEN</span>' : ''}</td>
               <td>${m.location_city || m.city || '\u2014'}</td>
               <td>${m.location_zip || '\u2014'}</td>
               <td><span style="font-size:12px;font-weight:700;color:${m.business_presence==='online'?'#5b3fa5':m.business_presence==='hybrid'?'#7c3aed':m.business_presence==='mobile'?'#0891b2':'#16a34a'}">${m.business_presence==='online'?'🌐 Online':m.business_presence==='hybrid'?'📱 Hybrid':m.business_presence==='mobile'?'🚐 Mobile':'📍 Local'}</span></td>
@@ -3390,22 +3741,41 @@
               : isPendingCancel && inv.next_billing_date
                 ? `<span style="color:#ef4444;font-weight:600;">🚫 ${staleDateWarn(inv.next_billing_date, inv)}</span>`
                 : inv.next_billing_date ? staleDateWarn(inv.next_billing_date, inv) : '—';
-            const tierClass = inv.subscription_tier === 'tier1' ? 'tier1'
-              : inv.subscription_tier === 'free_for_life' ? 'ffl'
-              : ['online_starter','online_growth','online_scale','enterprise'].includes(inv.subscription_tier) ? 'tier1'
-              : 'free';
-            const tierLabel = inv.subscription_tier === 'tier1' ? 'Connect'
-              : inv.subscription_tier === 'free_for_life' ? 'FFL'
-              : inv.subscription_tier === 'online_starter' ? 'Starter'
-              : inv.subscription_tier === 'online_growth' ? 'Growth'
-              : inv.subscription_tier === 'online_scale' ? 'Scale'
-              : inv.subscription_tier === 'enterprise' ? 'Enterprise'
-              : 'Free';
+            let tierClass = 'free';
+            let tierLabel = 'Free';
+            let subTypeBadge = cycleBadge(inv.billing_cycle, inv.subscription_tier);
+
+            if (inv.revenue_type === 'sponsorship') {
+              tierClass = 'tier1';
+              if (amt === '49.99') tierLabel = 'Web Sponsor';
+              else if (amt === '99.99') tierLabel = 'App Sponsor';
+              else if (amt === '129.99') tierLabel = 'Everywhere Bundle';
+              else tierLabel = 'Sponsorship';
+              
+              subTypeBadge = '<span style="font-size:11px;font-weight:700;color:#c084fc;background:rgba(192,132,252,0.12);border:1px solid rgba(192,132,252,0.35);border-radius:6px;padding:2px 7px;">Sponsorship</span>';
+            } else {
+              tierClass = inv.subscription_tier === 'tier1' ? 'tier1'
+                : inv.subscription_tier === 'free_for_life' ? 'ffl'
+                : ['online_starter','online_growth','online_scale','enterprise'].includes(inv.subscription_tier) ? 'tier1'
+                : 'free';
+              tierLabel = inv.subscription_tier === 'tier1' ? 'Connect'
+                : inv.subscription_tier === 'free_for_life' ? 'FFL'
+                : inv.subscription_tier === 'online_starter' ? 'Starter'
+                : inv.subscription_tier === 'online_growth' ? 'Growth'
+                : inv.subscription_tier === 'online_scale' ? 'Scale'
+                : inv.subscription_tier === 'enterprise' ? 'Enterprise'
+                : 'Free';
+
+              if (inv.revenue_type === 'pouf') {
+                subTypeBadge = '<span style="font-size:11px;font-weight:700;color:#f472b6;background:rgba(244,114,182,0.12);border:1px solid rgba(244,114,182,0.35);border-radius:6px;padding:2px 7px;">One-time</span>';
+              }
+            }
+
             return `
             <tr style="cursor:pointer;" onclick="showInvoiceDetail('${inv.id}')">
-              <td><strong>${inv.merchant_name || '—'}</strong></td>
+              <td><strong>${inv.merchant_name || '—'}</strong>${isDeleted ? ' <span style="background:#ef4444;color:#fff;font-size:10px;padding:2px 6px;border-radius:4px;margin-left:4px;font-weight:700;">DELETED</span>' : ''}</td>
               <td><span class="badge ${tierClass}">${tierLabel}</span></td>
-              <td>${cycleBadge(inv.billing_cycle, inv.subscription_tier)}</td>
+              <td>${subTypeBadge}</td>
               <td><span class="badge ${statusClass}">${statusLabel}</span></td>
               <td>$${amt}</td>
               <td>${period}</td>
@@ -3427,6 +3797,18 @@
       switch(type) {
         case 'merchants':
           data = [...allMerchants];
+          if (typeof window.showDeletedMerchants === 'undefined') window.showDeletedMerchants = false;
+          if (window.showDeletedMerchants) {
+            data = data.filter(m => {
+              const bs = m.billing_status || m.status || 'active';
+              return bs === 'deleted';
+            });
+          } else {
+            data = data.filter(m => {
+              const bs = m.billing_status || m.status || 'active';
+              return bs !== 'deleted';
+            });
+          }
           search = document.getElementById('merchant-search').value.toLowerCase();
           filters.status = document.getElementById('merchant-filter-status').value;
           filters.tier = document.getElementById('merchant-filter-tier').value;
@@ -3553,6 +3935,21 @@
 
         case 'billing':
           data = [...allBilling];
+          if (typeof window.showDeletedBilling === 'undefined') window.showDeletedBilling = false;
+          if (window.showDeletedBilling) {
+            data = data.filter(i => i.billing_status === 'deleted' || i.status === 'deleted');
+          } else {
+            data = data.filter(i => i.billing_status !== 'deleted' && i.status !== 'deleted');
+          }
+          // Filter by subtab revenue type
+          if (activeBillSubtab === 'platform') {
+            data = data.filter(i => i.revenue_type === 'platform' || !i.revenue_type);
+          } else if (activeBillSubtab === 'sponsorship') {
+            data = data.filter(i => i.revenue_type === 'sponsorship');
+          } else if (activeBillSubtab === 'pouf') {
+            data = data.filter(i => i.revenue_type === 'pouf');
+          }
+
           const billStatus = document.getElementById('billing-filter-status').value;
           const billPeriod = document.getElementById('billing-filter-period').value;
           const billCycle = document.getElementById('billing-filter-cycle')?.value || '';
