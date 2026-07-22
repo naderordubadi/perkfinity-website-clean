@@ -5332,10 +5332,8 @@
         if (json.success && json.data.length > 0) {
           json.data.forEach(m => {
             const proms = m.promotions || [];
-            let oldestTs = null;
-            let redeemedCount = 0;
-            let claimedCount = 0;
-
+            
+            // Calculate active timestamp for each promotion
             proms.forEach(p => {
               let ts_raw = null;
               if (p.status === 'Redeemed' && p.redeemed_at) ts_raw = new Date(p.redeemed_at);
@@ -5343,11 +5341,24 @@
               else if (p.status === 'Expired' && p.expires_at) ts_raw = new Date(p.expires_at);
               else if (p.status === 'Created' && p.issued_at) ts_raw = new Date(p.issued_at);
               else if (p.status === 'Announcement' && p.issued_at) ts_raw = new Date(p.issued_at);
+              p._ts_raw = ts_raw;
+            });
 
-              if (ts_raw) {
-                if (!oldestTs || ts_raw < oldestTs) oldestTs = ts_raw;
+            // Sort promotions chronologically descending (newest first)
+            proms.sort((a, b) => {
+              const av = a._ts_raw ? a._ts_raw.getTime() : 0;
+              const bv = b._ts_raw ? b._ts_raw.getTime() : 0;
+              return bv - av;
+            });
+
+            let oldestTs = null;
+            let redeemedCount = 0;
+            let claimedCount = 0;
+
+            proms.forEach(p => {
+              if (p._ts_raw) {
+                if (!oldestTs || p._ts_raw < oldestTs) oldestTs = p._ts_raw;
               }
-
               if (p.status === 'Redeemed') redeemedCount++;
               else if (p.status === 'Claimed') claimedCount++;
             });
