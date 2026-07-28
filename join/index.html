@@ -178,7 +178,7 @@
           </div>
         </div>
         <div class="perk-box" id="perk-box" style="display:none;">
-          <div class="perk-label">🎁 Your Welcome Perk</div>
+          <div class="perk-label">🎁 Your Welcome Offer</div>
           <div class="perk-title" id="perk-title"></div>
         </div>
       </div>
@@ -295,7 +295,10 @@
       }
 
       // Welcome perk
-      if (campaigns && campaigns.length) {
+      if (merchant.welcome_offer_text) {
+        document.getElementById('perk-title').textContent = merchant.welcome_offer_text;
+        document.getElementById('perk-box').style.display = 'block';
+      } else if (campaigns && campaigns.length) {
         // Find the welcome/initial offer — campaign_type='initial' (new) or 'perk' (legacy).
         // Targeted promotions have campaign_type='announcement' or other values.
         const welcomePerk = campaigns.find(c => c.campaign_type === 'initial' && c.status === 'active')
