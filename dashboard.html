@@ -6680,15 +6680,14 @@ You're receiving this because you're a valued customer of ${businessName}.`;
         }
       }
 
-      // Handle VIP Full Page card UI button state
+      // Handle VIP Full Page card UI visibility
       if (cardFullpage) {
-        const fullpageBtn = cardFullpage.querySelector('button');
-        if (fullpageBtn) {
-          if (isFullpageActive) {
-            fullpageBtn.textContent = '🟢 VIP Takeover Active';
-            fullpageBtn.style.background = '#16A34A';
-            fullpageBtn.onclick = () => cancelSponsorship('fullpage');
-          } else {
+        if (isFullpageActive) {
+          cardFullpage.style.display = 'none';
+        } else {
+          cardFullpage.style.display = 'flex';
+          const fullpageBtn = cardFullpage.querySelector('button');
+          if (fullpageBtn) {
             fullpageBtn.textContent = 'Boost Full Page';
             fullpageBtn.style.background = '#311C87';
             fullpageBtn.onclick = () => sponsorTierCheckout('fullpage');
