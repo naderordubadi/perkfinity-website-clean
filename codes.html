@@ -925,6 +925,9 @@
         document.body.appendChild(modal);
       }
 
+      const bannerUrl = merchant.promo_banner_url || merchant.cover_photo_url;
+      const joinUrl = `https://perkfinity.net/join/${merchant.qr_public_code}`;
+
       let ratingHtml = '';
       if (merchant.rating_score) {
         const ratingPlatform = merchant.rating_platform || 'Google';
