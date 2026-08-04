@@ -914,17 +914,33 @@
             <div style="margin-top:24px; background:#F8F6FF; border:1.5px solid #E9D5FF; border-radius:14px; padding:20px;">
               <div style="font-size:12px; font-weight:800; color:#8B5CF6; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">🏷️ Exclusive Member Perk</div>
               <h3 style="margin:0 0 8px; font-size:18px; font-weight:800; color:#311C87;">${merchant.welcome_offer_text || merchant.latest_offer_title || 'Exclusive Perk'}</h3>
-              <p style="margin:0; font-size:13.5px; color:#64748B;">Show your Perkfinity QR code at checkout or use the direct buttons to redeem.</p>
+              <p style="margin:0; font-size:13.5px; color:#64748B;">Scan the QR code to open/download Perkfinity and claim this offer!</p>
             </div>
           </div>
 
           <!-- Right Sidebar Column -->
           <div style="padding:32px; background:#FAFAFA; border-top-right-radius:20px; border-bottom-right-radius:20px; display:flex; flex-direction:column; gap:20px;">
-            <!-- QR Code Card -->
-            <div style="background:#fff; border:1px solid #E2E8F0; border-radius:14px; padding:20px; text-align:center;">
-              <div style="font-weight:700; font-size:14px; color:#1E293B; margin-bottom:12px;">🎟️ Claim In-Store / Online</div>
-              <div id="fullpage-qr-container" style="display:flex; justify-content:center; margin-bottom:12px;"></div>
-              <div style="font-size:11.5px; color:#64748B; line-height:1.4;">Show QR code to cashier or scan via app</div>
+            <!-- Standard QR Code Section -->
+            <div style="background:#fff; border:1px solid #E2E8F0; border-radius:16px; padding:18px; text-align:center; box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+              <div id="fullpage-qr-container" style="display:flex; justify-content:center; margin-bottom:8px;"></div>
+              <p style="font-size:11px; font-weight:700; color:#64748B; word-break:break-all; margin:0 0 14px 0;">${joinUrl}</p>
+              
+              <div style="display:flex; flex-direction:column; gap:10px; text-align:left; margin-bottom:12px;">
+                <div style="background:#FFFBEB; border:1.5px solid #FDE68A; border-radius:10px; padding:10px 12px;">
+                  <div style="font-size:11px; font-weight:900; color:#B45309; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:4px;">📱 DON'T HAVE THE APP?</div>
+                  <p style="margin:0; font-size:11.5px; font-weight:700; color:#78350F; line-height:1.4;">Open your phone's camera → Scan the QR code → Download Perkfinity → Join the merchant → Visit the store to activate your perk.</p>
+                </div>
+                <div style="background:#F0FDF4; border:1.5px solid #BBF7D0; border-radius:10px; padding:10px 12px;">
+                  <div style="font-size:11px; font-weight:900; color:#15803D; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:4px;">✅ ALREADY HAVE THE APP?</div>
+                  <p style="margin:0; font-size:11.5px; font-weight:700; color:#166534; line-height:1.4;">Open Perkfinity → Tap <strong>Scan</strong> → Scan this QR code → Join the merchant → Visit the store and scan again to activate.</p>
+                </div>
+              </div>
+
+              <p style="font-size:11px; color:#94A3B8; font-weight:700; text-align:center; line-height:1.4; margin:0; border-top:1px solid #F1F5F9; padding-top:10px;">
+                Note: This is <strong>not</strong> an online promo code. You must visit the store in person to activate your perk.
+                See our <a href="terms-of-use.html" target="_blank" style="color:#5B3FA5;">Terms</a> &amp;
+                <a href="privacy-policy.html" target="_blank" style="color:#5B3FA5;">Privacy Policy</a>.
+              </p>
             </div>
 
             <!-- Action Links -->
