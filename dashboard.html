@@ -1429,7 +1429,6 @@
 
     <!-- Billing Tab -->
     <div id="tab-billing" style="display:block">
-      <div id="scene-dynamic-override" class="scene" style="display:none"></div>
 
       <!-- ─── TRIAL (no promo — 7/10) ─── -->
       <div id="scene-trial-10" class="scene" style="display:none">
@@ -4179,26 +4178,13 @@
           }
         }
 
-        // Normalize tier for annual/physical aliases
-        if (['annual_physical', 'annual-physical', 'annual', 'connect'].includes(d.tier)) {
-          d.tier = 'tier1';
-          d.billing_cycle = 'annual';
-        }
-
-        // Hide dynamic override container if previously shown
-        const dynOverrideEl = document.getElementById('scene-dynamic-override');
-        if (dynOverrideEl) {
-          dynOverrideEl.style.display = 'none';
-          dynOverrideEl.innerHTML = '';
-        }
-
         // ── Online brand: pending application banner ──────────────
         if (d.application_status === 'pending') {
           document.querySelectorAll('.scene').forEach(s => s.style.display = 'none');
-          if (dynOverrideEl) {
-            dynOverrideEl.style.display = 'block';
+          const billingWrap = document.querySelector('.billing-wrap') || document.querySelector('[id^="scene-"]')?.parentElement;
+          if (billingWrap) {
             if (d.tier === 'free_for_life') {
-              dynOverrideEl.innerHTML = `
+              billingWrap.innerHTML = `
                 <div style="background:rgba(107,193,122,.08);border:1.5px solid rgba(107,193,122,.3);border-radius:20px;padding:32px 28px;max-width:640px;margin:0 auto;">
                   <div style="font-size:36px;margin-bottom:12px;">🎖️</div>
                   <div style="font-size:20px;font-weight:900;color:#1a6b2b;margin-bottom:8px;">Free For Life — Under Review</div>
@@ -4206,7 +4192,7 @@
                   <p style="font-size:13px;color:#1a6b2b;font-weight:700;margin:0;">You will receive an email confirmation once the review is complete. No payment method is required.</p>
                 </div>`;
             } else {
-              dynOverrideEl.innerHTML = `
+              billingWrap.innerHTML = `
                 <div style="background:rgba(245,158,11,.08);border:1.5px solid rgba(245,158,11,.35);border-radius:20px;padding:32px 28px;max-width:640px;margin:0 auto;">
                   <div style="font-size:36px;margin-bottom:12px;">⏳</div>
                   <div style="font-size:20px;font-weight:900;color:#92400e;margin-bottom:8px;">Application Under Review</div>
@@ -4233,85 +4219,87 @@
             if (bar) bar.style.width = pct + '%';
             if (countEl) countEl.textContent = current;
             if (limitEl) limitEl.textContent = threshold;
-          } else if (dynOverrideEl) {
-            // Compute upgrade path for promo-phase merchant
-            const promoTierMeta = {
-              online_starter: { next:'online_growth', nextLabel:'Growth', price:'$299', limit:'2,500' },
-              online_growth:  { next:'online_scale',    nextLabel:'Scale',  price:'$499', limit:'Unlimited' },
-              online_scale:     null,
-            };
-            const promoNext = promoTierMeta[d.tier];
-            const upgradeSection = promoNext ? `
-              <div class="action-link" id="promo-upgrade-link" onclick="document.getElementById('promo-upgrade-warning').style.display='block';this.style.display='none'" style="margin-top:8px">
-                <div class="left">
-                  <div class="icon-wrap" style="background:rgba(91,63,165,.08)">🚀</div>
-                  <div>
-                    <h4 style="color:var(--purple)">Upgrade to ${promoNext.nextLabel} Now</h4>
-                    <p>Skip the threshold — billing starts today at ${promoNext.price}/mo</p>
-                  </div>
-                </div>
-                <div class="arrow" style="color:var(--purple)">→</div>
-              </div>
-              <div id="promo-upgrade-warning" class="upgrade-warning" style="display:none">
-                <h4>🚀 Upgrade to ${promoNext.nextLabel}?</h4>
-                <ul>
-                  <li>Your member limit increases to <strong>${promoNext.limit} immediately</strong></li>
-                  <li>Your card on file will be <strong>charged ${promoNext.price} today</strong></li>
-                  <li>The free threshold is removed — billing starts now</li>
-                </ul>
-                <button class="btn btn-purple btn-sm" onclick="doUpgrade('${promoNext.next}','promo-upgrade-warning')">Yes, Upgrade Now</button>
-                <button class="btn btn-outline btn-sm" style="margin-left:8px"
-                  onclick="document.getElementById('promo-upgrade-warning').style.display='none';document.getElementById('promo-upgrade-link').style.display=''">Never Mind</button>
-              </div>` : '';
-
-            dynOverrideEl.style.display = 'block';
-            dynOverrideEl.innerHTML = `
-              <div style="background:#fff;border:1px solid rgba(230,230,240,.95);border-radius:20px;padding:32px 28px;max-width:640px;margin:0 auto;box-shadow:0 10px 22px rgba(27,27,45,.08);">
-                <div style="font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#5B3FA5;margin-bottom:8px;">Online Business — Promo Billing</div>
-                <div style="font-size:22px;font-weight:800;color:#3F2B8A;margin-bottom:4px;">Free Until ${threshold} Members</div>
-                <p style="font-size:14px;color:rgba(31,32,48,.65);font-weight:700;margin:0 0 24px;">Your subscription activates automatically when you reach <strong>${threshold} members</strong>. You have <strong>${current}</strong> members so far.</p>
-                <div style="background:rgba(91,63,165,.06);border-radius:12px;overflow:hidden;height:12px;margin-bottom:8px;">
-                  <div style="width:${pct}%;height:100%;background:linear-gradient(135deg,#5B3FA5,#7A57D6);border-radius:12px;transition:width .4s ease;"></div>
-                </div>
-                <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:800;color:rgba(31,32,48,.55);margin-bottom:28px;">
-                  <span>${current} members</span><span>${threshold} members (billing starts)</span>
-                </div>
-                <hr style="border:none;border-top:1px solid rgba(230,230,240,.8);margin:0 0 20px;">
-                <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:rgba(31,32,48,.4);margin-bottom:12px;">Manage</div>
-                <div class="action-link" onclick="goToCustomerPortal()">
+          } else {
+            const billingWrap = document.querySelector('.billing-wrap') || document.querySelector('[id^="scene-"]')?.parentElement;
+            if (billingWrap) {
+              // Compute upgrade path for promo-phase merchant
+              const promoTierMeta = {
+                online_starter: { next:'online_growth', nextLabel:'Growth', price:'$299', limit:'2,500' },
+                online_growth:  { next:'online_scale',    nextLabel:'Scale',  price:'$499', limit:'Unlimited' },
+                online_scale:     null,
+              };
+              const promoNext = promoTierMeta[d.tier];
+              const upgradeSection = promoNext ? `
+                <div class="action-link" id="promo-upgrade-link" onclick="document.getElementById('promo-upgrade-warning').style.display='block';this.style.display='none'" style="margin-top:8px">
                   <div class="left">
-                    <div class="icon-wrap">💳</div>
+                    <div class="icon-wrap" style="background:rgba(91,63,165,.08)">🚀</div>
                     <div>
-                      <h4>Update Payment Method</h4>
-                      <p>Change the card on file via Stripe's secure portal</p>
+                      <h4 style="color:var(--purple)">Upgrade to ${promoNext.nextLabel} Now</h4>
+                      <p>Skip the threshold — billing starts today at ${promoNext.price}/mo</p>
                     </div>
                   </div>
-                  <div class="arrow">→</div>
+                  <div class="arrow" style="color:var(--purple)">→</div>
                 </div>
-                ${upgradeSection}
-                <div class="action-link" onclick="document.getElementById('promo-cancel-warning').style.display='block';this.style.display='none'" style="margin-top:8px">
-                  <div class="left">
-                    <div class="icon-wrap" style="background:rgba(220,53,69,.08)">🚫</div>
-                    <div>
-                      <h4 style="color:var(--red)">Cancel Account</h4>
-                      <p>Block your account and stop future billing — data is preserved</p>
-                    </div>
-                  </div>
-                  <div class="arrow" style="color:var(--red)">→</div>
-                </div>
-                <div id="promo-cancel-warning" class="cancel-warning" style="display:none">
-                  <h4>⚠️ Cancel your account?</h4>
+                <div id="promo-upgrade-warning" class="upgrade-warning" style="display:none">
+                  <h4>🚀 Upgrade to ${promoNext.nextLabel}?</h4>
                   <ul>
-                    <li>Your account will be <strong>blocked immediately</strong></li>
-                    <li>Members cannot redeem perks. Campaigns are frozen.</li>
-                    <li>Your payment method is <strong>not charged</strong> (billing never started)</li>
-                    <li>Your data is preserved — you can reactivate anytime</li>
+                    <li>Your member limit increases to <strong>${promoNext.limit} immediately</strong></li>
+                    <li>Your card on file will be <strong>charged ${promoNext.price} today</strong></li>
+                    <li>The free threshold is removed — billing starts now</li>
                   </ul>
-                  <button id="promo-cancel-confirm-btn" class="btn btn-red-outline btn-sm" onclick="doPromoCancel()">Yes, Cancel Account</button>
+                  <button class="btn btn-purple btn-sm" onclick="doUpgrade('${promoNext.next}','promo-upgrade-warning')">Yes, Upgrade Now</button>
                   <button class="btn btn-outline btn-sm" style="margin-left:8px"
-                    onclick="document.getElementById('promo-cancel-warning').style.display='none';document.querySelector('.action-link[onclick*=promo-cancel]').style.display=''">Never Mind</button>
-                </div>
-              </div>`;
+                    onclick="document.getElementById('promo-upgrade-warning').style.display='none';document.getElementById('promo-upgrade-link').style.display=''">Never Mind</button>
+                </div>` : '';
+
+              billingWrap.innerHTML = `
+                <div style="background:#fff;border:1px solid rgba(230,230,240,.95);border-radius:20px;padding:32px 28px;max-width:640px;margin:0 auto;box-shadow:0 10px 22px rgba(27,27,45,.08);">
+                  <div style="font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#5B3FA5;margin-bottom:8px;">Online Business — Promo Billing</div>
+                  <div style="font-size:22px;font-weight:800;color:#3F2B8A;margin-bottom:4px;">Free Until ${threshold} Members</div>
+                  <p style="font-size:14px;color:rgba(31,32,48,.65);font-weight:700;margin:0 0 24px;">Your subscription activates automatically when you reach <strong>${threshold} members</strong>. You have <strong>${current}</strong> members so far.</p>
+                  <div style="background:rgba(91,63,165,.06);border-radius:12px;overflow:hidden;height:12px;margin-bottom:8px;">
+                    <div style="width:${pct}%;height:100%;background:linear-gradient(135deg,#5B3FA5,#7A57D6);border-radius:12px;transition:width .4s ease;"></div>
+                  </div>
+                  <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:800;color:rgba(31,32,48,.55);margin-bottom:28px;">
+                    <span>${current} members</span><span>${threshold} members (billing starts)</span>
+                  </div>
+                  <hr style="border:none;border-top:1px solid rgba(230,230,240,.8);margin:0 0 20px;">
+                  <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:rgba(31,32,48,.4);margin-bottom:12px;">Manage</div>
+                  <div class="action-link" onclick="goToCustomerPortal()">
+                    <div class="left">
+                      <div class="icon-wrap">💳</div>
+                      <div>
+                        <h4>Update Payment Method</h4>
+                        <p>Change the card on file via Stripe's secure portal</p>
+                      </div>
+                    </div>
+                    <div class="arrow">→</div>
+                  </div>
+                  ${upgradeSection}
+                  <div class="action-link" onclick="document.getElementById('promo-cancel-warning').style.display='block';this.style.display='none'" style="margin-top:8px">
+                    <div class="left">
+                      <div class="icon-wrap" style="background:rgba(220,53,69,.08)">🚫</div>
+                      <div>
+                        <h4 style="color:var(--red)">Cancel Account</h4>
+                        <p>Block your account and stop future billing — data is preserved</p>
+                      </div>
+                    </div>
+                    <div class="arrow" style="color:var(--red)">→</div>
+                  </div>
+                  <div id="promo-cancel-warning" class="cancel-warning" style="display:none">
+                    <h4>⚠️ Cancel your account?</h4>
+                    <ul>
+                      <li>Your account will be <strong>blocked immediately</strong></li>
+                      <li>Members cannot redeem perks. Campaigns are frozen.</li>
+                      <li>Your payment method is <strong>not charged</strong> (billing never started)</li>
+                      <li>Your data is preserved — you can reactivate anytime</li>
+                    </ul>
+                    <button id="promo-cancel-confirm-btn" class="btn btn-red-outline btn-sm" onclick="doPromoCancel()">Yes, Cancel Account</button>
+                    <button class="btn btn-outline btn-sm" style="margin-left:8px"
+                      onclick="document.getElementById('promo-cancel-warning').style.display='none';document.querySelector('.action-link[onclick*=promo-cancel]').style.display=''">Never Mind</button>
+                  </div>
+                </div>`;
+            }
           }
           return;
         }
@@ -4321,13 +4309,13 @@
         const isPouf = d.billing_cycle === 'lifetime';
 
         if (!isPouf && !isDemo && d.tier !== 'free_for_life' && d.billing_status !== 'trial') {
-          if (d.tier === 'tier1' && !d.has_stripe && d.billing_status !== 'active') {
+          if (d.tier === 'tier1' && !d.has_stripe) {
             // Tier 1 merchant who never completed payment — redirect to finish signup
             localStorage.setItem('perkfinity_setup_incomplete', 'true');
             window.location.href = 'signup.html?resume=true';
             return;
           }
-          if (['online_starter', 'online_growth', 'online_scale'].includes(d.tier) && !d.has_stripe && d.billing_status !== 'active') {
+          if (['online_starter', 'online_growth', 'online_scale'].includes(d.tier) && !d.has_stripe) {
             // Starter/Growth/Scale merchant who never completed payment — redirect to resume online checkout
             localStorage.removeItem('perkfinity_setup_incomplete');
             const isHybrid = d.business_presence === 'hybrid';
