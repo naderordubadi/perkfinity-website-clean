@@ -2981,15 +2981,33 @@
       }
 
       if (urlParams.get('sponsor_success') === 'true') {
+        const sessionId = urlParams.get('session_id');
         history.replaceState({}, '', window.location.pathname);
         const banner = document.createElement('div');
         banner.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#6BC17A;color:#fff;padding:14px 28px;border-radius:12px;font-weight:800;font-size:15px;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.15)';
         banner.innerHTML = '✅ Sponsorship Activated Successfully! Your campaigns are now boosted.';
         document.body.appendChild(banner);
         setTimeout(() => banner.remove(), 4000);
-        switchTab('billing');
-        // Give webhook a tiny bit of time to complete before reloading billing data
-        setTimeout(loadBilling, 1000);
+        switchTab('boost');
+
+        const merchantId = localStorage.getItem('perkfinity_merchant_id');
+        const token = localStorage.getItem('perkfinity_token');
+        if (merchantId && sessionId) {
+          fetch(`${BACKEND_URL}/api/v1/merchants/${merchantId}/billing/sponsor-verify`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+            body: JSON.stringify({ session_id: sessionId })
+          }).then(r => r.json()).then(data => {
+            loadBilling();
+            loadBoostStore();
+          }).catch(err => {
+            loadBilling();
+            loadBoostStore();
+          });
+        } else {
+          loadBilling();
+          loadBoostStore();
+        }
       }
 
       const bName = localStorage.getItem('perkfinity_business_name');
@@ -6602,16 +6620,31 @@ You're receiving this because you're a valued customer of ${businessName}.`;
       }
 
       const container = document.getElementById('activeSponsorContainer');
+      const cardFullpage = document.getElementById('boost-card-fullpage');
       const cardWeb = document.getElementById('boost-card-web');
       const cardApp = document.getElementById('boost-card-app');
       const cardBundle = document.getElementById('boost-card-bundle');
       if (!container) return;
 
-      const isWebActive    = merchantData.is_web_sponsored;
-      const isAppActive    = merchantData.is_app_sponsored;
-      const hasBundle      = merchantData.has_bundle_subscription;
+      const isFullpageActive = merchantData.is_fullpage_sponsored;
+      const isWebActive      = merchantData.is_web_sponsored;
+      const isAppActive      = merchantData.is_app_sponsored;
+      const hasBundle        = merchantData.has_bundle_subscription;
 
       let html = '';
+
+      if (isFullpageActive) {
+        const dt = merchantData.fullpage_sponsored_until
+          ? new Date(merchantData.fullpage_sponsored_until).toLocaleDateString()
+          : 'N/A';
+        html += `<div style="background: #F5F3FF; border: 1.5px solid #DDD6FE; border-radius: 12px; padding: 20px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 12px rgba(139, 92, 246, 0.05);">
+                   <div>
+                     <h4 style="margin: 0 0 4px; font-size: 15px; font-weight: 700; color: #6D28D9;">👑 VIP Full Page Takeover Sponsorship</h4>
+                     <p style="margin: 0; font-size: 13px; color: #6B7280;">Active until ${dt}</p>
+                   </div>
+                   <button onclick="cancelSponsorship('fullpage')" style="padding: 8px 16px; font-size: 13px; background: #EF4444; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: background 0.2s;" onmouseenter="this.style.background='#DC2626'" onmouseleave="this.style.background='#EF4444'">Cancel Sponsorship</button>
+                 </div>`;
+      }
 
       if (hasBundle) {
         const dt = merchantData.web_sponsored_until
@@ -6644,6 +6677,22 @@ You're receiving this because you're a valued customer of ${businessName}.`;
                      </div>
                      <button onclick="cancelSponsorship('app')" style="padding: 8px 16px; font-size: 13px; background: #EF4444; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: background 0.2s;" onmouseenter="this.style.background='#DC2626'" onmouseleave="this.style.background='#EF4444'">Cancel Sponsorship</button>
                    </div>`;
+        }
+      }
+
+      // Handle VIP Full Page card UI button state
+      if (cardFullpage) {
+        const fullpageBtn = cardFullpage.querySelector('button');
+        if (fullpageBtn) {
+          if (isFullpageActive) {
+            fullpageBtn.textContent = '🟢 VIP Takeover Active';
+            fullpageBtn.style.background = '#16A34A';
+            fullpageBtn.onclick = () => cancelSponsorship('fullpage');
+          } else {
+            fullpageBtn.textContent = 'Boost Full Page';
+            fullpageBtn.style.background = '#311C87';
+            fullpageBtn.onclick = () => sponsorTierCheckout('fullpage');
+          }
         }
       }
 
