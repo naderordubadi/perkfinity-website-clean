@@ -925,16 +925,20 @@
         document.body.appendChild(modal);
       }
 
-      const bannerUrl = merchant.promo_banner_url || merchant.cover_photo_url;
-      const ratingScore = merchant.rating_score || '4.9';
-      const ratingCount = merchant.rating_count || '46+ reviews';
-      const ratingPlatform = merchant.rating_platform || 'Google';
-      const joinUrl = `https://perkfinity.net/join/${merchant.qr_public_code}`;
-
-      const ratingHtml = `<span style="background:#FEF3C7; color:#92400E; padding:4px 12px; border-radius:12px; font-weight:700; font-size:12.5px; display:inline-flex; align-items:center; gap:4px;">⭐ ${ratingScore} on ${ratingPlatform} (${ratingCount})</span>`;
+      let ratingHtml = '';
+      if (merchant.rating_score) {
+        const ratingPlatform = merchant.rating_platform || 'Google';
+        const countStr = merchant.rating_count ? ` (${merchant.rating_count})` : '';
+        const labelText = `⭐ ${merchant.rating_score} on ${ratingPlatform}${countStr}`;
+        if (merchant.review_url) {
+          ratingHtml = `<a href="${merchant.review_url}" target="_blank" style="background:#FEF3C7; color:#92400E; padding:4px 12px; border-radius:12px; font-weight:700; font-size:12.5px; display:inline-flex; align-items:center; gap:4px; text-decoration:none; transition:opacity 0.2s;" onmouseenter="this.style.opacity='0.85'" onmouseleave="this.style.opacity='1'">${labelText} ↗</a>`;
+        } else {
+          ratingHtml = `<span style="background:#FEF3C7; color:#92400E; padding:4px 12px; border-radius:12px; font-weight:700; font-size:12.5px; display:inline-flex; align-items:center; gap:4px;">${labelText}</span>`;
+        }
+      }
 
       const orderBtn = merchant.order_url ? `<a href="${merchant.order_url}" target="_blank" style="background:#16A34A; color:#fff; padding:12px 20px; border-radius:10px; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; gap:8px; width:100%; box-sizing:border-box;">🛒 Order / Shop Now</a>` : '';
-      const reviewBtn = merchant.review_url ? `<a href="${merchant.review_url}" target="_blank" style="background:#3B82F6; color:#fff; padding:12px 20px; border-radius:10px; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; gap:8px; width:100%; box-sizing:border-box;">⭐ View ${ratingPlatform} Reviews</a>` : '';
+      const reviewBtn = merchant.review_url ? `<a href="${merchant.review_url}" target="_blank" style="background:#3B82F6; color:#fff; padding:12px 20px; border-radius:10px; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; gap:8px; width:100%; box-sizing:border-box;">⭐ View ${merchant.rating_platform || 'Google'} Reviews</a>` : '';
       const websiteBtn = merchant.website ? `<a href="${merchant.website.startsWith('http') ? merchant.website : 'https://' + merchant.website}" target="_blank" style="background:#64748B; color:#fff; padding:12px 20px; border-radius:10px; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; gap:8px; width:100%; box-sizing:border-box;">🌐 Official Website</a>` : '';
 
       const fullAddr = [merchant.address_line1 || merchant.address, merchant.city, merchant.state, merchant.zip_code].filter(Boolean).join(', ');
