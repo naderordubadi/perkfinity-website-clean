@@ -2423,7 +2423,78 @@
         
         <div id="activeSponsorContainer" style="display:none; margin-bottom:24px;"></div>
 
-        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:24px;">
+        <!-- Custom Promo Banner Upload Box -->
+        <div id="promoBannerContainer" style="background:#F8FAFC; border:1.5px dashed #CBD5E1; border-radius:12px; padding:24px; margin-bottom:32px;">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px;">
+            <div>
+              <h3 style="margin:0 0 6px; font-size:16px; font-weight:700; color:#1E293B;">🎨 Custom Promotional Banner (Optional)</h3>
+              <p style="margin:0; color:#64748B; font-size:13.5px; max-width:600px; line-height:1.5;">
+                Upload a custom-designed ad banner for your boosted placement. Recommended size: <strong>1200 × 600px (2:1 ratio)</strong>. If empty, the carousel will automatically use your store cover photo.
+              </p>
+            </div>
+            <div style="display:flex; gap:10px; align-items:center;">
+              <input type="file" id="promoBannerFileInput" accept="image/*" style="display:none;" onchange="uploadPromoBannerFile(this)">
+              <button onclick="document.getElementById('promoBannerFileInput').click()" style="background:#311C87; color:#fff; border:none; padding:10px 18px; border-radius:8px; font-weight:600; font-size:13px; cursor:pointer; display:flex; align-items:center; gap:6px;">
+                📤 Upload Design
+              </button>
+              <button id="removePromoBannerBtn" onclick="removePromoBanner()" style="display:none; background:#EF4444; color:#fff; border:none; padding:10px 14px; border-radius:8px; font-weight:600; font-size:13px; cursor:pointer; align-items:center; gap:6px;">
+                🗑️ Remove
+              </button>
+            </div>
+          </div>
+          <!-- Live Preview Container -->
+          <div id="promoBannerPreview" style="display:none; margin-top:20px; border-radius:10px; overflow:hidden; border:1px solid #E2E8F0; max-height:220px; position:relative;">
+            <img id="promoBannerImg" src="" alt="Custom Banner Preview" style="width:100%; height:220px; object-fit:cover; display:block;">
+            <div style="position:absolute; bottom:12px; right:12px; background:rgba(15,23,42,0.8); color:#fff; font-size:11px; font-weight:700; padding:4px 10px; border-radius:6px; backdrop-filter:blur(4px);">
+              Live Ad Preview
+            </div>
+          </div>
+        </div>
+
+        <!-- Business Promotional Text Box -->
+        <div id="promoTextContainer" style="background:#F8FAFC; border:1.5px solid #CBD5E1; border-radius:12px; padding:24px; margin-bottom:32px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <h3 style="margin:0; font-size:16px; font-weight:700; color:#1E293B;">📝 Business Promotional Description</h3>
+            <span id="promoCharCounter" style="font-size:12.5px; font-weight:600; color:#64748B;">0 / 1000</span>
+          </div>
+          <p style="margin:0 0 12px; color:#64748B; font-size:13.5px; line-height:1.5;">
+            Write a compelling promotional description or offer highlight to showcase on your Full-Page Takeover. <strong>(Max 1,000 characters)</strong>
+          </p>
+          <textarea id="promoDescriptionInput" maxlength="1000" rows="4" placeholder="Describe your store history, special services, or promotional highlights..." style="width:100%; border:1px solid #CBD5E1; border-radius:8px; padding:12px; font-size:14px; color:#1E293B; font-family:inherit; resize:vertical; box-sizing:border-box;" oninput="document.getElementById('promoCharCounter').textContent = this.value.length + ' / 1000'"></textarea>
+          <div style="display:flex; justify-content:flex-end; margin-top:12px;">
+            <button onclick="savePromoText()" style="background:#311C87; color:#fff; border:none; padding:10px 20px; border-radius:8px; font-weight:600; font-size:13px; cursor:pointer;">💾 Save Description</button>
+          </div>
+        </div>
+
+        <!-- Line 1: VIP Full Page Takeover Standalone Row -->
+        <div style="margin-bottom:32px;">
+          <div id="boost-card-fullpage" style="border:2px solid #8B5CF6; border-radius:14px; padding:24px; display:flex; flex-direction:row; align-items:center; justify-content:space-between; gap:24px; background:linear-gradient(135deg, #F8F6FF 0%, #FFFFFF 100%); position:relative; box-shadow:0 4px 12px rgba(139, 92, 246, 0.08);">
+            <div style="position:absolute; top:-12px; right:20px; background:#8B5CF6; color:#fff; font-size:11px; font-weight:800; padding:4px 14px; border-radius:12px; text-transform:uppercase; letter-spacing:0.5px;">⚡ Unlimited Capacity</div>
+            <div style="flex:1;">
+              <h3 style="font-size:20px; margin:0 0 8px; font-weight:800; color:#311C87;">VIP Full Page Takeover</h3>
+              <p style="color:#475569; margin:0 0 14px; font-size:14px; line-height:1.5;">
+                Transform your store clicks into a full-screen interactive landing showcase with custom banner, promotional description, Google/Yelp star ratings, DoorDash/Order links, and location map.
+              </p>
+              <div style="display:flex; flex-wrap:wrap; gap:16px; color:#475569; font-size:13px; font-weight:600;">
+                <span>⭐ Auto-scraped Star Ratings</span>
+                <span>🛒 Direct DoorDash / Store Links</span>
+                <span>📍 Interactive Location Map</span>
+                <span>⚡ Active on Home, Search & Nearby</span>
+              </div>
+            </div>
+            <div style="text-align:right; min-width:180px;">
+              <div style="font-size:32px; font-weight:800; margin-bottom:12px; color:#0f172a;">$99.99<span style="font-size:14px; color:#64748b; font-weight:500">/mo</span></div>
+              <button onclick="sponsorTierCheckout('fullpage')" style="background:#311C87; color:#fff; border:none; padding:12px 24px; border-radius:20px; font-weight:700; cursor:pointer; width:100%; font-size:14px; white-space:nowrap;">Boost Full Page</button>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-bottom:16px;">
+          <h4 style="font-size:15px; font-weight:800; color:#475569; margin:0; text-transform:uppercase; letter-spacing:0.5px;">🎠 Carousel Priority Boosts</h4>
+        </div>
+
+        <!-- Line 2: 3 Carousel Boosts in 1 Row -->
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:24px;">
           <!-- Web Promo -->
           <div id="boost-card-web" style="border:1px solid #e2e8f0; border-radius:12px; padding:24px; display:flex; flex-direction:column;">
             <h3 style="font-size:16px; margin:0 0 16px; font-weight:700; color:#1e293b;">Web Carousel</h3>
@@ -2441,7 +2512,7 @@
           </div>
           
           <!-- Bundle -->
-          <div id="boost-card-bundle" style="background:#F8F6FF; border:none; border-radius:12px; padding:24px; display:flex; flex-direction:column; position:relative;">
+          <div id="boost-card-bundle" style="background:#F8F6FF; border:1px solid #E9D5FF; border-radius:12px; padding:24px; display:flex; flex-direction:column; position:relative;">
             <div style="position:absolute; top:-10px; right:20px; background:#FBBF24; color:#fff; font-size:10px; font-weight:800; padding:4px 12px; border-radius:12px; text-transform:uppercase; letter-spacing:0.5px;">BEST VALUE</div>
             <h3 style="font-size:16px; margin:0 0 16px; font-weight:700; color:#311C87;">Everywhere Bundle</h3>
             <p style="color:#475569; margin:0 0 24px; font-size:14px; line-height:1.6; flex:1;">Dominate both web and mobile app with maximum visibility.</p>
@@ -6423,7 +6494,113 @@ You're receiving this because you're a valued customer of ${businessName}.`;
       }
     }
 
+    function updatePromoBannerUI(bannerUrl) {
+      const previewBox = document.getElementById('promoBannerPreview');
+      const imgEl = document.getElementById('promoBannerImg');
+      const removeBtn = document.getElementById('removePromoBannerBtn');
+      if (bannerUrl) {
+        if (imgEl) imgEl.src = bannerUrl;
+        if (previewBox) previewBox.style.display = 'block';
+        if (removeBtn) removeBtn.style.display = 'inline-flex';
+      } else {
+        if (imgEl) imgEl.src = '';
+        if (previewBox) previewBox.style.display = 'none';
+        if (removeBtn) removeBtn.style.display = 'none';
+      }
+    }
+
+    async function uploadPromoBannerFile(input) {
+      if (!input.files || !input.files[0]) return;
+      const file = input.files[0];
+      const merchantId = localStorage.getItem('perkfinity_merchant_id');
+      const token = localStorage.getItem('perkfinity_token');
+      if (!merchantId) return alert('Merchant ID not loaded.');
+
+      const reader = new FileReader();
+      reader.onload = async function(e) {
+        const base64Data = e.target.result;
+        try {
+          const res = await fetch(`${BACKEND_URL}/api/v1/merchants/${merchantId}/promo-banner`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+            body: JSON.stringify({ promo_banner_url: base64Data })
+          });
+          const json = await res.json();
+          if (res.ok && json.success) {
+            updatePromoBannerUI(json.promo_banner_url);
+            alert('Custom Promotional Banner updated successfully!');
+          } else {
+            alert('Error updating banner: ' + (json.error || 'Unknown error'));
+          }
+        } catch (err) {
+          console.error('Promo banner upload error:', err);
+          alert('Failed to upload promotional banner.');
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function removePromoBanner() {
+      if (!confirm('Are you sure you want to remove your custom promotional banner? Your boosted ads will fall back to your store cover photo.')) return;
+      const merchantId = localStorage.getItem('perkfinity_merchant_id');
+      const token = localStorage.getItem('perkfinity_token');
+      if (!merchantId) return;
+
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/v1/merchants/${merchantId}/promo-banner`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({ promo_banner_url: null })
+        });
+        const json = await res.json();
+        if (res.ok && json.success) {
+          updatePromoBannerUI(null);
+          alert('Custom promotional banner removed.');
+        } else {
+          alert('Error removing banner: ' + (json.error || 'Unknown error'));
+        }
+      } catch (err) {
+        console.error('Remove promo banner error:', err);
+        alert('Failed to remove promotional banner.');
+      }
+    }
+
+    async function savePromoText() {
+      const input = document.getElementById('promoDescriptionInput');
+      if (!input) return;
+      const text = input.value.trim().slice(0, 1000);
+      const merchantId = localStorage.getItem('perkfinity_merchant_id');
+      const token = localStorage.getItem('perkfinity_token');
+      if (!merchantId) return alert('Merchant ID not loaded.');
+
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/v1/merchants/${merchantId}/promo-text`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({ promo_description: text })
+        });
+        const json = await res.json();
+        if (res.ok && json.success) {
+          alert('Business Promotional Description saved successfully!');
+        } else {
+          alert('Error saving description: ' + (json.error || 'Unknown error'));
+        }
+      } catch (err) {
+        console.error('Save promo text error:', err);
+        alert('Failed to save promotional description.');
+      }
+    }
+
     function checkActiveSponsorship(merchantData) {
+      updatePromoBannerUI(merchantData.promo_banner_url);
+
+      const promoInput = document.getElementById('promoDescriptionInput');
+      const promoCounter = document.getElementById('promoCharCounter');
+      if (promoInput && merchantData.promo_description) {
+        promoInput.value = merchantData.promo_description;
+        if (promoCounter) promoCounter.textContent = merchantData.promo_description.length + ' / 1000';
+      }
+
       const container = document.getElementById('activeSponsorContainer');
       const cardWeb = document.getElementById('boost-card-web');
       const cardApp = document.getElementById('boost-card-app');
