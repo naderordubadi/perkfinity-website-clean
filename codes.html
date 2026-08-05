@@ -810,9 +810,10 @@
           'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
         ];
         const bgGradient = gradients[((b.business_name || b.merchant_name || 'Brand').charCodeAt(0) || 0) % gradients.length];
+        const bannerUrl = b.promo_banner_url || b.cover_photo_url;
         let coverHtml = '';
-        if (b.cover_photo_url) {
-          coverHtml = `<img class="brand-cover-photo" src="${b.cover_photo_url}" alt="Cover" onerror="this.style.display='none'">`;
+        if (bannerUrl) {
+          coverHtml = `<img class="brand-cover-photo" src="${bannerUrl}" alt="Cover" onerror="this.style.display='none'">`;
         } else if (b.logo_url) {
           coverHtml = `<div class="brand-cover-photo" style="background: ${bgGradient}; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center;">
                          <img src="${b.logo_url}" style="width: 150%; height: 150%; object-fit: cover; opacity: 0.35; filter: blur(4px);">
