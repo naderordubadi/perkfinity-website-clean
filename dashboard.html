@@ -3875,8 +3875,19 @@
                 (presence === 'hybrid' && !json.data.address);
               window._merchantMultilocation = isMultiLocation;
               const presenceLabels = { physical: '🏪 Physical Store', mobile: '🚐 Mobile / Pop-Up', online: '🌐 Online Only', hybrid: '🌐🏪 Hybrid' };
-              document.getElementById('profilePresenceBadge').innerText = presenceLabels[presence] || presence;
-              document.getElementById('profileWelcomeOfferText').value = json.data.welcome_offer_text || '';
+              const offerText = json.data.welcome_offer_text || '';
+              document.getElementById('profileWelcomeOfferText').value = offerText;
+              if (offerText) {
+                localStorage.setItem('perkfinity_welcome_offer_text', offerText);
+                localStorage.setItem('perkfinity_member_perk', offerText);
+                const posterPerkEl = document.getElementById('poster-perk');
+                if (posterPerkEl) posterPerkEl.innerText = offerText;
+              }
+              if (json.data.business_name) {
+                localStorage.setItem('perkfinity_business_name', json.data.business_name);
+                const posterStoreEl = document.getElementById('poster-store');
+                if (posterStoreEl) posterStoreEl.innerText = json.data.business_name;
+              }
               document.getElementById('profileReviewUrl').value = json.data.review_url || '';
               document.getElementById('profileOrderUrl').value = json.data.order_url || '';
               // Show the locked promo code row for online AND hybrid merchants
@@ -4890,11 +4901,20 @@
         .then(json => {
           if (json.success && json.data) {
             const businessName = json.data.business_name || localStorage.getItem('perkfinity_business_name');
-            const perk = json.data.perk || '15% off purchase over $15';
+            const perk = json.data.perk || json.data.welcome_offer_text || localStorage.getItem('perkfinity_welcome_offer_text') || localStorage.getItem('perkfinity_member_perk') || '15% off purchase over $15';
             const qrUrl = json.data.qr_url || 'https://app.perkfinity.net';
 
-            document.getElementById('poster-store').innerText = businessName;
-            document.getElementById('poster-perk').innerText = perk;
+            if (businessName) localStorage.setItem('perkfinity_business_name', businessName);
+            if (perk) {
+              localStorage.setItem('perkfinity_welcome_offer_text', perk);
+              localStorage.setItem('perkfinity_member_perk', perk);
+            }
+
+            const posterStoreEl = document.getElementById('poster-store');
+            if (posterStoreEl) posterStoreEl.innerText = businessName;
+
+            const posterPerkEl = document.getElementById('poster-perk');
+            if (posterPerkEl) posterPerkEl.innerText = perk;
 
             // Update Logo on Print Sign — use server logo_url from profile response
             const serverLogo = json.data.logo_url || localStorage.getItem('perkfinity_logo_url');
@@ -4958,8 +4978,8 @@
       const targetDiv = document.getElementById('printable-poster-wrapper');
       if (!targetDiv) return;
 
-      const storeName = document.getElementById('poster-store')?.innerText || (localStorage.getItem('perkfinity_business_name') || 'Store Name').trim();
-      const perk = document.getElementById('poster-perk')?.innerText || (localStorage.getItem('perkfinity_welcome_offer_text') || 'Your Welcome Offer').trim();
+      const storeName = (document.getElementById('poster-store')?.innerText || localStorage.getItem('perkfinity_business_name') || 'Store Name').trim();
+      const perk = (document.getElementById('poster-perk')?.innerText || localStorage.getItem('perkfinity_welcome_offer_text') || localStorage.getItem('perkfinity_member_perk') || 'Your Welcome Offer').trim();
       const logoImg = document.getElementById('printLogoImg')?.src || 'assets/Perkfinity-App-Icon.png';
       const qrImg = document.getElementById('qr-canvas-target')?.querySelector('img')?.src
         || document.getElementById('qr-canvas-target')?.querySelector('canvas')?.toDataURL() || '';
@@ -5077,11 +5097,11 @@
 
     function printPoster(variant) {
       variant = variant || 'letter';
-      const storeName = document.getElementById('poster-store').innerText;
-      const perk = document.getElementById('poster-perk').innerText;
-      const logoImg = document.getElementById('printLogoImg').src;
-      const qrImg = document.getElementById('qr-canvas-target').querySelector('img')?.src
-        || document.getElementById('qr-canvas-target').querySelector('canvas')?.toDataURL() || '';
+      const storeName = (document.getElementById('poster-store')?.innerText || localStorage.getItem('perkfinity_business_name') || 'Store Name').trim();
+      const perk = (document.getElementById('poster-perk')?.innerText || localStorage.getItem('perkfinity_welcome_offer_text') || localStorage.getItem('perkfinity_member_perk') || 'Your Welcome Offer').trim();
+      const logoImg = document.getElementById('printLogoImg')?.src || 'assets/Perkfinity-App-Icon.png';
+      const qrImg = document.getElementById('qr-canvas-target')?.querySelector('img')?.src
+        || document.getElementById('qr-canvas-target')?.querySelector('canvas')?.toDataURL() || '';
 
       let printContent = '';
       let pageCSS = '';
@@ -5550,6 +5570,7 @@
 
           // Sync updated offer to the print sign immediately (no reload needed)
           if (welcome_offer_text) {
+            localStorage.setItem('perkfinity_welcome_offer_text', welcome_offer_text);
             localStorage.setItem('perkfinity_member_perk', welcome_offer_text);
             const posterPerkEl = document.getElementById('poster-perk');
             if (posterPerkEl) posterPerkEl.innerText = welcome_offer_text;
