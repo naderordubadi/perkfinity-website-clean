@@ -2489,7 +2489,7 @@
           </div>
         </div>
 
-        <div style="margin-bottom:16px;">
+        <div id="boost-carousel-heading" style="margin-bottom:16px;">
           <h4 style="font-size:15px; font-weight:800; color:#475569; margin:0; text-transform:uppercase; letter-spacing:0.5px;">🎠 Carousel Priority Boosts</h4>
         </div>
 
@@ -6695,6 +6695,8 @@ You're receiving this because you're a valued customer of ${businessName}.`;
         }
       }
 
+      const headingCarousel = document.getElementById('boost-carousel-heading');
+
       if (html) {
         container.innerHTML = `<h3 style="font-size: 16px; font-weight: 700; color: #1e293b; margin-top: 0; margin-bottom: 16px;">Active Sponsorships</h3>` + html;
         container.style.display = 'block';
@@ -6703,20 +6705,24 @@ You're receiving this because you're a valued customer of ${businessName}.`;
           if (cardWeb)    cardWeb.style.display    = 'none';
           if (cardApp)    cardApp.style.display    = 'none';
           if (cardBundle) cardBundle.style.display = 'none';
+          if (headingCarousel) headingCarousel.style.display = 'none';
         } else if (isWebActive) {
           if (cardWeb)    cardWeb.style.display    = 'none';
           if (cardBundle) cardBundle.style.display = 'none';
           if (cardApp)    cardApp.style.display    = 'flex';
+          if (headingCarousel) headingCarousel.style.display = 'block';
         } else if (isAppActive) {
           if (cardApp)    cardApp.style.display    = 'none';
           if (cardBundle) cardBundle.style.display = 'none';
           if (cardWeb)    cardWeb.style.display    = 'flex';
+          if (headingCarousel) headingCarousel.style.display = 'block';
         }
       } else {
         container.style.display = 'none';
         if (cardWeb)    cardWeb.style.display    = 'flex';
         if (cardApp)    cardApp.style.display    = 'flex';
         if (cardBundle) cardBundle.style.display = 'flex';
+        if (headingCarousel) headingCarousel.style.display = 'block';
       }
     }
   </script>
