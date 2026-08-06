@@ -611,24 +611,20 @@
           <!-- Category filter -->
           <div class="filter-bar" id="filter-bar">
           <button class="filter-chip active" data-cat="all" onclick="filterCat(this)">✦ All</button>
-          <button class="filter-chip" data-cat="Cafe &amp; Juice Bars" onclick="filterCat(this)">☕ Cafe &amp; Juice Bars</button>
-          <button class="filter-chip" data-cat="Restaurants" onclick="filterCat(this)">🍽️ Restaurants</button>
-          <button class="filter-chip" data-cat="Bakery &amp; Desserts" onclick="filterCat(this)">🥐 Bakery &amp; Desserts</button>
-          <button class="filter-chip" data-cat="Bars &amp; Nightlife" onclick="filterCat(this)">🍹 Bars &amp; Nightlife</button>
-          <button class="filter-chip" data-cat="Grocery &amp; Market" onclick="filterCat(this)">🛒 Grocery &amp; Market</button>
-          <button class="filter-chip" data-cat="Fitness &amp; Gym" onclick="filterCat(this)">💪 Fitness &amp; Gym</button>
-          <button class="filter-chip" data-cat="Yoga &amp; Pilates" onclick="filterCat(this)">🧘 Yoga &amp; Pilates</button>
-          <button class="filter-chip" data-cat="Beauty &amp; Nail" onclick="filterCat(this)">💅 Beauty &amp; Nail</button>
-          <button class="filter-chip" data-cat="Hair Salon" onclick="filterCat(this)">💇 Hair Salon</button>
-          <button class="filter-chip" data-cat="Barber Shop" onclick="filterCat(this)">✂️ Barber Shop</button>
-          <button class="filter-chip" data-cat="Spa &amp; Wellness" onclick="filterCat(this)">🧖 Spa &amp; Wellness</button>
-          <button class="filter-chip" data-cat="Retail &amp; Boutique" onclick="filterCat(this)">🛍️ Retail &amp; Boutique</button>
-          <button class="filter-chip" data-cat="Books &amp; Hobbies" onclick="filterCat(this)">📚 Books &amp; Hobbies</button>
-          <button class="filter-chip" data-cat="Pet Services" onclick="filterCat(this)">🐾 Pet Services</button>
-          <button class="filter-chip" data-cat="Services &amp; Repair" onclick="filterCat(this)">🔧 Services &amp; Repair</button>
-          <button class="filter-chip" data-cat="Photography" onclick="filterCat(this)">📸 Photography</button>
-          <button class="filter-chip" data-cat="Entertainment" onclick="filterCat(this)">🎮 Entertainment</button>
+          <button class="filter-chip" data-cat="Restaurants &amp; Dining" onclick="filterCat(this)">🍽️ Restaurants &amp; Dining</button>
+          <button class="filter-chip" data-cat="Cafes, Bakery &amp; Desserts" onclick="filterCat(this)">☕ Cafes &amp; Desserts</button>
+          <button class="filter-chip" data-cat="Grocery &amp; Gourmet Market" onclick="filterCat(this)">🛒 Grocery &amp; Market</button>
+          <button class="filter-chip" data-cat="Hair &amp; Barber Shops" onclick="filterCat(this)">✂️ Hair &amp; Barber</button>
+          <button class="filter-chip" data-cat="Beauty, Spa &amp; Wellness" onclick="filterCat(this)">💅 Beauty &amp; Spa</button>
+          <button class="filter-chip" data-cat="Fitness &amp; Movement" onclick="filterCat(this)">💪 Fitness &amp; Movement</button>
+          <button class="filter-chip" data-cat="Education &amp; Learning" onclick="filterCat(this)">📚 Education &amp; Learning</button>
           <button class="filter-chip" data-cat="Health &amp; Medical" onclick="filterCat(this)">🏥 Health &amp; Medical</button>
+          <button class="filter-chip" data-cat="Retail &amp; Boutiques" onclick="filterCat(this)">🛍️ Retail &amp; Boutiques</button>
+          <button class="filter-chip" data-cat="Professional &amp; Financial" onclick="filterCat(this)">💼 Professional &amp; Financial</button>
+          <button class="filter-chip" data-cat="Home, Auto &amp; Trade" onclick="filterCat(this)">🔧 Home &amp; Auto Services</button>
+          <button class="filter-chip" data-cat="Pet Care &amp; Services" onclick="filterCat(this)">🐾 Pet Care</button>
+          <button class="filter-chip" data-cat="Entertainment &amp; Recreation" onclick="filterCat(this)">🎮 Entertainment</button>
+          <button class="filter-chip" data-cat="Photography &amp; Creative" onclick="filterCat(this)">📸 Photography &amp; Creative</button>
           <button class="filter-chip" data-cat="Other" onclick="filterCat(this)">🔖 Other</button>
         </div>
         </div> <!-- End filter panel -->
@@ -725,24 +721,20 @@
   <script>
     const BACKEND = (typeof PerkfinityConfig !== 'undefined') ? PerkfinityConfig.BACKEND_URL : 'https://perkfinity-backend.vercel.app';
     const catIcons = {
-      'Cafe & Juice Bars': '☕',
-      'Restaurants': '🍽️',
-      'Bakery & Desserts': '🥐',
-      'Bars & Nightlife': '🍹',
-      'Grocery & Market': '🛒',
-      'Fitness & Gym': '💪',
-      'Yoga & Pilates': '🧘',
-      'Beauty & Nail': '💅',
-      'Hair Salon': '💇',
-      'Barber Shop': '✂️',
-      'Spa & Wellness': '🧖',
-      'Retail & Boutique': '🛍️',
-      'Books & Hobbies': '📚',
-      'Pet Services': '🐾',
-      'Services & Repair': '🔧',
-      'Photography': '📸',
-      'Entertainment': '🎮',
+      'Restaurants & Dining': '🍽️',
+      'Cafes, Bakery & Desserts': '☕',
+      'Grocery & Gourmet Market': '🛒',
+      'Hair & Barber Shops': '✂️',
+      'Beauty, Spa & Wellness': '💅',
+      'Fitness & Movement': '💪',
+      'Education & Learning': '📚',
       'Health & Medical': '🏥',
+      'Retail & Boutiques': '🛍️',
+      'Professional & Financial': '💼',
+      'Home, Auto & Trade': '🔧',
+      'Pet Care & Services': '🐾',
+      'Entertainment & Recreation': '🎮',
+      'Photography & Creative': '📸',
       'Other': '🔖'
     };
     let allBrands = [];
