@@ -4,7 +4,8 @@
     "namespace": "android_app",
     "package_name": "net.perkfinity.app",
     "sha256_cert_fingerprints": [
-      "0A:75:BC:E7:69:2E:D4:91:3E:0F:2D:97:AC:FB:F5:4B:27:2C:B2:9B:1B:51:48:8A:89:A8:8E:8A:E9:3C:49:13"
+      "0A:75:BC:E7:69:2E:D4:91:3E:0F:2D:97:AC:FB:F5:4B:27:2C:B2:9B:1B:51:48:8A:89:A8:8E:8A:E9:3C:49:13",
+      "0E:E1:5E:93:51:57:E3:CC:A3:96:62:73:30:84:20:54:52:8A:52:5F:69:4D:08:31:98:F4:73:98:23:3C:51:19"
     ]
   }
 }]
