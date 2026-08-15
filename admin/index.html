@@ -3516,7 +3516,10 @@
           
           if (category === 'upgrade_eligible') {
             title = 'Upgrade Eligible Merchants';
-            list = allMerchants.filter(m => (m.tier === 'none' || m.tier === 'trial') && !m.account_blocked);
+            list = allMerchants.filter(m => (m.tier === 'none' || m.tier === 'trial' || m.billing_status === 'trial' || !m.stripe_subscription_id) && m.tier !== 'free_for_life' && !m.account_blocked);
+          } else if (category === 'paying') {
+            title = 'Paying Merchants';
+            list = allMerchants.filter(m => m.billing_status === 'active' && m.stripe_subscription_id && !m.account_blocked);
           } else if (category === 'ffl') {
             title = 'Free For Life (FFL) Merchants';
             list = allMerchants.filter(m => m.tier === 'free_for_life' && !m.account_blocked);
