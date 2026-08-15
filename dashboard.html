@@ -724,7 +724,7 @@
         <a href="#" onclick="switchTab('promotion')">Create a Promotion</a>
         <a href="#" onclick="switchTab('print-sign')">QR Code Stand / Link</a>
         <a href="#" onclick="switchTab('profile')">Profile</a>
-        <a href="#" onclick="switchTab('billing')">Billing</a>
+        <a href="#" onclick="switchTab('billing')">Subscription</a>
         <a href="#" onclick="switchTab('boost')" style="color:#FDE68A;font-weight:700;">Boost Store 🚀</a>
       </div>
     </div>
@@ -2518,6 +2518,27 @@
             <p style="color:#475569; margin:0 0 24px; font-size:14px; line-height:1.6; flex:1;">Dominate both web and mobile app with maximum visibility.</p>
             <div style="font-size:28px; font-weight:800; margin-bottom:24px; color:#0f172a;">$129.99<span style="font-size:14px; color:#64748b; font-weight:500">/mo</span></div>
             <button onclick="sponsorTierCheckout('bundle')" style="background:#8B5CF6; color:#fff; border:none; padding:12px; border-radius:20px; font-weight:600; cursor:pointer; width:100%; font-size:14px;">Boost Everywhere</button>
+          </div>
+        </div>
+
+        <!-- Sponsorship Billing & Invoice History -->
+        <div id="boostInvoiceSection" style="margin-top:40px; padding-top:32px; border-top:1px solid #E2E8F0;">
+          <h3 style="font-size:16px; font-weight:800; color:#311C87; margin:0 0 6px;">🧾 Sponsorship & Promo Billing History</h3>
+          <p style="color:#64748B; font-size:13.5px; margin:0 0 16px;">Access and download official receipts for your boosted placements and promotional sponsorships.</p>
+          <div style="overflow-x:auto;">
+            <table style="width:100%; border-collapse:collapse; font-size:13.5px;">
+              <thead>
+                <tr style="background:#F8FAFC; color:#64748B; text-align:left; border-bottom:1px solid #E2E8F0;">
+                  <th style="padding:10px 14px;">Date</th>
+                  <th style="padding:10px 14px;">Placement / Description</th>
+                  <th style="padding:10px 14px;">Amount</th>
+                  <th style="padding:10px 14px;">Status</th>
+                </tr>
+              </thead>
+              <tbody id="boostInvoiceTableBody">
+                <tr><td colspan="4" style="color:var(--muted);text-align:center;padding:16px">No promotional invoices yet.</td></tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -4788,11 +4809,12 @@
             }
           });
 
-          // Build Inv Table
+          // Build Inv Table (Subscription tab - excludes sponsorships)
           const tbody = sceneEl.querySelector('.invoice-table tbody');
           if (tbody) {
-            if (window.currentInvoices.length > 0) {
-              tbody.innerHTML = window.currentInvoices.map(inv => {
+            const platformInvoices = window.currentInvoices.filter(inv => inv.revenue_type !== 'sponsorship');
+            if (platformInvoices.length > 0) {
+              tbody.innerHTML = platformInvoices.map(inv => {
                 const date = new Date(inv.created_at).toLocaleDateString();
                 const amount = "$" + (inv.amount_cents / 100).toFixed(2);
                 const badge = inv.status === 'paid' ? '<span class="status-pill active">Paid</span>' : '<span class="status-pill failed">Failed</span>';
@@ -4805,6 +4827,28 @@
               }).join('');
             } else {
               tbody.innerHTML = '<tr><td colspan="4" style="color:var(--muted);text-align:center;padding:12px;">No invoices yet.</td></tr>';
+            }
+          }
+
+          // Build Boost Sponsorship Invoices Table (Boost tab)
+          const boostTbody = document.getElementById('boostInvoiceTableBody');
+          if (boostTbody) {
+            const sponsorInvoices = window.currentInvoices.filter(inv => inv.revenue_type === 'sponsorship');
+            if (sponsorInvoices.length > 0) {
+              boostTbody.innerHTML = sponsorInvoices.map(inv => {
+                const date = new Date(inv.created_at).toLocaleDateString();
+                const amount = "$" + (inv.amount_cents / 100).toFixed(2);
+                const desc = inv.amount_cents === 12999 ? 'Everywhere Bundle (Web + App)' : (inv.amount_cents === 9999 ? 'App / VIP Takeover Boost' : (inv.amount_cents === 4999 ? 'Web Carousel Boost' : 'Promotional Sponsorship'));
+                const badge = inv.status === 'paid' ? '<span style="background:#DCFCE7;color:#15803D;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:700;">Paid</span>' : '<span style="background:#FEE2E2;color:#991B1B;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:700;">Failed</span>';
+                return `<tr style="border-bottom:1px solid #F1F5F9;">
+                        <td style="padding:10px 14px; color:#64748B;">${date}</td>
+                        <td style="padding:10px 14px; font-weight:700; color:#1E293B;">${desc}</td>
+                        <td style="padding:10px 14px; font-weight:800; color:#0F172A;">${amount}</td>
+                        <td style="padding:10px 14px;">${badge}</td>
+                     </tr>`;
+              }).join('');
+            } else {
+              boostTbody.innerHTML = '<tr><td colspan="4" style="color:var(--muted);text-align:center;padding:16px;">No promotional invoices yet.</td></tr>';
             }
           }
         }
