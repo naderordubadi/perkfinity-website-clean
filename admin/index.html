@@ -3516,7 +3516,8 @@
           
           if (category === 'upgrade_eligible') {
             title = 'Upgrade Eligible Merchants';
-            list = allMerchants.filter(m => (m.tier === 'none' || m.tier === 'trial' || m.billing_status === 'trial' || !m.stripe_subscription_id) && m.tier !== 'free_for_life' && !m.account_blocked);
+            const isDemo = (m) => m.billing_status === 'active' && !m.stripe_subscription_id && !m.stripe_payment_method_id && m.member_limit === null && m.billing_cycle === 'monthly' && m.tier !== 'free_for_life';
+            list = allMerchants.filter(m => (m.tier === 'none' || m.tier === 'trial' || m.billing_status === 'trial' || !m.stripe_subscription_id) && m.tier !== 'free_for_life' && !isDemo(m) && !m.account_blocked);
           } else if (category === 'paying') {
             title = 'Paying Merchants';
             list = allMerchants.filter(m => m.billing_status === 'active' && m.stripe_subscription_id && !m.account_blocked);
