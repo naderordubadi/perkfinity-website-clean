@@ -2465,8 +2465,8 @@
             ${infoRowGreen('Rep Email', a.contractor_email || '—')}
             ${infoRowGreen('Attribution Method', sourceLabel)}
             ${infoRowGreen('Attributed On', a.attributed_at ? new Date(a.attributed_at).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}) : '—')}
-            ${infoRowGreen('Commission Started', a.commission_start_date ? new Date(a.commission_start_date).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}) : '⏳ Not yet (awaiting first payment)')}
-            ${infoRowGreen('Commission Ends', a.commission_end_date ? new Date(a.commission_end_date).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}) : a.commission_start_date ? '—' : 'N/A')}
+            ${infoRowGreen('Commission Started', a.commission_start_date ? (function(ds){ const p=String(ds).split('T')[0].split('-'); return p.length===3 ? new Date(p[0],p[1]-1,p[2]).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}) : new Date(ds).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}); })(a.commission_start_date) : '⏳ Not yet (awaiting first payment)')}
+            ${infoRowGreen('Commission Ends', a.commission_end_date ? (function(ds){ const p=String(ds).split('T')[0].split('-'); return p.length===3 ? new Date(p[0],p[1]-1,p[2]).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}) : new Date(ds).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}); })(a.commission_end_date) : a.commission_start_date ? '—' : 'N/A')}
             ${infoRowGreen('Commission Rate', rateDisplay)}
             ${infoRowGreen('Commission Duration', durDisplay)}
             <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
@@ -5680,7 +5680,8 @@
       const mRows = merchants.length ? merchants.map(m => {
         let commStart = '⏳ Awaiting 1st payment';
         if (m.commission_start_date) {
-          commStart = new Date(m.commission_start_date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+          const p = String(m.commission_start_date).split('T')[0].split('-');
+          commStart = p.length === 3 ? new Date(p[0], p[1] - 1, p[2]).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : new Date(m.commission_start_date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
         } else {
           const isDemo = m.billing_status === 'active' && !m.stripe_subscription_id && !m.stripe_payment_method_id && m.member_limit === null && m.billing_cycle === 'monthly' && m.tier !== 'free_for_life';
           if (m.billing_status === 'cancelled' || m.billing_status === 'deleted') commStart = 'Cancelled';
