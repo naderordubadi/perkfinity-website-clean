@@ -2533,10 +2533,11 @@
                   <th style="padding:10px 14px;">Placement / Description</th>
                   <th style="padding:10px 14px;">Amount</th>
                   <th style="padding:10px 14px;">Status</th>
+                  <th style="padding:10px 14px; text-align:right;">Receipt</th>
                 </tr>
               </thead>
               <tbody id="boostInvoiceTableBody">
-                <tr><td colspan="4" style="color:var(--muted);text-align:center;padding:16px">No promotional invoices yet.</td></tr>
+                <tr><td colspan="5" style="color:var(--muted);text-align:center;padding:16px">No promotional invoices yet.</td></tr>
               </tbody>
             </table>
           </div>
@@ -3971,10 +3972,13 @@
                           <td style="padding:10px 14px; font-weight:700; color:#1E293B;">${desc}</td>
                           <td style="padding:10px 14px; font-weight:800; color:#0F172A;">${amount}</td>
                           <td style="padding:10px 14px;">${badge}</td>
+                          <td style="padding:10px 14px; text-align:right;">
+                            <button onclick="goToCustomerPortal()" style="background:#F1F5F9; color:#5B3FA5; border:1px solid #CBD5E1; padding:6px 12px; border-radius:6px; font-size:12px; font-weight:700; cursor:pointer;">📥 Download Receipt</button>
+                          </td>
                        </tr>`;
                 }).join('');
               } else {
-                boostTbody.innerHTML = '<tr><td colspan="4" style="color:var(--muted);text-align:center;padding:16px;">No promotional invoices yet.</td></tr>';
+                boostTbody.innerHTML = '<tr><td colspan="5" style="color:var(--muted);text-align:center;padding:16px;">No promotional invoices yet.</td></tr>';
               }
             }
           }
