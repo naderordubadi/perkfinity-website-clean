@@ -2847,7 +2847,7 @@
           : '<span style="background:#FEE2E2;color:#991B1B;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:700;">Failed</span>';
         
         const receiptBtn = i.stripe_invoice_id
-          ? `<button onclick="window.open('${BACKEND_URL}/api/v1/stripe/invoice-receipt/${i.stripe_invoice_id}', '_blank')" style="background:#F1F5F9; color:#5B3FA5; border:1px solid #CBD5E1; padding:5px 10px; border-radius:6px; font-size:12px; font-weight:700; cursor:pointer;">📥 Download Receipt</button>`
+          ? `<button onclick="window.open('${getBackendUrl()}/api/v1/stripe/invoice-receipt/${i.stripe_invoice_id}', '_blank')" style="background:#F1F5F9; color:#5B3FA5; border:1px solid #CBD5E1; padding:5px 10px; border-radius:6px; font-size:12px; font-weight:700; cursor:pointer;">📥 Download Receipt</button>`
           : '<span style="font-size:12px;color:#94a3b8;">No Receipt</span>';
 
         return `<tr style="border-bottom:1px solid #f1f5f9;">
@@ -3984,23 +3984,26 @@
             data = data.filter(i => i.revenue_type === 'platform' || !i.revenue_type);
           } else if (activeBillSubtab === 'sponsorship') {
             data = data.filter(i => i.revenue_type === 'sponsorship');
-            // Deduplicate by merchant so only 1 row per merchant is shown (the latest period/invoice)
-            const latestByMerchant = new Map();
-            data.forEach(inv => {
-              const key = inv.merchant_id || inv.merchant_name;
-              if (!latestByMerchant.has(key)) {
-                latestByMerchant.set(key, inv);
-              } else {
-                const existing = latestByMerchant.get(key);
-                if (new Date(inv.created_at || inv.paid_at) > new Date(existing.created_at || existing.paid_at)) {
-                  latestByMerchant.set(key, inv);
-                }
-              }
-            });
-            data = Array.from(latestByMerchant.values());
           } else if (activeBillSubtab === 'pouf') {
             data = data.filter(i => i.revenue_type === 'pouf');
           }
+
+          // Deduplicate by merchant + payment type so strictly 1 row per merchant per payment type is shown (the latest invoice)
+          const latestByMerchantType = new Map();
+          data.forEach(inv => {
+            const typeKey = inv.revenue_type || 'platform';
+            const mKey = inv.merchant_id || inv.merchant_name || 'unknown';
+            const compositeKey = mKey + '_' + typeKey;
+            if (!latestByMerchantType.has(compositeKey)) {
+              latestByMerchantType.set(compositeKey, inv);
+            } else {
+              const existing = latestByMerchantType.get(compositeKey);
+              if (new Date(inv.created_at || inv.paid_at) > new Date(existing.created_at || existing.paid_at)) {
+                latestByMerchantType.set(compositeKey, inv);
+              }
+            }
+          });
+          data = Array.from(latestByMerchantType.values());
 
           const billStatus = document.getElementById('billing-filter-status').value;
           const billPeriod = document.getElementById('billing-filter-period').value;
