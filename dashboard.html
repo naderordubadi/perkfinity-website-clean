@@ -3954,34 +3954,10 @@
         .then(res => res.json())
         .then(json => {
           if (json.success && json.data) {
-            window.currentInvoices = json.data.invoices || [];
             checkActiveSponsorship(json.data);
-            renderBoostInvoices(window.currentInvoices);
           }
         })
         .catch(e => console.error("Failed to load billing for boost tab", e));
-      }
-    }
-
-    function renderBoostInvoices(invoices) {
-      const boostTbody = document.getElementById('boostInvoiceTableBody');
-      if (!boostTbody) return;
-      const sponsorInvoices = (invoices || []).filter(inv => inv.revenue_type === 'sponsorship');
-      if (sponsorInvoices.length > 0) {
-        boostTbody.innerHTML = sponsorInvoices.map(inv => {
-          const date = new Date(inv.created_at || inv.paid_at).toLocaleDateString();
-          const amount = "$" + ((inv.amount_cents || 0) / 100).toFixed(2);
-          const desc = inv.amount_cents === 12999 ? 'Everywhere Bundle (Web + App)' : (inv.amount_cents === 9999 ? 'App / VIP Takeover Boost' : (inv.amount_cents === 4999 ? 'Web Carousel Boost' : 'Promotional Sponsorship'));
-          const badge = inv.status === 'paid' ? '<span style="background:#DCFCE7;color:#15803D;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:700;">Paid</span>' : '<span style="background:#FEE2E2;color:#991B1B;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:700;">Failed</span>';
-          return `<tr style="border-bottom:1px solid #F1F5F9;">
-                  <td style="padding:10px 14px; color:#64748B;">${date}</td>
-                  <td style="padding:10px 14px; font-weight:700; color:#1E293B;">${desc}</td>
-                  <td style="padding:10px 14px; font-weight:800; color:#0F172A;">${amount}</td>
-                  <td style="padding:10px 14px;">${badge}</td>
-               </tr>`;
-        }).join('');
-      } else {
-        boostTbody.innerHTML = '<tr><td colspan="4" style="color:var(--muted);text-align:center;padding:16px;">No promotional invoices yet.</td></tr>';
       }
     }
 
@@ -4787,7 +4763,39 @@
                     _spotsNote.style.color = 'var(--red)';
                     _spotsNote.style.fontWeight = '700';
                   } else if (_spotsLeft <= Math.ceil(ti.limitNum * 0.1)) {
-                    _spotsNote.textContent = `⚠️ Only ${_spots          // Wire Cancel Warning Confirm — only for Stripe-based scenes, NOT Free For Life
+                    _spotsNote.textContent = `⚠️ Only ${_spotsLeft.toLocaleString()} spots left — consider upgrading soon`;
+                    _spotsNote.style.color = '#d97706';
+                    _spotsNote.style.fontWeight = '600';
+                  } else {
+                    _spotsNote.textContent = `${_spotsLeft.toLocaleString()} of ${ti.limit} member spots available`;
+                    _spotsNote.style.color = 'var(--muted)';
+                    _spotsNote.style.fontWeight = '500';
+                  }
+                }
+              } else {
+                oaUsageSection.style.display = 'none';
+              }
+            }
+          }
+
+          sceneEl.querySelectorAll('.action-link').forEach(link => {
+            // Skip upgrade links — managed by scene population or inline HTML, must not be nulled
+            if (link.id && (link.id === 'oa-upgrade-link' || link.id.startsWith('upgrade-link-'))) return;
+            link.onclick = null; // remove existing
+            if (link.innerHTML.includes('Update Payment Method') || link.innerHTML.includes('Download Invoices')) {
+              link.onclick = goToCustomerPortal;
+            } else if (link.innerHTML.includes('Cancel Subscription')) {
+              if (d.billing_cycle === 'lifetime') {
+                const h4 = link.querySelector('h4');
+                if (h4) h4.textContent = 'Cancel Account';
+              }
+              link.onclick = () => showCancelWarning(); // arrow fn prevents MouseEvent being passed as id
+            } else if (link.innerHTML.includes('Cancel Account')) {
+              link.onclick = () => showFFLCancelWarning(); // same fix
+            }
+          });
+
+          // Wire Cancel Warning Confirm — only for Stripe-based scenes, NOT Free For Life
           if (sceneName !== 'free-for-life') {
             const realCancelBtn = sceneEl.querySelector('.cancel-warning button.btn-red-outline');
             if (realCancelBtn) realCancelBtn.onclick = doCancelAction;
@@ -4823,7 +4831,26 @@
           }
 
           // Build Boost Sponsorship Invoices Table (Boost tab)
-          renderBoostInvoices(window.currentInvoices);
+          const boostTbody = document.getElementById('boostInvoiceTableBody');
+          if (boostTbody) {
+            const sponsorInvoices = window.currentInvoices.filter(inv => inv.revenue_type === 'sponsorship');
+            if (sponsorInvoices.length > 0) {
+              boostTbody.innerHTML = sponsorInvoices.map(inv => {
+                const date = new Date(inv.created_at).toLocaleDateString();
+                const amount = "$" + (inv.amount_cents / 100).toFixed(2);
+                const desc = inv.amount_cents === 12999 ? 'Everywhere Bundle (Web + App)' : (inv.amount_cents === 9999 ? 'App / VIP Takeover Boost' : (inv.amount_cents === 4999 ? 'Web Carousel Boost' : 'Promotional Sponsorship'));
+                const badge = inv.status === 'paid' ? '<span style="background:#DCFCE7;color:#15803D;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:700;">Paid</span>' : '<span style="background:#FEE2E2;color:#991B1B;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:700;">Failed</span>';
+                return `<tr style="border-bottom:1px solid #F1F5F9;">
+                        <td style="padding:10px 14px; color:#64748B;">${date}</td>
+                        <td style="padding:10px 14px; font-weight:700; color:#1E293B;">${desc}</td>
+                        <td style="padding:10px 14px; font-weight:800; color:#0F172A;">${amount}</td>
+                        <td style="padding:10px 14px;">${badge}</td>
+                     </tr>`;
+              }).join('');
+            } else {
+              boostTbody.innerHTML = '<tr><td colspan="4" style="color:var(--muted);text-align:center;padding:16px;">No promotional invoices yet.</td></tr>';
+            }
+          }
         }
 
       } catch (e) {
