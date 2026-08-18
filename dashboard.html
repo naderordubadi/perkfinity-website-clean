@@ -6251,8 +6251,8 @@ You're receiving this because you're a valued customer of ${businessName}.`;
       // Sort
       const col = _membersSort.col, dir = _membersSort.dir === 'asc' ? 1 : -1;
       const sorted = [...rows].sort((a, b) => {
-        let av = col === 'ts' ? (a.ts_raw ? a.ts_raw.getTime() : 0) : (a[col] || '');
-        let bv = col === 'ts' ? (b.ts_raw ? b.ts_raw.getTime() : 0) : (b[col] || '');
+        let av = col === 'ts' ? (a.ts_raw ? a.ts_raw.getTime() : 0) : (col === 'redeemed_count' ? (parseInt(a.redeemed_count || 0) + parseInt(a.claimed_count || 0)) : (a[col] || ''));
+        let bv = col === 'ts' ? (b.ts_raw ? b.ts_raw.getTime() : 0) : (col === 'redeemed_count' ? (parseInt(b.redeemed_count || 0) + parseInt(b.claimed_count || 0)) : (b[col] || ''));
         if (col === 'total_assigned' || col === 'redeemed_count' || col === 'claimed_count') { av = +av; bv = +bv; }
         return av < bv ? -dir : av > bv ? dir : 0;
       });
@@ -6341,7 +6341,7 @@ You're receiving this because you're a valued customer of ${businessName}.`;
           <td style="padding:12px; font-size:13px;">${r.city || '-'}</td>
           <td style="padding:12px; font-size:13px;">${r.zip_code || '-'}</td>
           <td style="padding:12px; font-size:13px; font-weight: 600;">${r.total_assigned}</td>
-          <td style="padding:12px; font-size:13px; color: var(--greenDark); font-weight: 600;">${r.redeemed_count} / <span style="color: #3b82f6;">${r.claimed_count}</span></td>
+          <td style="padding:12px; font-size:13px; color: var(--greenDark); font-weight: 600;">${(parseInt(r.redeemed_count || 0) + parseInt(r.claimed_count || 0))}</td>
           <td style="padding:12px;">${srcBadge}</td>
           <td style="padding:12px; font-size:12px; color:var(--muted);">${r.ts_display}</td>
         </tr>
@@ -6436,7 +6436,7 @@ You're receiving this because you're a valued customer of ${businessName}.`;
           <td style="padding:12px; font-size:13px;">${r.city || '-'}</td>
           <td style="padding:12px; font-size:13px;">${r.zip_code || '-'}</td>
           <td style="padding:12px; font-size:13px; font-weight: 600;">${r.total_assigned}</td>
-          <td style="padding:12px; font-size:13px; color: var(--greenDark); font-weight: 600;">${r.redeemed_count} / <span style="color: #3b82f6;">${r.claimed_count}</span></td>
+          <td style="padding:12px; font-size:13px; color: var(--greenDark); font-weight: 600;">${(parseInt(r.redeemed_count || 0) + parseInt(r.claimed_count || 0))}</td>
           <td style="padding:12px;">${srcBadge}</td>
           <td style="padding:12px; font-size:12px; color:var(--muted);">${r.ts_display}</td>
         </tr>
