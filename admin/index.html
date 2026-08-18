@@ -2846,6 +2846,28 @@
           ? '<span style="background:#DCFCE7;color:#15803D;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:700;">Paid</span>'
           : '<span style="background:#FEE2E2;color:#991B1B;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:700;">Failed</span>';
         
+        let pPeriod = '—';
+        if (i.period_start) {
+          const ps = new Date(i.period_start);
+          const pe = i.period_end ? new Date(i.period_end) : null;
+          if (!pe || Math.abs(pe - ps) < 2 * 86400000) {
+            const periodEnd = new Date(ps);
+            if (i.billing_cycle === 'annual') { periodEnd.setFullYear(periodEnd.getFullYear() + 1); }
+            else { periodEnd.setMonth(periodEnd.getMonth() + 1); }
+            periodEnd.setDate(periodEnd.getDate() - 1);
+            pPeriod = formatDate(ps) + ' — ' + formatDate(periodEnd);
+          } else {
+            pPeriod = formatDate(ps) + ' — ' + formatDate(pe);
+          }
+        } else if (i.created_at || i.paid_at) {
+          const ps = new Date(i.created_at || i.paid_at);
+          const periodEnd = new Date(ps);
+          if (i.billing_cycle === 'annual') { periodEnd.setFullYear(periodEnd.getFullYear() + 1); }
+          else { periodEnd.setMonth(periodEnd.getMonth() + 1); }
+          periodEnd.setDate(periodEnd.getDate() - 1);
+          pPeriod = formatDate(ps) + ' — ' + formatDate(periodEnd);
+        }
+
         const receiptBtn = i.stripe_invoice_id
           ? `<button onclick="window.open('${getBackendUrl()}/api/v1/stripe/invoice-receipt/${i.stripe_invoice_id}', '_blank')" style="background:#F1F5F9; color:#5B3FA5; border:1px solid #CBD5E1; padding:5px 10px; border-radius:6px; font-size:12px; font-weight:700; cursor:pointer;">📥 Download Receipt</button>`
           : '<span style="font-size:12px;color:#94a3b8;">No Receipt</span>';
@@ -2853,6 +2875,7 @@
         return `<tr style="border-bottom:1px solid #f1f5f9;">
           <td style="padding:10px 12px; font-size:13px; color:#64748b;">${dStr}</td>
           <td style="padding:10px 12px; font-size:13px; font-weight:700; color:#1e293b;">${desc}</td>
+          <td style="padding:10px 12px; font-size:13px; font-weight:600; color:#475569;">${pPeriod}</td>
           <td style="padding:10px 12px; font-size:13px; font-weight:800; color:#0f172a;">${aStr}</td>
           <td style="padding:10px 12px;">${stBadge}</td>
           <td style="padding:10px 12px; text-align:right;">${receiptBtn}</td>
@@ -2875,6 +2898,7 @@
               <tr style="background:#f8fafc;color:#64748b;border-bottom:1px solid #e2e8f0;">
                 <th style="padding:10px 12px;">Date</th>
                 <th style="padding:10px 12px;">Description</th>
+                <th style="padding:10px 12px;">Period</th>
                 <th style="padding:10px 12px;">Amount</th>
                 <th style="padding:10px 12px;">Status</th>
                 <th style="padding:10px 12px;text-align:right;">Receipt</th>

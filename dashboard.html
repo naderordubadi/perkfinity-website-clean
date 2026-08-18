@@ -2531,13 +2531,14 @@
                 <tr style="background:#F8FAFC; color:#64748B; text-align:left; border-bottom:1px solid #E2E8F0;">
                   <th style="padding:10px 14px;">Date</th>
                   <th style="padding:10px 14px;">Placement / Description</th>
+                  <th style="padding:10px 14px;">Period</th>
                   <th style="padding:10px 14px;">Amount</th>
                   <th style="padding:10px 14px;">Status</th>
                   <th style="padding:10px 14px; text-align:right;">Receipt</th>
                 </tr>
               </thead>
               <tbody id="boostInvoiceTableBody">
-                <tr><td colspan="5" style="color:var(--muted);text-align:center;padding:16px">No promotional invoices yet.</td></tr>
+                <tr><td colspan="6" style="color:var(--muted);text-align:center;padding:16px">No promotional invoices yet.</td></tr>
               </tbody>
             </table>
           </div>
@@ -3963,13 +3964,37 @@
               const sponsorInvoices = window.currentInvoices.filter(inv => inv.revenue_type === 'sponsorship');
               if (sponsorInvoices.length > 0) {
                 boostTbody.innerHTML = sponsorInvoices.map(inv => {
-                  const date = new Date(inv.created_at || inv.paid_at).toLocaleDateString();
+                  const date = new Date(inv.created_at || inv.paid_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
                   const amount = "$" + ((inv.amount_cents || 0) / 100).toFixed(2);
                   const desc = inv.amount_cents === 12999 ? 'Everywhere Bundle (Web + App)' : (inv.amount_cents === 9999 ? 'App / VIP Takeover Boost' : (inv.amount_cents === 4999 ? 'Web Carousel Boost' : 'Promotional Sponsorship'));
                   const badge = inv.status === 'paid' ? '<span style="background:#DCFCE7;color:#15803D;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:700;">Paid</span>' : '<span style="background:#FEE2E2;color:#991B1B;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:700;">Failed</span>';
+                  
+                  let pPeriod = '—';
+                  if (inv.period_start) {
+                    const ps = new Date(inv.period_start);
+                    const pe = inv.period_end ? new Date(inv.period_end) : null;
+                    if (!pe || Math.abs(pe - ps) < 2 * 86400000) {
+                      const periodEnd = new Date(ps);
+                      if (inv.billing_cycle === 'annual') { periodEnd.setFullYear(periodEnd.getFullYear() + 1); }
+                      else { periodEnd.setMonth(periodEnd.getMonth() + 1); }
+                      periodEnd.setDate(periodEnd.getDate() - 1);
+                      pPeriod = ps.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) + ' — ' + periodEnd.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+                    } else {
+                      pPeriod = ps.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) + ' — ' + pe.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+                    }
+                  } else if (inv.created_at || inv.paid_at) {
+                    const ps = new Date(inv.created_at || inv.paid_at);
+                    const periodEnd = new Date(ps);
+                    if (inv.billing_cycle === 'annual') { periodEnd.setFullYear(periodEnd.getFullYear() + 1); }
+                    else { periodEnd.setMonth(periodEnd.getMonth() + 1); }
+                    periodEnd.setDate(periodEnd.getDate() - 1);
+                    pPeriod = ps.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) + ' — ' + periodEnd.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+                  }
+
                   return `<tr style="border-bottom:1px solid #F1F5F9;">
                           <td style="padding:10px 14px; color:#64748B;">${date}</td>
                           <td style="padding:10px 14px; font-weight:700; color:#1E293B;">${desc}</td>
+                          <td style="padding:10px 14px; font-weight:600; color:#475569;">${pPeriod}</td>
                           <td style="padding:10px 14px; font-weight:800; color:#0F172A;">${amount}</td>
                           <td style="padding:10px 14px;">${badge}</td>
                           <td style="padding:10px 14px; text-align:right;">
@@ -3978,7 +4003,7 @@
                        </tr>`;
                 }).join('');
               } else {
-                boostTbody.innerHTML = '<tr><td colspan="5" style="color:var(--muted);text-align:center;padding:16px;">No promotional invoices yet.</td></tr>';
+                boostTbody.innerHTML = '<tr><td colspan="6" style="color:var(--muted);text-align:center;padding:16px;">No promotional invoices yet.</td></tr>';
               }
             }
           }
@@ -4862,19 +4887,48 @@
             const sponsorInvoices = window.currentInvoices.filter(inv => inv.revenue_type === 'sponsorship');
             if (sponsorInvoices.length > 0) {
               boostTbody.innerHTML = sponsorInvoices.map(inv => {
-                const date = new Date(inv.created_at).toLocaleDateString();
-                const amount = "$" + (inv.amount_cents / 100).toFixed(2);
+                const date = new Date(inv.created_at || inv.paid_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+                const amount = "$" + ((inv.amount_cents || 0) / 100).toFixed(2);
                 const desc = inv.amount_cents === 12999 ? 'Everywhere Bundle (Web + App)' : (inv.amount_cents === 9999 ? 'App / VIP Takeover Boost' : (inv.amount_cents === 4999 ? 'Web Carousel Boost' : 'Promotional Sponsorship'));
                 const badge = inv.status === 'paid' ? '<span style="background:#DCFCE7;color:#15803D;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:700;">Paid</span>' : '<span style="background:#FEE2E2;color:#991B1B;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:700;">Failed</span>';
+                
+                let pPeriod = '—';
+                if (inv.period_start) {
+                  const ps = new Date(inv.period_start);
+                  const pe = inv.period_end ? new Date(inv.period_end) : null;
+                  if (!pe || Math.abs(pe - ps) < 2 * 86400000) {
+                    const periodEnd = new Date(ps);
+                    if (inv.billing_cycle === 'annual') { periodEnd.setFullYear(periodEnd.getFullYear() + 1); }
+                    else { periodEnd.setMonth(periodEnd.getMonth() + 1); }
+                    periodEnd.setDate(periodEnd.getDate() - 1);
+                    pPeriod = ps.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) + ' — ' + periodEnd.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+                  } else {
+                    pPeriod = ps.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) + ' — ' + pe.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+                  }
+                } else if (inv.created_at || inv.paid_at) {
+                  const ps = new Date(inv.created_at || inv.paid_at);
+                  const periodEnd = new Date(ps);
+                  if (inv.billing_cycle === 'annual') { periodEnd.setFullYear(periodEnd.getFullYear() + 1); }
+                  else { periodEnd.setMonth(periodEnd.getMonth() + 1); }
+                  periodEnd.setDate(periodEnd.getDate() - 1);
+                  pPeriod = ps.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) + ' — ' + periodEnd.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+                }
+
+                const receiptBtn = inv.stripe_invoice_id
+                  ? `<button onclick="window.open('${BACKEND_URL}/api/v1/stripe/invoice-receipt/${inv.stripe_invoice_id}', '_blank')" style="background:#F1F5F9; color:#5B3FA5; border:1px solid #CBD5E1; padding:6px 12px; border-radius:6px; font-size:12px; font-weight:700; cursor:pointer;">📥 Download Receipt</button>`
+                  : '<span style="font-size:12px;color:#94a3b8;">No Receipt</span>';
+
                 return `<tr style="border-bottom:1px solid #F1F5F9;">
                         <td style="padding:10px 14px; color:#64748B;">${date}</td>
                         <td style="padding:10px 14px; font-weight:700; color:#1E293B;">${desc}</td>
+                        <td style="padding:10px 14px; font-weight:600; color:#475569;">${pPeriod}</td>
                         <td style="padding:10px 14px; font-weight:800; color:#0F172A;">${amount}</td>
                         <td style="padding:10px 14px;">${badge}</td>
+                        <td style="padding:10px 14px; text-align:right;">${receiptBtn}</td>
                      </tr>`;
               }).join('');
             } else {
-              boostTbody.innerHTML = '<tr><td colspan="4" style="color:var(--muted);text-align:center;padding:16px;">No promotional invoices yet.</td></tr>';
+              boostTbody.innerHTML = '<tr><td colspan="6" style="color:var(--muted);text-align:center;padding:16px;">No promotional invoices yet.</td></tr>';
             }
           }
         }
