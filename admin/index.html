@@ -432,7 +432,6 @@
     .tag-picker-item.checked { color:#fff; background:rgba(139,92,246,0.1); }
     .tag-picker-item input[type=checkbox] { accent-color:var(--purple); width:14px; height:14px; cursor:pointer; flex-shrink:0; }
   </style>
-  <script src="/config.js"></script>
 </head>
 <body>
   <!-- Login Gate -->
@@ -2760,7 +2759,7 @@
                   ${h.note ? `<div style="font-size:12px;color:#64748b;margin-top:3px;">${h.note}</div>` : ''}
                 </div>
               </div>`;
-            }).join('');
+            }).join('')}`;
         }
       } catch(e) {
         const historyEl = document.getElementById('app-detail-history');
