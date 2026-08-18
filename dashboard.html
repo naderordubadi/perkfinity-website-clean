@@ -3973,7 +3973,7 @@
                           <td style="padding:10px 14px; font-weight:800; color:#0F172A;">${amount}</td>
                           <td style="padding:10px 14px;">${badge}</td>
                           <td style="padding:10px 14px; text-align:right;">
-                            <button onclick="goToCustomerPortal()" style="background:#F1F5F9; color:#5B3FA5; border:1px solid #CBD5E1; padding:6px 12px; border-radius:6px; font-size:12px; font-weight:700; cursor:pointer;">📥 Download Receipt</button>
+                            <button onclick="window.open('${BACKEND_URL}/api/v1/stripe/invoice-receipt/${inv.stripe_invoice_id}', '_blank')" style="background:#F1F5F9; color:#5B3FA5; border:1px solid #CBD5E1; padding:6px 12px; border-radius:6px; font-size:12px; font-weight:700; cursor:pointer;">📥 Download Receipt</button>
                           </td>
                        </tr>`;
                 }).join('');
