@@ -3974,6 +3974,20 @@
             data = data.filter(i => i.revenue_type === 'platform' || !i.revenue_type);
           } else if (activeBillSubtab === 'sponsorship') {
             data = data.filter(i => i.revenue_type === 'sponsorship');
+            // Deduplicate by merchant so only 1 row per merchant is shown (the latest period/invoice)
+            const latestByMerchant = new Map();
+            data.forEach(inv => {
+              const key = inv.merchant_id || inv.merchant_name;
+              if (!latestByMerchant.has(key)) {
+                latestByMerchant.set(key, inv);
+              } else {
+                const existing = latestByMerchant.get(key);
+                if (new Date(inv.created_at || inv.paid_at) > new Date(existing.created_at || existing.paid_at)) {
+                  latestByMerchant.set(key, inv);
+                }
+              }
+            });
+            data = Array.from(latestByMerchant.values());
           } else if (activeBillSubtab === 'pouf') {
             data = data.filter(i => i.revenue_type === 'pouf');
           }
