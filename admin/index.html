@@ -437,16 +437,15 @@
 <body>
   <!-- Login Gate -->
   <div class="login-overlay" id="loginOverlay">
-    <div class="login-box">
+    <form class="login-box" onsubmit="event.preventDefault(); adminLogin();">
       <img src="../assets/Perkfinity-App-Icon.png" alt="Perkfinity"/>
       <h1>Perkfinity <span>ADMIN</span></h1>
       <p>Sign in to access the admin dashboard</p>
       <div class="login-error" id="loginError">Invalid email or password</div>
       <input type="email" class="login-field" id="adminEmail" placeholder="Email address" autocomplete="email"/>
-      <input type="password" class="login-field" id="adminPassword" placeholder="Password" autocomplete="current-password"
-        onkeydown="if(event.key==='Enter') adminLogin()"/>
-      <button id="loginBtn" class="login-btn" onclick="adminLogin()">Sign In</button>
-    </div>
+      <input type="password" class="login-field" id="adminPassword" placeholder="Password" autocomplete="current-password"/>
+      <button id="loginBtn" type="submit" class="login-btn">Sign In</button>
+    </form>
   </div>
 
   <div class="admin-layout" id="adminLayout" style="display:none;">
@@ -2141,6 +2140,8 @@
     // ADMIN DASHBOARD — CLIENT-SIDE LOGIC
     // ═══════════════════════════════════════════════════════════════
 
+    const getBackendUrl = () => (typeof PerkfinityConfig !== 'undefined' && PerkfinityConfig.BACKEND_URL) ? PerkfinityConfig.BACKEND_URL : 'https://perkfinity-backend.vercel.app';
+
     // ── Admin Auth Gate ──────────────────────────────────────────
     async function adminLogin() {
       const email = document.getElementById('adminEmail').value.trim().toLowerCase();
@@ -2159,7 +2160,7 @@
       errEl.style.display = 'none';
 
       try {
-        const res = await fetch(PerkfinityConfig.BACKEND_URL + '/api/v1/admin/login', {
+        const res = await fetch(getBackendUrl() + '/api/v1/admin/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password: pass })
@@ -2254,7 +2255,7 @@
       unlockDashboard();
     }
 
-    const API_BASE = PerkfinityConfig.BACKEND_URL + '/api/v1';
+    const API_BASE = getBackendUrl() + '/api/v1';
 
     // ── Helper: Stale Date Warning ──────────────────────────────
     function staleDateWarn(dateStr) {
