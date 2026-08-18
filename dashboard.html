@@ -3954,7 +3954,29 @@
         .then(res => res.json())
         .then(json => {
           if (json.success && json.data) {
+            window.currentInvoices = json.data.invoices || [];
             checkActiveSponsorship(json.data);
+
+            const boostTbody = document.getElementById('boostInvoiceTableBody');
+            if (boostTbody) {
+              const sponsorInvoices = window.currentInvoices.filter(inv => inv.revenue_type === 'sponsorship');
+              if (sponsorInvoices.length > 0) {
+                boostTbody.innerHTML = sponsorInvoices.map(inv => {
+                  const date = new Date(inv.created_at || inv.paid_at).toLocaleDateString();
+                  const amount = "$" + ((inv.amount_cents || 0) / 100).toFixed(2);
+                  const desc = inv.amount_cents === 12999 ? 'Everywhere Bundle (Web + App)' : (inv.amount_cents === 9999 ? 'App / VIP Takeover Boost' : (inv.amount_cents === 4999 ? 'Web Carousel Boost' : 'Promotional Sponsorship'));
+                  const badge = inv.status === 'paid' ? '<span style="background:#DCFCE7;color:#15803D;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:700;">Paid</span>' : '<span style="background:#FEE2E2;color:#991B1B;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:700;">Failed</span>';
+                  return `<tr style="border-bottom:1px solid #F1F5F9;">
+                          <td style="padding:10px 14px; color:#64748B;">${date}</td>
+                          <td style="padding:10px 14px; font-weight:700; color:#1E293B;">${desc}</td>
+                          <td style="padding:10px 14px; font-weight:800; color:#0F172A;">${amount}</td>
+                          <td style="padding:10px 14px;">${badge}</td>
+                       </tr>`;
+                }).join('');
+              } else {
+                boostTbody.innerHTML = '<tr><td colspan="4" style="color:var(--muted);text-align:center;padding:16px;">No promotional invoices yet.</td></tr>';
+              }
+            }
           }
         })
         .catch(e => console.error("Failed to load billing for boost tab", e));
