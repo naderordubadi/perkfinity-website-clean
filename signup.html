@@ -96,32 +96,14 @@
             </div>
 
 
+            <div style="margin:25px 0 20px;padding:16px;background:#f8f7ff;border:1px solid rgba(91,63,165,.2);border-radius:10px;font-size:13px;color:#3F2B8A;line-height:1.5;">
+              <strong style="font-size:14px;display:block;margin-bottom:4px;">📢 Public Business Information</strong> The information below will be visible to members on your store card and store detail page on the Perkfinity web and app so customers can contact and find you directly.
+            </div>
+
             <div class="form-row">
               <label>Business Name *<input type="text" id="store_name" required></label>
             </div>
-            <div class="form-row" style="margin-bottom:20px">
-              <label>Business Category *
-                <select id="business_category" required
-                  style="border:1.5px solid var(--border);border-radius:12px;padding:12px 16px;background:#fff;color:var(--ink);font-size:15px;width:100%;outline:none;font-family:inherit;appearance:auto;margin-top:6px">
-                  <option value="" disabled selected>— Select a category —</option>
-                  <option value="Restaurants &amp; Dining">🍽️ Restaurants &amp; Dining (Full-service, Fast casual, Food trucks, Bars)</option>
-                  <option value="Cafes, Bakery &amp; Desserts">☕ Cafes, Bakery &amp; Desserts (Coffee, Juice, Boba, Ice cream, Pastries)</option>
-                  <option value="Grocery &amp; Gourmet Market">🛒 Grocery &amp; Gourmet Market (Markets, Delis, Butchers, Wine &amp; Spirits)</option>
-                  <option value="Hair &amp; Barber Shops">✂️ Hair &amp; Barber Shops (Salons, Barbershops, Blow-dry bars)</option>
-                  <option value="Beauty, Spa &amp; Wellness">💅 Beauty, Spa &amp; Wellness (Nails, Skincare, Massage, Spas)</option>
-                  <option value="Fitness &amp; Movement">💪 Fitness &amp; Movement (Gyms, Yoga, Pilates, Martial Arts, Training)</option>
-                  <option value="Education &amp; Learning">📚 Education &amp; Learning (Tutoring, STEM academies, Music, Art, Test prep)</option>
-                  <option value="Health &amp; Medical">🏥 Health &amp; Medical (Dentists, Optometrists, Chiropractic, Clinics)</option>
-                  <option value="Retail &amp; Boutiques">🛍️ Retail &amp; Boutiques (Apparel, Jewelry, Gift shops, Online brands)</option>
-                  <option value="Professional &amp; Financial">💼 Professional &amp; Financial (Banks, Real Estate, Insurance, CPA, Legal)</option>
-                  <option value="Home, Auto &amp; Trade">🔧 Home, Auto &amp; Trade (Auto repair, Plumbing, Electricians, HVAC, Cleaning)</option>
-                  <option value="Pet Care &amp; Services">🐾 Pet Care &amp; Services (Veterinary, Grooming, Boarding, Pet supplies)</option>
-                  <option value="Entertainment &amp; Recreation">🎮 Entertainment &amp; Recreation (Arcades, Escape rooms, Bowling, Venues)</option>
-                  <option value="Photography &amp; Creative">📸 Photography &amp; Creative (Photo/video, Print, Graphic design, Marketing)</option>
-                  <option value="Other">🔖 Other (Specialized local businesses)</option>
-                </select>
-              </label>
-            </div>
+            
             <div id="street_row" class="form-row form-row-2">
               <label>Street Address *<input type="text" id="street_address"></label>
               <label>Suite / Unit #<input type="text" id="suite" placeholder="e.g. Suite 4B (optional)"></label>
@@ -185,18 +167,40 @@
                 </select>
               </label>
               <label>ZIP Code *<input type="text" id="zip" placeholder="5-digit ZIP (e.g. 90210)" required maxlength="5" inputmode="numeric" pattern="\d{5}"></label>
-
-
             </div>
+
             <div class="form-row form-row-2">
-              <label>Contact Name *<input type="text" id="contact_name" required></label>
-              <label>Phone Number *
-                <input type="tel" id="phone" placeholder="555-555-5555" maxlength="12" required>
+              <label>Public Business Phone (optional)
+                <input type="tel" id="public_phone" placeholder="555-555-5555" maxlength="12">
+              </label>
+              <label>Public Business Email (optional)
+                <input type="email" id="public_email" placeholder="public@yourbusiness.com">
               </label>
             </div>
-            <div class="form-row form-row-2">
-              <label>Email Address *<input type="email" id="email" required></label>
-              <label id="website_label">Website<input type="url" id="website" placeholder="https://"></label>
+
+            <div class="form-row form-row-2" style="margin-bottom:20px">
+              <label>Business Category *
+                <select id="business_category" required
+                  style="border:1.5px solid var(--border);border-radius:12px;padding:12px 16px;background:#fff;color:var(--ink);font-size:15px;width:100%;outline:none;font-family:inherit;appearance:auto;margin-top:6px">
+                  <option value="" disabled selected>— Select a category —</option>
+                  <option value="Restaurants &amp; Dining">🍽️ Restaurants &amp; Dining (Full-service, Fast casual, Food trucks, Bars)</option>
+                  <option value="Cafes, Bakery &amp; Desserts">☕ Cafes, Bakery &amp; Desserts (Coffee, Juice, Boba, Ice cream, Pastries)</option>
+                  <option value="Grocery &amp; Gourmet Market">🛒 Grocery &amp; Gourmet Market (Markets, Delis, Butchers, Wine &amp; Spirits)</option>
+                  <option value="Hair &amp; Barber Shops">✂️ Hair &amp; Barber Shops (Salons, Barbershops, Blow-dry bars)</option>
+                  <option value="Beauty, Spa &amp; Wellness">💅 Beauty, Spa &amp; Wellness (Nails, Skincare, Massage, Spas)</option>
+                  <option value="Fitness &amp; Movement">💪 Fitness &amp; Movement (Gyms, Yoga, Pilates, Martial Arts, Training)</option>
+                  <option value="Education &amp; Learning">📚 Education &amp; Learning (Tutoring, STEM academies, Music, Art, Test prep)</option>
+                  <option value="Health &amp; Medical">🏥 Health &amp; Medical (Dentists, Optometrists, Chiropractic, Clinics)</option>
+                  <option value="Retail &amp; Boutiques">🛍️ Retail &amp; Boutiques (Apparel, Jewelry, Gift shops, Online brands)</option>
+                  <option value="Professional &amp; Financial">💼 Professional &amp; Financial (Banks, Real Estate, Insurance, CPA, Legal)</option>
+                  <option value="Home, Auto &amp; Trade">🔧 Home, Auto &amp; Trade (Auto repair, Plumbing, Electricians, HVAC, Cleaning)</option>
+                  <option value="Pet Care &amp; Services">🐾 Pet Care &amp; Services (Veterinary, Grooming, Boarding, Pet supplies)</option>
+                  <option value="Entertainment &amp; Recreation">🎮 Entertainment &amp; Recreation (Arcades, Escape rooms, Bowling, Venues)</option>
+                  <option value="Photography &amp; Creative">📸 Photography &amp; Creative (Photo/video, Print, Graphic design, Marketing)</option>
+                  <option value="Other">🔖 Other (Specialized local businesses)</option>
+                </select>
+              </label>
+              <label id="website_label">Website (optional)<input type="url" id="website" placeholder="https://"></label>
             </div>
 
             <div class="form-row" style="margin-bottom:20px">
@@ -224,6 +228,22 @@
                   <input type="text" id="pos_other" placeholder="e.g. Custom in-house system">
                 </label>
               </div>
+            </div>
+
+            <div style="margin:30px 0 20px;padding:16px;background:#fff4f4;border:1px solid rgba(220,38,38,.2);border-radius:10px;font-size:13px;color:#991b1b;line-height:1.5;">
+              <strong style="font-size:14px;display:block;margin-bottom:4px;">🔒 Private Information</strong> The information below is for internal communication and administrative login purposes only. It will <strong>NOT</strong> be published on the web or app, unless your personal information is the same as your public information.
+            </div>
+
+            <div class="form-row form-row-2">
+              <label>Contact Name *<input type="text" id="contact_name" required></label>
+              <label>Personal Phone *
+                <input type="tel" id="phone" placeholder="555-555-5555" maxlength="12" required>
+              </label>
+            </div>
+            <div class="form-row">
+              <label>Personal Email / Username *
+                <input type="email" id="email" required>
+              </label>
             </div>
 
             <div
@@ -317,7 +337,7 @@
 
             <div id="promoCodeSection" style="margin-bottom:20px;">
               <label style="display:block;font-weight:700;color:var(--purpleDark);margin-bottom:8px;font-size:14px;">
-                Have a Promo Code? <span style="font-weight:400;color:var(--muted);font-size:13px;">(optional)</span>
+                Have a Promo Code? (optional)
               </label>
               <div style="display:flex;gap:10px;align-items:center;">
                 <input type="text" id="promo_code" placeholder="Enter promo code"
@@ -914,13 +934,15 @@
 
       // Add auto-formatting to phone input + handle Stripe Checkout return
       document.addEventListener('DOMContentLoaded', () => {
-        const phoneInput = document.getElementById('phone');
-        if (phoneInput) {
-          phoneInput.addEventListener('input', function (e) {
-            let x = e.target.value.replace(/\D/g, '').match(/(\d{0,3})(\d{0,3})(\d{0,4})/);
-            e.target.value = !x[2] ? x[1] : x[1] + '-' + x[2] + (x[3] ? '-' + x[3] : '');
-          });
-        }
+        ['phone', 'public_phone'].forEach(id => {
+          const input = document.getElementById(id);
+          if (input) {
+            input.addEventListener('input', function (e) {
+              let x = e.target.value.replace(/\D/g, '').match(/(\d{0,3})(\d{0,3})(\d{0,4})/);
+              e.target.value = !x[2] ? x[1] : x[1] + '-' + x[2] + (x[3] ? '-' + x[3] : '');
+            });
+          }
+        });
 
         // Handle return from Stripe Checkout (Tier 1)
         const urlParams = new URLSearchParams(window.location.search);
@@ -1115,14 +1137,14 @@
         if (presence === 'physical') {
           streetRow.style.display = '';
           locationRow.style.display = '';
-          websiteLabel.innerHTML = 'Website<input type="url" id="website" placeholder="https://">';
+          websiteLabel.innerHTML = 'Website (optional)<input type="url" id="website" placeholder="https://">';
           onlineCodePreview.style.display = 'none';
           perkHintPhysical.style.display = '';
           perkHintOnline.style.display = 'none';
         } else if (presence === 'mobile') {
           streetRow.style.display = 'none';
           locationRow.style.display = '';
-          websiteLabel.innerHTML = 'Website<input type="url" id="website" placeholder="https://">';
+          websiteLabel.innerHTML = 'Website (optional)<input type="url" id="website" placeholder="https://">';
           onlineCodePreview.style.display = 'none';
           perkHintPhysical.style.display = '';
           perkHintOnline.style.display = 'none';
@@ -1406,6 +1428,8 @@
           contactName: document.getElementById('contact_name').value,
           email: document.getElementById('email').value,
           phone: document.getElementById('phone').value,
+          public_phone: (document.getElementById('public_phone')?.value || '').trim() || null,
+          public_email: (document.getElementById('public_email')?.value || '').trim() || null,
           website: document.getElementById('website').value,
           welcome_offer_text: (() => { const sel = document.getElementById('welcome_offer_select').value; return sel === '__custom__' ? document.getElementById('welcome_offer_text').value.trim() : sel; })(),
           business_presence: presence,

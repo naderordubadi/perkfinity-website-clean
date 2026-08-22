@@ -2344,8 +2344,10 @@
           <div style="font-size:14px;font-weight:800;color:#1a1a2e;margin-bottom:10px;">📋 Signup Details</div>
           ${infoRow('Business Name', m.business_name)}
           ${infoRow('Contact Name', m.contact_name)}
-          ${infoRow('Email', m.contact_email || m.email)}
-          ${infoRow('Phone', m.phone)}
+          ${infoRow('Personal Email', m.contact_email || m.email)}
+          ${infoRow('Personal Phone', m.phone || '—')}
+          ${m.public_email ? infoRow('Public Business Email', `<a href="mailto:${m.public_email}" style="color:#5b3fa5;font-weight:600;">${m.public_email}</a>`) : infoRow('Public Business Email', '— (None)')}
+          ${m.public_phone ? infoRow('Public Business Phone', `<a href="tel:${m.public_phone}" style="color:#5b3fa5;font-weight:600;">${m.public_phone}</a>`) : infoRow('Public Business Phone', '— (None)')}
           ${infoRow('Presence', m.business_presence === 'online' ? '🌐 Online' : m.business_presence === 'hybrid' ? '📱 Hybrid (Online + Physical)' : m.business_presence === 'mobile' ? '🚐 Mobile' : '📍 Local')}
           ${m.website ? infoRow('Website', `<a href="${m.website.startsWith('http') ? m.website : 'https://' + m.website}" target="_blank" style="color:#5b3fa5;font-weight:600;">${m.website}</a>`) : infoRow('Website', '—')}
           ${infoRow('Welcome Offer', m.welcome_offer_text || m.perk)}

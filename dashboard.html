@@ -2675,25 +2675,44 @@
           <p style="margin:6px 0 0;font-size:12px;color:var(--muted)">Link to your ordering page, menu, or shop - shown as a button in the consumer app.</p>
         </div>
 
-        <h4 style="margin:0 0 15px;color:var(--ink);border-bottom:1px solid var(--border);padding-bottom:10px;">Account
-          & Contact</h4>
+        <h4 style="margin:0 0 15px;color:var(--ink);border-bottom:1px solid var(--border);padding-bottom:10px;">Account &amp; Personal Contact</h4>
 
         <div style="margin-bottom:20px;">
-          <label id="labelContactName" style="display:block; margin-bottom:8px; font-weight:600; font-size:14px;">Contact Name</label>
+          <label id="labelContactName" style="display:block; margin-bottom:8px; font-weight:600; font-size:14px;">Contact Name *</label>
           <input type="text" id="profileContactName" placeholder="Enter contact name"
             style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; outline:none;">
         </div>
 
         <div style="margin-bottom:20px;">
-          <label id="labelPhone" style="display:block; margin-bottom:8px; font-weight:600; font-size:14px;">Phone Number</label>
+          <label id="labelPhone" style="display:block; margin-bottom:4px; font-weight:600; font-size:14px;">Personal Phone *</label>
           <input type="tel" id="profilePhone" placeholder="xxx-xxx-xxxx"
             oninput="formatPhone(this)" maxlength="12"
+            style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; outline:none;">
+          <p style="margin:6px 0 0;font-size:12px;color:var(--muted)">🔒 Private administrative contact — will <strong>NOT</strong> be published on web or app unless also set as public business contact below.</p>
+        </div>
+
+        <div style="margin-bottom:20px;">
+          <label id="labelEmail" style="display:block; margin-bottom:4px; font-weight:600; font-size:14px;">Personal Email / Username *</label>
+          <input type="email" id="profileEmail" placeholder="Enter email"
+            style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; outline:none;">
+          <p style="margin:6px 0 0;font-size:12px;color:var(--muted)">🔒 Private administrative login email — will <strong>NOT</strong> be published on web or app unless also set as public business contact below.</p>
+        </div>
+
+        <h4 style="margin:30px 0 15px;color:var(--ink);border-bottom:1px solid var(--border);padding-bottom:10px;">Public Business Contact <span style="font-size:12px;font-weight:400;color:var(--muted)">(Optional)</span></h4>
+        <div style="margin-bottom:16px;padding:12px 14px;background:#f8f7ff;border:1px solid rgba(91,63,165,.2);border-radius:10px;font-size:13px;color:var(--purpleDark);line-height:1.45;">
+          📢 <strong>Member Visibility Notice:</strong> Information entered below will be accessible to consumers via your store card and store detail page on the Perkfinity web and mobile app so customers can contact your business directly.
+        </div>
+
+        <div style="margin-bottom:20px;">
+          <label style="display:block; margin-bottom:8px; font-weight:600; font-size:14px;">Public Business Email (optional)</label>
+          <input type="email" id="profilePublicEmail" placeholder="public@yourbusiness.com"
             style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; outline:none;">
         </div>
 
         <div style="margin-bottom:20px;">
-          <label id="labelEmail" style="display:block; margin-bottom:8px; font-weight:600; font-size:14px;">Email / Username</label>
-          <input type="email" id="profileEmail" placeholder="Enter new email"
+          <label style="display:block; margin-bottom:8px; font-weight:600; font-size:14px;">Public Business Phone (optional)</label>
+          <input type="tel" id="profilePublicPhone" placeholder="xxx-xxx-xxxx"
+            oninput="formatPhone(this)" maxlength="12"
             style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; outline:none;">
         </div>
 
@@ -3888,6 +3907,10 @@
               document.getElementById('profileZip').value = json.data.postal_code || '';
               document.getElementById('profileContactName').value = json.data.contact_name || '';
               document.getElementById('profilePhone').value = json.data.phone || '';
+              const pubPhoneEl = document.getElementById('profilePublicPhone');
+              if (pubPhoneEl) pubPhoneEl.value = json.data.public_phone || '';
+              const pubEmailEl = document.getElementById('profilePublicEmail');
+              if (pubEmailEl) pubEmailEl.value = json.data.public_email || '';
 
               // Presence + multilocation detection
               const presence = json.data.business_presence || 'physical';
@@ -3898,6 +3921,8 @@
                 (presence === 'hybrid' && !json.data.address);
               window._merchantMultilocation = isMultiLocation;
               const presenceLabels = { physical: '🏪 Physical Store', mobile: '🚐 Mobile / Pop-Up', online: '🌐 Online Only', hybrid: '🌐🏪 Hybrid' };
+              const badgeEl = document.getElementById('profilePresenceBadge');
+              if (badgeEl) badgeEl.textContent = presenceLabels[presence] || presence;
               const offerText = json.data.welcome_offer_text || '';
               document.getElementById('profileWelcomeOfferText').value = offerText;
               if (offerText) {
@@ -5601,6 +5626,8 @@
       const zip = document.getElementById('profileZip').value;
       const contact_name = document.getElementById('profileContactName').value;
       const phone = document.getElementById('profilePhone').value;
+      const public_phone = document.getElementById('profilePublicPhone') ? document.getElementById('profilePublicPhone').value.trim() : '';
+      const public_email = document.getElementById('profilePublicEmail') ? document.getElementById('profilePublicEmail').value.trim() : '';
       const welcome_offer_text = document.getElementById('profileWelcomeOfferText').value;
       const review_url = document.getElementById('profileReviewUrl').value || null;
       const order_url = document.getElementById('profileOrderUrl').value || null;
@@ -5639,8 +5666,16 @@
         msgLabel.innerText = 'Please enter phone in xxx-xxx-xxxx format.';
         msgLabel.scrollIntoView({ behavior: 'smooth', block: 'center' }); return;
       }
+      if (public_phone && !/^\d{3}-\d{3}-\d{4}$/.test(public_phone)) {
+        msgLabel.innerText = 'Please enter public business phone in xxx-xxx-xxxx format.';
+        msgLabel.scrollIntoView({ behavior: 'smooth', block: 'center' }); return;
+      }
       if (email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
         msgLabel.innerText = 'Please enter a valid email address (e.g. you@example.com).';
+        msgLabel.scrollIntoView({ behavior: 'smooth', block: 'center' }); return;
+      }
+      if (public_email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(public_email)) {
+        msgLabel.innerText = 'Please enter a valid public business email address.';
         msgLabel.scrollIntoView({ behavior: 'smooth', block: 'center' }); return;
       }
       // Website normalization — auto-prefix bare domains
@@ -5675,7 +5710,7 @@
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${apiToken}`
           },
-          body: JSON.stringify({ email, current_password, new_password, business_name, website, address, suite, city, state, zip, contact_name, phone, welcome_offer_text, review_url, order_url })
+          body: JSON.stringify({ email, current_password, new_password, business_name, website, address, suite, city, state, zip, contact_name, phone, public_phone, public_email, welcome_offer_text, review_url, order_url })
         });
         const json = await res.json();
 
