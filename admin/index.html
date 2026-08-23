@@ -29,14 +29,34 @@
       --radius: 14px;
     }
     * { box-sizing:border-box; margin:0; padding:0; }
-    body { font-family:'Outfit',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+    body { font-family:'Outfit',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; overflow-x:hidden; }
     a { color:var(--purple); text-decoration:none; }
 
     /* Layout */
-    .admin-layout { display:flex; min-height:100vh; }
+    .admin-layout { display:flex; min-height:100vh; position:relative; width:100%; }
     .sidebar {
-      width:250px; background:rgba(0,0,0,0.35); border-right:1px solid var(--border);
-      padding:24px 0; display:flex; flex-direction:column; position:fixed; top:0; bottom:0; z-index:100;
+      width:250px; background:#0B132B; border-right:1px solid var(--border);
+      padding:24px 0; display:flex; flex-direction:column; position:fixed; top:0; left:0; bottom:0; z-index:100;
+      overflow-y:auto; overflow-x:hidden;
+      box-shadow: 4px 0 24px rgba(0,0,0,0.45);
+      scrollbar-width: thin;
+      scrollbar-color: rgba(139,92,246,0.45) rgba(255,255,255,0.03);
+    }
+    .sidebar::-webkit-scrollbar {
+      width: 6px;
+    }
+    .sidebar::-webkit-scrollbar-track {
+      background: rgba(255,255,255,0.02);
+      border-radius: 8px;
+      margin: 6px 0;
+    }
+    .sidebar::-webkit-scrollbar-thumb {
+      background: rgba(139,92,246,0.4);
+      border-radius: 8px;
+      transition: background 0.2s;
+    }
+    .sidebar::-webkit-scrollbar-thumb:hover {
+      background: rgba(139,92,246,0.75);
     }
     .sidebar-logo {
       display:flex; align-items:center; gap:10px; padding:0 20px; margin-bottom:32px;
@@ -54,7 +74,7 @@
     .nav-item.active { background:rgba(139,92,246,0.1); color:var(--purple); border-left-color:var(--purple); }
     .nav-item .icon { font-size:16px; width:20px; text-align:center; }
 
-    .main-content { flex:1; margin-left:250px; padding:28px 32px; }
+    .main-content { flex:1; margin-left:250px; padding:28px 32px; min-width:0; width:calc(100% - 250px); }
 
     /* Page Header */
     .page-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; }
@@ -141,7 +161,23 @@
     /* Data Table */
     .table-wrap {
       background:var(--bgCard); border:1px solid var(--border); border-radius:var(--radius);
-      overflow:hidden;
+      overflow-x:auto; overflow-y:hidden; max-width:100%;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(139,92,246,0.3) rgba(255,255,255,0.02);
+    }
+    .table-wrap::-webkit-scrollbar {
+      height: 6px;
+    }
+    .table-wrap::-webkit-scrollbar-track {
+      background: rgba(255,255,255,0.02);
+      border-radius: 8px;
+    }
+    .table-wrap::-webkit-scrollbar-thumb {
+      background: rgba(139,92,246,0.3);
+      border-radius: 8px;
+    }
+    .table-wrap::-webkit-scrollbar-thumb:hover {
+      background: rgba(139,92,246,0.6);
     }
     .data-table { width:100%; border-collapse:collapse; }
     .data-table th {
@@ -289,6 +325,23 @@
     #sb-overlay .form-textarea:focus { border-color:#5b3fa5; background:#fff; }
     #sb-overlay .form-label { color:#475569; }
     #sb-overlay label { color:#1a1a2e; }
+
+    /* White-background Pre-Setup modal inputs fix */
+    #modal-presetup-create .form-input,
+    #modal-presetup-create input,
+    #modal-presetup-create select,
+    #modal-presetup-create textarea {
+      color:#1a1a2e !important; background:#fff !important; border-color:#cbd5e1 !important;
+    }
+    #modal-presetup-create .form-input::placeholder,
+    #modal-presetup-create input::placeholder,
+    #modal-presetup-create textarea::placeholder { color:#94a3b8 !important; }
+    #modal-presetup-create .form-input:focus,
+    #modal-presetup-create input:focus,
+    #modal-presetup-create select:focus,
+    #modal-presetup-create textarea:focus { border-color:#5b3fa5 !important; background:#fff !important; color:#1a1a2e !important; }
+    #modal-presetup-create .form-label { color:#475569 !important; }
+    #modal-presetup-create label { color:#1a1a2e !important; }
 
     .form-textarea { resize:vertical; min-height:120px; }
 
@@ -465,6 +518,10 @@
       <div class="nav-section">Data</div>
       <div class="nav-item" onclick="showTab('merchants')">
         <span class="icon">🏪</span> Merchants
+      </div>
+      <div class="nav-item" onclick="showTab('presetup')" id="nav-presetup">
+        <span class="icon">🏬</span> Pre-Setup
+        <span id="presetup-count-badge" style="display:none;margin-left:auto;background:var(--purple);color:#fff;font-size:10px;font-weight:800;padding:2px 7px;border-radius:999px;">0</span>
       </div>
       <div class="nav-item" onclick="showTab('members')">
         <span class="icon">👥</span> Members
@@ -669,6 +726,256 @@
             <button onclick="saveNewContractor()" class="toolbar-btn primary" style="padding:10px 24px;" id="nc-save-btn">Create Rep</button>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!-- CREATE PRE-SETUP MERCHANT MODAL (TASK 8)                    -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <div id="modal-presetup-create" onclick="if(event.target===this)closePresetupModal()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:10006;align-items:center;justify-content:center;">
+      <div style="background:#fff;border-radius:20px;padding:32px 36px;width:760px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,0.35);color:#1a1a2e;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid #e2e8f0;">
+          <div>
+            <div style="font-size:20px;font-weight:800;color:#1a1a2e;display:flex;align-items:center;gap:8px;">
+              <span>🏬</span> Create Turnkey Pre-Setup Merchant
+            </div>
+            <div style="font-size:12px;color:#64748b;margin-top:2px;">
+              Pre-configure a hybrid merchant profile, 5.5"×8.5" QR stand, and credential sticker before handoff.
+            </div>
+          </div>
+          <button onclick="closePresetupModal()" style="background:none;border:none;font-size:24px;cursor:pointer;color:#94a3b8;line-height:1;">✕</button>
+        </div>
+
+        <form id="form-presetup-create" oninput="savePresetupDraft()" onchange="savePresetupDraft()" onsubmit="event.preventDefault();submitPresetupMerchant();">
+          <!-- Section 1: Store Basics -->
+          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:16px 18px;margin-bottom:16px;">
+            <div style="font-size:13px;font-weight:800;color:#334155;margin-bottom:12px;display:flex;align-items:center;gap:6px;">
+              <span>🏪</span> 1. Store Information &amp; Category
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+              <div>
+                <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px;">Business Name <span style="color:#ef4444;">*</span></label>
+                <input type="text" id="psc-business-name" class="form-input" placeholder="e.g. Tony's Pizza &amp; Pasta" required style="width:100%;padding:9px 12px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:13px;"/>
+              </div>
+              <div>
+                <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px;">Category <span style="color:#ef4444;">*</span></label>
+                <select id="psc-category" class="form-input" required style="width:100%;padding:9px 12px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:13px;font-family:inherit;">
+                  <option value="" disabled selected>— Select a category —</option>
+                  <option value="Restaurants &amp; Dining">🍽️ Restaurants &amp; Dining (Full-service, Fast casual, Food trucks, Bars)</option>
+                  <option value="Cafes, Bakery &amp; Desserts">☕ Cafes, Bakery &amp; Desserts (Coffee, Juice, Boba, Ice cream, Pastries)</option>
+                  <option value="Grocery &amp; Gourmet Market">🛒 Grocery &amp; Gourmet Market (Markets, Delis, Butchers, Wine &amp; Spirits)</option>
+                  <option value="Hair &amp; Barber Shops">✂️ Hair &amp; Barber Shops (Salons, Barbershops, Blow-dry bars)</option>
+                  <option value="Beauty, Spa &amp; Wellness">💅 Beauty, Spa &amp; Wellness (Nails, Skincare, Massage, Spas)</option>
+                  <option value="Fitness &amp; Movement">💪 Fitness &amp; Movement (Gyms, Yoga, Pilates, Martial Arts, Training)</option>
+                  <option value="Education &amp; Learning">📚 Education &amp; Learning (Tutoring, STEM academies, Music, Art, Test prep)</option>
+                  <option value="Health &amp; Medical">🏥 Health &amp; Medical (Dentists, Optometrists, Chiropractic, Clinics)</option>
+                  <option value="Retail &amp; Boutiques">🛍️ Retail &amp; Boutiques (Apparel, Jewelry, Gift shops, Online brands)</option>
+                  <option value="Professional &amp; Financial">💼 Professional &amp; Financial (Banks, Real Estate, Insurance, CPA, Legal)</option>
+                  <option value="Home, Auto &amp; Trade">🔧 Home, Auto &amp; Trade (Auto repair, Plumbing, Electricians, HVAC, Cleaning)</option>
+                  <option value="Pet Care &amp; Services">🐾 Pet Care &amp; Services (Veterinary, Grooming, Boarding, Pet supplies)</option>
+                  <option value="Entertainment &amp; Recreation">🎮 Entertainment &amp; Recreation (Arcades, Escape rooms, Bowling, Venues)</option>
+                  <option value="Photography &amp; Creative">📸 Photography &amp; Creative (Photo/video, Print, Graphic design, Marketing)</option>
+                  <option value="Other">🔖 Other (Specialized local businesses)</option>
+                </select>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:#64748b;">
+              <span style="background:#e0e7ff;color:#4338ca;padding:3px 8px;border-radius:6px;font-weight:800;font-size:11px;">PRESENCE: HYBRID</span>
+              <span>Enabled for both in-person QR stand scans and online promo codes.</span>
+            </div>
+          </div>
+
+          <!-- Section 2: Store Physical Location -->
+          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:16px 18px;margin-bottom:16px;">
+            <div style="font-size:13px;font-weight:800;color:#334155;margin-bottom:12px;display:flex;align-items:center;gap:6px;">
+              <span>📍</span> 2. Physical Store Location <span style="color:#94a3b8;font-size:11px;font-weight:500;">(Optional in Pre-Setup)</span>
+            </div>
+            <div style="margin-bottom:12px;">
+              <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px;">Street Address <span style="color:#94a3b8;font-size:11px;font-weight:500;">(optional)</span></label>
+              <input type="text" id="psc-address" class="form-input" placeholder="e.g. 25380 Marguerite Pkwy, Suite B" style="width:100%;padding:9px 12px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:13px;"/>
+            </div>
+            <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px;">
+              <div>
+                <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px;">City <span style="color:#94a3b8;font-size:11px;font-weight:500;">(optional)</span></label>
+                <input type="text" id="psc-city" class="form-input" placeholder="e.g. Mission Viejo" style="width:100%;padding:9px 12px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:13px;"/>
+              </div>
+              <div>
+                <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px;">State <span style="color:#94a3b8;font-size:11px;font-weight:500;">(optional)</span></label>
+                <input type="text" id="psc-state" class="form-input" value="CA" maxlength="2" style="width:100%;padding:9px 12px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:13px;text-transform:uppercase;"/>
+              </div>
+              <div>
+                <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px;">ZIP Code <span style="color:#94a3b8;font-size:11px;font-weight:500;">(optional)</span></label>
+                <input type="text" id="psc-zip" class="form-input" placeholder="e.g. 92692" maxlength="5" style="width:100%;padding:9px 12px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:13px;"/>
+              </div>
+            </div>
+            <div style="margin-top:10px;font-size:11px;color:#64748b;line-height:1.4;">
+              💡 <strong>Note:</strong> If physical address is omitted, the merchant will be prompted to complete their location or select multi-location / no storefront when they claim their account.
+            </div>
+          </div>
+
+          <!-- Section 3: Welcome Offer -->
+          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:16px 18px;margin-bottom:16px;">
+            <div style="font-size:13px;font-weight:800;color:#334155;margin-bottom:12px;display:flex;align-items:center;gap:6px;">
+              <span>🎁</span> 3. Welcome Offer &amp; Perk
+            </div>
+            <div style="margin-bottom:12px;">
+              <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px;">Welcome Offer <span style="color:#ef4444;">*</span></label>
+              <select id="psc-welcome-offer-select" class="form-input" onchange="onPresetupOfferChange(this.value)" required style="width:100%;padding:9px 12px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:13px;font-family:inherit;">
+                <option value="" disabled selected>— Select a welcome offer for new members —</option>
+                <option value="10% Off Your First Purchase">10% Off Your First Purchase</option>
+                <option value="15% Off Your First Purchase">15% Off Your First Purchase</option>
+                <option value="20% Off Your First Purchase">20% Off Your First Purchase</option>
+                <option value="$5 Off Your First Order">$5 Off Your First Order</option>
+                <option value="$10 Off Your First Order">$10 Off Your First Order</option>
+                <option value="Free Item with Any Purchase">Free Item with Any Purchase</option>
+                <option value="Buy One, Get One Free">Buy One, Get One Free</option>
+                <option value="Free Consultation / First Visit">Free Consultation / First Visit</option>
+                <option value="Free Delivery on First Order">Free Delivery on First Order</option>
+                <option value="Free Sample / Trial">Free Sample / Trial</option>
+                <option value="2-for-1 on First Visit">2-for-1 on First Visit</option>
+                <option value="__custom__">✏️ Custom Offer (write your own)</option>
+              </select>
+            </div>
+            <div id="psc-custom-offer-row" style="display:none;margin-bottom:12px;">
+              <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px;">Your Custom Offer <span style="font-weight:600;color:#94a3b8;">(max 60 characters)</span></label>
+              <input type="text" id="psc-welcome-offer-custom" maxlength="60" placeholder="e.g. Free dessert with any entrée" class="form-input" style="width:100%;padding:9px 12px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:13px;" oninput="document.getElementById('psc-offer-char-count').textContent=this.value.length+'/60'"/>
+              <div style="text-align:right;font-size:11px;color:#94a3b8;margin-top:2px;" id="psc-offer-char-count">0/60</div>
+            </div>
+            <div>
+              <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px;">Offer Terms / Disclaimer <span style="color:#94a3b8;font-size:11px;">(optional)</span></label>
+              <input type="text" id="psc-terms" class="form-input" placeholder="Valid for first-time customers. Cannot be combined with other offers." style="width:100%;padding:9px 12px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:13px;"/>
+            </div>
+          </div>
+
+          <!-- Section 4: Public Contact & Web Links (Optional) -->
+          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:16px 18px;margin-bottom:16px;">
+            <div style="font-size:13px;font-weight:800;color:#334155;margin-bottom:12px;display:flex;align-items:center;gap:6px;">
+              <span>🌐</span> 4. Public Contact &amp; Online Links <span style="color:#94a3b8;font-size:11px;font-weight:500;">(Optional — prefill if known)</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+              <div>
+                <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px;">Public Business Phone</label>
+                <input type="text" id="psc-public-phone" class="form-input" placeholder="(949) 555-0123" style="width:100%;padding:9px 12px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:13px;"/>
+              </div>
+              <div>
+                <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px;">Public Business Email</label>
+                <input type="email" id="psc-public-email" class="form-input" placeholder="info@store.com" style="width:100%;padding:9px 12px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:13px;"/>
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+              <div>
+                <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px;">Website URL</label>
+                <input type="text" id="psc-website" class="form-input" placeholder="e.g. www.store.com or https://..." onblur="normalizeUrlInput(this)" style="width:100%;padding:9px 12px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:13px;"/>
+              </div>
+              <div>
+                <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px;">Review URL (Google/Yelp)</label>
+                <input type="text" id="psc-review-url" class="form-input" placeholder="e.g. g.page/r/... or www.google.com/..." onblur="normalizeUrlInput(this)" style="width:100%;padding:9px 12px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:13px;"/>
+              </div>
+              <div>
+                <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px;">Order URL (Toast/Shopify)</label>
+                <input type="text" id="psc-order-url" class="form-input" placeholder="e.g. toasttab.com/... or https://..." onblur="normalizeUrlInput(this)" style="width:100%;padding:9px 12px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:13px;"/>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 5: Branding & VIP Creative -->
+          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:16px 18px;margin-bottom:16px;">
+            <div style="font-size:13px;font-weight:800;color:#334155;margin-bottom:12px;display:flex;align-items:center;gap:6px;">
+              <span>🎨</span> 5. Branding &amp; VIP Takeover Creative <span style="color:#94a3b8;font-size:11px;font-weight:500;">(Optional)</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+              <!-- Logo Upload & URL -->
+              <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:12px;">
+                <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:6px;">Store Logo</label>
+                <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+                  <label style="padding:6px 12px;background:#f1f5f9;border:1.5px dashed #94a3b8;border-radius:8px;font-size:12px;font-weight:700;color:#475569;cursor:pointer;display:inline-flex;align-items:center;gap:6px;">
+                    📁 <span>Upload Logo</span>
+                    <input type="file" id="psc-logo-file" accept="image/*" onchange="handlePresetupImageUpload(event, 'logo')" style="display:none;"/>
+                  </label>
+                  <span style="font-size:11px;color:#94a3b8;">or enter URL:</span>
+                </div>
+                <input type="text" id="psc-logo-url" class="form-input" placeholder="e.g. www.store.com/logo.png or https://..." oninput="handlePresetupUrlChange('logo')" onblur="normalizeUrlInput(this);handlePresetupUrlChange('logo')" style="width:100%;padding:8px 10px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:12px;"/>
+                <div id="psc-logo-preview-box" style="display:none;align-items:center;gap:10px;margin-top:8px;padding:6px 10px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;">
+                  <img id="psc-logo-preview-img" src="" style="width:36px;height:36px;object-fit:contain;border-radius:6px;border:1px solid #cbd5e1;background:#fff;"/>
+                  <span style="font-size:11px;color:#16a34a;font-weight:700;">Logo attached</span>
+                  <button type="button" onclick="clearPresetupImage('logo')" style="margin-left:auto;background:none;border:none;color:#ef4444;font-size:11px;font-weight:700;cursor:pointer;">Remove</button>
+                </div>
+              </div>
+
+              <!-- Cover Photo Upload & URL -->
+              <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:12px;">
+                <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:6px;">Cover Photo / Banner</label>
+                <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+                  <label style="padding:6px 12px;background:#f1f5f9;border:1.5px dashed #94a3b8;border-radius:8px;font-size:12px;font-weight:700;color:#475569;cursor:pointer;display:inline-flex;align-items:center;gap:6px;">
+                    📁 <span>Upload Cover</span>
+                    <input type="file" id="psc-cover-file" accept="image/*" onchange="handlePresetupImageUpload(event, 'cover')" style="display:none;"/>
+                  </label>
+                  <span style="font-size:11px;color:#94a3b8;">or enter URL:</span>
+                </div>
+                <input type="text" id="psc-cover-url" class="form-input" placeholder="e.g. www.store.com/cover.jpg or https://..." oninput="handlePresetupUrlChange('cover')" onblur="normalizeUrlInput(this);handlePresetupUrlChange('cover')" style="width:100%;padding:8px 10px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:12px;"/>
+                <div id="psc-cover-preview-box" style="display:none;align-items:center;gap:10px;margin-top:8px;padding:6px 10px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;">
+                  <img id="psc-cover-preview-img" src="" style="width:60px;height:36px;object-fit:cover;border-radius:6px;border:1px solid #cbd5e1;background:#fff;"/>
+                  <span style="font-size:11px;color:#16a34a;font-weight:700;">Cover attached</span>
+                  <button type="button" onclick="clearPresetupImage('cover')" style="margin-left:auto;background:none;border:none;color:#ef4444;font-size:11px;font-weight:700;cursor:pointer;">Remove</button>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+                <label style="font-size:12px;font-weight:700;color:#475569;">Promo Description (VIP Takeover Headline)</label>
+                <span id="psc-promo-char-count" style="font-size:11px;color:#94a3b8;font-weight:600;">0 / 1000</span>
+              </div>
+              <textarea id="psc-promo-desc" maxlength="1000" rows="3" class="form-input" placeholder="Describe your store history, special services, or promotional highlights shown in VIP store takeover modal..." style="width:100%;padding:9px 12px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:13px;resize:vertical;" oninput="document.getElementById('psc-promo-char-count').textContent = this.value.length + ' / 1000'"></textarea>
+            </div>
+          </div>
+
+          <!-- Section 6: Dynamic Member Cap & Pre-Grants -->
+          <div style="background:#f5f3ff;border:1.5px solid #ddd6fe;border-radius:14px;padding:16px 18px;margin-bottom:20px;">
+            <div style="font-size:13px;font-weight:800;color:#5b21b6;margin-bottom:12px;display:flex;align-items:center;gap:6px;">
+              <span>⚡</span> 6. Free Member Cap &amp; VIP Pre-Grants
+            </div>
+            <div style="margin-bottom:14px;">
+              <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:6px;">Custom Free Member Cap <span style="color:#ef4444;">*</span></label>
+              <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px;">
+                <button type="button" onclick="setCapPreset(25)" class="btn-cap-preset" data-val="25" style="padding:6px 14px;border-radius:8px;font-size:12px;font-weight:700;border:1.5px solid #cbd5e1;background:#fff;cursor:pointer;color:#334155;">[25] High-Ticket</button>
+                <button type="button" onclick="setCapPreset(50)" class="btn-cap-preset active" data-val="50" style="padding:6px 14px;border-radius:8px;font-size:12px;font-weight:700;border:1.5px solid var(--purple);background:rgba(139,92,246,0.1);cursor:pointer;color:var(--purple);">[50] Standard</button>
+                <button type="button" onclick="setCapPreset(100)" class="btn-cap-preset" data-val="100" style="padding:6px 14px;border-radius:8px;font-size:12px;font-weight:700;border:1.5px solid #cbd5e1;background:#fff;cursor:pointer;color:#334155;">[100] High-Traffic</button>
+                <button type="button" onclick="setCapPreset(250)" class="btn-cap-preset" data-val="250" style="padding:6px 14px;border-radius:8px;font-size:12px;font-weight:700;border:1.5px solid #cbd5e1;background:#fff;cursor:pointer;color:#334155;">[250] Chain</button>
+                <input type="number" id="psc-member-limit" value="50" min="5" max="1000" style="width:90px;padding:6px 10px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:13px;font-weight:700;text-align:center;"/>
+                <span style="font-size:12px;color:#64748b;">Members</span>
+              </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+              <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;cursor:pointer;">
+                <input type="checkbox" id="psc-web-sponsor" checked style="width:16px;height:16px;accent-color:var(--purple);"/>
+                <span>🌐 Pre-Grant Web Carousel VIP</span>
+              </label>
+              <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;cursor:pointer;">
+                <input type="checkbox" id="psc-app-sponsor" checked style="width:16px;height:16px;accent-color:var(--purple);"/>
+                <span>📱 Pre-Grant App Carousel VIP</span>
+              </label>
+              <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;cursor:pointer;">
+                <input type="checkbox" id="psc-fullpage-sponsor" checked style="width:16px;height:16px;accent-color:var(--purple);"/>
+                <span>⭐ Pre-Grant Full-Page Takeover</span>
+              </label>
+              <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:#b45309;cursor:pointer;">
+                <input type="checkbox" id="psc-is-hidden" checked style="width:16px;height:16px;accent-color:#f59e0b;"/>
+                <span>🙈 Hide until in-person handoff</span>
+              </label>
+            </div>
+          </div>
+
+          <div id="psc-error-msg" style="display:none;background:#fef2f2;border:1px solid #fecaca;color:#b91c1c;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:16px;"></div>
+
+          <div style="display:flex;justify-content:flex-end;gap:12px;">
+            <button type="button" onclick="closePresetupModal()" class="toolbar-btn" style="padding:10px 22px;">Cancel</button>
+            <button type="submit" id="psc-submit-btn" class="btn btn-purple" style="padding:10px 28px;font-weight:800;background:var(--purple);color:#fff;border:none;border-radius:10px;cursor:pointer;">
+              🚀 Create Turnkey Profile &amp; Generate Print
+            </button>
+          </div>
+        </form>
       </div>
     </div>
 
@@ -895,6 +1202,78 @@
             </tbody>
           </table>
           <div class="pagination" id="merchants-pagination"></div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════════════════════════ -->
+      <!-- PRE-SETUP MERCHANTS TAB (TASK 8)                            -->
+      <!-- ═══════════════════════════════════════════════════════════ -->
+      <div id="tab-presetup" class="tab-content">
+        <div class="page-header">
+          <div>
+            <div class="page-title">🏬 Pre-Setup Merchants (Turnkey Engine)</div>
+            <div class="page-subtitle">Pre-configured hybrid merchant profiles, print assets, &amp; stealth in-person handoffs</div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;">
+            <button class="btn btn-purple" onclick="openPresetupModal()" style="font-size:13px;padding:8px 18px;border-radius:10px;font-weight:700;background:var(--purple);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;gap:6px;">
+              <span>+</span> Create Pre-Setup Merchant
+            </button>
+          </div>
+        </div>
+
+        <div class="stat-grid" style="margin-bottom:20px;">
+          <div class="stat-card">
+            <div class="stat-value purple" id="stat-presetup-total">0</div>
+            <div class="stat-label">Total Pre-Setups</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value amber" id="stat-presetup-unclaimed">0</div>
+            <div class="stat-label">Unclaimed (Pending Handoff)</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value green" id="stat-presetup-claimed">0</div>
+            <div class="stat-label">Claimed by Owner</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="stat-presetup-hidden" style="color:var(--muted);">0</div>
+            <div class="stat-label">Hidden (Stealth)</div>
+          </div>
+        </div>
+
+        <div class="toolbar" style="flex-wrap:wrap;gap:8px;">
+          <input type="text" class="toolbar-search" id="presetup-search" placeholder="Search store name, category, city, zip..." oninput="filterPresetupTable()" style="min-width:240px;"/>
+          <select class="toolbar-select" id="presetup-filter-claimed" onchange="filterPresetupTable()">
+            <option value="">All Claim Statuses</option>
+            <option value="unclaimed">⏳ Unclaimed</option>
+            <option value="claimed">✅ Claimed</option>
+          </select>
+          <select class="toolbar-select" id="presetup-filter-visibility" onchange="filterPresetupTable()">
+            <option value="">All Visibility</option>
+            <option value="hidden">🙈 Hidden (Stealth)</option>
+            <option value="live">👁️ Live</option>
+          </select>
+          <div style="flex:1;"></div>
+          <button class="toolbar-btn green" onclick="exportPresetupCSV()">📄 CSV</button>
+        </div>
+
+        <div class="table-wrap">
+          <table class="data-table" id="presetup-table">
+            <thead>
+              <tr>
+                <th>Store / Category</th>
+                <th>Location</th>
+                <th>Free Cap</th>
+                <th>VIP Status</th>
+                <th>Visibility</th>
+                <th>Claim Status</th>
+                <th>Temp Credentials</th>
+                <th style="text-align:right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-presetup">
+              <tr><td colspan="8" style="color:var(--muted);text-align:center;padding:40px;">Loading pre-setup merchants...</td></tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
@@ -2283,7 +2662,7 @@
 
     // ── Merchant Detail Panel ─────────────────────────────────────
     async function showMerchantDetail(merchantId) {
-      const m = allMerchants.find(x => x.id === merchantId);
+      const m = (allMerchants && allMerchants.find(x => x.id === merchantId)) || (typeof _allPresetupMerchants !== 'undefined' && _allPresetupMerchants.find(x => x.id === merchantId));
       if (!m) return;
       const overlay = document.getElementById('merchant-detail-overlay');
       overlay.style.display = 'flex';
@@ -2548,7 +2927,7 @@
         const j = await res.json();
         if (j.success) {
           showToast('✅ Sponsorship settings saved.');
-          const m = allMerchants.find(x => x.id === merchantId);
+          const m = (allMerchants && allMerchants.find(x => x.id === merchantId)) || (typeof _allPresetupMerchants !== 'undefined' && _allPresetupMerchants.find(x => x.id === merchantId));
           if (m) {
             m.is_web_sponsored = isWeb;
             m.web_sponsored_until = isWeb ? new Date(webDate).toISOString() : null;
@@ -2557,7 +2936,10 @@
             m.is_fullpage_sponsored = isFullpage;
             m.fullpage_sponsored_until = isFullpage ? new Date(fullpageDate).toISOString() : null;
           }
-          renderTable('merchants');
+          if (typeof renderTable === 'function') renderTable('merchants');
+          if (typeof renderPresetupTable === 'function' && typeof _allPresetupMerchants !== 'undefined') {
+            renderPresetupTable(_allPresetupMerchants);
+          }
           showMerchantDetail(merchantId);
         } else {
           showToast(j.error || 'Failed to save sponsorship settings');
@@ -2586,7 +2968,7 @@
         const j = await res.json();
         if (j.success) {
           showToast('✅ Sponsorship revoked.');
-          const m = allMerchants.find(x => x.id === merchantId);
+          const m = (allMerchants && allMerchants.find(x => x.id === merchantId)) || (typeof _allPresetupMerchants !== 'undefined' && _allPresetupMerchants.find(x => x.id === merchantId));
           if (m) {
             m.is_web_sponsored = false;
             m.web_sponsored_until = null;
@@ -2595,7 +2977,10 @@
             m.is_fullpage_sponsored = false;
             m.fullpage_sponsored_until = null;
           }
-          renderTable('merchants');
+          if (typeof renderTable === 'function') renderTable('merchants');
+          if (typeof renderPresetupTable === 'function' && typeof _allPresetupMerchants !== 'undefined') {
+            renderPresetupTable(_allPresetupMerchants);
+          }
           showMerchantDetail(merchantId);
         } else {
           showToast(j.error || 'Failed to revoke sponsorship');
@@ -3034,6 +3419,691 @@
       if (name === 'access-codes') loadAccessCodes();
       if (name === 'applications') loadApplications();
       if (name === 'enterprise') loadEnterpriseInquiries();
+      if (name === 'presetup') loadPresetupMerchants();
+    }
+
+    // ══════════════════════════════════════════
+    // PRE-SETUP MERCHANTS FUNCTIONS (TASK 8)
+    // ══════════════════════════════════════════
+    let _allPresetupMerchants = [];
+
+    async function loadPresetupMerchants() {
+      const tbody = document.getElementById('tbody-presetup');
+      if (!tbody) return;
+      tbody.innerHTML = '<tr><td colspan="8" style="padding:40px;text-align:center;color:var(--muted)">Loading pre-setup merchants…</td></tr>';
+      try {
+        const json = await adminFetch('/admin/merchants/presetup');
+        _allPresetupMerchants = json.data || [];
+
+        // Update stats
+        const total = _allPresetupMerchants.length;
+        const unclaimed = _allPresetupMerchants.filter(m => !m.is_claimed).length;
+        const claimed = _allPresetupMerchants.filter(m => m.is_claimed).length;
+        const hidden = _allPresetupMerchants.filter(m => m.is_hidden).length;
+
+        const statTotal = document.getElementById('stat-presetup-total');
+        if (statTotal) statTotal.textContent = total;
+        const statUnclaimed = document.getElementById('stat-presetup-unclaimed');
+        if (statUnclaimed) statUnclaimed.textContent = unclaimed;
+        const statClaimed = document.getElementById('stat-presetup-claimed');
+        if (statClaimed) statClaimed.textContent = claimed;
+        const statHidden = document.getElementById('stat-presetup-hidden');
+        if (statHidden) statHidden.textContent = hidden;
+
+        const badge = document.getElementById('presetup-count-badge');
+        if (badge) {
+          badge.textContent = unclaimed;
+          badge.style.display = unclaimed > 0 ? 'inline' : 'none';
+        }
+
+        renderPresetupTable(_allPresetupMerchants);
+      } catch (e) {
+        tbody.innerHTML = '<tr><td colspan="8" style="padding:40px;text-align:center;color:var(--red)">Error loading pre-setup merchants.</td></tr>';
+      }
+    }
+
+    function renderPresetupTable(rows) {
+      const tbody = document.getElementById('tbody-presetup');
+      if (!tbody) return;
+      if (!rows || !rows.length) {
+        tbody.innerHTML = '<tr><td colspan="8" style="padding:40px;text-align:center;color:var(--muted)">No pre-setup merchants found. Click "+ Create Pre-Setup Merchant" to add one.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = rows.map(m => {
+        const isClaimed = !!m.is_claimed;
+        const isHidden = !!m.is_hidden;
+        const vipBadges = [];
+        if (m.is_web_sponsored) vipBadges.push('<span style="background:rgba(139,92,246,0.15);color:var(--purple);padding:2px 6px;border-radius:4px;font-size:10px;font-weight:700;">🌐 Web</span>');
+        if (m.is_app_sponsored) vipBadges.push('<span style="background:rgba(59,130,246,0.15);color:#3b82f6;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:700;">📱 App</span>');
+        if (m.is_fullpage_sponsored) vipBadges.push('<span style="background:rgba(245,158,11,0.15);color:#f59e0b;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:700;">⭐ Takeover</span>');
+
+        const tempEmail = m.temp_email || '—';
+        const tempPassword = m.temp_password_plain || (isClaimed ? '*(Claimed & Updated)*' : '—');
+
+        return `
+          <tr style="cursor:pointer;" onclick="showMerchantDetail('${m.id}')">
+            <td>
+              <div style="font-weight:800;color:#fff;font-size:14px;">${escapeHtml(m.business_name || '—')}</div>
+              <div style="font-size:11px;color:var(--muted);margin-top:2px;">${escapeHtml(m.business_category || 'General')}</div>
+            </td>
+            <td>
+              <div>${escapeHtml(m.city || '')} ${m.postal_code || ''}</div>
+              <div style="font-size:11px;color:var(--muted);">${escapeHtml(m.address || '')}</div>
+            </td>
+            <td>
+              <span style="font-weight:800;color:var(--purple);font-size:12px;">${m.member_limit || 50}</span>
+              <span style="font-size:11px;color:var(--muted);"> (${m.member_count || 0} used)</span>
+            </td>
+            <td>
+              <div style="display:flex;gap:4px;flex-wrap:wrap;">
+                ${vipBadges.length ? vipBadges.join('') : '<span style="color:var(--muted);font-size:11px;">Standard</span>'}
+              </div>
+            </td>
+            <td onclick="event.stopPropagation();">
+              <button onclick="togglePresetupVisibility('${m.id}', ${isHidden})" style="padding:4px 10px;border-radius:8px;font-size:11px;font-weight:800;cursor:pointer;border:1px solid ${isHidden ? '#e2e8f0' : 'rgba(107,193,122,0.4)'};background:${isHidden ? 'rgba(255,255,255,0.06)' : 'rgba(107,193,122,0.15)'};color:${isHidden ? 'var(--muted)' : 'var(--green)'};">
+                ${isHidden ? '🙈 Hidden' : '👁️ Live'}
+              </button>
+            </td>
+            <td>
+              <span style="display:inline-block;padding:3px 10px;border-radius:8px;font-size:11px;font-weight:800;background:${isClaimed ? 'rgba(107,193,122,0.15)' : 'rgba(245,158,11,0.15)'};color:${isClaimed ? 'var(--green)' : 'var(--amber)'};">
+                ${isClaimed ? '✅ Claimed' : '⏳ Unclaimed'}
+              </span>
+            </td>
+            <td onclick="event.stopPropagation();" style="font-family:monospace;font-size:11px;">
+              <div style="display:flex;align-items:center;gap:4px;margin-bottom:2px;">
+                <span>${tempEmail}</span>
+                <button onclick="copyPresetupText('${tempEmail}', this)" title="Copy Email" style="background:none;border:none;cursor:pointer;font-size:12px;opacity:0.7;">📋</button>
+              </div>
+              <div style="display:flex;align-items:center;gap:4px;color:var(--mutedLight);">
+                <span>${tempPassword}</span>
+                ${m.temp_password_plain ? `<button onclick="copyPresetupText('${m.temp_password_plain}', this)" title="Copy Password" style="background:none;border:none;cursor:pointer;font-size:12px;opacity:0.7;">📋</button>` : ''}
+              </div>
+            </td>
+            <td onclick="event.stopPropagation();" style="text-align:right;">
+              <div style="display:flex;gap:6px;justify-content:flex-end;">
+                <button onclick="adminPrintPresetup('${m.id}')" style="padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(139,92,246,0.15);color:var(--purple);border:1px solid rgba(139,92,246,0.3);cursor:pointer;">
+                  🖨️ Print 2-Page
+                </button>
+                <button onclick="showMerchantDetail('${m.id}')" style="padding:6px 10px;border-radius:8px;font-size:12px;background:rgba(255,255,255,0.06);color:#fff;border:1px solid var(--border);cursor:pointer;">
+                  👁️
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function filterPresetupTable() {
+      const q = (document.getElementById('presetup-search')?.value || '').toLowerCase().trim();
+      const claimedFilter = document.getElementById('presetup-filter-claimed')?.value || '';
+      const visFilter = document.getElementById('presetup-filter-visibility')?.value || '';
+
+      const filtered = _allPresetupMerchants.filter(m => {
+        if (claimedFilter === 'claimed' && !m.is_claimed) return false;
+        if (claimedFilter === 'unclaimed' && m.is_claimed) return false;
+        if (visFilter === 'hidden' && !m.is_hidden) return false;
+        if (visFilter === 'live' && m.is_hidden) return false;
+
+        if (q) {
+          const match = (m.business_name || '').toLowerCase().includes(q) ||
+            (m.business_category || '').toLowerCase().includes(q) ||
+            (m.city || '').toLowerCase().includes(q) ||
+            (m.postal_code || '').toLowerCase().includes(q) ||
+            (m.temp_email || '').toLowerCase().includes(q);
+          if (!match) return false;
+        }
+        return true;
+      });
+
+      renderPresetupTable(filtered);
+    }
+
+    let _presetupImages = { logo: '', cover: '' };
+
+    function compressPresetupImage(file, maxSize = 600, quality = 0.75) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let w = img.naturalWidth || img.width;
+          let h = img.naturalHeight || img.height;
+          if (w > maxSize || h > maxSize) {
+            if (w > h) {
+              h = Math.round((h * maxSize) / w);
+              w = maxSize;
+            } else {
+              w = Math.round((w * maxSize) / h);
+              h = maxSize;
+            }
+          }
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+          resolve(canvas.toDataURL('image/jpeg', quality));
+        };
+        img.onerror = reject;
+        img.src = URL.createObjectURL(file);
+      });
+    }
+
+    async function handlePresetupImageUpload(event, type) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      try {
+        const maxDim = type === 'logo' ? 400 : 1200;
+        const base64 = await compressPresetupImage(file, maxDim, 0.75);
+        _presetupImages[type] = base64;
+        
+        const previewBox = document.getElementById(`psc-${type}-preview-box`);
+        const previewImg = document.getElementById(`psc-${type}-preview-img`);
+        if (previewBox && previewImg) {
+          previewImg.src = base64;
+          previewBox.style.display = 'flex';
+        }
+      } catch (err) {
+        console.error(`Failed to compress ${type} image:`, err);
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+          _presetupImages[type] = ev.target.result;
+          const previewBox = document.getElementById(`psc-${type}-preview-box`);
+          const previewImg = document.getElementById(`psc-${type}-preview-img`);
+          if (previewBox && previewImg) {
+            previewImg.src = ev.target.result;
+            previewBox.style.display = 'flex';
+          }
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function normalizeUrlInput(el) {
+      if (!el || !el.value) return;
+      const val = el.value.trim();
+      if (val && !/^https?:\/\//i.test(val)) {
+        el.value = 'https://' + val;
+      }
+    }
+
+    function handlePresetupUrlChange(type) {
+      const urlInput = document.getElementById(`psc-${type}-url`);
+      let val = urlInput ? urlInput.value.trim() : '';
+      const previewBox = document.getElementById(`psc-${type}-preview-box`);
+      const previewImg = document.getElementById(`psc-${type}-preview-img`);
+      if (val) {
+        if (!/^https?:\/\//i.test(val)) {
+          val = 'https://' + val;
+        }
+        _presetupImages[type] = ''; // URL input takes precedence
+        if (previewBox && previewImg) {
+          previewImg.src = val;
+          previewBox.style.display = 'flex';
+        }
+      } else if (!_presetupImages[type]) {
+        if (previewBox) previewBox.style.display = 'none';
+      }
+    }
+
+    function clearPresetupImage(type) {
+      _presetupImages[type] = '';
+      const fileInput = document.getElementById(`psc-${type}-file`);
+      if (fileInput) fileInput.value = '';
+      const urlInput = document.getElementById(`psc-${type}-url`);
+      if (urlInput) urlInput.value = '';
+      const previewBox = document.getElementById(`psc-${type}-preview-box`);
+      if (previewBox) previewBox.style.display = 'none';
+    }
+
+    function onPresetupOfferChange(val) {
+      const customRow = document.getElementById('psc-custom-offer-row');
+      const customInput = document.getElementById('psc-welcome-offer-custom');
+      if (val === '__custom__') {
+        customRow.style.display = 'block';
+        customInput.required = true;
+        customInput.focus();
+      } else {
+        customRow.style.display = 'none';
+        customInput.required = false;
+      }
+    }
+
+    function savePresetupDraft() {
+      try {
+        const draft = {
+          business_name: document.getElementById('psc-business-name')?.value || '',
+          category: document.getElementById('psc-category')?.value || '',
+          address: document.getElementById('psc-address')?.value || '',
+          city: document.getElementById('psc-city')?.value || '',
+          state: document.getElementById('psc-state')?.value || '',
+          zip: document.getElementById('psc-zip')?.value || '',
+          offer_select: document.getElementById('psc-welcome-offer-select')?.value || '',
+          offer_custom: document.getElementById('psc-welcome-offer-custom')?.value || '',
+          terms: document.getElementById('psc-terms')?.value || '',
+          public_phone: document.getElementById('psc-public-phone')?.value || '',
+          public_email: document.getElementById('psc-public-email')?.value || '',
+          website: document.getElementById('psc-website')?.value || '',
+          review_url: document.getElementById('psc-review-url')?.value || '',
+          order_url: document.getElementById('psc-order-url')?.value || '',
+          logo_url: document.getElementById('psc-logo-url')?.value || '',
+          cover_url: document.getElementById('psc-cover-url')?.value || '',
+          logo_base64: _presetupImages.logo || '',
+          cover_base64: _presetupImages.cover || '',
+          promo_desc: document.getElementById('psc-promo-desc')?.value || '',
+          member_limit: document.getElementById('psc-member-limit')?.value || '50',
+          is_web: document.getElementById('psc-web-sponsor')?.checked ?? true,
+          is_app: document.getElementById('psc-app-sponsor')?.checked ?? true,
+          is_fullpage: document.getElementById('psc-fullpage-sponsor')?.checked ?? true,
+          is_hidden: document.getElementById('psc-is-hidden')?.checked ?? true
+        };
+        sessionStorage.setItem('perkfinity_presetup_draft', JSON.stringify(draft));
+      } catch (e) {}
+    }
+
+    function restorePresetupDraft() {
+      try {
+        const raw = sessionStorage.getItem('perkfinity_presetup_draft');
+        if (!raw) return false;
+        const draft = JSON.parse(raw);
+        if (!draft) return false;
+
+        if (draft.business_name) document.getElementById('psc-business-name').value = draft.business_name;
+        if (draft.category) document.getElementById('psc-category').value = draft.category;
+        if (draft.address) document.getElementById('psc-address').value = draft.address;
+        if (draft.city) document.getElementById('psc-city').value = draft.city;
+        if (draft.state) document.getElementById('psc-state').value = draft.state;
+        if (draft.zip) document.getElementById('psc-zip').value = draft.zip;
+        if (draft.offer_select) {
+          document.getElementById('psc-welcome-offer-select').value = draft.offer_select;
+          onPresetupOfferChange(draft.offer_select);
+        }
+        if (draft.offer_custom) document.getElementById('psc-welcome-offer-custom').value = draft.offer_custom;
+        if (draft.terms) document.getElementById('psc-terms').value = draft.terms;
+        if (draft.public_phone) document.getElementById('psc-public-phone').value = draft.public_phone;
+        if (draft.public_email) document.getElementById('psc-public-email').value = draft.public_email;
+        if (draft.website) document.getElementById('psc-website').value = draft.website;
+        if (draft.review_url) document.getElementById('psc-review-url').value = draft.review_url;
+        if (draft.order_url) document.getElementById('psc-order-url').value = draft.order_url;
+        if (draft.logo_url) {
+          document.getElementById('psc-logo-url').value = draft.logo_url;
+          handlePresetupUrlChange('logo');
+        }
+        if (draft.cover_url) {
+          document.getElementById('psc-cover-url').value = draft.cover_url;
+          handlePresetupUrlChange('cover');
+        }
+        if (draft.logo_base64) {
+          _presetupImages.logo = draft.logo_base64;
+          const previewBox = document.getElementById('psc-logo-preview-box');
+          const previewImg = document.getElementById('psc-logo-preview-img');
+          if (previewBox && previewImg) { previewImg.src = draft.logo_base64; previewBox.style.display = 'flex'; }
+        }
+        if (draft.cover_base64) {
+          _presetupImages.cover = draft.cover_base64;
+          const previewBox = document.getElementById('psc-cover-preview-box');
+          const previewImg = document.getElementById('psc-cover-preview-img');
+          if (previewBox && previewImg) { previewImg.src = draft.cover_base64; previewBox.style.display = 'flex'; }
+        }
+        if (draft.promo_desc) {
+          document.getElementById('psc-promo-desc').value = draft.promo_desc;
+          const charCount = document.getElementById('psc-promo-char-count');
+          if (charCount) charCount.textContent = `${draft.promo_desc.length} / 1000`;
+        }
+        if (draft.member_limit) setCapPreset(parseInt(draft.member_limit) || 50);
+        if (draft.is_web !== undefined) document.getElementById('psc-web-sponsor').checked = draft.is_web;
+        if (draft.is_app !== undefined) document.getElementById('psc-app-sponsor').checked = draft.is_app;
+        if (draft.is_fullpage !== undefined) document.getElementById('psc-fullpage-sponsor').checked = draft.is_fullpage;
+        if (draft.is_hidden !== undefined) document.getElementById('psc-is-hidden').checked = draft.is_hidden;
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
+
+    function openPresetupModal(clearDraft = false) {
+      document.getElementById('modal-presetup-create').style.display = 'flex';
+      if (clearDraft) {
+        sessionStorage.removeItem('perkfinity_presetup_draft');
+        document.getElementById('form-presetup-create').reset();
+        document.getElementById('psc-custom-offer-row').style.display = 'none';
+        document.getElementById('psc-offer-char-count').textContent = '0/60';
+        document.getElementById('psc-promo-char-count').textContent = '0 / 1000';
+        clearPresetupImage('logo');
+        clearPresetupImage('cover');
+        setCapPreset(50);
+        document.getElementById('psc-is-hidden').checked = true;
+        document.getElementById('psc-web-sponsor').checked = true;
+        document.getElementById('psc-app-sponsor').checked = true;
+        document.getElementById('psc-fullpage-sponsor').checked = true;
+      } else {
+        const restored = restorePresetupDraft();
+        if (!restored) {
+          document.getElementById('form-presetup-create').reset();
+          document.getElementById('psc-custom-offer-row').style.display = 'none';
+          document.getElementById('psc-offer-char-count').textContent = '0/60';
+          document.getElementById('psc-promo-char-count').textContent = '0 / 1000';
+          clearPresetupImage('logo');
+          clearPresetupImage('cover');
+          setCapPreset(50);
+          document.getElementById('psc-is-hidden').checked = true;
+          document.getElementById('psc-web-sponsor').checked = true;
+          document.getElementById('psc-app-sponsor').checked = true;
+          document.getElementById('psc-fullpage-sponsor').checked = true;
+        }
+      }
+      document.getElementById('psc-error-msg').style.display = 'none';
+    }
+
+    function closePresetupModal() {
+      document.getElementById('modal-presetup-create').style.display = 'none';
+    }
+
+    function setCapPreset(val) {
+      document.getElementById('psc-member-limit').value = val;
+      document.querySelectorAll('.btn-cap-preset').forEach(btn => {
+        const btnVal = parseInt(btn.getAttribute('data-val'));
+        if (btnVal === val) {
+          btn.style.borderColor = 'var(--purple)';
+          btn.style.background = 'rgba(139,92,246,0.1)';
+          btn.style.color = 'var(--purple)';
+        } else {
+          btn.style.borderColor = '#cbd5e1';
+          btn.style.background = '#fff';
+          btn.style.color = '#334155';
+        }
+      });
+    }
+
+    async function submitPresetupMerchant() {
+      const submitBtn = document.getElementById('psc-submit-btn');
+      const errEl = document.getElementById('psc-error-msg');
+      errEl.style.display = 'none';
+
+      const offerSel = document.getElementById('psc-welcome-offer-select').value;
+      const offerText = offerSel === '__custom__'
+        ? document.getElementById('psc-welcome-offer-custom').value.trim()
+        : offerSel;
+
+      if (!offerText) {
+        errEl.textContent = 'Please select or enter a welcome offer.';
+        errEl.style.display = 'block';
+        return;
+      }
+
+      const normalizeUrl = (u) => {
+        if (!u) return '';
+        const trimmed = u.trim();
+        if (!trimmed) return '';
+        return /^https?:\/\//i.test(trimmed) ? trimmed : 'https://' + trimmed;
+      };
+
+      const payload = {
+        business_name: document.getElementById('psc-business-name').value.trim(),
+        business_category: document.getElementById('psc-category').value,
+        address: document.getElementById('psc-address').value.trim(),
+        city: document.getElementById('psc-city').value.trim(),
+        state: document.getElementById('psc-state').value.trim().toUpperCase(),
+        zip: document.getElementById('psc-zip').value.trim(),
+        welcome_offer_text: offerText,
+        terms: document.getElementById('psc-terms').value.trim(),
+        public_phone: document.getElementById('psc-public-phone').value.trim(),
+        public_email: document.getElementById('psc-public-email').value.trim(),
+        website: normalizeUrl(document.getElementById('psc-website').value),
+        review_url: normalizeUrl(document.getElementById('psc-review-url').value) || null,
+        order_url: normalizeUrl(document.getElementById('psc-order-url').value) || null,
+        logo_url: _presetupImages.logo || normalizeUrl(document.getElementById('psc-logo-url').value) || null,
+        cover_photo_url: _presetupImages.cover || normalizeUrl(document.getElementById('psc-cover-url').value) || null,
+        promo_description: document.getElementById('psc-promo-desc').value.trim(),
+        member_limit: parseInt(document.getElementById('psc-member-limit').value) || 50,
+        is_web_sponsored: document.getElementById('psc-web-sponsor').checked,
+        is_app_sponsored: document.getElementById('psc-app-sponsor').checked,
+        is_fullpage_sponsored: document.getElementById('psc-fullpage-sponsor').checked,
+        is_hidden: document.getElementById('psc-is-hidden').checked
+      };
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Creating Turnkey Profile...';
+
+      try {
+        const res = await adminFetch('/admin/merchants/presetup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.success) {
+          throw new Error(res.error || 'Failed to create merchant');
+        }
+
+        sessionStorage.removeItem('perkfinity_presetup_draft');
+        closePresetupModal(true);
+        await loadPresetupMerchants();
+
+        // Immediately trigger 2-page print dialog
+        if (res.data && res.data.id) {
+          adminPrintPresetup(res.data.id);
+        }
+      } catch (err) {
+        errEl.textContent = err.message;
+        errEl.style.display = 'block';
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = '🚀 Create Turnkey Profile & Generate Print';
+      }
+    }
+
+    async function togglePresetupVisibility(merchantId, currentHidden) {
+      try {
+        const res = await adminFetch(`/admin/merchants/${merchantId}/toggle-visibility`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ is_hidden: !currentHidden })
+        });
+        if (res.success) {
+          await loadPresetupMerchants();
+        }
+      } catch (err) {
+        alert('Failed to toggle visibility: ' + err.message);
+      }
+    }
+
+    function copyPresetupText(text, btn) {
+      navigator.clipboard.writeText(text).then(() => {
+        const orig = btn.textContent;
+        btn.textContent = '✅';
+        setTimeout(() => btn.textContent = orig, 1500);
+      });
+    }
+
+    function exportPresetupCSV() {
+      if (!_allPresetupMerchants.length) return alert('No pre-setup merchants to export');
+      const headers = ['Business Name', 'Category', 'Address', 'City', 'State', 'ZIP', 'Cap', 'Claimed', 'Hidden', 'Temp Email', 'Temp Password', 'Public Code'];
+      const rows = _allPresetupMerchants.map(m => [
+        `"${(m.business_name||'').replace(/"/g,'""')}"`,
+        `"${(m.business_category||'').replace(/"/g,'""')}"`,
+        `"${(m.address||'').replace(/"/g,'""')}"`,
+        `"${(m.city||'').replace(/"/g,'""')}"`,
+        `"${m.state||''}"`,
+        `"${m.postal_code||''}"`,
+        m.member_limit || 50,
+        m.is_claimed ? 'Yes' : 'No',
+        m.is_hidden ? 'Yes' : 'No',
+        `"${m.temp_email||''}"`,
+        `"${m.temp_password_plain||''}"`,
+        `"${m.public_code||''}"`
+      ]);
+      const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Perkfinity_Presetup_Merchants_${new Date().toISOString().slice(0,10)}.csv`;
+      a.click();
+    }
+
+    // ── 2-Page Print Handoff Generator ───────────────────────────
+    function adminPrintPresetup(merchantId) {
+      const m = _allPresetupMerchants.find(x => x.id === merchantId);
+      if (!m) return alert('Merchant not found');
+
+      const storeName = m.business_name || 'Store Name';
+      const perk = m.welcome_offer_text || 'Welcome Perk';
+      const publicCode = m.public_code || 'DEMO';
+      const qrUrl = `https://www.perkfinity.net/qr/${publicCode}`;
+      const qrImgSrc = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(qrUrl)}&margin=1`;
+      const logoImgSrc = m.logo_url || 'https://perkfinity.net/assets/Perkfinity-App-Icon.png';
+      const tempEmail = m.temp_email || 'owner@presetup.perkfinity.net';
+      const tempPassword = m.temp_password_plain || '*(Claimed)*';
+
+      const printHtml = `
+        <!doctype html>
+        <html>
+        <head>
+          <meta charset="utf-8"/>
+          <title>Perkfinity Handoff — ${escapeHtml(storeName)}</title>
+          <style>
+            @page {
+              size: 5.5in 8.5in;
+              margin: 0;
+            }
+            *, *::before, *::after { box-sizing: border-box; margin:0; padding:0; }
+            body {
+              font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+              background: #f1f5f9;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              padding: 20px;
+            }
+            .page-container {
+              width: 5.5in;
+              height: 8.5in;
+              background: #fff;
+              position: relative;
+              overflow: hidden;
+              box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+              margin-bottom: 30px;
+              -webkit-print-color-adjust: exact;
+              print-color-adjust: exact;
+            }
+            @media print {
+              body { background: transparent; padding: 0; }
+              .page-container {
+                box-shadow: none;
+                margin: 0;
+                page-break-after: always;
+                break-after: page;
+                width: 5.5in;
+                height: 8.5in;
+              }
+              .no-print { display: none !important; }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="no-print" style="margin-bottom:20px;display:flex;gap:12px;">
+            <button onclick="window.print()" style="padding:10px 24px;font-size:14px;font-weight:800;background:#5b3fa5;color:#fff;border:none;border-radius:10px;cursor:pointer;box-shadow:0 4px 14px rgba(91,63,165,0.3);">🖨️ Print 2-Page Handoff</button>
+            <button onclick="window.close()" style="padding:10px 20px;font-size:14px;font-weight:700;background:#fff;border:1.5px solid #cbd5e1;border-radius:10px;cursor:pointer;">Close</button>
+          </div>
+
+          <!-- PAGE 1: 5.5" x 8.5" CLASSIC COUNTERTOP QR STAND -->
+          <div class="page-container" style="border:3px solid #5B3FA5;padding:22px 22px 0.5in;display:flex;flex-direction:column;align-items:center;">
+            <img src="https://perkfinity.net/assets/Perkfinity-Logo.png" style="height:48px;margin-bottom:10px;" alt="Perkfinity">
+            <div style="background:linear-gradient(135deg,#5B3FA5 0%,#7C5FD6 100%);color:#fff;padding:12px 20px;border-radius:12px;text-align:center;width:100%;-webkit-print-color-adjust:exact;print-color-adjust:exact;">
+              <div style="font-size:18px;font-weight:900;line-height:1.2;letter-spacing:-0.3px;">Scan, Sign Up &amp; Redeem</div>
+              <div style="font-size:13px;font-weight:600;opacity:0.9;margin-top:3px;">4 Easy Steps · Under 2 Minutes</div>
+            </div>
+            
+            <div style="display:flex;flex-direction:row;align-items:flex-start;gap:16px;width:100%;margin-top:14px;text-align:left;">
+              <div style="flex:1;display:flex;flex-direction:column;gap:12px;min-width:0;">
+                <div style="display:flex;align-items:flex-start;gap:8px;"><div style="width:28px;height:28px;border-radius:50%;background:#5B3FA5;color:#fff;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;">1</div><div><div style="font-size:14px;font-weight:700;color:#3F2B8A;line-height:1.3;">Scan the QR Code</div><div style="font-size:12px;color:#666;font-weight:500;line-height:1.4;margin-top:1px;">Download the free Perkfinity app</div></div></div>
+                <div style="display:flex;align-items:flex-start;gap:8px;"><div style="width:28px;height:28px;border-radius:50%;background:#5B3FA5;color:#fff;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;">2</div><div><div style="font-size:14px;font-weight:700;color:#3F2B8A;line-height:1.3;">Sign Up Your Way</div><div style="font-size:12px;color:#666;font-weight:500;line-height:1.4;margin-top:1px;">Apple Sign In, Google Sign In, or Email</div></div></div>
+                <div style="display:flex;align-items:flex-start;gap:8px;"><div style="width:28px;height:28px;border-radius:50%;background:#5B3FA5;color:#fff;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;">3</div><div><div style="font-size:14px;font-weight:700;color:#3F2B8A;line-height:1.3;">Quick Profile Setup</div><div style="font-size:12px;color:#666;font-weight:500;line-height:1.4;margin-top:1px;">4 simple fields &amp; preferences</div></div></div>
+                <div style="display:flex;align-items:flex-start;gap:8px;"><div style="width:28px;height:28px;border-radius:50%;background:#6BC17A;color:#fff;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;">4</div><div><div style="font-size:14px;font-weight:700;color:#2d8a3e;line-height:1.3;">Activate &amp; Redeem!</div><div style="font-size:12px;color:#666;font-weight:500;line-height:1.4;margin-top:1px;">Tap your offer &amp; show cashier</div></div></div>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:center;align-self:center;flex-shrink:0;gap:6px;">
+                <div style="width:160px;height:160px;position:relative;border:2px solid #e2e8f0;border-radius:14px;padding:8px;background:#fff;">
+                  <img src="${qrImgSrc}" style="width:100%;height:100%;display:block;">
+                  <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:44px;height:44px;background:#fff;border-radius:11px;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,0.12);"><img src="${logoImgSrc}" style="width:34px;height:34px;object-fit:contain;border-radius:8px;"></div>
+                </div>
+                <div style="font-size:9px;color:#999;font-weight:600;text-align:center;">Scan to download<br>the Perkfinity app</div>
+              </div>
+            </div>
+
+            <div style="margin-top:10px;padding:8px 16px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;text-align:center;width:100%;-webkit-print-color-adjust:exact;print-color-adjust:exact;">
+              <div style="font-size:12px;font-weight:700;color:#166534;">It's that simple and fast! Go ahead and enjoy your perks 🎉</div>
+            </div>
+
+            <div style="width:100%;height:1px;background:#e2e8f0;margin:12px 0 10px;"></div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;text-align:left;">
+              <div style="display:flex;align-items:flex-start;gap:8px;background:#f8f7ff;border-radius:10px;padding:10px;-webkit-print-color-adjust:exact;print-color-adjust:exact;"><span style="font-size:22px;flex-shrink:0;line-height:1;">🎟️</span><div><div style="font-size:12px;font-weight:700;color:#3F2B8A;line-height:1.3;">Exclusive Coupons</div><div style="font-size:10px;color:#666;font-weight:500;line-height:1.35;margin-top:2px;">Digital deals at local spots</div></div></div>
+              <div style="display:flex;align-items:flex-start;gap:8px;background:#f8f7ff;border-radius:10px;padding:10px;-webkit-print-color-adjust:exact;print-color-adjust:exact;"><span style="font-size:22px;flex-shrink:0;line-height:1;">🔒</span><div><div style="font-size:12px;font-weight:700;color:#3F2B8A;line-height:1.3;">100% Private</div><div style="font-size:10px;color:#666;font-weight:500;line-height:1.35;margin-top:2px;">Your identity stays yours</div></div></div>
+              <div style="display:flex;align-items:flex-start;gap:8px;background:#f8f7ff;border-radius:10px;padding:10px;-webkit-print-color-adjust:exact;print-color-adjust:exact;"><span style="font-size:22px;flex-shrink:0;line-height:1;">📲</span><div><div style="font-size:12px;font-weight:700;color:#3F2B8A;line-height:1.3;">Instant Activation</div><div style="font-size:10px;color:#666;font-weight:500;line-height:1.35;margin-top:2px;">No cards, no waiting</div></div></div>
+              <div style="display:flex;align-items:flex-start;gap:8px;background:#f8f7ff;border-radius:10px;padding:10px;-webkit-print-color-adjust:exact;print-color-adjust:exact;"><span style="font-size:22px;flex-shrink:0;line-height:1;">🏪</span><div><div style="font-size:12px;font-weight:700;color:#3F2B8A;line-height:1.3;">One App, Multi-Store</div><div style="font-size:10px;color:#666;font-weight:500;line-height:1.35;margin-top:2px;">All local businesses nearby</div></div></div>
+            </div>
+
+            <div style="margin-top:14px;display:inline-block;padding:10px 28px;background:#6BC17A;color:#fff;border-radius:14px;transform:rotate(-2deg);text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;">
+              <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;opacity:0.9;margin-bottom:1px;">Unlock Instantly:</div>
+              <div style="font-size:19px;font-weight:900;line-height:1.2;letter-spacing:-0.3px;">${escapeHtml(perk)}</div>
+            </div>
+
+            <div style="padding-top:10px;text-align:center;width:100%;margin-top:auto;">
+              <div style="width:100%;height:2px;background:none;border-top:2px dashed #c4b5fd;margin-bottom:10px;"></div>
+              <div style="font-size:11px;color:#666;font-weight:600;margin-bottom:3px;">Powered by Perkfinity for:</div>
+              <div style="font-size:24px;font-weight:900;color:#3F2B8A;letter-spacing:-0.5px;line-height:1.1;">${escapeHtml(storeName)}</div>
+            </div>
+          </div>
+
+          <!-- PAGE 2: STANDALONE LOGIN CREDENTIAL STICKER -->
+          <div class="page-container" style="border:3px dashed #7C5FD6;padding:36px 32px;display:flex;flex-direction:column;justify-content:space-between;background:#fdfcff;">
+            <div>
+              <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #ede9fe;padding-bottom:16px;margin-bottom:24px;">
+                <img src="https://perkfinity.net/assets/Perkfinity-Logo.png" style="height:36px;" alt="Perkfinity">
+                <span style="background:#5B3FA5;color:#fff;padding:6px 14px;border-radius:8px;font-size:12px;font-weight:800;letter-spacing:0.5px;">OWNER CREDENTIAL STICKER</span>
+              </div>
+
+              <div style="font-size:22px;font-weight:900;color:#1e1b4b;margin-bottom:4px;">${escapeHtml(storeName)}</div>
+              <div style="font-size:13px;color:#6b7280;margin-bottom:24px;">Pre-Configured Turnkey Account &amp; Acrylic QR Stand Handoff</div>
+
+              <div style="background:#fff;border:2px solid #c4b5fd;border-radius:14px;padding:20px;margin-bottom:24px;box-shadow:0 4px 12px rgba(124,95,214,0.08);">
+                <div style="font-size:12px;font-weight:800;color:#5B3FA5;text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;">🔐 Temporary Owner Login Credentials</div>
+                <div style="display:grid;grid-template-columns:110px 1fr;gap:10px;font-size:14px;align-items:center;">
+                  <span style="font-weight:700;color:#4b5563;">Portal URL:</span>
+                  <span style="font-family:monospace;font-weight:800;color:#1e40af;">perkfinity.net/dashboard.html</span>
+
+                  <span style="font-weight:700;color:#4b5563;">Temp Email:</span>
+                  <span style="font-family:monospace;font-weight:800;color:#0f172a;word-break:break-all;">${escapeHtml(tempEmail)}</span>
+
+                  <span style="font-weight:700;color:#4b5563;">Temp Password:</span>
+                  <span style="font-family:monospace;font-weight:800;color:#0f172a;">${escapeHtml(tempPassword)}</span>
+                </div>
+              </div>
+
+              <div style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:14px;padding:18px 20px;">
+                <div style="font-size:13px;font-weight:800;color:#166534;margin-bottom:10px;">👉 3-Step Owner Claim Instructions:</div>
+                <ol style="margin-left:18px;font-size:13px;color:#14532d;line-height:1.6;font-weight:600;">
+                  <li>Log into <strong>perkfinity.net/dashboard.html</strong> using the temporary credentials above.</li>
+                  <li>Fill out your real owner name, personal email, cell phone, and set a new password on the <strong>Claim Profile</strong> screen.</li>
+                  <li>Place your physical acrylic QR stand on the counter and start rewarding members immediately!</li>
+                </ol>
+              </div>
+            </div>
+
+            <div style="border-top:1.5px dashed #cbd5e1;padding-top:14px;text-align:center;font-size:11px;color:#64748b;">
+              Need assistance? Contact Perkfinity Partner Support at <strong>support@perkfinity.net</strong> or (949) 666-0777.
+            </div>
+          </div>
+        </body>
+        </html>
+      `;
+
+      const w = window.open('', '_blank');
+      w.document.open();
+      w.document.write(printHtml);
+      w.document.close();
     }
 
     // ══════════════════════════════════════════
@@ -3293,20 +4363,33 @@
     updateTime();
 
     // ── Data Loading ────────────────────────────────────────────
-    async function adminFetch(endpoint, retries = 2) {
+    async function adminFetch(endpoint, optionsOrRetries = 2, retries = 2) {
+      let options = {};
+      let actualRetries = (typeof optionsOrRetries === 'number') ? optionsOrRetries : retries;
+      if (typeof optionsOrRetries === 'object' && optionsOrRetries !== null) {
+        options = optionsOrRetries;
+      }
       const token = sessionStorage.getItem('perkfinity_admin_token');
-      for (let attempt = 0; attempt <= retries; attempt++) {
+      const headers = {
+        ...(options.headers || {}),
+        ...(token ? { 'Authorization': 'Bearer ' + token } : {})
+      };
+
+      const isReadMethod = !options.method || options.method.toUpperCase() === 'GET';
+
+      for (let attempt = 0; attempt <= (isReadMethod ? actualRetries : 0); attempt++) {
         try {
           const res = await fetch(API_BASE + endpoint, {
-            headers: token ? { 'Authorization': 'Bearer ' + token } : {}
+            ...options,
+            headers
           });
-          if (!res.ok && attempt < retries) {
+          if (!res.ok && isReadMethod && attempt < actualRetries) {
             await new Promise(r => setTimeout(r, 1500));
             continue;
           }
           return await res.json();
         } catch (err) {
-          if (attempt < retries) {
+          if (isReadMethod && attempt < actualRetries) {
             await new Promise(r => setTimeout(r, 1500));
             continue;
           }
@@ -3681,14 +4764,16 @@
           data = getFilteredData('merchants');
           tbody = document.getElementById('merchants-tbody');
           tbody.innerHTML = data.map(m => {
-            const tierLabel = m.tier === 'tier1' ? 'Connect'
+            const tierLabel = m.is_presetup ? `Pre-Setup (${m.member_limit || 50})`
+              : m.tier === 'tier1' ? 'Connect'
               : m.tier === 'free_for_life' ? 'Free For Life'
               : m.tier === 'online_starter' ? 'Starter'
               : m.tier === 'online_growth' ? 'Growth'
               : m.tier === 'online_scale' ? 'Scale'
               : m.tier === 'enterprise' ? 'Enterprise'
               : 'Free Trial';
-            const tierClass = m.tier === 'tier1' ? 'tier1'
+            const tierClass = m.is_presetup ? 'tier1'
+              : m.tier === 'tier1' ? 'tier1'
               : m.tier === 'free_for_life' ? 'ffl'
               : m.tier === 'enterprise' ? 'tier1'
               : ['online_starter','online_growth','online_scale'].includes(m.tier) ? 'tier1'
@@ -3714,7 +4799,7 @@
             return `
             <tr style="cursor:pointer;" onclick="showMerchantDetail('${m.id}')">
               <td class="cb-col" onclick="event.stopPropagation()"><input type="checkbox" class="merchant-cb" data-id="${m.id}" onchange="updateBulkBar()"></td>
-              <td><strong>${m.business_name || '\u2014'}</strong>${isMerchantDeleted ? ' <span style="background:#ef4444;color:#fff;font-size:10px;padding:2px 6px;border-radius:4px;margin-left:4px;font-weight:700;">DELETED</span>' : ''}${m.is_hidden ? ' <span style="background:#e2e8f0;color:#475569;font-size:10px;padding:2px 6px;border-radius:4px;margin-left:4px;">HIDDEN</span>' : ''}</td>
+              <td><strong>${m.business_name || '\u2014'}</strong>${isMerchantDeleted ? ' <span style="background:#ef4444;color:#fff;font-size:10px;padding:2px 6px;border-radius:4px;margin-left:4px;font-weight:700;">DELETED</span>' : ''}${m.is_presetup ? ' <span style="background:rgba(139,92,246,0.15);color:var(--purple);font-size:10px;padding:2px 6px;border-radius:4px;margin-left:4px;font-weight:800;">PRE-SETUP</span>' : ''}${m.is_hidden ? ' <span style="background:#e2e8f0;color:#475569;font-size:10px;padding:2px 6px;border-radius:4px;margin-left:4px;">HIDDEN</span>' : ''}</td>
               <td>${m.location_city || m.city || '\u2014'}</td>
               <td>${m.location_zip || '\u2014'}</td>
               <td><span style="font-size:12px;font-weight:700;color:${m.business_presence==='online'?'#5b3fa5':m.business_presence==='hybrid'?'#7c3aed':m.business_presence==='mobile'?'#0891b2':'#16a34a'}">${m.business_presence==='online'?'🌐 Online':m.business_presence==='hybrid'?'📱 Hybrid':m.business_presence==='mobile'?'🚐 Mobile':'📍 Local'}</span></td>

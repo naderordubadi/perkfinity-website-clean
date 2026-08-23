@@ -91,8 +91,7 @@
 <div style="margin:25px 0 20px;padding:16px;background:#f8f7ff;border:1px solid rgba(91,63,165,.2);border-radius:10px;font-size:13px;color:#3F2B8A;line-height:1.5;">
 <strong style="font-size:14px;display:block;margin-bottom:4px;">📢 Public Business Information</strong> The information below will be visible to members on your store card and store detail page on the Perkfinity web and app so customers can contact and find you directly.
 </div>
-<div class="field"><label>Business Name *</label><input type="text" id="f-name" placeholder="e.g. Bella Botanicals"></div>
-<div class="field"><label>Website URL *</label><input type="url" id="f-website" placeholder="https://yourbrand.com"></div>
+<div class="field"><label>Website URL *</label><input type="text" id="f-website" placeholder="e.g. www.yourbrand.com or https://..." onblur="if(this.value.trim() && !/^https?:\/\//i.test(this.value.trim())) this.value = 'https://' + this.value.trim()"></div>
 <div class="field-row">
 <div class="field">
 <label>Public Business Phone (optional)</label>

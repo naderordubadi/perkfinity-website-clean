@@ -2111,6 +2111,59 @@
         </div>
       </div>
 
+      <!-- ─── PRE-SETUP HYBRID FREE TURNKEY SCENE (TASK 8) ─── -->
+      <div id="scene-presetup-hybrid" class="scene" style="display:none">
+        <div class="alert alert-success">
+          <span class="icon">🏬</span>
+          <div>Your <strong>Turnkey Hybrid Plan</strong> is active! Free tier with dynamic capacity.</div>
+        </div>
+        <div class="billing-section">
+          <h3>Your Plan</h3>
+          <div class="plan-card">
+            <div class="plan-details">
+              <span class="plan-badge tier1" id="psh-badge">🏬 Turnkey Hybrid Plan</span>
+              <div class="plan-price" style="color:var(--greenDark)">Free <span id="psh-price-subtext">until 50 members</span></div>
+              <ul class="plan-features">
+                <li id="psh-feature-limit">Free Tier — up to 50 active members</li>
+                <li>Countertop QR Stand &amp; in-person enrollment</li>
+                <li>Online brand discovery &amp; digital promo codes</li>
+                <li>Member loyalty analytics &amp; push notification engagement</li>
+              </ul>
+            </div>
+            <div class="usage-widget">
+              <div style="font-size:13px;font-weight:700;color:var(--muted)">Active Members</div>
+              <div class="usage-count" id="psh-usage-count">0 <span>/ 50</span></div>
+              <div class="usage-bar">
+                <div class="usage-fill" id="psh-usage-fill" style="width:0%"></div>
+              </div>
+              <div class="usage-note" id="psh-usage-note">📊 50 free member capacity</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="billing-section">
+          <h3>Available Upgrades</h3>
+          <div class="plan-card" style="border:2px solid var(--purple);background:linear-gradient(135deg,rgba(91,63,165,0.03) 0%,rgba(124,95,214,0.06) 100%);">
+            <div class="plan-details">
+              <span class="plan-badge" style="background:var(--purple);color:#fff;">RECOMMENDED</span>
+              <div style="font-size:20px;font-weight:900;color:var(--purpleDark);margin-top:8px;">Starter Plan</div>
+              <div class="plan-price">$149 <span>/month</span></div>
+              <ul class="plan-features">
+                <li>Expand capacity to <strong>1,000 active members</strong></li>
+                <li>Custom scheduled campaigns &amp; seasonal offers</li>
+                <li>VIP Web &amp; App Carousel discovery placement</li>
+                <li>Advanced multi-channel analytics</li>
+              </ul>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:center;">
+              <button class="btn btn-purple" onclick="doUpgrade('online_starter','psh-upgrade-box')" style="padding:12px 28px;font-size:14px;font-weight:800;border-radius:12px;cursor:pointer;">
+                🚀 Upgrade to Starter ($149/mo)
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- ─── FREE FOR LIFE ─── -->
       <div id="scene-free-for-life" class="scene" style="display:none">
         <div class="alert alert-success">
@@ -2558,6 +2611,16 @@
         <strong>⚠️ Welcome Offer Required:</strong> Your Welcome Offer description is currently empty. Please fill it out below under "Welcome Offer &amp; Online Settings" and save to activate your public QR code and sharing links.
       </div>
 
+      <div id="profileLocationNotice" class="alert alert-info" style="display:none; margin-bottom:24px; background:#eff6ff; border:1.5px solid #bfdbfe; padding:16px 20px; border-radius:12px; font-size:14px; color:#1e40af; line-height:1.5;">
+        <div style="display:flex; align-items:flex-start; gap:12px;">
+          <span style="font-size:22px; line-height:1;">📍</span>
+          <div>
+            <strong style="font-size:15px; display:block; margin-bottom:4px; color:#1e3a8a;">Welcome to Perkfinity! Please verify your location details</strong>
+            Please enter your store's physical address below, or check <strong>"This business does not have a single physical storefront or operates multiple locations"</strong> if you operate across multiple branches or mobile/online services.
+          </div>
+        </div>
+      </div>
+
       <div style="max-width:500px;">
         <div style="margin-bottom:30px; text-align:center;">
           <img id="profileLogoPreview" src=""
@@ -2609,8 +2672,19 @@
 
         <div style="margin-bottom:20px;">
           <label id="websiteLabel" style="display:block; margin-bottom:8px; font-weight:600; font-size:14px;">Website (Optional)</label>
-          <input type="url" id="profileWebsite" placeholder="https://"
+          <input type="text" id="profileWebsite" placeholder="e.g. www.yourstore.com or https://..." onblur="if(this.value.trim() && !/^https?:\/\//i.test(this.value.trim())) this.value = 'https://' + this.value.trim()"
             style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; outline:none;">
+        </div>
+
+        <!-- Multi-Location / No Single Physical Storefront Toggle -->
+        <div id="profileMultiLocContainer" style="margin-bottom:20px; background:#f8fafc; border:1.5px solid #e2e8f0; border-radius:12px; padding:14px 16px;">
+          <label style="display:flex; align-items:center; gap:10px; cursor:pointer; margin:0; font-weight:700; font-size:13.5px; color:#334155;">
+            <input type="checkbox" id="profileIsMultiLocation" onchange="toggleProfileMultiLocation(this.checked)" style="width:17px; height:17px; accent-color:var(--purple); cursor:pointer;">
+            <span>This business does not have a single physical storefront or operates multiple locations / online-first</span>
+          </label>
+          <p style="margin:6px 0 0 27px; font-size:12px; color:#64748b; line-height:1.4;">
+            When checked, physical street address fields become optional. Customers will find your nearest branch or service area via your website or Google.
+          </p>
         </div>
 
         <div style="display:grid;grid-template-columns:2fr 1fr;gap:15px;margin-bottom:20px;">
@@ -2666,12 +2740,12 @@
         </div>
         <div style="margin-bottom:20px;">
           <label style="display:block;margin-bottom:8px;font-weight:600;font-size:14px;">Review Page URL <span style="font-size:11px;font-weight:400;color:var(--muted)">(optional)</span></label>
-          <input type="url" id="profileReviewUrl" placeholder="https://g.page/your-business/review" style="width:100%;padding:12px;border:1px solid var(--border);border-radius:8px;outline:none;">
+          <input type="text" id="profileReviewUrl" placeholder="e.g. www.google.com/maps/... or https://..." onblur="if(this.value.trim() && !/^https?:\/\//i.test(this.value.trim())) this.value = 'https://' + this.value.trim()" style="width:100%;padding:12px;border:1px solid var(--border);border-radius:8px;outline:none;">
           <p style="margin:6px 0 0;font-size:12px;color:var(--muted)">Google, Yelp, or Trustpilot link - shown to members in-app to encourage reviews.</p>
         </div>
         <div style="margin-bottom:20px;">
           <label style="display:block;margin-bottom:8px;font-weight:600;font-size:14px;">Online Order / Menu URL <span style="font-size:11px;font-weight:400;color:var(--muted)">(optional)</span></label>
-          <input type="url" id="profileOrderUrl" placeholder="https://yourstore.com/order" style="width:100%;padding:12px;border:1px solid var(--border);border-radius:8px;outline:none;">
+          <input type="text" id="profileOrderUrl" placeholder="e.g. www.toasttab.com/... or https://..." onblur="if(this.value.trim() && !/^https?:\/\//i.test(this.value.trim())) this.value = 'https://' + this.value.trim()" style="width:100%;padding:12px;border:1px solid var(--border);border-radius:8px;outline:none;">
           <p style="margin:6px 0 0;font-size:12px;color:var(--muted)">Link to your ordering page, menu, or shop - shown as a button in the consumer app.</p>
         </div>
 
@@ -2951,6 +3025,62 @@
     </div>
   </div>
 
+  <!-- ── Mandatory Claim Profile Modal (Task 8) ── -->
+  <div id="modal-claim-profile" class="modal"
+    style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(15,23,42,0.85); backdrop-filter:blur(8px); z-index:10000; justify-content:center; align-items:center; padding:16px;">
+    <div style="background:white; width:100%; max-width:540px; border-radius:20px; box-shadow:0 25px 60px rgba(0,0,0,0.3); overflow:hidden;">
+      <div style="background:linear-gradient(135deg,#5B3FA5 0%,#7C5FD6 100%); padding:28px 32px 24px; color:white;">
+        <div style="font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:1px; opacity:0.85; margin-bottom:4px;">Action Required</div>
+        <h2 style="font-size:22px; font-weight:900; margin:0 0 6px; letter-spacing:-0.4px;">🏬 Claim Your Business Profile</h2>
+        <p style="font-size:13px; opacity:0.9; margin:0; line-height:1.4;">
+          Welcome to Perkfinity! Complete your owner profile and set your private password to unlock your business dashboard.
+        </p>
+      </div>
+
+      <form id="form-claim-profile" onsubmit="event.preventDefault();submitClaimProfile();" style="padding:28px 32px;">
+        <div style="margin-bottom:14px;">
+          <label style="display:block; font-size:12px; font-weight:700; color:#374151; margin-bottom:4px;">Full Name / Owner Name <span style="color:#ef4444;">*</span></label>
+          <input type="text" id="claim-name" required placeholder="e.g. Tony Stark"
+            style="width:100%; padding:11px 14px; border:1.5px solid #cbd5e1; border-radius:10px; font-size:13.5px; box-sizing:border-box; outline:none;">
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px;">
+          <div>
+            <label style="display:block; font-size:12px; font-weight:700; color:#374151; margin-bottom:4px;">Owner Email <span style="color:#ef4444;">*</span></label>
+            <input type="email" id="claim-email" required placeholder="owner@gmail.com"
+              style="width:100%; padding:11px 14px; border:1.5px solid #cbd5e1; border-radius:10px; font-size:13.5px; box-sizing:border-box; outline:none;">
+          </div>
+          <div>
+            <label style="display:block; font-size:12px; font-weight:700; color:#374151; margin-bottom:4px;">Owner Cell Phone <span style="color:#ef4444;">*</span></label>
+            <input type="tel" id="claim-phone" required placeholder="949-555-0123" maxlength="12"
+              oninput="this.value = this.value.replace(/[^0-9]/g, '').replace(/(\\d{3})(\\d{3})(\\d{4})/, '$1-$2-$3')"
+              style="width:100%; padding:11px 14px; border:1.5px solid #cbd5e1; border-radius:10px; font-size:13.5px; box-sizing:border-box; outline:none;">
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;">
+          <div>
+            <label style="display:block; font-size:12px; font-weight:700; color:#374151; margin-bottom:4px;">Set New Password <span style="color:#ef4444;">*</span></label>
+            <input type="password" id="claim-password" required minlength="6" placeholder="Min 6 characters"
+              style="width:100%; padding:11px 14px; border:1.5px solid #cbd5e1; border-radius:10px; font-size:13.5px; box-sizing:border-box; outline:none;">
+          </div>
+          <div>
+            <label style="display:block; font-size:12px; font-weight:700; color:#374151; margin-bottom:4px;">Confirm Password <span style="color:#ef4444;">*</span></label>
+            <input type="password" id="claim-password-confirm" required minlength="6" placeholder="Re-type password"
+              style="width:100%; padding:11px 14px; border:1.5px solid #cbd5e1; border-radius:10px; font-size:13.5px; box-sizing:border-box; outline:none;">
+          </div>
+        </div>
+
+        <div id="claim-error-msg" style="display:none; background:#fef2f2; border:1px solid #fecaca; color:#b91c1c; padding:10px 14px; border-radius:8px; font-size:12.5px; margin-bottom:16px;"></div>
+
+        <button type="submit" id="btn-submit-claim" class="btn"
+          style="width:100%; padding:13px; background:linear-gradient(135deg,#5B3FA5 0%,#7C5FD6 100%); color:white; border:none; border-radius:10px; font-size:14px; font-weight:800; cursor:pointer; box-shadow:0 4px 14px rgba(91,63,165,0.35);">
+          🚀 Claim Profile &amp; Unlock Dashboard
+        </button>
+      </form>
+    </div>
+  </div>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script>
     // Authentication Check
@@ -3080,6 +3210,11 @@
         if (json.success && json.data) {
           const d = json.data;
 
+          // Check if merchant is an unclaimed pre-setup account (Task 8)
+          if (d.is_presetup && !d.is_claimed) {
+            showClaimModal(d);
+          }
+
           // Gate: block if no stripe_payment_method_id on file for any non-FFL,
           // non-online/hybrid merchant that hasn't been fully cancelled.
           // Catches both: never-completed signup AND card deleted from Stripe after setup.
@@ -3149,6 +3284,16 @@
             if (warningEl) warningEl.style.display = 'none';
           }
           updateTabLocks();
+
+          // Check if newly claimed account needs location verification
+          if (localStorage.getItem('perkfinity_show_location_notice') === 'true') {
+            localStorage.removeItem('perkfinity_show_location_notice');
+            setTimeout(() => {
+              if (typeof switchTab === 'function') switchTab('profile');
+              const noticeEl = document.getElementById('profileLocationNotice');
+              if (noticeEl) noticeEl.style.display = 'block';
+            }, 300);
+          }
         }
 
         // Fetch billing details after profile details are loaded to prevent race conditions
@@ -3920,6 +4065,8 @@
               const isMultiLocation = json.data.is_multi_location === true ||
                 (presence === 'hybrid' && !json.data.address);
               window._merchantMultilocation = isMultiLocation;
+              const multiLocCheckbox = document.getElementById('profileIsMultiLocation');
+              if (multiLocCheckbox) multiLocCheckbox.checked = isMultiLocation;
               const presenceLabels = { physical: '🏪 Physical Store', mobile: '🚐 Mobile / Pop-Up', online: '🌐 Online Only', hybrid: '🌐🏪 Hybrid' };
               const badgeEl = document.getElementById('profilePresenceBadge');
               if (badgeEl) badgeEl.textContent = presenceLabels[presence] || presence;
@@ -3954,7 +4101,7 @@
               const addrParts = [json.data.address, json.data.suite, json.data.city, json.data.state, json.data.postal_code].filter(Boolean);
               if (addrParts.length) localStorage.setItem('perkfinity_address', addrParts.join(', '));
               // Sync logo from server — but DON'T overwrite if user has a pending upload
-              if (!uploadedProfileLogoBase64) {
+              if (uploadedProfileLogoBase64 === null) {
                 if (json.data.logo_url) {
                   localStorage.setItem('perkfinity_logo_url', json.data.logo_url);
                   document.getElementById('profileLogoPreview').src = json.data.logo_url;
@@ -4035,6 +4182,13 @@
         })
         .catch(e => console.error("Failed to load billing for boost tab", e));
       }
+    }
+
+    function toggleProfileMultiLocation(checked) {
+      window._merchantMultilocation = checked;
+      const presence = window._merchantPresence || 'hybrid';
+      updateProfileRequiredMarkers(presence, checked);
+      _profileDirty = true;
     }
 
     // ── Profile presence-aware required markers ───────────────────
@@ -4457,6 +4611,8 @@
           sceneName = 'failed';
         } else if (d.tier === 'free_for_life') {
           sceneName = 'free-for-life';
+        } else if (d.tier === 'presetup_50' || d.is_presetup) {
+          sceneName = 'presetup-hybrid';
         } else if (d.tier === 'trial' || d.tier === 'free') {
           let limit = d.member_limit || 100;
           let count = d.member_count || 0;
@@ -4562,6 +4718,29 @@
 
           const promoCode = d.promo_code;
           const memberLimit = d.member_limit || 100;
+
+          if (sceneName === 'presetup-hybrid') {
+            const mLimit = d.member_limit || 50;
+            const mCount = d.member_count || 0;
+            const subtextEl = document.getElementById('psh-price-subtext');
+            if (subtextEl) subtextEl.innerText = `until ${mLimit} members`;
+            const featEl = document.getElementById('psh-feature-limit');
+            if (featEl) featEl.innerText = `Free Tier — up to ${mLimit} active members`;
+            const countEl = document.getElementById('psh-usage-count');
+            if (countEl) countEl.innerHTML = `${mCount} <span>/ ${mLimit}</span>`;
+            const fillEl = document.getElementById('psh-usage-fill');
+            if (fillEl) {
+              let pct = (mCount / mLimit) * 100;
+              if (pct > 100) pct = 100;
+              fillEl.style.width = pct + "%";
+            }
+            const noteEl = document.getElementById('psh-usage-note');
+            if (noteEl) {
+              let diff = mLimit - mCount;
+              if (diff < 0) diff = 0;
+              noteEl.innerHTML = `📊 ${diff} more free member capacity remaining`;
+            }
+          }
 
           if (sceneName === 'trial-20') {
             document.getElementById('trial-badge').innerText = promoCode ? `🟢 Free Trial + ${promoCode}` : `🟢 Free Trial`;
@@ -5700,6 +5879,8 @@
         if (_req(zip,   'ZIP code is required.')) return;
       }
 
+      const is_multi_location = document.getElementById('profileIsMultiLocation') ? document.getElementById('profileIsMultiLocation').checked : !!window._merchantMultilocation;
+
       btn.disabled = true;
       btn.innerText = "Saving...";
 
@@ -5710,7 +5891,7 @@
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${apiToken}`
           },
-          body: JSON.stringify({ email, current_password, new_password, business_name, website, address, suite, city, state, zip, contact_name, phone, public_phone, public_email, welcome_offer_text, review_url, order_url })
+          body: JSON.stringify({ email, current_password, new_password, business_name, website, address, suite, city, state, zip, is_multi_location, contact_name, phone, public_phone, public_email, welcome_offer_text, review_url, order_url })
         });
         const json = await res.json();
 
@@ -5721,6 +5902,9 @@
           msgLabel.innerText = "Profile updated successfully!";
           document.getElementById('profileCurrentPassword').value = '';
           document.getElementById('profileNewPassword').value = '';
+
+          const locNotice = document.getElementById('profileLocationNotice');
+          if (locNotice) locNotice.style.display = 'none';
 
           if (email) localStorage.setItem('perkfinity_email', email);
           if (json.new_business_name) {
@@ -6903,6 +7087,103 @@ You're receiving this because you're a valued customer of ${businessName}.`;
         if (cardApp)    cardApp.style.display    = 'flex';
         if (cardBundle) cardBundle.style.display = 'flex';
         if (headingCarousel) headingCarousel.style.display = 'block';
+      }
+    }
+
+    // ── Task 8: Turnkey Claim Functions ─────────────────────────
+    function showClaimModal(d) {
+      const modal = document.getElementById('modal-claim-profile');
+      if (!modal) return;
+      modal.style.display = 'flex';
+      if (d.contact_name && d.contact_name !== 'Business Owner' && d.contact_name !== 'Store Owner') {
+        document.getElementById('claim-name').value = d.contact_name;
+      }
+      if (d.phone) {
+        document.getElementById('claim-phone').value = d.phone;
+      }
+      document.getElementById('claim-error-msg').style.display = 'none';
+    }
+
+    async function submitClaimProfile() {
+      const name = document.getElementById('claim-name').value.trim();
+      const email = document.getElementById('claim-email').value.trim();
+      const phone = document.getElementById('claim-phone').value.trim();
+      const password = document.getElementById('claim-password').value;
+      const confirmPassword = document.getElementById('claim-password-confirm').value;
+      const errEl = document.getElementById('claim-error-msg');
+      const submitBtn = document.getElementById('btn-submit-claim');
+
+      errEl.style.display = 'none';
+
+      if (!name || !email || !phone || !password) {
+        errEl.textContent = 'Please fill in all required fields.';
+        errEl.style.display = 'block';
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        errEl.textContent = 'Passwords do not match. Please re-enter.';
+        errEl.style.display = 'block';
+        return;
+      }
+
+      if (password.length < 6) {
+        errEl.textContent = 'Password must be at least 6 characters.';
+        errEl.style.display = 'block';
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Claiming Business Profile...';
+
+      try {
+        const token = localStorage.getItem('perkfinity_token');
+        const res = await fetch(`${BACKEND_URL}/api/v1/merchants/claim`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            contact_name: name,
+            email: email,
+            phone: phone,
+            password: password
+          })
+        });
+
+        const data = await res.json();
+        if (!data.success) {
+          throw new Error(data.error || 'Failed to claim business profile');
+        }
+
+        // Update token & session
+        if (data.token) localStorage.setItem('perkfinity_token', data.token);
+        if (data.refreshToken) localStorage.setItem('perkfinity_refresh_token', data.refreshToken);
+        if (data.email) localStorage.setItem('perkfinity_email', data.email);
+
+        document.getElementById('modal-claim-profile').style.display = 'none';
+
+        // If address is not present, flag to show location notice after claim
+        if (!localStorage.getItem('perkfinity_address')) {
+          localStorage.setItem('perkfinity_show_location_notice', 'true');
+        }
+
+        // Success notification toast
+        const toast = document.createElement('div');
+        toast.style.cssText = 'position:fixed;top:24px;left:50%;transform:translateX(-50%);background:#16a34a;color:#fff;padding:16px 32px;border-radius:14px;font-size:15px;font-weight:800;z-index:10001;box-shadow:0 10px 30px rgba(0,0,0,0.25);text-align:center;';
+        toast.innerHTML = '🎉 Business Profile Claimed Successfully! Welcome to Perkfinity.';
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 5000);
+
+        // Reload dashboard
+        setTimeout(() => window.location.reload(), 1500);
+      } catch (err) {
+        errEl.textContent = err.message;
+        errEl.style.display = 'block';
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = '🚀 Claim Profile & Unlock Dashboard';
       }
     }
   </script>

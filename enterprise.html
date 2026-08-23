@@ -98,8 +98,7 @@
 <option value="Technology">Technology</option>
 <option value="Other">Other</option>
 </select></div>
-<div class="field" id="industry-other-wrap" style="display:none"><label>Describe Your Industry *</label><input type="text" id="f-industry-other" placeholder="e.g. Pet Care & Services"></div>
-<div class="field"><label>Company Website *</label><input type="url" id="f-website" placeholder="https://yourcompany.com"></div>
+<div class="field"><label>Company Website *</label><input type="text" id="f-website" placeholder="e.g. www.yourcompany.com or https://..." onblur="if(this.value.trim() && !/^https?:\/\//i.test(this.value.trim())) this.value = 'https://' + this.value.trim()"></div>
 <div class="sec-hd">🏛 HQ Address</div>
 <div class="field"><label>Street Address *</label><input type="text" id="f-hq-street" placeholder="123 Main St"></div>
 <div class="field-row">

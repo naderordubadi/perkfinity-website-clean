@@ -199,8 +199,7 @@
                   <option value="Photography &amp; Creative">📸 Photography &amp; Creative (Photo/video, Print, Graphic design, Marketing)</option>
                   <option value="Other">🔖 Other (Specialized local businesses)</option>
                 </select>
-              </label>
-              <label id="website_label">Website (optional)<input type="url" id="website" placeholder="https://"></label>
+              <label id="website_label">Website (optional)<input type="text" id="website" placeholder="e.g. www.store.com or https://" onblur="if(this.value.trim() && !/^https?:\/\//i.test(this.value.trim())) this.value = 'https://' + this.value.trim()"></label>
             </div>
 
             <div class="form-row" style="margin-bottom:20px">
@@ -1137,21 +1136,21 @@
         if (presence === 'physical') {
           streetRow.style.display = '';
           locationRow.style.display = '';
-          websiteLabel.innerHTML = 'Website (optional)<input type="url" id="website" placeholder="https://">';
+          websiteLabel.innerHTML = 'Website (optional)<input type="text" id="website" placeholder="e.g. www.store.com or https://" onblur="if(this.value.trim() && !/^https?:\\/\\//i.test(this.value.trim())) this.value = \'https://\' + this.value.trim()">';
           onlineCodePreview.style.display = 'none';
           perkHintPhysical.style.display = '';
           perkHintOnline.style.display = 'none';
         } else if (presence === 'mobile') {
           streetRow.style.display = 'none';
           locationRow.style.display = '';
-          websiteLabel.innerHTML = 'Website (optional)<input type="url" id="website" placeholder="https://">';
+          websiteLabel.innerHTML = 'Website (optional)<input type="text" id="website" placeholder="e.g. www.store.com or https://" onblur="if(this.value.trim() && !/^https?:\\/\\//i.test(this.value.trim())) this.value = \'https://\' + this.value.trim()">';
           onlineCodePreview.style.display = 'none';
           perkHintPhysical.style.display = '';
           perkHintOnline.style.display = 'none';
         } else if (presence === 'online') {
           streetRow.style.display = 'none';
           locationRow.style.display = 'none';
-          websiteLabel.innerHTML = 'Website (required for online) *<input type="url" id="website" placeholder="https://yourstore.com" required>';
+          websiteLabel.innerHTML = 'Website (required for online) *<input type="text" id="website" placeholder="e.g. www.yourstore.com or https://" onblur="if(this.value.trim() && !/^https?:\\/\\//i.test(this.value.trim())) this.value = \'https://\' + this.value.trim()" required>';
           onlineCodePreview.style.display = 'block';
           perkHintPhysical.style.display = 'none';
           perkHintOnline.style.display = '';
