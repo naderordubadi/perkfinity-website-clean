@@ -4052,59 +4052,45 @@
           <style>
             @page {
               size: letter landscape;
-              margin: 0.15in;
+              margin: 0;
             }
             *, *::before, *::after { box-sizing: border-box; margin:0; padding:0; }
-            html, body {
-              margin: 0;
-              padding: 0;
+            body {
               font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-              background: #fff;
+              background: #f1f5f9;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              padding: 20px;
+              margin: 0;
               -webkit-print-color-adjust: exact;
               print-color-adjust: exact;
             }
             .sheet-wrapper {
-              width: 10.7in;
+              width: 11in;
+              height: 8.5in;
+              background: #fff;
               display: flex;
               flex-direction: row;
-              align-items: flex-start;
-              justify-content: space-between;
-              gap: 0.3in;
-              box-sizing: border-box;
-              background: #fff;
+              overflow: hidden;
+              box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+              position: relative;
             }
-            .left-half {
-              width: 5.2in;
-              background: #fff;
-              border: 3px solid #5B3FA5;
-              border-bottom: none;
-              border-right: none;
-              padding: 16px 18px 0;
+            .half-page {
+              width: 5.5in;
+              box-sizing: border-box;
+              position: relative;
+              overflow: hidden;
               display: flex;
               flex-direction: column;
-              align-items: center;
-              box-sizing: border-box;
-              -webkit-print-color-adjust: exact;
-              print-color-adjust: exact;
-            }
-            .right-half {
-              width: 5.2in;
-              background: #fdfcff;
-              border: 3px dashed #7C5FD6;
-              border-bottom: none;
-              padding: 20px 20px 0;
-              display: flex;
-              flex-direction: column;
-              box-sizing: border-box;
-              -webkit-print-color-adjust: exact;
-              print-color-adjust: exact;
             }
             @media print {
               body { background: transparent; padding: 0; margin: 0; }
               .sheet-wrapper {
                 box-shadow: none;
                 margin: 0;
-                width: 10.7in;
+                width: 11in;
+                height: 8.5in;
                 page-break-inside: avoid;
                 break-inside: avoid;
               }
@@ -4112,104 +4098,109 @@
           </style>
         </head>
         <body>
-          <!-- 10in wide CONTAINER (fits inside 11in x 8.5in with 0.5in margins on all sides) -->
+          <!-- 11in x 8.5in LETTER LANDSCAPE CONTAINER -->
           <div class="sheet-wrapper">
             
-            <!-- LEFT HALF: COUNTERTOP QR STAND -->
-            <div class="left-half">
-              <img src="https://perkfinity.net/assets/Perkfinity-Logo.png" style="height:44px;margin-bottom:8px;" alt="Perkfinity">
-              <div style="background:linear-gradient(135deg,#5B3FA5 0%,#7C5FD6 100%);color:#fff;padding:10px 16px;border-radius:10px;text-align:center;width:100%;-webkit-print-color-adjust:exact;print-color-adjust:exact;">
-                <div style="font-size:16px;font-weight:900;line-height:1.2;letter-spacing:-0.3px;">Scan, Sign Up &amp; Redeem</div>
-                <div style="font-size:12px;font-weight:600;opacity:0.9;margin-top:2px;">4 Easy Steps · Under 2 Minutes</div>
+            <!-- LEFT HALF: 5.5" x 8.5" CLASSIC COUNTERTOP QR STAND -->
+            <div class="half-page" style="width:5.5in;height:8.5in;background:#fff;border:3px solid #5B3FA5;border-bottom:none;border-radius:0;padding:22px 22px 0.5in;display:flex;flex-direction:column;align-items:center;box-sizing:border-box;font-family:Inter,system-ui,sans-serif;overflow:hidden;-webkit-print-color-adjust:exact;print-color-adjust:exact;">
+              <img src="https://perkfinity.net/assets/Perkfinity-Logo.png" style="height:48px;margin-bottom:10px;" alt="Perkfinity">
+              <div style="background:linear-gradient(135deg,#5B3FA5 0%,#7C5FD6 100%);color:#fff;padding:12px 20px;border-radius:12px;text-align:center;width:100%;-webkit-print-color-adjust:exact;print-color-adjust:exact;">
+                <div style="font-size:18px;font-weight:900;line-height:1.2;letter-spacing:-0.3px;">Scan, Sign Up &amp; Redeem</div>
+                <div style="font-size:13px;font-weight:600;opacity:0.9;margin-top:3px;">4 Easy Steps · Under 2 Minutes</div>
               </div>
               
-              <div style="display:flex;flex-direction:row;align-items:flex-start;gap:12px;width:100%;margin-top:10px;">
-                <div style="flex:1;display:flex;flex-direction:column;gap:8px;min-width:0;">
-                  <div style="display:flex;align-items:flex-start;gap:6px;"><div style="width:22px;height:22px;border-radius:50%;background:#5B3FA5;color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;">1</div><div><div style="font-size:12.5px;font-weight:700;color:#3F2B8A;line-height:1.2;">Scan the QR Code</div><div style="font-size:10.5px;color:#666;font-weight:500;line-height:1.3;margin-top:1px;">Download the free Perkfinity app</div></div></div>
-                  <div style="display:flex;align-items:flex-start;gap:6px;"><div style="width:22px;height:22px;border-radius:50%;background:#5B3FA5;color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;">2</div><div><div style="font-size:12.5px;font-weight:700;color:#3F2B8A;line-height:1.2;">Sign Up Your Way</div><div style="font-size:10.5px;color:#666;font-weight:500;line-height:1.3;margin-top:1px;">Apple, Google, or Email</div></div></div>
-                  <div style="display:flex;align-items:flex-start;gap:6px;"><div style="width:22px;height:22px;border-radius:50%;background:#5B3FA5;color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;">3</div><div><div style="font-size:12.5px;font-weight:700;color:#3F2B8A;line-height:1.2;">Quick Profile Setup</div><div style="font-size:10.5px;color:#666;font-weight:500;line-height:1.3;margin-top:1px;">4 simple fields &amp; preferences</div></div></div>
-                  <div style="display:flex;align-items:flex-start;gap:6px;"><div style="width:22px;height:22px;border-radius:50%;background:#6BC17A;color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;">4</div><div><div style="font-size:12.5px;font-weight:700;color:#2d8a3e;line-height:1.2;">Activate &amp; Redeem!</div><div style="font-size:10.5px;color:#666;font-weight:500;line-height:1.3;margin-top:1px;">Tap offer and show to cashier</div></div></div>
+              <div style="display:flex;flex-direction:row;align-items:flex-start;gap:16px;width:100%;margin-top:14px;">
+                <div style="flex:1;display:flex;flex-direction:column;gap:12px;min-width:0;">
+                  <div style="display:flex;align-items:flex-start;gap:8px;"><div style="width:28px;height:28px;border-radius:50%;background:#5B3FA5;color:#fff;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;">1</div><div><div style="font-size:14px;font-weight:700;color:#3F2B8A;line-height:1.3;">Scan the QR Code</div><div style="font-size:12px;color:#666;font-weight:500;line-height:1.4;margin-top:1px;">Download the free Perkfinity app</div></div></div>
+                  <div style="display:flex;align-items:flex-start;gap:8px;"><div style="width:28px;height:28px;border-radius:50%;background:#5B3FA5;color:#fff;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;">2</div><div><div style="font-size:14px;font-weight:700;color:#3F2B8A;line-height:1.3;">Sign Up Your Way</div><div style="font-size:12px;color:#666;font-weight:500;line-height:1.4;margin-top:1px;">Apple Sign In, Google Sign In, or Email — your choice</div></div></div>
+                  <div style="display:flex;align-items:flex-start;gap:8px;"><div style="width:28px;height:28px;border-radius:50%;background:#5B3FA5;color:#fff;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;">3</div><div><div style="font-size:14px;font-weight:700;color:#3F2B8A;line-height:1.3;">Quick Profile Setup</div><div style="font-size:12px;color:#666;font-weight:500;line-height:1.4;margin-top:1px;">4 simple fields &amp; set up your preferences</div></div></div>
+                  <div style="display:flex;align-items:flex-start;gap:8px;"><div style="width:28px;height:28px;border-radius:50%;background:#6BC17A;color:#fff;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;">4</div><div><div style="font-size:14px;font-weight:700;color:#2d8a3e;line-height:1.3;">Activate &amp; Redeem!</div><div style="font-size:12px;color:#666;font-weight:500;line-height:1.4;margin-top:1px;">Tap your offer and show it to the cashier</div></div></div>
                 </div>
-                <div style="display:flex;flex-direction:column;align-items:center;align-self:center;flex-shrink:0;gap:4px;">
-                  <div style="width:138px;height:138px;position:relative;border:1.5px solid #e2e8f0;border-radius:12px;padding:6px;background:#fff;">
+                <div style="display:flex;flex-direction:column;align-items:center;align-self:center;flex-shrink:0;gap:6px;">
+                  <div style="width:160px;height:160px;position:relative;border:2px solid #e2e8f0;border-radius:14px;padding:8px;background:#fff;">
                     <img src="${qrImgSrc}" style="width:100%;height:100%;display:block;">
-                    <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:36px;height:36px;background:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,0.12);"><img src="${logoImgSrc}" style="width:28px;height:28px;object-fit:contain;border-radius:6px;"></div>
+                    <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:44px;height:44px;background:#fff;border-radius:11px;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,0.12);"><img src="${logoImgSrc}" style="width:34px;height:34px;object-fit:contain;border-radius:8px;"></div>
                   </div>
-                  <div style="font-size:8.5px;color:#999;font-weight:600;text-align:center;">Scan to download<br>the Perkfinity app</div>
+                  <div style="font-size:9px;color:#999;font-weight:600;text-align:center;">Scan to download<br>the Perkfinity app</div>
                 </div>
               </div>
 
-              <div style="margin-top:8px;padding:6px 12px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;text-align:center;width:100%;-webkit-print-color-adjust:exact;print-color-adjust:exact;">
-                <div style="font-size:11px;font-weight:700;color:#166534;">It's that simple and fast! Go ahead and enjoy your perks 🎉</div>
+              <div style="margin-top:10px;padding:8px 16px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;text-align:center;width:100%;-webkit-print-color-adjust:exact;print-color-adjust:exact;">
+                <div style="font-size:12px;font-weight:700;color:#166534;">It's that simple and fast! Go ahead and enjoy your perks 🎉</div>
               </div>
 
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;width:100%;text-align:left;margin-top:8px;">
-                <div style="display:flex;align-items:flex-start;gap:6px;background:#f8f7ff;border-radius:8px;padding:7px;-webkit-print-color-adjust:exact;print-color-adjust:exact;"><span style="font-size:18px;flex-shrink:0;line-height:1;">🎟️</span><div><div style="font-size:11px;font-weight:700;color:#3F2B8A;line-height:1.2;">Exclusive Coupons</div><div style="font-size:9.5px;color:#666;font-weight:500;line-height:1.3;margin-top:1px;">Save with local deals</div></div></div>
-                <div style="display:flex;align-items:flex-start;gap:6px;background:#f8f7ff;border-radius:8px;padding:7px;-webkit-print-color-adjust:exact;print-color-adjust:exact;"><span style="font-size:18px;flex-shrink:0;line-height:1;">🔒</span><div><div style="font-size:11px;font-weight:700;color:#3F2B8A;line-height:1.2;">100% Private</div><div style="font-size:9.5px;color:#666;font-weight:500;line-height:1.3;margin-top:1px;">Merchants never see info</div></div></div>
-                <div style="display:flex;align-items:flex-start;gap:6px;background:#f8f7ff;border-radius:8px;padding:7px;-webkit-print-color-adjust:exact;print-color-adjust:exact;"><span style="font-size:18px;flex-shrink:0;line-height:1;">📲</span><div><div style="font-size:11px;font-weight:700;color:#3F2B8A;line-height:1.2;">Instant Activation</div><div style="font-size:9.5px;color:#666;font-weight:500;line-height:1.3;margin-top:1px;">All deals right on phone</div></div></div>
-                <div style="display:flex;align-items:flex-start;gap:6px;background:#f8f7ff;border-radius:8px;padding:7px;-webkit-print-color-adjust:exact;print-color-adjust:exact;"><span style="font-size:18px;flex-shrink:0;line-height:1;">🏪</span><div><div style="font-size:11px;font-weight:700;color:#3F2B8A;line-height:1.2;">One App, Multiple Stores</div><div style="font-size:9.5px;color:#666;font-weight:500;line-height:1.3;margin-top:1px;">Discover local perks</div></div></div>
+              <div style="width:100%;height:1px;background:#e2e8f0;margin:12px 0 10px;"></div>
+
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;text-align:left;">
+                <div style="display:flex;align-items:flex-start;gap:8px;background:#f8f7ff;border-radius:10px;padding:10px;-webkit-print-color-adjust:exact;print-color-adjust:exact;"><span style="font-size:22px;flex-shrink:0;line-height:1;">🎟️</span><div><div style="font-size:12px;font-weight:700;color:#3F2B8A;line-height:1.3;">Exclusive Coupons</div><div style="font-size:10px;color:#666;font-weight:500;line-height:1.35;margin-top:2px;">Save instantly with digital deals at local spots</div></div></div>
+                <div style="display:flex;align-items:flex-start;gap:8px;background:#f8f7ff;border-radius:10px;padding:10px;-webkit-print-color-adjust:exact;print-color-adjust:exact;"><span style="font-size:22px;flex-shrink:0;line-height:1;">🔒</span><div><div style="font-size:12px;font-weight:700;color:#3F2B8A;line-height:1.3;">100% Private</div><div style="font-size:10px;color:#666;font-weight:500;line-height:1.35;margin-top:2px;">Merchants never see your name, email, or contact info</div></div></div>
+                <div style="display:flex;align-items:flex-start;gap:8px;background:#f8f7ff;border-radius:10px;padding:10px;-webkit-print-color-adjust:exact;print-color-adjust:exact;"><span style="font-size:22px;flex-shrink:0;line-height:1;">📲</span><div><div style="font-size:12px;font-weight:700;color:#3F2B8A;line-height:1.3;">Instant Activation</div><div style="font-size:10px;color:#666;font-weight:500;line-height:1.35;margin-top:2px;">No loyalty cards needed — everything is on your phone</div></div></div>
+                <div style="display:flex;align-items:flex-start;gap:8px;background:#f8f7ff;border-radius:10px;padding:10px;-webkit-print-color-adjust:exact;print-color-adjust:exact;"><span style="font-size:22px;flex-shrink:0;line-height:1;">🏪</span><div><div style="font-size:12px;font-weight:700;color:#3F2B8A;line-height:1.3;">One App, Multiple Stores</div><div style="font-size:10px;color:#666;font-weight:500;line-height:1.35;margin-top:2px;">Discover perks at all participating businesses near you</div></div></div>
               </div>
 
-              <div style="margin-top:10px;display:inline-block;padding:8px 24px;background:#6BC17A;color:#fff;border-radius:12px;transform:rotate(-1.5deg);text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;">
-                <div style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:1px;opacity:0.9;margin-bottom:1px;">Unlock Instantly:</div>
-                <div style="font-size:17px;font-weight:900;line-height:1.2;letter-spacing:-0.4px;">${escapeHtml(perk)}</div>
+              <div style="margin-top:14px;display:inline-block;padding:10px 28px;background:#6BC17A;color:#fff;border-radius:14px;transform:rotate(-2deg);text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;">
+                <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;opacity:0.9;margin-bottom:1px;">Unlock Instantly:</div>
+                <div style="font-size:19px;font-weight:900;line-height:1.2;letter-spacing:-0.5px;">${escapeHtml(perk)}</div>
               </div>
 
               <div style="padding-top:10px;text-align:center;width:100%;">
-                <div style="font-size:10.5px;color:#666;font-weight:600;margin-bottom:2px;">Powered by Perkfinity for:</div>
-                <div style="font-size:22px;font-weight:900;color:#3F2B8A;letter-spacing:-0.4px;line-height:1.1;">${escapeHtml(storeName)}</div>
+                <div style="width:100%;height:2px;background:none;border-top:2px dashed #c4b5fd;margin-bottom:10px;"></div>
+                <div style="font-size:11px;color:#666;font-weight:600;margin-bottom:3px;">Powered by Perkfinity for:</div>
+                <div style="font-size:24px;font-weight:900;color:#3F2B8A;letter-spacing:-0.5px;line-height:1.1;">${escapeHtml(storeName)}</div>
               </div>
             </div>
 
-            <!-- RIGHT HALF: STANDALONE LOGIN CREDENTIAL STICKER & OWNER CLAIM GUIDE -->
-            <div class="right-half">
-              <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #ede9fe;padding-bottom:12px;margin-bottom:16px;">
-                <img src="https://perkfinity.net/assets/Perkfinity-Logo.png" style="height:32px;" alt="Perkfinity">
-                <span style="background:#5B3FA5;color:#fff;padding:5px 12px;border-radius:7px;font-size:11px;font-weight:800;letter-spacing:0.5px;-webkit-print-color-adjust:exact;print-color-adjust:exact;">OWNER CLAIM &amp; SETUP GUIDE</span>
-              </div>
-
-              <div style="font-size:20px;font-weight:900;color:#1e1b4b;margin-bottom:3px;">${escapeHtml(storeName)}</div>
-              <div style="font-size:12px;color:#6b7280;margin-bottom:16px;">Pre-Configured Turnkey Account &amp; Acrylic QR Stand Handoff</div>
-
-              <div style="background:#fff;border:2px solid #c4b5fd;border-radius:12px;padding:16px 18px;margin-bottom:16px;box-shadow:0 2px 8px rgba(124,95,214,0.06);-webkit-print-color-adjust:exact;print-color-adjust:exact;">
-                <div style="font-size:11.5px;font-weight:800;color:#5B3FA5;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:10px;">🔐 Temporary Owner Login Credentials</div>
-                <div style="display:grid;grid-template-columns:105px 1fr;gap:8px;font-size:13px;align-items:center;">
-                  <span style="font-weight:700;color:#4b5563;">Portal URL:</span>
-                  <span style="font-family:monospace;font-weight:800;color:#1e40af;">perkfinity.net/login.html</span>
-
-                  <span style="font-weight:700;color:#4b5563;">Temp Email:</span>
-                  <span style="font-family:monospace;font-weight:800;color:#0f172a;word-break:break-all;">${escapeHtml(tempEmail)}</span>
-
-                  <span style="font-weight:700;color:#4b5563;">Temp Password:</span>
-                  <span style="font-family:monospace;font-weight:800;color:#0f172a;">${escapeHtml(tempPassword)}</span>
+            <!-- RIGHT HALF: 5.5" x 8.5" STANDALONE LOGIN CREDENTIAL STICKER (DASHED BORDER) -->
+            <div class="half-page" style="width:5.5in;border:3px dashed #7C5FD6;border-bottom:none;padding:36px 32px 24px;display:flex;flex-direction:column;background:#fdfcff;box-sizing:border-box;font-family:Inter,system-ui,sans-serif;overflow:hidden;-webkit-print-color-adjust:exact;print-color-adjust:exact;">
+              <div>
+                <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #ede9fe;padding-bottom:16px;margin-bottom:24px;">
+                  <img src="https://perkfinity.net/assets/Perkfinity-Logo.png" style="height:36px;" alt="Perkfinity">
+                  <span style="background:#5B3FA5;color:#fff;padding:6px 14px;border-radius:8px;font-size:12px;font-weight:800;letter-spacing:0.5px;-webkit-print-color-adjust:exact;print-color-adjust:exact;">OWNER CLAIM &amp; SETUP GUIDE</span>
                 </div>
-              </div>
 
-              <div style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:12px;padding:14px 18px;margin-bottom:16px;-webkit-print-color-adjust:exact;print-color-adjust:exact;">
-                <div style="font-size:12px;font-weight:800;color:#166534;margin-bottom:8px;">👉 3-Step Owner Claim Instructions:</div>
-                <ol style="margin-left:16px;font-size:12px;color:#14532d;line-height:1.5;font-weight:600;">
-                  <li>Log into <strong>perkfinity.net/login.html</strong> using the temporary credentials above.</li>
-                  <li>Fill out your real owner name, personal email, cell phone, and set a new password on the <strong>Claim Profile</strong> screen.</li>
-                  <li>Place your physical acrylic QR stand on the counter and start rewarding members immediately!</li>
-                </ol>
-              </div>
+                <div style="font-size:22px;font-weight:900;color:#1e1b4b;margin-bottom:4px;">${escapeHtml(storeName)}</div>
+                <div style="font-size:13px;color:#6b7280;margin-bottom:24px;">Pre-Configured Turnkey Account &amp; Acrylic QR Stand Handoff</div>
 
-              <div style="background:#fff;border:1.5px solid #cbd5e1;border-radius:12px;padding:14px 18px;box-shadow:0 2px 6px rgba(0,0,0,0.03);-webkit-print-color-adjust:exact;print-color-adjust:exact;">
-                <div style="font-size:12.5px;font-weight:800;color:#1e1b4b;margin-bottom:10px;display:flex;align-items:center;gap:6px;">
-                  <span>👤</span> <span>Questions? Contact Your Dedicated Perkfinity Rep:</span>
+                <div style="background:#fff;border:2px solid #c4b5fd;border-radius:14px;padding:20px;margin-bottom:24px;box-shadow:0 4px 12px rgba(124,95,214,0.08);-webkit-print-color-adjust:exact;print-color-adjust:exact;">
+                  <div style="font-size:12px;font-weight:800;color:#5B3FA5;text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;">🔐 Temporary Owner Login Credentials</div>
+                  <div style="display:grid;grid-template-columns:110px 1fr;gap:10px;font-size:14px;align-items:center;">
+                    <span style="font-weight:700;color:#4b5563;">Portal URL:</span>
+                    <span style="font-family:monospace;font-weight:800;color:#1e40af;">perkfinity.net/login.html</span>
+
+                    <span style="font-weight:700;color:#4b5563;">Temp Email:</span>
+                    <span style="font-family:monospace;font-weight:800;color:#0f172a;word-break:break-all;">${escapeHtml(tempEmail)}</span>
+
+                    <span style="font-weight:700;color:#4b5563;">Temp Password:</span>
+                    <span style="font-family:monospace;font-weight:800;color:#0f172a;">${escapeHtml(tempPassword)}</span>
+                  </div>
                 </div>
-                <div style="display:flex;flex-direction:column;gap:10px;font-size:12px;font-weight:600;color:#475569;">
-                  <div style="display:flex;align-items:baseline;gap:8px;">
-                    <span style="width:70px;flex-shrink:0;color:#334155;font-weight:700;">Rep Name:</span>
-                    <div style="flex:1;border-bottom:1.5px solid #94a3b8;min-height:15px;font-weight:700;color:#0f172a;padding-left:4px;">${repNameVal}</div>
+
+                <div style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:14px;padding:18px 20px;-webkit-print-color-adjust:exact;print-color-adjust:exact;">
+                  <div style="font-size:13px;font-weight:800;color:#166534;margin-bottom:10px;">👉 3-Step Owner Claim Instructions:</div>
+                  <ol style="margin-left:18px;font-size:13px;color:#14532d;line-height:1.6;font-weight:600;">
+                    <li>Log into <strong>perkfinity.net/login.html</strong> using the temporary credentials above.</li>
+                    <li>Fill out your real owner name, personal email, cell phone, and set a new password on the <strong>Claim Profile</strong> screen.</li>
+                    <li>Place your physical acrylic QR stand on the counter and start rewarding members immediately!</li>
+                  </ol>
+                </div>
+
+                <div style="background:#fff;border:1.5px solid #cbd5e1;border-radius:14px;padding:16px 20px;margin-top:20px;box-shadow:0 2px 8px rgba(0,0,0,0.04);-webkit-print-color-adjust:exact;print-color-adjust:exact;">
+                  <div style="font-size:13.5px;font-weight:800;color:#1e1b4b;margin-bottom:12px;display:flex;align-items:center;gap:6px;">
+                    <span>👤</span> <span>Questions? Contact Your Dedicated Perkfinity Rep:</span>
                   </div>
-                  <div style="display:flex;align-items:baseline;gap:8px;">
-                    <span style="width:70px;flex-shrink:0;color:#334155;font-weight:700;">Phone:</span>
-                    <div style="flex:1;border-bottom:1.5px solid #94a3b8;min-height:15px;font-weight:700;color:#0f172a;padding-left:4px;">${repPhoneVal}</div>
-                  </div>
-                  <div style="display:flex;align-items:baseline;gap:8px;">
-                    <span style="width:70px;flex-shrink:0;color:#334155;font-weight:700;">Email:</span>
-                    <div style="flex:1;border-bottom:1.5px solid #94a3b8;min-height:15px;font-weight:700;color:#0f172a;padding-left:4px;">${repEmailVal}</div>
+                  <div style="display:flex;flex-direction:column;gap:12px;font-size:13px;font-weight:600;color:#475569;">
+                    <div style="display:flex;align-items:baseline;gap:8px;">
+                      <span style="width:75px;flex-shrink:0;color:#334155;font-weight:700;">Rep Name:</span>
+                      <div style="flex:1;border-bottom:1.5px solid #94a3b8;min-height:16px;font-weight:700;color:#0f172a;padding-left:4px;">${repNameVal}</div>
+                    </div>
+                    <div style="display:flex;align-items:baseline;gap:8px;">
+                      <span style="width:75px;flex-shrink:0;color:#334155;font-weight:700;">Phone:</span>
+                      <div style="flex:1;border-bottom:1.5px solid #94a3b8;min-height:16px;font-weight:700;color:#0f172a;padding-left:4px;">${repPhoneVal}</div>
+                    </div>
+                    <div style="display:flex;align-items:baseline;gap:8px;">
+                      <span style="width:75px;flex-shrink:0;color:#334155;font-weight:700;">Email:</span>
+                      <div style="flex:1;border-bottom:1.5px solid #94a3b8;min-height:16px;font-weight:700;color:#0f172a;padding-left:4px;">${repEmailVal}</div>
+                    </div>
                   </div>
                 </div>
               </div>
