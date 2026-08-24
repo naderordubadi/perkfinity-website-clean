@@ -4206,11 +4206,6 @@
             </div>
 
           </div>
-          <script>
-            window.onload = function() {
-              window.print();
-            };
-          </script>
         </body>
         </html>
       `;
@@ -4219,6 +4214,8 @@
       w.document.open();
       w.document.write(printHtml);
       w.document.close();
+      w.focus();
+      setTimeout(() => { w.print(); }, 250);
     }
 
     // ══════════════════════════════════════════
