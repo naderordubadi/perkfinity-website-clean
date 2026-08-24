@@ -473,38 +473,41 @@
             <thead><tr><th>Business</th><th>Tier</th><th>Type</th><th>Pay Frequency</th><th>Est. Gross</th><th>Est. Commission</th><th>Status</th><th>Members</th><th>Since</th></tr></thead>
             <tbody>
               ${merchants.map(m => {
-                const tierMap = { tier1:'Connect', free_for_life:'Free For Life', online_starter:'Starter', online_growth:'Growth', online_scale:'Scale', enterprise:'Enterprise', trial:'Free Trial', free_trial:'Free Trial' };
+                const tierMap = { tier1:'Connect', free_for_life:'Free For Life', online_starter:'Starter', online_growth:'Growth', online_scale:'Scale', enterprise:'Enterprise', trial:'Free Trial', free_trial:'Free Trial', presetup_50: 'Pre-Setup' };
                 const typeMap = { monthly:'Monthly', annual:'Annual', lifetime:'POUF' };
                 let freq = (m.billing_cycle === 'monthly') ? 'Recurring' : (m.billing_cycle === 'lifetime' || m.billing_cycle === 'annual') ? 'Single' : '—';
                 
-                const isDemo = m.billing_status === 'active' && !m.stripe_subscription_id && !m.stripe_payment_method_id && m.member_limit === null && m.billing_cycle === 'monthly' && m.tier !== 'free_for_life';
+                const isPresetupUnclaimed = m.is_presetup && !m.is_claimed;
+                const isDemo = !isPresetupUnclaimed && m.billing_status === 'active' && !m.stripe_subscription_id && !m.stripe_payment_method_id && m.member_limit === null && m.billing_cycle === 'monthly' && m.tier !== 'free_for_life';
 
-                if (isDemo) freq = 'Demo';
+                if (isPresetupUnclaimed) freq = 'Pre-Setup';
+                else if (isDemo) freq = 'Demo';
 
                 const priceMap = {
                   tier1: { monthly: 29.99, annual: 305.89, lifetime: 305.89 },
                   online_starter: { monthly: 149, annual: 1519.80, lifetime: 1519.80 },
                   online_growth: { monthly: 299, annual: 3049.80, lifetime: 3049.80 },
-                  online_scale: { monthly: 499, annual: 5089.80, lifetime: 5089.80 }
+                  online_scale: { monthly: 499, annual: 5089.80, lifetime: 5089.80 },
+                  presetup_50: { monthly: 0, annual: 0, lifetime: 0 }
                 };
                 const commRate = earningsR?.data?.rule?.commission_rate || 0.25;
                 const isCancelledOrDeleted = m.billing_status === 'cancelled' || m.billing_status === 'deleted';
-                const estGross = (isDemo || isCancelledOrDeleted) ? 0 : (priceMap[m.tier]?.[m.billing_cycle || 'monthly'] || 0);
+                const estGross = (isDemo || isPresetupUnclaimed || isCancelledOrDeleted) ? 0 : (priceMap[m.tier]?.[m.billing_cycle || 'monthly'] || 0);
                 const estComm = estGross * commRate;
-                const grossFmt = estGross ? `$${estGross.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}` : '—';
-                const commFmt = estComm ? `$${estComm.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}` : '—';
+                const grossFmt = isPresetupUnclaimed ? '<span style="color:#b45309;font-size:11px;font-weight:600;">$0 (Pre-Setup)</span>' : (estGross ? `$${estGross.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}` : '—');
+                const commFmt = isPresetupUnclaimed ? '<span style="color:#b45309;font-size:11px;font-weight:600;">$0 (Pre-Setup)</span>' : (estComm ? `$${estComm.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}` : '—');
 
-                  const displayStatus = (m.application_status === 'pending') ? 'pending' : (m.billing_status || '—');
-                  const badgeClass = displayStatus === 'active' ? 'active' : displayStatus === 'pending' ? 'pending' : 'inactive';
+                const displayStatus = isPresetupUnclaimed ? 'UNCLAIMED' : ((m.application_status === 'pending') ? 'PENDING' : (m.billing_status || '—').toUpperCase());
+                const badgeClass = isPresetupUnclaimed ? 'pending' : (displayStatus === 'ACTIVE' ? 'active' : displayStatus === 'PENDING' ? 'pending' : 'inactive');
 
-                  return `<tr>
+                return `<tr>
                   <td style="font-weight:700;">${m.business_name || '—'}</td>
                   <td><span class="badge badge-${m.tier}">${tierMap[m.tier] || (m.tier||'—').toUpperCase()}</span></td>
                   <td><span style="font-size:12px;font-weight:700;color:var(--muted);">${typeMap[m.billing_cycle] || (m.billing_cycle||'—').toUpperCase()}</span></td>
                   <td><span style="font-size:12px;font-weight:700;color:var(--muted);">${freq}</span></td>
                   <td style="font-size:12px;font-weight:700;">${grossFmt}</td>
                   <td style="font-size:12px;font-weight:800;color:#22c55e;">${commFmt}</td>
-                  <td><span class="badge badge-${badgeClass}">${displayStatus.toUpperCase()}</span></td>
+                  <td><span class="badge badge-${badgeClass}">${displayStatus}</span></td>
                   <td style="font-size:12px;font-weight:700;color:var(--text);">${m.member_count || 0}</td>
                   <td style="color:var(--muted);">${fmtDate(m.attributed_at)}</td>
                 </tr>`;
