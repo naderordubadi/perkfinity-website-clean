@@ -665,6 +665,12 @@
       document.getElementById('zip-input').value = '';
       extraCities.length = 0;
       extraZips.length = 0;
+      activePresence = 'all';
+      activeCategory = 'all';
+      document.querySelectorAll('.presence-row .pres-chip').forEach(c => c.classList.remove('active'));
+      document.querySelector('.presence-row .pres-chip[data-pres="all"]')?.classList.add('active');
+      document.querySelectorAll('.filter-bar .filter-chip').forEach(c => c.classList.remove('active'));
+      document.querySelector('.filter-bar .filter-chip[data-cat="all"]')?.classList.add('active');
       renderTags();
       doSearch();
     }
@@ -688,8 +694,7 @@
       document.querySelectorAll('.presence-row .pres-chip').forEach(c => c.classList.remove('active'));
       btn.classList.add('active');
       activePresence = btn.dataset.pres;
-      // Re-filter immediately if results are already showing
-      if (document.getElementById('merchants-list').children.length > 0) doSearch();
+      doSearch();
     }
 
     function setCat(btn) {
