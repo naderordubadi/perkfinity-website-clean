@@ -3642,6 +3642,10 @@
       const file = event.target.files[0];
       if (!file) return;
 
+      // Clear any typed URL so the uploaded file takes clean priority
+      const urlInput = document.getElementById(`psc-${type}-url`);
+      if (urlInput) urlInput.value = '';
+
       try {
         const maxDim = type === 'logo' ? 400 : 1200;
         const base64 = await compressPresetupImage(file, maxDim, 0.75);
@@ -3671,10 +3675,14 @@
 
     function normalizeUrlInput(el) {
       if (!el || !el.value) return;
-      const val = el.value.trim();
-      if (val && !/^https?:\/\//i.test(val)) {
-        el.value = 'https://' + val;
+      let val = el.value.trim();
+      if (!val) return;
+      if (/^http:\/\//i.test(val)) {
+        val = val.replace(/^http:\/\//i, 'https://');
+      } else if (!/^https:\/\//i.test(val)) {
+        val = 'https://' + val;
       }
+      el.value = val;
     }
 
     function handlePresetupUrlChange(type) {
@@ -3683,10 +3691,17 @@
       const previewBox = document.getElementById(`psc-${type}-preview-box`);
       const previewImg = document.getElementById(`psc-${type}-preview-img`);
       if (val) {
-        if (!/^https?:\/\//i.test(val)) {
+        if (/^http:\/\//i.test(val)) {
+          val = val.replace(/^http:\/\//i, 'https://');
+          urlInput.value = val;
+        } else if (!/^https?:\/\//i.test(val)) {
           val = 'https://' + val;
         }
-        _presetupImages[type] = ''; // URL input takes precedence
+        // Clear file input and file state when typing a URL
+        _presetupImages[type] = '';
+        const fileInput = document.getElementById(`psc-${type}-file`);
+        if (fileInput) fileInput.value = '';
+
         if (previewBox && previewImg) {
           previewImg.src = val;
           previewBox.style.display = 'flex';
@@ -3751,8 +3766,8 @@
           website: document.getElementById('psc-website')?.value || '',
           review_url: document.getElementById('psc-review-url')?.value || '',
           order_url: document.getElementById('psc-order-url')?.value || '',
-          logo_url: document.getElementById('psc-logo-url')?.value || '',
-          cover_url: document.getElementById('psc-cover-url')?.value || '',
+          logo_url: _presetupImages.logo ? '' : (document.getElementById('psc-logo-url')?.value || ''),
+          cover_url: _presetupImages.cover ? '' : (document.getElementById('psc-cover-url')?.value || ''),
           logo_base64: _presetupImages.logo || '',
           cover_base64: _presetupImages.cover || '',
           promo_desc: document.getElementById('psc-promo-desc')?.value || '',
@@ -3792,26 +3807,31 @@
         if (draft.website) document.getElementById('psc-website').value = draft.website;
         if (draft.review_url) document.getElementById('psc-review-url').value = draft.review_url;
         if (draft.order_url) document.getElementById('psc-order-url').value = draft.order_url;
-        if (draft.logo_url) {
-          document.getElementById('psc-logo-url').value = draft.logo_url;
-          handlePresetupUrlChange('logo');
-        }
-        if (draft.cover_url) {
-          document.getElementById('psc-cover-url').value = draft.cover_url;
-          handlePresetupUrlChange('cover');
-        }
+        
+        // Restore logo: file upload takes priority over URL
         if (draft.logo_base64) {
           _presetupImages.logo = draft.logo_base64;
+          document.getElementById('psc-logo-url').value = '';
           const previewBox = document.getElementById('psc-logo-preview-box');
           const previewImg = document.getElementById('psc-logo-preview-img');
           if (previewBox && previewImg) { previewImg.src = draft.logo_base64; previewBox.style.display = 'flex'; }
+        } else if (draft.logo_url) {
+          document.getElementById('psc-logo-url').value = draft.logo_url;
+          handlePresetupUrlChange('logo');
         }
+
+        // Restore cover: file upload takes priority over URL
         if (draft.cover_base64) {
           _presetupImages.cover = draft.cover_base64;
+          document.getElementById('psc-cover-url').value = '';
           const previewBox = document.getElementById('psc-cover-preview-box');
           const previewImg = document.getElementById('psc-cover-preview-img');
           if (previewBox && previewImg) { previewImg.src = draft.cover_base64; previewBox.style.display = 'flex'; }
+        } else if (draft.cover_url) {
+          document.getElementById('psc-cover-url').value = draft.cover_url;
+          handlePresetupUrlChange('cover');
         }
+
         if (draft.promo_desc) {
           document.getElementById('psc-promo-desc').value = draft.promo_desc;
           const charCount = document.getElementById('psc-promo-char-count');
@@ -3914,9 +3934,14 @@
 
       const normalizeUrl = (u) => {
         if (!u) return '';
-        const trimmed = u.trim();
+        let trimmed = u.trim();
         if (!trimmed) return '';
-        return /^https?:\/\//i.test(trimmed) ? trimmed : 'https://' + trimmed;
+        if (/^http:\/\//i.test(trimmed)) {
+          trimmed = trimmed.replace(/^http:\/\//i, 'https://');
+        } else if (!/^https:\/\//i.test(trimmed)) {
+          trimmed = 'https://' + trimmed;
+        }
+        return trimmed;
       };
 
       const payload = {
