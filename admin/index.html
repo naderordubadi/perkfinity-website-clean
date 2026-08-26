@@ -879,8 +879,8 @@
                 <input type="text" id="psc-website" class="form-input" placeholder="e.g. www.store.com or https://..." onblur="normalizeUrlInput(this)" style="width:100%;padding:9px 12px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:13px;"/>
               </div>
               <div>
-                <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px;">Review URL (Google/Yelp)</label>
-                <input type="text" id="psc-review-url" class="form-input" placeholder="e.g. g.page/r/... or www.google.com/..." onblur="normalizeUrlInput(this)" style="width:100%;padding:9px 12px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:13px;"/>
+                <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px;">Review / Social URL (Google/Yelp/Instagram/TikTok/X)</label>
+                <input type="text" id="psc-review-url" class="form-input" placeholder="e.g. instagram.com/... or g.page/r/..." onblur="normalizeUrlInput(this)" style="width:100%;padding:9px 12px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:13px;"/>
               </div>
               <div>
                 <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px;">Order / Booking URL (Toast/Shopify/Portal)</label>
@@ -2768,7 +2768,7 @@
           ${m.website ? infoRow('Website', `<a href="${m.website.startsWith('http') ? m.website : 'https://' + m.website}" target="_blank" style="color:#5b3fa5;font-weight:600;">${m.website}</a>`) : infoRow('Website', '—')}
           ${infoRow('Welcome Offer', m.welcome_offer_text || m.perk)}
           ${(m.business_presence === 'online' || m.business_presence === 'hybrid') ? infoRow('Welcome Promo Code', `<span style="font-family:monospace;font-weight:800;color:#5b3fa5;letter-spacing:1px;">${m.welcome_promo_code || '—'}</span>`) : ''}
-          ${m.review_url ? infoRow('Review URL', `<a href="${m.review_url}" target="_blank" style="color:#5b3fa5;font-weight:600;">${m.review_url}</a>`) : ''}
+          ${m.review_url ? infoRow('Review / Social URL', `<a href="${m.review_url}" target="_blank" style="color:#5b3fa5;font-weight:600;">${m.review_url}</a>`) : ''}
           ${m.order_url ? infoRow('Order / Booking URL', `<a href="${m.order_url}" target="_blank" style="color:#5b3fa5;font-weight:600;">${m.order_url}</a>`) : ''}
           ${infoRow('POS System', m.pos_system)}
           ${infoRow('Merchant ID', m.id)}

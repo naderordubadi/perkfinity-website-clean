@@ -23,14 +23,30 @@ window.openFullPageTakeover = function(merchant) {
   }
 
   const isHybrid = merchant.business_presence === 'hybrid';
-  let reviewBtnLabel = '⭐ View Reviews';
-  if (merchant.rating_platform && merchant.rating_score) {
-    reviewBtnLabel = `⭐ View ${merchant.rating_platform} Reviews`;
-  } else if (merchant.review_url) {
-    const rUrlLower = merchant.review_url.toLowerCase();
-    if (rUrlLower.includes('yelp')) reviewBtnLabel = '⭐ View Yelp Reviews';
-    else if (rUrlLower.includes('google') || rUrlLower.includes('g.page') || rUrlLower.includes('maps.app.goo.gl')) reviewBtnLabel = '⭐ View Google Reviews';
-  }
+  
+  const getReviewSocialBtnLabel = window.getReviewSocialBtnLabel || function(url, ratingPlatform, ratingScore, isCompact = false) {
+    if (!url && !ratingPlatform) return isCompact ? '⭐ Reviews' : '⭐ View Reviews';
+    const u = (url || '').toLowerCase();
+    if (u.includes('instagram.com') || u.includes('instagr.am')) return '📸 Follow on Instagram';
+    if (u.includes('facebook.com') || u.includes('fb.me') || u.includes('fb.com')) return '👍 Follow on Facebook';
+    if (u.includes('tiktok.com')) return '🎵 Follow on TikTok';
+    if (u.includes('twitter.com') || u.includes('x.com')) return '𝕏 Follow on X';
+    if (u.includes('youtube.com') || u.includes('youtu.be')) return '▶️ Watch on YouTube';
+    if (u.includes('linkedin.com')) return '💼 Connect on LinkedIn';
+    if (u.includes('pinterest.com') || u.includes('pin.it')) return '📌 Follow on Pinterest';
+    if (u.includes('threads.net')) return '🧵 Follow on Threads';
+    if (u.includes('nextdoor.com')) return '🏡 View on Nextdoor';
+    if (u.includes('bbb.org')) return '🛡️ View BBB Profile';
+    if (u.includes('tripadvisor.com')) return isCompact ? '⭐ TripAdvisor Reviews' : '⭐ View TripAdvisor Reviews';
+    if (u.includes('trustpilot.com')) return isCompact ? '⭐ Trustpilot Reviews' : '⭐ View Trustpilot Reviews';
+    if (u.includes('yelp.com') || ratingPlatform === 'Yelp') return isCompact ? '⭐ Yelp Reviews' : '⭐ View Yelp Reviews';
+    if (u.includes('google.com') || u.includes('g.page') || u.includes('maps.app.goo.gl') || ratingPlatform === 'Google') return isCompact ? '⭐ Google Reviews' : '⭐ View Google Reviews';
+    if (ratingPlatform && ratingScore) return `⭐ View ${ratingPlatform} Reviews`;
+    return isCompact ? '🔗 Visit Social Page' : '🔗 View Reviews / Social Page';
+  };
+  window.getReviewSocialBtnLabel = getReviewSocialBtnLabel;
+
+  const reviewBtnLabel = getReviewSocialBtnLabel(merchant.review_url, merchant.rating_platform, merchant.rating_score, false);
   const orderBtn = merchant.order_url ? `<a href="${merchant.order_url}" target="_blank" style="background:#16A34A; color:#fff; padding:12px 20px; border-radius:10px; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; gap:8px; width:100%; box-sizing:border-box;">🛒 Order / Book Now</a>` : '';
   const reviewBtn = merchant.review_url ? `<a href="${merchant.review_url}" target="_blank" style="background:#3B82F6; color:#fff; padding:12px 20px; border-radius:10px; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; gap:8px; width:100%; box-sizing:border-box;">${reviewBtnLabel}</a>` : '';
   const websiteBtn = merchant.website ? `<a href="${merchant.website.startsWith('http') ? merchant.website : 'https://' + merchant.website}" target="_blank" style="background:#64748B; color:#fff; padding:12px 20px; border-radius:10px; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; gap:8px; width:100%; box-sizing:border-box;">🌐 Official Website</a>` : '';
