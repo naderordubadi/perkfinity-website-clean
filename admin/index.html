@@ -4064,8 +4064,9 @@
       const perk = m.welcome_offer_text || 'Welcome Perk';
       const publicCode = m.public_code || 'DEMO';
       const qrUrl = `https://www.perkfinity.net/qr/${publicCode}`;
-      const qrImgSrc = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(qrUrl)}&margin=1`;
+      const qrImgSrc = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&ecc=H&data=${encodeURIComponent(qrUrl)}&margin=1`;
       const logoImgSrc = (m.logo_url && !m.logo_url.includes('Perkfinity-App-Icon')) ? m.logo_url : '';
+      const storeInitial = (storeName.trim().charAt(0) || 'P').toUpperCase();
       const tempEmail = m.temp_email || 'owner@presetup.perkfinity.net';
       const tempPassword = m.temp_password_plain || '*(Claimed)*';
 
@@ -4172,7 +4173,15 @@
                 <div style="display:flex;flex-direction:column;align-items:center;align-self:center;flex-shrink:0;gap:6px;">
                   <div style="width:160px;height:160px;position:relative;border:2px solid #e2e8f0;border-radius:14px;padding:8px;background:#fff;">
                     <img src="${qrImgSrc}" style="width:100%;height:100%;display:block;">
-                    ${logoImgSrc ? `<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:44px;height:44px;background:#fff;border-radius:11px;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,0.12);"><img src="${logoImgSrc}" style="width:34px;height:34px;object-fit:contain;border-radius:8px;"></div>` : ''}
+                    ${logoImgSrc ? `
+                      <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:40px;height:40px;background:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,0.15);">
+                        <img src="${logoImgSrc}" style="width:30px;height:30px;object-fit:contain;border-radius:6px;">
+                      </div>
+                    ` : `
+                      <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:36px;height:36px;background:#5B3FA5;color:#fff;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;font-family:Inter,system-ui,sans-serif;box-shadow:0 1px 4px rgba(0,0,0,0.2);-webkit-print-color-adjust:exact;print-color-adjust:exact;">
+                        ${escapeHtml(storeInitial)}
+                      </div>
+                    `}
                   </div>
                   <div style="font-size:9px;color:#999;font-weight:600;text-align:center;">Scan to download<br>the Perkfinity app</div>
                 </div>
