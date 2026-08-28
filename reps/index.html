@@ -765,19 +765,25 @@
     if (!email) { msgEl.style.color='#ef4444'; msgEl.textContent='Please enter your email.'; msgEl.style.display='block'; return; }
     btn.disabled = true; btn.textContent = 'Sending…';
     try {
-      await fetch(API_BASE + '/rep/forgot-password', {
+      const res = await fetch(API_BASE + '/rep/forgot-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })
       });
-      msgEl.style.color = '#22c55e';
-      msgEl.textContent = 'If that email is registered, a reset link was sent. Check your inbox.';
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.success) {
+        msgEl.style.color = '#22c55e';
+        msgEl.textContent = data.message || 'If that email is registered, a reset link was sent. Check your inbox.';
+      } else {
+        msgEl.style.color = '#ef4444';
+        msgEl.textContent = data.error || 'Failed to send reset link. Please try again.';
+      }
       msgEl.style.display = 'block';
-      btn.disabled = false; btn.textContent = 'Send Link';
     } catch(e) {
       msgEl.style.color = '#ef4444';
       msgEl.textContent = 'Connection error. Please try again.';
       msgEl.style.display = 'block';
+    } finally {
       btn.disabled = false; btn.textContent = 'Send Link';
     }
   }
