@@ -3257,6 +3257,15 @@
           } else {
             localStorage.removeItem('perkfinity_logo_url');
           }
+          if (d.contractor_name) {
+            localStorage.setItem('perkfinity_rep_name', d.contractor_name);
+            localStorage.setItem('perkfinity_rep_phone', d.contractor_phone || '');
+            localStorage.setItem('perkfinity_rep_email', d.contractor_email || '');
+          } else {
+            localStorage.removeItem('perkfinity_rep_name');
+            localStorage.removeItem('perkfinity_rep_phone');
+            localStorage.removeItem('perkfinity_rep_email');
+          }
           const h1 = document.getElementById('welcomeTitle');
           const existingImg = h1.querySelector('img');
           if (d.logo_url && !existingImg) {
@@ -5238,6 +5247,16 @@
               localStorage.setItem('perkfinity_member_perk', perk);
             }
 
+            if (json.data.contractor_name) {
+              localStorage.setItem('perkfinity_rep_name', json.data.contractor_name);
+              localStorage.setItem('perkfinity_rep_phone', json.data.contractor_phone || '');
+              localStorage.setItem('perkfinity_rep_email', json.data.contractor_email || '');
+            } else {
+              localStorage.removeItem('perkfinity_rep_name');
+              localStorage.removeItem('perkfinity_rep_phone');
+              localStorage.removeItem('perkfinity_rep_email');
+            }
+
             const posterStoreEl = document.getElementById('poster-store');
             if (posterStoreEl) posterStoreEl.innerText = businessName;
 
@@ -5423,6 +5442,10 @@
       const isBold = variant === 'square3';
       const isSplit = variant === 'square2';
 
+      const repName = (localStorage.getItem('perkfinity_rep_name') || '').trim();
+      const repPhone = (localStorage.getItem('perkfinity_rep_phone') || '').trim();
+      const repEmail = (localStorage.getItem('perkfinity_rep_email') || '').trim();
+
       const headingColor = isBold ? 'color:#fff;' : 'color:#1e1b4b;';
       const subColor = isBold ? 'color:rgba(255,255,255,0.75);' : 'color:#64748b;';
       const borderMain = isBold ? 'background:#4f3594;color:#fff;border:none;' : 'background:#fff;border:none;';
@@ -5531,15 +5554,15 @@
             <div style="display:flex;flex-direction:column;gap:6px;font-size:10px;font-weight:600;${subColor}">
               <div style="display:flex;align-items:baseline;gap:6px;">
                 <span style="width:65px;flex-shrink:0;${headingColor}font-weight:700;">Rep Name:</span>
-                <div style="flex:1;border-bottom:1px solid ${isBold ? 'rgba(255,255,255,0.4)' : '#94a3b8'};height:12px;"></div>
+                <div style="flex:1;border-bottom:1px solid ${isBold ? 'rgba(255,255,255,0.4)' : '#94a3b8'};min-height:12px;font-weight:700;${isBold ? 'color:#fff;' : 'color:#0f172a;'}padding-left:4px;">${repName}</div>
               </div>
               <div style="display:flex;align-items:baseline;gap:6px;">
                 <span style="width:65px;flex-shrink:0;${headingColor}font-weight:700;">Phone:</span>
-                <div style="flex:1;border-bottom:1px solid ${isBold ? 'rgba(255,255,255,0.4)' : '#94a3b8'};height:12px;"></div>
+                <div style="flex:1;border-bottom:1px solid ${isBold ? 'rgba(255,255,255,0.4)' : '#94a3b8'};min-height:12px;font-weight:700;${isBold ? 'color:#fff;' : 'color:#0f172a;'}padding-left:4px;">${repPhone}</div>
               </div>
               <div style="display:flex;align-items:baseline;gap:6px;">
                 <span style="width:65px;flex-shrink:0;${headingColor}font-weight:700;">Email:</span>
-                <div style="flex:1;border-bottom:1px solid ${isBold ? 'rgba(255,255,255,0.4)' : '#94a3b8'};height:12px;"></div>
+                <div style="flex:1;border-bottom:1px solid ${isBold ? 'rgba(255,255,255,0.4)' : '#94a3b8'};min-height:12px;font-weight:700;${isBold ? 'color:#fff;' : 'color:#0f172a;'}padding-left:4px;">${repEmail}</div>
               </div>
             </div>
           </div>
