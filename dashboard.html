@@ -5578,6 +5578,8 @@
       const targetDiv = document.getElementById('printable-poster-wrapper');
       if (!targetDiv) return;
 
+      const storeName = (document.getElementById('poster-store')?.innerText || localStorage.getItem('perkfinity_business_name') || 'Store Name').trim();
+      const perk = (document.getElementById('poster-perk')?.innerText || localStorage.getItem('perkfinity_welcome_offer_text') || localStorage.getItem('perkfinity_member_perk') || 'Your Welcome Offer').trim();
       const rawLogo = document.getElementById('printLogoImg')?.src || '';
       const logoImg = (rawLogo && !rawLogo.includes('Perkfinity-App-Icon')) ? rawLogo : '';
       const qrImg = document.getElementById('qr-canvas-target')?.querySelector('img')?.src
