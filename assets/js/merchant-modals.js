@@ -71,7 +71,12 @@ window.openFullPageTakeover = function(merchant) {
 
           <!-- Left Main Column -->
           <div style="padding:32px; border-right:1px solid #F1F5F9;">
-            ${merchant.promo_banner_url || merchant.cover_photo_url ? `<img src="${merchant.promo_banner_url || merchant.cover_photo_url}" style="width:100%; height:260px; object-fit:cover; border-radius:14px; margin-bottom:20px;" alt="Banner" onerror="this.style.display='none';">` : `<div style="width:100%; height:200px; background:linear-gradient(135deg, #311C87 0%, #1E1B4B 100%); border-radius:14px; margin-bottom:20px; display:flex; align-items:center; justify-content:center; padding:16px;">${merchant.logo_url ? `<img src="${merchant.logo_url}" style="max-height:80px; max-width:80%; object-fit:contain;" alt="">` : `<span style="font-size:24px; font-weight:800; color:#FFFFFF; text-align:center;">${merchant.business_name || merchant.merchant_name || 'Brand'}</span>`}</div>`}
+            <div style="position:relative; width:100%; margin-bottom:20px; border-radius:14px; overflow:hidden;">
+              <div style="position:absolute; top:12px; left:12px; z-index:5;">
+                <span style="background:rgba(0,0,0,0.55); color:rgba(255,255,255,0.92); border:1px solid rgba(255,255,255,0.2); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); padding:3px 10px; border-radius:12px; font-size:11px; font-weight:600; letter-spacing:0.2px; display:inline-block; box-shadow:0 2px 8px rgba(0,0,0,0.25);">Sponsored</span>
+              </div>
+              ${merchant.promo_banner_url || merchant.cover_photo_url ? `<img src="${merchant.promo_banner_url || merchant.cover_photo_url}" style="width:100%; height:260px; object-fit:cover; display:block;" alt="Banner" onerror="this.style.display='none';">` : `<div style="width:100%; height:200px; background:linear-gradient(135deg, #311C87 0%, #1E1B4B 100%); display:flex; align-items:center; justify-content:center; padding:16px;">${merchant.logo_url ? `<img src="${merchant.logo_url}" style="max-height:80px; max-width:80%; object-fit:contain;" alt="">` : `<span style="font-size:24px; font-weight:800; color:#FFFFFF; text-align:center;">${merchant.business_name || merchant.merchant_name || 'Brand'}</span>`}</div>`}
+            </div>
             
             <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px; flex-wrap:wrap;">
               <h2 style="margin:0; font-size:24px; font-weight:800; color:#1E293B;">${(merchant.business_name || merchant.merchant_name || 'Brand')}</h2>
