@@ -4067,7 +4067,7 @@
       const qrImgSrc = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&ecc=H&data=${encodeURIComponent(qrUrl)}&margin=1`;
       const logoImgSrc = (m.logo_url && !m.logo_url.includes('Perkfinity-App-Icon')) ? m.logo_url : '';
       const storeInitial = (storeName.trim().charAt(0) || 'P').toUpperCase();
-      const tempEmail = m.temp_email || 'owner@presetup.perkfinity.net';
+      const tempEmail = m.temp_email || 'owner@presetup.net';
       const tempPassword = m.temp_password_plain || '*(Claimed)*';
 
       const repNameVal = m.contractor_name ? escapeHtml(m.contractor_name) : '';
