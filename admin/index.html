@@ -1139,7 +1139,9 @@
           </select>
           <select class="toolbar-select" id="merchant-filter-tier" onchange="filterTable('merchants')">
             <option value="">All Tiers</option>
-            <option value="presetup">Pre-Setup</option>
+            <option value="presetup">Pre-Setup (All)</option>
+            <option value="presetup_claimed">Pre-Setup (Claimed)</option>
+            <option value="presetup_unclaimed">Pre-Setup (Unclaimed)</option>
             <option value="tier1">Connect</option>
             <option value="online_starter">Starter</option>
             <option value="online_growth">Growth</option>
@@ -1262,9 +1264,9 @@
         <div class="toolbar" style="flex-wrap:wrap;gap:8px;">
           <input type="text" class="toolbar-search" id="presetup-search" placeholder="Search store name, category, city, zip..." oninput="filterPresetupTable()" style="min-width:240px;"/>
           <select class="toolbar-select" id="presetup-filter-claimed" onchange="filterPresetupTable()">
-            <option value="">All Claim Statuses</option>
-            <option value="unclaimed">⏳ Unclaimed</option>
-            <option value="claimed">✅ Claimed</option>
+            <option value="unclaimed" selected>⏳ Unclaimed Only</option>
+            <option value="claimed">✅ Claimed Only</option>
+            <option value="">All Statuses</option>
           </select>
           <select class="toolbar-select" id="presetup-filter-visibility" onchange="filterPresetupTable()">
             <option value="">All Visibility</option>
@@ -3509,7 +3511,7 @@
           badge.style.display = unclaimed > 0 ? 'inline' : 'none';
         }
 
-        renderPresetupTable(_allPresetupMerchants);
+        filterPresetupTable();
       } catch (e) {
         tbody.innerHTML = '<tr><td colspan="9" style="padding:40px;text-align:center;color:var(--red)">Error loading pre-setup merchants.</td></tr>';
       }
@@ -5549,6 +5551,14 @@
               return bs !== 'deleted';
             });
           }
+
+          // By default, hide unclaimed pre-setup accounts from main Merchants table
+          // (Only show them if the admin explicitly chooses a Pre-Setup tier filter)
+          const currentTierVal = document.getElementById('merchant-filter-tier')?.value || '';
+          if (!currentTierVal.startsWith('presetup')) {
+            data = data.filter(m => !m.is_presetup || m.is_claimed);
+          }
+
           search = document.getElementById('merchant-search').value.toLowerCase();
           filters.status = document.getElementById('merchant-filter-status').value;
           filters.tier = document.getElementById('merchant-filter-tier').value;
@@ -5578,6 +5588,8 @@
           if (filters.tier) {
             data = data.filter(m => {
               if (filters.tier === 'presetup') return !!m.is_presetup;
+              if (filters.tier === 'presetup_claimed') return !!m.is_presetup && !!m.is_claimed;
+              if (filters.tier === 'presetup_unclaimed') return !!m.is_presetup && !m.is_claimed;
               if (filters.tier === 'pouf') return m.tier === 'pouf' || m.billing_cycle === 'lifetime';
               if (filters.tier === 'free') return ['free', 'trial', 'free_trial', 'extended_trial'].includes(m.tier) && !m.is_presetup;
               return (m.tier || 'free') === filters.tier;
