@@ -2847,12 +2847,28 @@
         </div>
 
         <div style="background:#f8fafc;border-radius:12px;padding:18px 20px;">
-          <div style="font-size:14px;font-weight:800;color:#1a1a2e;margin-bottom:10px;">⚙️ Actions</div>
-          <div style="display:flex;gap:10px;align-items:center;">
+          <div style="font-size:14px;font-weight:800;color:#1a1a2e;margin-bottom:12px;">⚙️ Actions</div>
+          <div style="display:flex;gap:10px;align-items:center;margin-bottom:16px;">
             <button onclick="toggleVisibility('${merchantId}', ${!m.is_hidden})" style="padding:8px 16px;border-radius:8px;border:none;background:${m.is_hidden ? '#10b981' : '#64748b'};color:white;font-weight:700;cursor:pointer;font-family:inherit;">
               ${m.is_hidden ? '👁️ Unhide Merchant' : '🙈 Hide Merchant'}
             </button>
             <span style="font-size:12px;color:#64748b;">${m.is_hidden ? 'Currently hidden from consumer search.' : 'Currently visible in consumer search.'}</span>
+          </div>
+
+          <div style="padding-top:14px;border-top:1px solid #e2e8f0;">
+            <div style="font-size:12px;font-weight:700;color:#64748b;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">🖨️ Print 5.5″ × 8.5″ Acrylic Stand &amp; Cashier Guide</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button onclick="adminPrintStandPoster('square1', '${merchantId}')" style="flex:1;min-width:130px;padding:10px 14px;background:#5b3fa5;color:#fff;border:none;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:opacity 0.15s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
+                🖨️ Classic
+              </button>
+              <button onclick="adminPrintStandPoster('square2', '${merchantId}')" style="flex:1;min-width:130px;padding:10px 14px;background:#2563eb;color:#fff;border:none;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:opacity 0.15s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
+                🖨️ Split
+              </button>
+              <button onclick="adminPrintStandPoster('square3', '${merchantId}')" style="flex:1;min-width:130px;padding:10px 14px;background:#4f3594;color:#fff;border:none;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:opacity 0.15s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
+                🖨️ Bold Purple
+              </button>
+            </div>
+            <div style="font-size:11px;color:#94a3b8;margin-top:6px;">Exact 1:1 match with Merchant Dashboard 2-in-1 print engine (Customer Acrylic Stand + Staff Guide).</div>
           </div>
         </div>
       `;
@@ -4053,6 +4069,400 @@
       a.href = url;
       a.download = `Perkfinity_Presetup_Merchants_${new Date().toISOString().slice(0,10)}.csv`;
       a.click();
+    }
+
+    // ── Build Customer Stand (Left Half, 5.5" × 8.5") ───────────────
+    function buildCustomerSignHTML(variant, storeName, perk, logoImg, qrImg) {
+      const hasLogo = logoImg && !logoImg.includes('Perkfinity-App-Icon');
+      if (variant === 'square2') {
+        // Split 5.5×8.5
+        return `
+          <div style="width:5.5in;height:8.5in;background:#fff;border:none;border-radius:0;overflow:hidden;display:flex;flex-direction:column;font-family:Inter,system-ui,sans-serif;box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact;flex-shrink:0;">
+            <div style="background:#4f3594;padding:18px 24px 14px;text-align:center;flex-shrink:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;">
+              <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:10px;text-align:center;">
+                ${hasLogo ? `<img src="${logoImg}" style="height:44px;width:44px;object-fit:contain;border-radius:8px;background:#fff;padding:2px;">` : ''}
+                <div style="font-size:22px;font-weight:900;color:#fff;letter-spacing:-0.5px;line-height:1.1;">${storeName}</div>
+              </div>
+              <div style="font-size:18px;font-weight:900;color:#fff;line-height:1.2;letter-spacing:-0.3px;">Scan, Sign Up &amp; Redeem</div>
+              <div style="font-size:12px;color:rgba(255,255,255,0.7);font-weight:600;margin-top:4px;">4 Easy Steps · Under 2 Minutes</div>
+            </div>
+            <div style="display:flex;flex-direction:row;padding:14px 20px 8px;gap:14px;background:#fff;min-height:0;flex-shrink:0;text-align:left;">
+              <div style="flex:1;display:flex;flex-direction:column;gap:12px;min-width:0;">
+                <div style="display:flex;align-items:flex-start;gap:8px;"><div style="width:28px;height:28px;border-radius:50%;background:#5B3FA5;color:#fff;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;">1</div><div><div style="font-size:14px;font-weight:700;color:#3F2B8A;line-height:1.3;">Scan the QR Code</div><div style="font-size:12px;color:#666;font-weight:500;line-height:1.4;margin-top:1px;">Download the free Perkfinity app</div></div></div>
+                <div style="display:flex;align-items:flex-start;gap:8px;"><div style="width:28px;height:28px;border-radius:50%;background:#5B3FA5;color:#fff;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;">2</div><div><div style="font-size:14px;font-weight:700;color:#3F2B8A;line-height:1.3;">Sign Up Your Way</div><div style="font-size:12px;color:#666;font-weight:500;line-height:1.4;margin-top:1px;">Apple Sign In, Google Sign In, or Email</div></div></div>
+                <div style="display:flex;align-items:flex-start;gap:8px;"><div style="width:28px;height:28px;border-radius:50%;background:#5B3FA5;color:#fff;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;">3</div><div><div style="font-size:14px;font-weight:700;color:#3F2B8A;line-height:1.3;">Quick Profile Setup</div><div style="font-size:12px;color:#666;font-weight:500;line-height:1.4;margin-top:1px;">4 simple fields &amp; preferences</div></div></div>
+                <div style="display:flex;align-items:flex-start;gap:8px;"><div style="width:28px;height:28px;border-radius:50%;background:#6BC17A;color:#fff;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;">4</div><div><div style="font-size:14px;font-weight:700;color:#2d8a3e;line-height:1.3;">Activate &amp; Redeem!</div><div style="font-size:12px;color:#666;font-weight:500;line-height:1.4;margin-top:1px;">Tap your offer and show it to the cashier</div></div></div>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:center;align-self:center;flex-shrink:0;gap:6px;">
+                <div style="width:160px;height:160px;position:relative;border:2px solid #e2e8f0;border-radius:14px;padding:8px;background:#fff;box-shadow:0 4px 14px rgba(79,53,148,0.1);">
+                  <img src="${qrImg}" style="width:100%;height:100%;display:block;">
+                  ${hasLogo ? `<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:44px;height:44px;background:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,0.12);"><img src="${logoImg}" style="width:34px;height:34px;object-fit:contain;border-radius:7px;"></div>` : ''}
+                </div>
+                <div style="font-size:9px;color:#999;font-weight:600;text-align:center;">Scan to download<br>the Perkfinity app</div>
+              </div>
+            </div>
+            <div style="padding:4px 18px 6px;background:#fff;flex-shrink:0;"><div style="padding:8px 14px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;"><div style="font-size:12px;font-weight:700;color:#166534;">It's that simple and fast! Go ahead and enjoy your perks 🎉</div></div></div>
+            <div style="padding:4px 18px 8px;background:#fff;flex-shrink:0;text-align:left;"><div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;">
+              <div style="display:flex;align-items:flex-start;gap:7px;background:#f8f7ff;border-radius:8px;padding:9px;-webkit-print-color-adjust:exact;print-color-adjust:exact;"><span style="font-size:20px;flex-shrink:0;line-height:1;">🎟️</span><div><div style="font-size:12px;font-weight:700;color:#3F2B8A;line-height:1.3;">Exclusive Coupons</div><div style="font-size:10px;color:#666;font-weight:500;line-height:1.3;margin-top:1px;">Digital deals at local spots</div></div></div>
+              <div style="display:flex;align-items:flex-start;gap:7px;background:#f8f7ff;border-radius:8px;padding:9px;-webkit-print-color-adjust:exact;print-color-adjust:exact;"><span style="font-size:20px;flex-shrink:0;line-height:1;">🔒</span><div><div style="font-size:12px;font-weight:700;color:#3F2B8A;line-height:1.3;">100% Private</div><div style="font-size:10px;color:#666;font-weight:500;line-height:1.3;margin-top:1px;">Your identity stays yours</div></div></div>
+              <div style="display:flex;align-items:flex-start;gap:7px;background:#f8f7ff;border-radius:8px;padding:9px;-webkit-print-color-adjust:exact;print-color-adjust:exact;"><span style="font-size:20px;flex-shrink:0;line-height:1;">📲</span><div><div style="font-size:12px;font-weight:700;color:#3F2B8A;line-height:1.3;">Instant Activation</div><div style="font-size:10px;color:#666;font-weight:500;line-height:1.3;margin-top:1px;">No cards, no waiting</div></div></div>
+              <div style="display:flex;align-items:flex-start;gap:8px;background:#f8f7ff;border-radius:8px;padding:9px;-webkit-print-color-adjust:exact;print-color-adjust:exact;"><span style="font-size:20px;flex-shrink:0;line-height:1;">🏪</span><div><div style="font-size:12px;font-weight:700;color:#3F2B8A;line-height:1.3;">One App, Multiple Stores</div><div style="font-size:10px;color:#666;font-weight:500;line-height:1.3;margin-top:1px;">All local businesses nearby</div></div></div>
+            </div></div>
+            <div style="background:#fff;padding:4px 20px 10px;text-align:center;flex:1;display:flex;align-items:center;justify-content:center;"><div style="display:inline-block;padding:12px 30px;background:#6BC17A;color:#fff;border-radius:14px;transform:rotate(-3deg);-webkit-print-color-adjust:exact;print-color-adjust:exact;"><div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;opacity:0.9;margin-bottom:2px;">Unlock Instantly:</div><div style="font-size:20px;font-weight:900;line-height:1.2;letter-spacing:-0.3px;">${perk}</div></div></div>
+            <div style="background:#2a1a5e;height:1.75in;padding:0.4in 24px 0;text-align:center;flex-shrink:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;margin-top:auto;display:flex;flex-direction:column;align-items:center;">
+              <div style="font-size:11px;color:rgba(255,255,255,0.6);font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Powered by</div>
+              <img src="https://perkfinity.net/assets/Perkfinity-White-Purple-icon-Full.png" style="height:44px;display:block;" alt="Perkfinity">
+            </div>
+          </div>
+        `;
+      }
+
+      if (variant === 'square3') {
+        // Bold Purple 5.5×8.5
+        return `
+          <div style="width:5.5in;height:8.5in;background:#4f3594;border-radius:0;padding:22px 24px 0.5in;display:flex;flex-direction:column;align-items:center;box-sizing:border-box;font-family:Inter,system-ui,sans-serif;overflow:hidden;-webkit-print-color-adjust:exact;print-color-adjust:exact;flex-shrink:0;">
+            <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:10px;text-align:center;">
+              ${hasLogo ? `<img src="${logoImg}" style="height:44px;width:44px;object-fit:contain;border-radius:8px;background:#fff;padding:2px;">` : ''}
+              <div style="font-size:22px;font-weight:900;color:#fff;letter-spacing:-0.5px;line-height:1.1;">${storeName}</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.15);padding:12px 20px;border-radius:12px;text-align:center;width:100%;-webkit-print-color-adjust:exact;print-color-adjust:exact;"><div style="font-size:18px;font-weight:900;color:#fff;line-height:1.2;letter-spacing:-0.3px;">Scan, Sign Up &amp; Redeem</div><div style="font-size:13px;font-weight:600;color:rgba(255,255,255,0.8);margin-top:3px;">4 Easy Steps · Under 2 Minutes</div></div>
+            <div style="display:flex;flex-direction:row;align-items:flex-start;gap:16px;width:100%;margin-top:14px;text-align:left;">
+              <div style="flex:1;display:flex;flex-direction:column;gap:12px;min-width:0;">
+                <div style="display:flex;align-items:flex-start;gap:8px;"><div style="width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.25);color:#fff;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;">1</div><div><div style="font-size:14px;font-weight:700;color:#fff;line-height:1.3;">Scan the QR Code</div><div style="font-size:12px;color:rgba(255,255,255,0.7);font-weight:500;line-height:1.4;margin-top:1px;">Download the free Perkfinity app</div></div></div>
+                <div style="display:flex;align-items:flex-start;gap:8px;"><div style="width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.25);color:#fff;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;">2</div><div><div style="font-size:14px;font-weight:700;color:#fff;line-height:1.3;">Sign Up Your Way</div><div style="font-size:12px;color:rgba(255,255,255,0.7);font-weight:500;line-height:1.4;margin-top:1px;">Apple Sign In, Google Sign In, or Email — your choice</div></div></div>
+                <div style="display:flex;align-items:flex-start;gap:8px;"><div style="width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.25);color:#fff;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;">3</div><div><div style="font-size:14px;font-weight:700;color:#fff;line-height:1.3;">Quick Profile Setup</div><div style="font-size:12px;color:rgba(255,255,255,0.7);font-weight:500;line-height:1.4;margin-top:1px;">4 simple fields &amp; preferences</div></div></div>
+                <div style="display:flex;align-items:flex-start;gap:8px;"><div style="width:28px;height:28px;border-radius:50%;background:#6BC17A;color:#fff;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;">4</div><div><div style="font-size:14px;font-weight:700;color:#90ee90;line-height:1.3;">Activate &amp; Redeem!</div><div style="font-size:12px;color:rgba(255,255,255,0.7);font-weight:500;line-height:1.4;margin-top:1px;">Tap your offer and show it to the cashier</div></div></div>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:center;align-self:center;flex-shrink:0;gap:6px;">
+                <div style="width:160px;height:160px;background:#fff;border-radius:16px;padding:8px;position:relative;box-shadow:0 4px 20px rgba(0,0,0,0.25);">
+                  <img src="${qrImg}" style="width:100%;height:100%;display:block;">
+                  ${hasLogo ? `<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:44px;height:44px;background:#fff;border-radius:11px;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 5px rgba(0,0,0,0.15);"><img src="${logoImg}" style="width:34px;height:34px;object-fit:contain;border-radius:7px;"></div>` : ''}
+                </div>
+                <div style="font-size:9px;color:rgba(255,255,255,0.55);font-weight:600;text-align:center;">Scan to download<br>the Perkfinity app</div>
+              </div>
+            </div>
+            <div style="margin-top:10px;padding:8px 16px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:10px;text-align:center;width:100%;-webkit-print-color-adjust:exact;print-color-adjust:exact;"><div style="font-size:12px;font-weight:700;color:#90ee90;">It's that simple and fast! Go ahead and enjoy your perks 🎉</div></div>
+            <div style="width:100%;height:1px;background:rgba(255,255,255,0.15);margin:10px 0 8px;"></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;text-align:left;">
+              <div style="display:flex;align-items:flex-start;gap:8px;background:rgba(255,255,255,0.1);border-radius:10px;padding:10px;-webkit-print-color-adjust:exact;print-color-adjust:exact;"><span style="font-size:22px;flex-shrink:0;line-height:1;">🎟️</span><div><div style="font-size:12px;font-weight:700;color:#fff;line-height:1.3;">Exclusive Coupons</div><div style="font-size:10px;color:rgba(255,255,255,0.65);font-weight:500;line-height:1.35;margin-top:2px;">Save instantly with digital deals at local spots</div></div></div>
+              <div style="display:flex;align-items:flex-start;gap:8px;background:rgba(255,255,255,0.1);border-radius:10px;padding:10px;-webkit-print-color-adjust:exact;print-color-adjust:exact;"><span style="font-size:22px;flex-shrink:0;line-height:1;">🔒</span><div><div style="font-size:12px;font-weight:700;color:#fff;line-height:1.3;">100% Private</div><div style="font-size:10px;color:rgba(255,255,255,0.65);font-weight:500;line-height:1.35;margin-top:2px;">Merchants never see your name, email, or contact info</div></div></div>
+              <div style="display:flex;align-items:flex-start;gap:8px;background:rgba(255,255,255,0.1);border-radius:10px;padding:10px;-webkit-print-color-adjust:exact;print-color-adjust:exact;"><span style="font-size:22px;flex-shrink:0;line-height:1;">📲</span><div><div style="font-size:12px;font-weight:700;color:#3F2B8A;line-height:1.3;">Instant Activation</div><div style="font-size:10px;color:rgba(255,255,255,0.65);font-weight:500;line-height:1.35;margin-top:2px;">No loyalty cards needed — everything is on your phone</div></div></div>
+              <div style="display:flex;align-items:flex-start;gap:8px;background:rgba(255,255,255,0.1);border-radius:10px;padding:10px;-webkit-print-color-adjust:exact;print-color-adjust:exact;"><span style="font-size:22px;flex-shrink:0;line-height:1;">🏪</span><div><div style="font-size:12px;font-weight:700;color:#3F2B8A;line-height:1.3;">One App, Multiple Stores</div><div style="font-size:10px;color:rgba(255,255,255,0.65);font-weight:500;line-height:1.35;margin-top:2px;">Discover perks at participating businesses near you</div></div></div>
+            </div>
+            <div style="margin-top:14px;display:inline-block;padding:10px 28px;background:#6BC17A;color:#fff;border-radius:14px;transform:rotate(-2deg);text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;"><div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;opacity:0.9;margin-bottom:1px;">Unlock Instantly:</div><div style="font-size:19px;font-weight:900;line-height:1.2;letter-spacing:-0.3px;">${perk}</div></div>
+            <div style="padding-top:10px;text-align:center;width:100%;margin-top:auto;display:flex;flex-direction:column;align-items:center;">
+              <div style="width:100%;height:2px;background:none;border-top:2px dashed rgba(255,255,255,0.2);margin-bottom:10px;"></div>
+              <div style="font-size:11px;color:rgba(255,255,255,0.6);font-weight:600;margin-bottom:6px;">Powered by</div>
+              <img src="https://perkfinity.net/assets/Perkfinity-White-Purple-icon-Full.png" style="height:38px;display:block;" alt="Perkfinity">
+            </div>
+          </div>
+        `;
+      }
+
+      // Default: Classic 5.5×8.5 (square1)
+      return `
+        <div style="width:5.5in;height:8.5in;background:#fff;border:none;border-radius:0;padding:22px 22px 0.5in;display:flex;flex-direction:column;align-items:center;box-sizing:border-box;font-family:Inter,system-ui,sans-serif;overflow:hidden;-webkit-print-color-adjust:exact;print-color-adjust:exact;flex-shrink:0;">
+          <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:10px;text-align:center;">
+            ${hasLogo ? `<img src="${logoImg}" style="height:44px;width:44px;object-fit:contain;border-radius:8px;">` : ''}
+            <div style="font-size:22px;font-weight:900;color:#3F2B8A;letter-spacing:-0.5px;line-height:1.1;">${storeName}</div>
+          </div>
+          <div style="background:linear-gradient(135deg,#5B3FA5 0%,#7C5FD6 100%);color:#fff;padding:12px 20px;border-radius:12px;text-align:center;width:100%;-webkit-print-color-adjust:exact;print-color-adjust:exact;"><div style="font-size:18px;font-weight:900;line-height:1.2;letter-spacing:-0.3px;">Scan, Sign Up &amp; Redeem</div><div style="font-size:13px;font-weight:600;opacity:0.9;margin-top:3px;">4 Easy Steps · Under 2 Minutes</div></div>
+          <div style="display:flex;flex-direction:row;align-items:flex-start;gap:16px;width:100%;margin-top:14px;text-align:left;">
+            <div style="flex:1;display:flex;flex-direction:column;gap:12px;min-width:0;">
+              <div style="display:flex;align-items:flex-start;gap:8px;"><div style="width:28px;height:28px;border-radius:50%;background:#5B3FA5;color:#fff;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;">1</div><div><div style="font-size:14px;font-weight:700;color:#3F2B8A;line-height:1.3;">Scan the QR Code</div><div style="font-size:12px;color:#666;font-weight:500;line-height:1.4;margin-top:1px;">Download the free Perkfinity app</div></div></div>
+              <div style="display:flex;align-items:flex-start;gap:8px;"><div style="width:28px;height:28px;border-radius:50%;background:#5B3FA5;color:#fff;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;">2</div><div><div style="font-size:14px;font-weight:700;color:#3F2B8A;line-height:1.3;">Sign Up Your Way</div><div style="font-size:12px;color:#666;font-weight:500;line-height:1.4;margin-top:1px;">Apple Sign In, Google Sign In, or Email — your choice</div></div></div>
+              <div style="display:flex;align-items:flex-start;gap:8px;"><div style="width:28px;height:28px;border-radius:50%;background:#5B3FA5;color:#fff;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;">3</div><div><div style="font-size:14px;font-weight:700;color:#3F2B8A;line-height:1.3;">Quick Profile Setup</div><div style="font-size:12px;color:#666;font-weight:500;line-height:1.4;margin-top:1px;">4 simple fields &amp; set up your preferences</div></div></div>
+              <div style="display:flex;align-items:flex-start;gap:8px;"><div style="width:28px;height:28px;border-radius:50%;background:#6BC17A;color:#fff;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;">4</div><div><div style="font-size:14px;font-weight:700;color:#2d8a3e;line-height:1.3;">Activate &amp; Redeem!</div><div style="font-size:12px;color:#666;font-weight:500;line-height:1.4;margin-top:1px;">Tap your offer and show it to the cashier</div></div></div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center;align-self:center;flex-shrink:0;gap:6px;">
+              <div style="width:160px;height:160px;position:relative;border:2px solid #e2e8f0;border-radius:14px;padding:8px;background:#fff;">
+                <img src="${qrImg}" style="width:100%;height:100%;display:block;">
+                ${hasLogo ? `<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:44px;height:44px;background:#fff;border-radius:11px;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,0.12);"><img src="${logoImg}" style="width:34px;height:34px;object-fit:contain;border-radius:8px;"></div>` : ''}
+              </div>
+              <div style="font-size:9px;color:#999;font-weight:600;text-align:center;">Scan to download<br>the Perkfinity app</div>
+            </div>
+          </div>
+          <div style="margin-top:10px;padding:8px 16px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;text-align:center;width:100%;-webkit-print-color-adjust:exact;print-color-adjust:exact;"><div style="font-size:12px;font-weight:700;color:#166534;">It's that simple and fast! Go ahead and enjoy your perks 🎉</div></div>
+          <div style="width:100%;height:1px;background:#e2e8f0;margin:12px 0 10px;"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;text-align:left;">
+            <div style="display:flex;align-items:flex-start;gap:8px;background:#f8f7ff;border-radius:10px;padding:10px;-webkit-print-color-adjust:exact;print-color-adjust:exact;"><span style="font-size:22px;flex-shrink:0;line-height:1;">🎟️</span><div><div style="font-size:12px;font-weight:700;color:#3F2B8A;line-height:1.3;">Exclusive Coupons</div><div style="font-size:10px;color:#666;font-weight:500;line-height:1.35;margin-top:2px;">Save instantly with digital deals at local spots</div></div></div>
+            <div style="display:flex;align-items:flex-start;gap:8px;background:#f8f7ff;border-radius:10px;padding:10px;-webkit-print-color-adjust:exact;print-color-adjust:exact;"><span style="font-size:22px;flex-shrink:0;line-height:1;">🔒</span><div><div style="font-size:12px;font-weight:700;color:#3F2B8A;line-height:1.3;">100% Private</div><div style="font-size:10px;color:#666;font-weight:500;line-height:1.35;margin-top:2px;">Merchants never see your name, email, or contact info</div></div></div>
+            <div style="display:flex;align-items:flex-start;gap:8px;background:#f8f7ff;border-radius:10px;padding:10px;-webkit-print-color-adjust:exact;print-color-adjust:exact;"><span style="font-size:22px;flex-shrink:0;line-height:1;">📲</span><div><div style="font-size:12px;font-weight:700;color:#3F2B8A;line-height:1.3;">Instant Activation</div><div style="font-size:10px;color:#666;font-weight:500;line-height:1.35;margin-top:2px;">No loyalty cards needed — everything is on your phone</div></div></div>
+            <div style="display:flex;align-items:flex-start;gap:8px;background:#f8f7ff;border-radius:10px;padding:10px;-webkit-print-color-adjust:exact;print-color-adjust:exact;"><span style="font-size:22px;flex-shrink:0;line-height:1;">🏪</span><div><div style="font-size:12px;font-weight:700;color:#3F2B8A;line-height:1.3;">One App, Multiple Stores</div><div style="font-size:10px;color:#666;font-weight:500;line-height:1.35;margin-top:2px;">Discover perks at participating businesses near you</div></div></div>
+          </div>
+          <div style="margin-top:14px;display:inline-block;padding:10px 28px;background:#6BC17A;color:#fff;border-radius:14px;transform:rotate(-2deg);text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact;"><div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;opacity:0.9;margin-bottom:1px;">Unlock Instantly:</div><div style="font-size:19px;font-weight:900;line-height:1.2;letter-spacing:-0.3px;">${perk}</div></div>
+          <div style="padding-top:10px;text-align:center;width:100%;margin-top:auto;display:flex;flex-direction:column;align-items:center;">
+            <div style="width:100%;height:2px;background:none;border-top:2px dashed #c4b5fd;margin-bottom:10px;"></div>
+            <div style="font-size:11px;color:#666;font-weight:600;margin-bottom:6px;">Powered by</div>
+            <img src="https://perkfinity.net/assets/Perkfinity-Logo.png" style="height:38px;display:block;" alt="Perkfinity">
+          </div>
+        </div>
+      `;
+    }
+
+    // ── Build Cashier & Staff Instruction Guide (Right Half, 5.5" × 8.5") ─
+    function buildCashierGuideHTML(variant, storeName, perk, logoImg) {
+      const isBold = variant === 'square3';
+      const isSplit = variant === 'square2';
+
+      const repName = (localStorage.getItem('perkfinity_rep_name') || '').trim();
+      const repPhone = (localStorage.getItem('perkfinity_rep_phone') || '').trim();
+      const repEmail = (localStorage.getItem('perkfinity_rep_email') || '').trim();
+
+      const headingColor = isBold ? 'color:#fff;' : 'color:#1e1b4b;';
+      const subColor = isBold ? 'color:rgba(255,255,255,0.75);' : 'color:#64748b;';
+      const borderMain = isBold ? 'background:#4f3594;color:#fff;border:none;' : 'background:#fff;border:none;';
+      const perkfinityLogo = isBold ? 'https://perkfinity.net/assets/Perkfinity-White-Purple-icon-Full.png' : 'https://perkfinity.net/assets/Perkfinity-Logo.png';
+
+      const box1Style = isBold ? 'background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.22);' : 'background:#faf8ff;border:1.5px solid #d8b4fe;';
+      const box2Style = isBold ? 'background:rgba(16,185,129,0.14);border:1px solid rgba(52,211,153,0.35);' : 'background:#f0fdf4;border:1.5px solid #86efac;';
+      const box3Style = isBold ? 'background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.18);' : 'background:#f8fafc;border:1.5px solid #cbd5e1;';
+      const box4Style = isBold ? 'background:rgba(255,255,255,0.16);border:1.5px solid rgba(255,255,255,0.3);' : 'background:#fff;border:1.5px solid #94a3b8;';
+
+      const scriptBoxBg = isBold ? 'background:rgba(255,255,255,0.15);border-left:3.5px solid #34d399;' : 'background:#fff;border:1px solid #c4b5fd;border-left:3.5px solid #7c3aed;';
+      const scriptText = isBold ? 'color:#a7f3d0;' : 'color:#4c1d95;';
+      const redeemTitle = isBold ? 'color:#34d399;' : 'color:#15803d;';
+
+      return `
+        <div style="width:5.5in;height:8.5in;${borderMain}border-radius:0;padding:14px 18px 0.3in;display:flex;flex-direction:column;box-sizing:border-box;font-family:Inter,system-ui,sans-serif;overflow:hidden;-webkit-print-color-adjust:exact;print-color-adjust:exact;flex-shrink:0;justify-content:space-between;">
+          <!-- Header -->
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding-bottom:8px;border-bottom:${isBold ? '1px solid rgba(255,255,255,0.2)' : '1.5px solid #ede9fe'};flex-shrink:0;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <img src="${perkfinityLogo}" style="height:32px;" alt="Perkfinity">
+              <div>
+                <div style="font-size:15px;font-weight:900;${headingColor}letter-spacing:-0.3px;line-height:1.2;">Staff &amp; Cashier Guide</div>
+                <div style="font-size:10px;font-weight:600;${subColor}margin-top:1px;">Front-Desk Quick Reference &amp; Protocol</div>
+              </div>
+            </div>
+            <div style="padding:3px 8px;border-radius:6px;${isBold ? 'background:rgba(255,255,255,0.2);color:#fff;' : 'background:#f3e8ff;color:#581c87;'}font-size:10.5px;font-weight:800;max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+              🏪 ${storeName}
+            </div>
+          </div>
+
+          <!-- Section 1: Cashier Talking Points -->
+          <div style="margin-top:7px;${box1Style}border-radius:9px;padding:9px 11px;flex-shrink:0;">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <span style="font-size:11.5px;font-weight:800;${isBold ? 'color:#fff;' : 'color:#5B3FA5;'}text-transform:uppercase;letter-spacing:0.5px;">🗣️ Cashier Talking Points (Say When Ordering)</span>
+            </div>
+            <div style="margin-top:5px;padding:7px 10px;border-radius:7px;${scriptBoxBg}">
+              <div style="font-size:11.5px;font-weight:700;${scriptText}line-height:1.35;font-style:italic;">
+                “Scan our QR code on the counter to join our member list for free and get ${perk} right now!”
+              </div>
+            </div>
+            <div style="margin-top:6px;display:flex;flex-direction:column;gap:3px;font-size:9.5px;${subColor}line-height:1.3;">
+              <div>🔒 <strong>100% Private (Zero Spam):</strong> <em>“We never see your phone number, email, or personal info — your identity stays completely private.”</em></div>
+              <div>⚡ <strong>Fast &amp; Easy Sign Up:</strong> <em>“It takes under 60 seconds with Apple, Google, or Email sign up — no physical cards or long forms.”</em></div>
+              <div>🏪 <strong>One App for Local Businesses:</strong> <em>“You can use the same free app to unlock perks and deals at other favorite local spots nearby.”</em></div>
+            </div>
+          </div>
+
+          <!-- Section 2: Cashier Offer Honoring Steps -->
+          <div style="margin-top:7px;${box2Style}border-radius:9px;padding:9px 11px;flex-shrink:0;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+              <span style="font-size:11.5px;font-weight:800;${redeemTitle}text-transform:uppercase;letter-spacing:0.5px;">⏱️ Cashier Offer Honoring Steps</span>
+              <span style="font-size:9.5px;font-weight:800;${isBold ? 'color:#6ee7b7;' : 'color:#16a34a;'}background:${isBold ? 'rgba(255,255,255,0.12)' : '#dcfce7'};padding:2px 6px;border-radius:4px;">3-Min Timer</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:5px;">
+              <div style="display:flex;align-items:flex-start;gap:7px;">
+                <div style="width:18px;height:18px;border-radius:50%;background:#16a34a;color:#fff;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">1</div>
+                <div>
+                  <div style="font-size:11px;font-weight:800;${headingColor}line-height:1.2;">QR Scan</div>
+                  <div style="font-size:9.5px;${subColor}line-height:1.25;margin-top:1px;">Make sure customer scans the QR code with Perkfinity app's internal scanner and clicks activate offer.</div>
+                </div>
+              </div>
+              <div style="display:flex;align-items:flex-start;gap:7px;">
+                <div style="width:18px;height:18px;border-radius:50%;background:#16a34a;color:#fff;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">2</div>
+                <div>
+                  <div style="font-size:11px;font-weight:800;${headingColor}line-height:1.2;">Check Customer's Screen</div>
+                  <div style="font-size:9.5px;${subColor}line-height:1.25;margin-top:1px;">Customer taps offer. Verify active <strong>3:00 countdown timer</strong>, store name, and Reference/Promo Code.</div>
+                </div>
+              </div>
+              <div style="display:flex;align-items:flex-start;gap:7px;">
+                <div style="width:18px;height:18px;border-radius:50%;background:#16a34a;color:#fff;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">3</div>
+                <div>
+                  <div style="font-size:11px;font-weight:800;${headingColor}line-height:1.2;">Apply Discount in Register / POS</div>
+                  <div style="font-size:9.5px;${subColor}line-height:1.25;margin-top:1px;">Enter code or apply the perk discount directly on your cash register.</div>
+                </div>
+              </div>
+              <div style="display:flex;align-items:flex-start;gap:7px;">
+                <div style="width:18px;height:18px;border-radius:50%;background:#16a34a;color:#fff;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">4</div>
+                <div>
+                  <div style="font-size:11px;font-weight:800;${headingColor}line-height:1.2;">Confirm "Mark as Redeemed"</div>
+                  <div style="font-size:9.5px;${subColor}line-height:1.25;margin-top:1px;">Customer taps green <strong>“✓ Mark as Redeemed”</strong> button. It turns into a green checkmark on their phone.</div>
+                </div>
+              </div>
+            </div>
+            <div style="margin-top:6px;padding:4px 7px;border-radius:5px;${isBold ? 'background:rgba(255,255,255,0.08);' : 'background:#fff;border:1px solid #bbf7d0;'}font-size:9px;${subColor}text-align:center;">
+              🛡️ <em>If timer expires or customer cancels before redeeming, perk returns to wallet for their next visit.</em>
+            </div>
+          </div>
+
+          <!-- Section 3: How Perkfinity Builds Repeat Sales -->
+          <div style="margin-top:7px;${box3Style}border-radius:9px;padding:9px 11px;flex-shrink:0;">
+            <div style="font-size:11.5px;font-weight:800;${isBold ? 'color:#fff;' : 'color:#1e293b;'}text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">📈 How Perkfinity Builds Your Repeat Sales</div>
+            <div style="display:flex;flex-direction:column;gap:3px;font-size:9.5px;${subColor}line-height:1.3;">
+              <div>👥 <strong>Automatic VIP Network:</strong> Every customer who scans is captured permanently in your dashboard members list.</div>
+              <div>🚀 <strong>Launch Deals in 2 Min:</strong> Log in at <strong>perkfinity.net</strong> to create BOGO, % off, or VIP perks anytime.</div>
+              <div>📬 <strong>9:00 AM PST Daily Digest:</strong> New promotions and flash sales are automatically delivered to members via email and push notifications on their phones every morning.</div>
+            </div>
+          </div>
+
+          <!-- Bottom: Rep Contact Card -->
+          <div style="margin-top:7px;${box4Style}border-radius:9px;padding:9px 12px;flex-shrink:0;">
+            <div style="font-size:11px;font-weight:800;${headingColor}margin-bottom:6px;display:flex;align-items:center;gap:5px;">
+              <span>👤</span> <span>Questions? Contact Your Dedicated Perkfinity Rep:</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px;font-size:10px;font-weight:600;${subColor}">
+              <div style="display:flex;align-items:baseline;gap:6px;">
+                <span style="width:65px;flex-shrink:0;${headingColor}font-weight:700;">Rep Name:</span>
+                <div style="flex:1;border-bottom:1px solid ${isBold ? 'rgba(255,255,255,0.4)' : '#94a3b8'};min-height:12px;font-weight:700;${isBold ? 'color:#fff;' : 'color:#0f172a;'}padding-left:4px;">${repName}</div>
+              </div>
+              <div style="display:flex;align-items:baseline;gap:6px;">
+                <span style="width:65px;flex-shrink:0;${headingColor}font-weight:700;">Phone:</span>
+                <div style="flex:1;border-bottom:1px solid ${isBold ? 'rgba(255,255,255,0.4)' : '#94a3b8'};min-height:12px;font-weight:700;${isBold ? 'color:#fff;' : 'color:#0f172a;'}padding-left:4px;">${repPhone}</div>
+              </div>
+              <div style="display:flex;align-items:baseline;gap:6px;">
+                <span style="width:65px;flex-shrink:0;${headingColor}font-weight:700;">Email:</span>
+                <div style="flex:1;border-bottom:1px solid ${isBold ? 'rgba(255,255,255,0.4)' : '#94a3b8'};min-height:12px;font-weight:700;${isBold ? 'color:#fff;' : 'color:#0f172a;'}padding-left:4px;">${repEmail}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // ── Build Full 2-in-1 Letter Landscape Sheet (11" × 8.5") ────────
+    function buildPrintSheetHTML(variant, storeName, perk, logoImg, qrImg) {
+      const leftHTML = buildCustomerSignHTML(variant, storeName, perk, logoImg, qrImg);
+      const rightHTML = buildCashierGuideHTML(variant, storeName, perk, logoImg);
+      const isBold = variant === 'square3';
+
+      return `
+        <div class="print-sheet-container" style="width:11in;height:8.5in;display:flex;flex-direction:row;position:relative;background:#fff;box-sizing:border-box;overflow:hidden;-webkit-print-color-adjust:exact;print-color-adjust:exact;border-radius:0;">
+          ${leftHTML}
+          <div style="position:absolute;left:5.5in;top:0;bottom:0;width:0;border-left:1.5px dashed ${isBold ? 'rgba(255,255,255,0.3)' : '#cbd5e1'};transform:translateX(-50%);z-index:10;pointer-events:none;"></div>
+          ${rightHTML}
+        </div>
+      `;
+    }
+
+    // ── Admin Print 5.5×8.5 Stand Poster Function ───────────────────
+    async function adminPrintStandPoster(variant, merchantId) {
+      variant = variant || 'square1';
+      let m = (allMerchants && allMerchants.find(x => x.id === merchantId)) || (typeof _allPresetupMerchants !== 'undefined' && _allPresetupMerchants.find(x => x.id === merchantId));
+      if (!m) return alert('Merchant not found');
+
+      // If public_code or attribution is not on m, fetch attribution quickly
+      let repName = m.contractor_name || '';
+      let repPhone = m.contractor_phone || '';
+      let repEmail = m.contractor_email || '';
+
+      if (!repName) {
+        try {
+          const attrRes = await adminFetch(`/admin/merchants/${merchantId}/attribution`);
+          if (attrRes?.data) {
+            repName = attrRes.data.contractor_name || '';
+            repPhone = attrRes.data.contractor_phone || '';
+            repEmail = attrRes.data.contractor_email || '';
+          }
+        } catch(e) {}
+      }
+
+      localStorage.setItem('perkfinity_rep_name', repName);
+      localStorage.setItem('perkfinity_rep_phone', repPhone);
+      localStorage.setItem('perkfinity_rep_email', repEmail);
+
+      const storeName = (m.business_name || 'Store Name').trim();
+      const perk = (m.welcome_offer_text || m.perk || 'Welcome Perk').trim();
+      const logoImg = (m.logo_url && !m.logo_url.includes('Perkfinity-App-Icon')) ? m.logo_url : '';
+      const publicCode = m.public_code || m.qr_public_code || 'DEMO';
+      const qrUrl = `https://www.perkfinity.net/qr/${publicCode}`;
+      const qrImg = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&ecc=H&data=${encodeURIComponent(qrUrl)}&margin=1`;
+
+      const printContent = buildPrintSheetHTML(variant, storeName, perk, logoImg, qrImg);
+      const pageCSS = `
+        @page {
+          size: letter landscape;
+          margin: 0;
+        }
+        *, *::before, *::after {
+          box-sizing: border-box;
+          margin: 0;
+          padding: 0;
+        }
+        html, body {
+          width: 100%;
+          height: 100%;
+          margin: 0;
+          padding: 0;
+          font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+          background: #fff;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+        .print-sheet-container {
+          width: 11in !important;
+          height: 8.5in !important;
+          margin: auto;
+          box-sizing: border-box;
+          display: flex;
+          flex-direction: row;
+          position: relative;
+          overflow: hidden;
+          background: #fff;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+        @media print {
+          @page {
+            size: letter landscape;
+            margin: 0;
+          }
+          html, body {
+            width: 11in;
+            height: 8.5in;
+            background: transparent;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+          .print-sheet-container {
+            box-shadow: none;
+            margin: auto;
+            width: 11in !important;
+            height: 8.5in !important;
+            page-break-inside: avoid;
+            break-inside: avoid;
+          }
+        }
+      `;
+
+      const printWindow = window.open('', '_blank', 'width=1100,height=850,scrollbars=yes');
+      printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <meta charset="utf-8"/>
+            <title>Perkfinity Store Sign &amp; Cashier Guide - ${escapeHtml(storeName)}</title>
+            <link rel="preconnect" href="https://fonts.googleapis.com">
+            <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+            <style>${pageCSS}</style>
+          </head>
+          <body>
+            ${printContent}
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+      printWindow.focus();
+      setTimeout(() => {
+        printWindow.print();
+      }, 350);
     }
 
     // ── 2-Page Print Handoff Generator ───────────────────────────
