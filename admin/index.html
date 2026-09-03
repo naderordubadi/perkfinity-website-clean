@@ -4304,35 +4304,44 @@
     }
 
     async function openEditPresetupModal(merchantId) {
-      let m = _allPresetupMerchants.find(x => x.id === merchantId);
+      let m = (typeof _allPresetupMerchants !== 'undefined' && _allPresetupMerchants.find(x => x.id === merchantId)) ||
+              (typeof allMerchants !== 'undefined' && allMerchants.find(x => x.id === merchantId));
       if (!m) {
         try {
           const res = await adminFetch('/admin/merchants');
-          const all = res.data || res.merchants || [];
-          m = all.find(x => x.id === merchantId);
+          const merchantsList = res.data?.merchants || res.merchants || (Array.isArray(res.data) ? res.data : []);
+          m = merchantsList.find(x => x.id === merchantId);
+        } catch (e) {}
+      }
+      if (!m) {
+        try {
+          const pRes = await adminFetch('/admin/merchants/presetup');
+          const pList = pRes.data || [];
+          m = pList.find(x => x.id === merchantId);
         } catch (e) {}
       }
       if (!m) return alert('Merchant data not found.');
 
       // Ensure sales reps dropdown is populated
       const repSelect = document.getElementById('pse-contractor-id');
-      repSelect.innerHTML = '<option value="">-- No Sales Rep Assigned (Direct In-House) --</option>';
-      const loadReps = async () => {
-        if (!window.allContractors || !window.allContractors.length) {
-          try {
+      if (repSelect) {
+        repSelect.innerHTML = '<option value="">-- No Sales Rep Assigned (Direct In-House) --</option>';
+        try {
+          if (!window.allContractors || !window.allContractors.length) {
             const cRes = await adminFetch('/admin/contractors');
             window.allContractors = cRes.data || cRes.contractors || [];
-          } catch (e) {}
+          }
+          (window.allContractors || []).filter(c => c.status === 'active').forEach(c => {
+            const opt = document.createElement('option');
+            opt.value = c.id;
+            opt.textContent = `${c.full_name} (${c.referral_code || c.email})`;
+            repSelect.appendChild(opt);
+          });
+          repSelect.value = m.contractor_id || '';
+        } catch (e) {
+          console.error('Error loading sales reps for edit modal:', e);
         }
-        (window.allContractors || []).filter(c => c.status === 'active').forEach(c => {
-          const opt = document.createElement('option');
-          opt.value = c.id;
-          opt.textContent = `${c.full_name} (${c.referral_code || c.email})`;
-          repSelect.appendChild(opt);
-        });
-        repSelect.value = m.contractor_id || '';
-      };
-      await loadReps();
+      }
 
       // Populate Form Fields
       document.getElementById('pse-merchant-id').value = m.id;
@@ -4348,7 +4357,7 @@
       document.getElementById('pse-state').value = m.state || m.location_state || 'CA';
       document.getElementById('pse-zip').value = m.postal_code || m.location_zip || '';
 
-      const offerText = m.welcome_offer_text || '';
+      const offerText = m.welcome_offer_text || m.perk || '';
       document.getElementById('pse-welcome-offer-text').value = offerText;
       document.getElementById('pse-offer-char-count').textContent = offerText.length + '/60';
       document.getElementById('pse-terms').value = m.terms || 'Valid for first-time customers. Cannot be combined with other offers.';
