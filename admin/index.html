@@ -330,18 +330,31 @@
     #modal-presetup-create .form-input,
     #modal-presetup-create input,
     #modal-presetup-create select,
-    #modal-presetup-create textarea {
+    #modal-presetup-create textarea,
+    #modal-presetup-edit .form-input,
+    #modal-presetup-edit input,
+    #modal-presetup-edit select,
+    #modal-presetup-edit textarea {
       color:#1a1a2e !important; background:#fff !important; border-color:#cbd5e1 !important;
     }
     #modal-presetup-create .form-input::placeholder,
     #modal-presetup-create input::placeholder,
-    #modal-presetup-create textarea::placeholder { color:#94a3b8 !important; }
+    #modal-presetup-create textarea::placeholder,
+    #modal-presetup-edit .form-input::placeholder,
+    #modal-presetup-edit input::placeholder,
+    #modal-presetup-edit textarea::placeholder { color:#94a3b8 !important; }
     #modal-presetup-create .form-input:focus,
     #modal-presetup-create input:focus,
     #modal-presetup-create select:focus,
-    #modal-presetup-create textarea:focus { border-color:#5b3fa5 !important; background:#fff !important; color:#1a1a2e !important; }
-    #modal-presetup-create .form-label { color:#475569 !important; }
-    #modal-presetup-create label { color:#1a1a2e !important; }
+    #modal-presetup-create textarea:focus,
+    #modal-presetup-edit .form-input:focus,
+    #modal-presetup-edit input:focus,
+    #modal-presetup-edit select:focus,
+    #modal-presetup-edit textarea:focus { border-color:#5b3fa5 !important; background:#fff !important; color:#1a1a2e !important; }
+    #modal-presetup-create .form-label,
+    #modal-presetup-edit .form-label { color:#475569 !important; }
+    #modal-presetup-create label,
+    #modal-presetup-edit label { color:#1a1a2e !important; }
 
     .form-textarea { resize:vertical; min-height:120px; }
 
@@ -984,6 +997,206 @@
             <button type="button" onclick="closePresetupModal()" class="toolbar-btn" style="padding:10px 22px;">Cancel</button>
             <button type="submit" id="psc-submit-btn" class="btn btn-purple" style="padding:10px 28px;font-weight:800;background:var(--purple);color:#fff;border:none;border-radius:10px;cursor:pointer;">
               🚀 Create Turnkey Profile &amp; Generate Print
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!-- EDIT PRE-SETUP MERCHANT MODAL (TASK 11)                     -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <div id="modal-presetup-edit" onclick="if(event.target===this)closeEditPresetupModal()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:10007;align-items:center;justify-content:center;">
+      <div style="background:#fff;border-radius:20px;padding:32px 36px;width:760px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,0.35);color:#1a1a2e;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid #e2e8f0;">
+          <div>
+            <div style="font-size:20px;font-weight:800;color:#1a1a2e;display:flex;align-items:center;gap:8px;">
+              <span>✏️</span> Edit Pre-Setup Merchant
+            </div>
+            <div style="font-size:12px;color:#64748b;margin-top:2px;">
+              Update profile details, welcome offer, assigned sales rep, and caps without changing login credentials.
+            </div>
+          </div>
+          <button onclick="closeEditPresetupModal()" style="background:none;border:none;font-size:24px;cursor:pointer;color:#94a3b8;line-height:1;">✕</button>
+        </div>
+
+        <form id="form-presetup-edit" onsubmit="event.preventDefault();submitEditPresetupMerchant();">
+          <input type="hidden" id="pse-merchant-id"/>
+
+          <!-- Section 1: Store Basics -->
+          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:16px 18px;margin-bottom:16px;">
+            <div style="font-size:13px;font-weight:800;color:#334155;margin-bottom:12px;display:flex;align-items:center;gap:6px;">
+              <span>🏪</span> 1. Store Information &amp; Category
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+              <div>
+                <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px;">Business Name <span style="color:#ef4444;">*</span></label>
+                <input type="text" id="pse-business-name" class="form-input" required style="width:100%;padding:9px 12px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:13px;"/>
+              </div>
+              <div>
+                <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px;">Business Category <span style="color:#ef4444;">*</span></label>
+                <select id="pse-business-category" class="form-input" required style="width:100%;padding:9px 12px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:13px;background:#fff;">
+                  <option value="Restaurants &amp; Dining">🍽️ Restaurants &amp; Dining</option>
+                  <option value="Coffee &amp; Cafes">☕ Coffee &amp; Cafes</option>
+                  <option value="Health &amp; Medical">🩺 Health &amp; Medical / Dental</option>
+                  <option value="Beauty &amp; Spas">💇 Beauty &amp; Spas</option>
+                  <option value="Fitness &amp; Gyms">🏋️ Fitness &amp; Gyms</option>
+                  <option value="Retail &amp; Boutiques">🛍️ Retail &amp; Boutiques</option>
+                  <option value="Education &amp; Learning">📚 Education &amp; Learning</option>
+                  <option value="Auto Services">🚗 Auto Services</option>
+                  <option value="Professional Services">💼 Professional Services</option>
+                  <option value="Home &amp; Cleaning">🏠 Home &amp; Cleaning</option>
+                  <option value="Pet Care">🐾 Pet Care</option>
+                  <option value="Entertainment">🎟️ Entertainment &amp; Leisure</option>
+                </select>
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+              <div>
+                <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px;">Contact / Owner Name</label>
+                <input type="text" id="pse-contact-name" class="form-input" placeholder="e.g. Store Owner" style="width:100%;padding:9px 12px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:13px;"/>
+              </div>
+              <div>
+                <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px;">Public Phone</label>
+                <input type="tel" id="pse-public-phone" class="form-input" placeholder="(949) 555-0199" style="width:100%;padding:9px 12px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:13px;"/>
+              </div>
+              <div>
+                <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px;">Public Email</label>
+                <input type="email" id="pse-public-email" class="form-input" placeholder="info@store.com" style="width:100%;padding:9px 12px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:13px;"/>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 2: Physical Location -->
+          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:16px 18px;margin-bottom:16px;">
+            <div style="font-size:13px;font-weight:800;color:#334155;margin-bottom:12px;display:flex;align-items:center;gap:6px;">
+              <span>📍</span> 2. Physical Location
+            </div>
+            <div style="margin-bottom:12px;">
+              <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px;">Street Address</label>
+              <input type="text" id="pse-address" class="form-input" placeholder="e.g. 28261 Marguerite Pkwy Suite #225" style="width:100%;padding:9px 12px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:13px;"/>
+            </div>
+            <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px;">
+              <div>
+                <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px;">City</label>
+                <input type="text" id="pse-city" class="form-input" placeholder="Mission Viejo" style="width:100%;padding:9px 12px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:13px;"/>
+              </div>
+              <div>
+                <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px;">State</label>
+                <input type="text" id="pse-state" class="form-input" maxlength="2" placeholder="CA" style="width:100%;padding:9px 12px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:13px;text-transform:uppercase;"/>
+              </div>
+              <div>
+                <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px;">ZIP Code</label>
+                <input type="text" id="pse-zip" class="form-input" maxlength="5" placeholder="92691" style="width:100%;padding:9px 12px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:13px;"/>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 3: Welcome Offer -->
+          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:16px 18px;margin-bottom:16px;">
+            <div style="font-size:13px;font-weight:800;color:#334155;margin-bottom:12px;display:flex;align-items:center;gap:6px;">
+              <span>🎁</span> 3. Welcome Offer &amp; Campaign
+            </div>
+            <div style="margin-bottom:12px;">
+              <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px;">Welcome Offer Text <span style="color:#ef4444;">*</span></label>
+              <input type="text" id="pse-welcome-offer-text" class="form-input" maxlength="60" required placeholder="e.g. 20% Off Entire First Order" oninput="document.getElementById('pse-offer-char-count').textContent = this.value.length + '/60'" style="width:100%;padding:9px 12px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:13px;"/>
+              <div style="font-size:11px;color:#94a3b8;text-align:right;margin-top:2px;" id="pse-offer-char-count">0/60</div>
+            </div>
+            <div>
+              <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px;">Terms / Disclaimer</label>
+              <input type="text" id="pse-terms" class="form-input" placeholder="Valid for first-time customers. Cannot be combined with other offers." style="width:100%;padding:9px 12px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:13px;"/>
+            </div>
+          </div>
+
+          <!-- Section 4: Digital Links & Media -->
+          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:16px 18px;margin-bottom:16px;">
+            <div style="font-size:13px;font-weight:800;color:#334155;margin-bottom:12px;display:flex;align-items:center;gap:6px;">
+              <span>🔗</span> 4. Digital Links &amp; Media URLs
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+              <div>
+                <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px;">Website URL</label>
+                <input type="url" id="pse-website" class="form-input" placeholder="https://store.com" style="width:100%;padding:9px 12px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:13px;"/>
+              </div>
+              <div>
+                <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px;">Review / Social URL (Google, Yelp, IG)</label>
+                <input type="url" id="pse-review-url" class="form-input" placeholder="https://maps.app.goo.gl/..." style="width:100%;padding:9px 12px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:13px;"/>
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;">
+              <div>
+                <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px;">Online Order URL</label>
+                <input type="url" id="pse-order-url" class="form-input" placeholder="https://toasttab.com/..." style="width:100%;padding:9px 12px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:13px;"/>
+              </div>
+              <div>
+                <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px;">Logo Image URL</label>
+                <input type="url" id="pse-logo-url" class="form-input" placeholder="https://.../logo.png" style="width:100%;padding:9px 12px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:13px;"/>
+              </div>
+              <div>
+                <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px;">Cover Photo URL</label>
+                <input type="url" id="pse-cover-url" class="form-input" placeholder="https://.../cover.jpg" style="width:100%;padding:9px 12px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:13px;"/>
+              </div>
+            </div>
+            <div>
+              <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px;">Promo Description / Bio</label>
+              <textarea id="pse-promo-description" class="form-input" rows="2" placeholder="Brief store bio or promotional story..." style="width:100%;padding:9px 12px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:13px;"></textarea>
+            </div>
+          </div>
+
+          <!-- Section 5: Assigned Sales Rep -->
+          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:16px 18px;margin-bottom:16px;">
+            <div style="font-size:13px;font-weight:800;color:#334155;margin-bottom:12px;display:flex;align-items:center;gap:6px;">
+              <span>🧑‍💼</span> 5. Assigned Sales Representative
+            </div>
+            <div>
+              <select id="pse-contractor-id" class="form-input" style="width:100%;padding:9px 12px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:13px;background:#fff;">
+                <option value="">-- No Sales Rep Assigned (Direct In-House) --</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Section 6: Member Cap & Visibility -->
+          <div style="background:#faf5ff;border:1px solid #e9d5ff;border-radius:14px;padding:16px 18px;margin-bottom:16px;">
+            <div style="font-size:13px;font-weight:800;color:#6b21a8;margin-bottom:12px;display:flex;align-items:center;gap:6px;">
+              <span>⚡</span> 6. Free Member Cap &amp; Visibility Overrides
+            </div>
+            <div style="margin-bottom:14px;">
+              <label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:6px;">Custom Free Member Cap <span style="color:#ef4444;">*</span></label>
+              <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                <button type="button" class="btn-cap-preset-edit" data-val="25" onclick="setEditCapPreset(25)" style="padding:6px 14px;border:1.5px solid #cbd5e1;background:#fff;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">[25] High-Ticket</button>
+                <button type="button" class="btn-cap-preset-edit" data-val="50" onclick="setEditCapPreset(50)" style="padding:6px 14px;border:1.5px solid #cbd5e1;background:#fff;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">[50] Standard</button>
+                <button type="button" class="btn-cap-preset-edit" data-val="100" onclick="setEditCapPreset(100)" style="padding:6px 14px;border:1.5px solid #cbd5e1;background:#fff;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">[100] High-Traffic</button>
+                <button type="button" class="btn-cap-preset-edit" data-val="250" onclick="setEditCapPreset(250)" style="padding:6px 14px;border:1.5px solid #cbd5e1;background:#fff;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">[250] Chain</button>
+                <input type="number" id="pse-member-limit" min="1" max="10000" class="form-input" style="width:80px;padding:6px 10px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:13px;text-align:center;font-weight:700;"/>
+                <span style="font-size:12px;color:#64748b;">Members</span>
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;">
+              <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;cursor:pointer;">
+                <input type="checkbox" id="pse-web-sponsor" style="width:16px;height:16px;accent-color:var(--purple);"/>
+                <span>🌐 Web Carousel VIP</span>
+              </label>
+              <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;cursor:pointer;">
+                <input type="checkbox" id="pse-app-sponsor" style="width:16px;height:16px;accent-color:var(--purple);"/>
+                <span>📱 App Carousel VIP</span>
+              </label>
+              <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;cursor:pointer;">
+                <input type="checkbox" id="pse-fullpage-sponsor" style="width:16px;height:16px;accent-color:var(--purple);"/>
+                <span>⭐ Full-Page Takeover VIP</span>
+              </label>
+              <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:#b45309;cursor:pointer;">
+                <input type="checkbox" id="pse-is-hidden" style="width:16px;height:16px;accent-color:#f59e0b;"/>
+                <span>🙈 Hide until in-person handoff</span>
+              </label>
+            </div>
+          </div>
+
+          <div id="pse-error-msg" style="display:none;background:#fef2f2;border:1px solid #fecaca;color:#b91c1c;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:16px;"></div>
+
+          <div style="display:flex;justify-content:flex-end;gap:12px;">
+            <button type="button" onclick="closeEditPresetupModal()" class="toolbar-btn" style="padding:10px 22px;">Cancel</button>
+            <button type="submit" id="pse-submit-btn" class="btn btn-purple" style="padding:10px 28px;font-weight:800;background:var(--purple);color:#fff;border:none;border-radius:10px;cursor:pointer;">
+              💾 Save Pre-Setup Changes
             </button>
           </div>
         </form>
@@ -2857,6 +3070,26 @@
             <span style="font-size:12px;color:#64748b;">${m.is_hidden ? 'Currently hidden from consumer search.' : 'Currently visible in consumer search.'}</span>
           </div>
 
+          ${m.is_presetup ? `
+          <div style="padding-top:14px;border-top:1px solid #e2e8f0;margin-bottom:14px;">
+            <div style="font-size:12px;font-weight:700;color:#64748b;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">🏬 Pre-Setup Actions</div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+              <button onclick="openEditPresetupModal('${merchantId}')" style="flex:1;min-width:140px;padding:10px 14px;background:#2563eb;color:#fff;border:none;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:opacity 0.15s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
+                ✏️ Edit Pre-Setup
+              </button>
+              ${m.is_claimed ? `
+                <button disabled title="Claimed merchant cannot be deleted from pre-setup pipeline. Manage under active merchants." style="flex:1;min-width:140px;padding:10px 14px;background:#cbd5e1;color:#64748b;border:none;border-radius:8px;font-weight:700;font-size:12px;cursor:not-allowed;display:flex;align-items:center;justify-content:center;gap:6px;">
+                  🔒 Delete (Claimed)
+                </button>
+              ` : `
+                <button onclick="deletePresetupMerchant('${merchantId}', '${(m.business_name || 'Merchant').replace(/'/g, "\\'")}')" style="flex:1;min-width:140px;padding:10px 14px;background:#ef4444;color:#fff;border:none;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:opacity 0.15s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
+                  🗑️ Delete Pre-Setup
+                </button>
+              `}
+            </div>
+          </div>
+          ` : ''}
+
           <div style="padding-top:14px;border-top:1px solid #e2e8f0;">
             <div style="font-size:12px;font-weight:700;color:#64748b;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">🖨️ Print 5.5″ × 8.5″ Acrylic Stand &amp; Cashier Guide</div>
             <div style="display:flex;gap:8px;flex-wrap:wrap;">
@@ -4044,6 +4277,200 @@
         btn.textContent = '✅';
         setTimeout(() => btn.textContent = orig, 1500);
       });
+    }
+
+    // ══════════════════════════════════════════
+    // EDIT & DELETE PRE-SETUP FUNCTIONS (TASK 11)
+    // ══════════════════════════════════════════
+    function setEditCapPreset(val) {
+      document.getElementById('pse-member-limit').value = val;
+      updateEditCapPresetHighlight(val);
+    }
+
+    function updateEditCapPresetHighlight(val) {
+      const num = parseInt(val);
+      document.querySelectorAll('.btn-cap-preset-edit').forEach(btn => {
+        const btnVal = parseInt(btn.getAttribute('data-val'));
+        if (btnVal === num) {
+          btn.style.borderColor = 'var(--purple)';
+          btn.style.background = 'rgba(139,92,246,0.1)';
+          btn.style.color = 'var(--purple)';
+        } else {
+          btn.style.borderColor = '#cbd5e1';
+          btn.style.background = '#fff';
+          btn.style.color = '#334155';
+        }
+      });
+    }
+
+    async function openEditPresetupModal(merchantId) {
+      let m = _allPresetupMerchants.find(x => x.id === merchantId);
+      if (!m) {
+        try {
+          const res = await adminFetch('/admin/merchants');
+          const all = res.data || res.merchants || [];
+          m = all.find(x => x.id === merchantId);
+        } catch (e) {}
+      }
+      if (!m) return alert('Merchant data not found.');
+
+      // Ensure sales reps dropdown is populated
+      const repSelect = document.getElementById('pse-contractor-id');
+      repSelect.innerHTML = '<option value="">-- No Sales Rep Assigned (Direct In-House) --</option>';
+      const loadReps = async () => {
+        if (!window.allContractors || !window.allContractors.length) {
+          try {
+            const cRes = await adminFetch('/admin/contractors');
+            window.allContractors = cRes.data || cRes.contractors || [];
+          } catch (e) {}
+        }
+        (window.allContractors || []).filter(c => c.status === 'active').forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c.id;
+          opt.textContent = `${c.full_name} (${c.referral_code || c.email})`;
+          repSelect.appendChild(opt);
+        });
+        repSelect.value = m.contractor_id || '';
+      };
+      await loadReps();
+
+      // Populate Form Fields
+      document.getElementById('pse-merchant-id').value = m.id;
+      document.getElementById('pse-business-name').value = m.business_name || '';
+      document.getElementById('pse-business-category').value = m.business_category || 'Restaurants & Dining';
+      document.getElementById('pse-contact-name').value = m.contact_name || '';
+      document.getElementById('pse-phone').value = m.phone || '';
+      document.getElementById('pse-public-phone').value = m.public_phone || '';
+      document.getElementById('pse-public-email').value = m.public_email || '';
+
+      document.getElementById('pse-address').value = m.address || m.location_address || '';
+      document.getElementById('pse-city').value = m.city || m.location_city || '';
+      document.getElementById('pse-state').value = m.state || m.location_state || 'CA';
+      document.getElementById('pse-zip').value = m.postal_code || m.location_zip || '';
+
+      const offerText = m.welcome_offer_text || '';
+      document.getElementById('pse-welcome-offer-text').value = offerText;
+      document.getElementById('pse-offer-char-count').textContent = offerText.length + '/60';
+      document.getElementById('pse-terms').value = m.terms || 'Valid for first-time customers. Cannot be combined with other offers.';
+
+      document.getElementById('pse-website').value = m.website || '';
+      document.getElementById('pse-review-url').value = m.review_url || '';
+      document.getElementById('pse-order-url').value = m.order_url || '';
+      document.getElementById('pse-logo-url').value = m.logo_url || '';
+      document.getElementById('pse-cover-url').value = m.cover_photo_url || '';
+      document.getElementById('pse-promo-description').value = m.promo_description || '';
+
+      const cap = m.member_limit || 50;
+      setEditCapPreset(cap);
+
+      document.getElementById('pse-web-sponsor').checked = !!m.is_web_sponsored;
+      document.getElementById('pse-app-sponsor').checked = !!m.is_app_sponsored;
+      document.getElementById('pse-fullpage-sponsor').checked = !!m.is_fullpage_sponsored;
+      document.getElementById('pse-is-hidden').checked = !!m.is_hidden;
+
+      document.getElementById('pse-error-msg').style.display = 'none';
+      document.getElementById('modal-presetup-edit').style.display = 'flex';
+    }
+
+    function closeEditPresetupModal() {
+      document.getElementById('modal-presetup-edit').style.display = 'none';
+    }
+
+    async function submitEditPresetupMerchant() {
+      const merchantId = document.getElementById('pse-merchant-id').value;
+      const submitBtn = document.getElementById('pse-submit-btn');
+      const errEl = document.getElementById('pse-error-msg');
+      errEl.style.display = 'none';
+
+      const businessName = document.getElementById('pse-business-name').value.trim();
+      const welcomeOffer = document.getElementById('pse-welcome-offer-text').value.trim();
+      if (!businessName) {
+        errEl.textContent = 'Business name is required.';
+        errEl.style.display = 'block';
+        return;
+      }
+      if (!welcomeOffer) {
+        errEl.textContent = 'Welcome offer text is required.';
+        errEl.style.display = 'block';
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Saving Changes...';
+
+      const payload = {
+        business_name: businessName,
+        business_category: document.getElementById('pse-business-category').value,
+        contact_name: document.getElementById('pse-contact-name').value.trim() || null,
+        phone: document.getElementById('pse-phone').value.trim() || null,
+        public_phone: document.getElementById('pse-public-phone').value.trim() || null,
+        public_email: document.getElementById('pse-public-email').value.trim() || null,
+        address: document.getElementById('pse-address').value.trim() || null,
+        city: document.getElementById('pse-city').value.trim() || null,
+        state: document.getElementById('pse-state').value.trim().toUpperCase() || 'CA',
+        zip: document.getElementById('pse-zip').value.trim() || null,
+        welcome_offer_text: welcomeOffer,
+        terms: document.getElementById('pse-terms').value.trim() || null,
+        website: document.getElementById('pse-website').value.trim() || '',
+        review_url: document.getElementById('pse-review-url').value.trim() || null,
+        order_url: document.getElementById('pse-order-url').value.trim() || null,
+        logo_url: document.getElementById('pse-logo-url').value.trim() || null,
+        cover_photo_url: document.getElementById('pse-cover-url').value.trim() || null,
+        promo_description: document.getElementById('pse-promo-description').value.trim() || null,
+        contractor_id: document.getElementById('pse-contractor-id').value || null,
+        member_limit: parseInt(document.getElementById('pse-member-limit').value) || 50,
+        is_web_sponsored: document.getElementById('pse-web-sponsor').checked,
+        is_app_sponsored: document.getElementById('pse-app-sponsor').checked,
+        is_fullpage_sponsored: document.getElementById('pse-fullpage-sponsor').checked,
+        is_hidden: document.getElementById('pse-is-hidden').checked
+      };
+
+      try {
+        const res = await adminFetch(`/admin/merchants/presetup/${merchantId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (res.success) {
+          closeEditPresetupModal();
+          alert('Pre-setup merchant updated successfully!');
+          await loadPresetupMerchants();
+          showMerchantDetail(merchantId);
+        } else {
+          errEl.textContent = res.error || 'Failed to update pre-setup merchant.';
+          errEl.style.display = 'block';
+        }
+      } catch (err) {
+        errEl.textContent = err.message || 'Network error.';
+        errEl.style.display = 'block';
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = '💾 Save Pre-Setup Changes';
+      }
+    }
+
+    async function deletePresetupMerchant(merchantId, businessName) {
+      if (!confirm(`Are you sure you want to permanently delete "${businessName}"?\n\nThis will permanently delete the merchant profile, address, QR codes, campaigns, and temporary credentials.\n\nThis action cannot be undone.`)) {
+        return;
+      }
+
+      try {
+        const res = await adminFetch(`/admin/merchants/presetup/${merchantId}`, {
+          method: 'DELETE'
+        });
+
+        if (res.success) {
+          alert(`"${businessName}" was permanently deleted.`);
+          closeMerchantDetail();
+          await loadPresetupMerchants();
+          if (typeof loadMerchants === 'function') loadMerchants();
+        } else {
+          alert('Error: ' + (res.error || 'Failed to delete merchant.'));
+        }
+      } catch (err) {
+        alert('Failed to delete merchant: ' + err.message);
+      }
     }
 
     function exportPresetupCSV() {
