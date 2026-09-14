@@ -3386,6 +3386,90 @@
     }
 
     // ── Member Detail Panel ──────────────────────────────────────
+    let _memberMerchantsCache = {};
+
+    async function toggleMemberMerchants(memberId) {
+      const panel = document.getElementById('member-merchants-panel');
+      if (!panel) return;
+      if (panel.style.display !== 'none') {
+        panel.style.display = 'none';
+        return;
+      }
+      panel.style.display = 'block';
+      panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+      const content = document.getElementById('member-merchants-content');
+      if (!content) return;
+
+      if (_memberMerchantsCache[memberId]) {
+        renderMemberMerchantsList(content, _memberMerchantsCache[memberId]);
+        return;
+      }
+
+      content.innerHTML = '<div style="text-align:center;padding:20px;color:#94a3b8;font-size:13px;font-weight:600;">⏳ Loading joined merchants...</div>';
+
+      try {
+        const res = await adminFetch(`/admin/members/${memberId}/merchants`);
+        if (res && res.success && Array.isArray(res.data)) {
+          _memberMerchantsCache[memberId] = res.data;
+          renderMemberMerchantsList(content, res.data);
+        } else {
+          content.innerHTML = `<div style="text-align:center;padding:16px;color:#ef4444;font-size:13px;font-weight:600;">Failed to load merchants: ${res?.error || 'Unknown error'}</div>`;
+        }
+      } catch (err) {
+        content.innerHTML = `<div style="text-align:center;padding:16px;color:#ef4444;font-size:13px;font-weight:600;">Error loading merchants: ${err.message}</div>`;
+      }
+    }
+
+    function renderMemberMerchantsList(container, merchants) {
+      if (!merchants || merchants.length === 0) {
+        container.innerHTML = '<div style="text-align:center;padding:20px;color:#64748b;font-size:13px;font-weight:600;">This member has not joined any merchant programs yet.</div>';
+        return;
+      }
+      const presBadge = p => p === 'online' ? '<span style="font-size:11px;font-weight:700;color:#2563eb;background:#eff6ff;padding:2px 7px;border-radius:6px;border:1px solid #dbeafe;">🌐 Online</span>' : p === 'hybrid' ? '<span style="font-size:11px;font-weight:700;color:#d97706;background:#fffbeb;padding:2px 7px;border-radius:6px;border:1px solid #fef3c7;">📱 Hybrid</span>' : p === 'mobile' ? '<span style="font-size:11px;font-weight:700;color:#059669;background:#ecfdf5;padding:2px 7px;border-radius:6px;border:1px solid #d1fae5;">🚐 Mobile</span>' : '<span style="font-size:11px;font-weight:700;color:#475569;background:#f1f5f9;padding:2px 7px;border-radius:6px;border:1px solid #e2e8f0;">📍 Local</span>';
+      
+      const tierBadge = m => {
+        if (m.subscription_tier === 'free_for_life') return '<span class="badge ffl" style="font-size:10px;padding:2px 6px;">FFL</span>';
+        const tMap = { tier1:'Connect', online_starter:'Starter', online_growth:'Growth', online_scale:'Scale', enterprise:'Enterprise' };
+        if (tMap[m.subscription_tier]) return `<span class="badge tier1" style="font-size:10px;padding:2px 6px;">${tMap[m.subscription_tier]}</span>`;
+        if (m.subscription_tier === 'trial' || m.subscription_tier === 'free_trial') return '<span class="badge free" style="font-size:10px;padding:2px 6px;">Trial</span>';
+        return `<span class="badge tier1" style="font-size:10px;padding:2px 6px;">${(m.subscription_tier || 'Free').replace('online_','')}</span>`;
+      };
+
+      container.innerHTML = `
+        <div style="overflow-x:auto;">
+          <table style="width:100%;border-collapse:collapse;font-size:12px;">
+            <thead>
+              <tr style="background:#f8fafc;border-bottom:1.5px solid #e2e8f0;">
+                <th style="text-align:left;padding:8px 10px;font-size:11px;font-weight:800;color:#64748b;text-transform:uppercase;">Merchant</th>
+                <th style="text-align:left;padding:8px 10px;font-size:11px;font-weight:800;color:#64748b;text-transform:uppercase;">Location</th>
+                <th style="text-align:left;padding:8px 10px;font-size:11px;font-weight:800;color:#64748b;text-transform:uppercase;">Presence</th>
+                <th style="text-align:left;padding:8px 10px;font-size:11px;font-weight:800;color:#64748b;text-transform:uppercase;">Tier</th>
+                <th style="text-align:left;padding:8px 10px;font-size:11px;font-weight:800;color:#64748b;text-transform:uppercase;">Joined</th>
+                <th style="text-align:left;padding:8px 10px;font-size:11px;font-weight:800;color:#64748b;text-transform:uppercase;">Source</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${merchants.map(m => `
+                <tr style="border-bottom:1px solid #f1f5f9;transition:background 0.15s;" onmouseover="this.style.background='#faf5ff'" onmouseout="this.style.background='transparent'">
+                  <td style="padding:10px 10px;font-weight:700;">
+                    <a href="#" onclick="fetchAndShowMerchantDetail('${m.id}'); return false;" style="color:#5b3fa5;text-decoration:none;display:inline-flex;align-items:center;gap:4px;" title="View Merchant Details">
+                      ${m.business_name || '—'} ↗
+                    </a>
+                  </td>
+                  <td style="padding:10px 10px;color:#475569;">${[m.location_city, m.location_zip].filter(Boolean).join(', ') || '—'}</td>
+                  <td style="padding:10px 10px;">${presBadge(m.business_presence)}</td>
+                  <td style="padding:10px 10px;">${tierBadge(m)}</td>
+                  <td style="padding:10px 10px;color:#475569;white-space:nowrap;">${formatDate(m.joined_at)}</td>
+                  <td style="padding:10px 10px;color:#64748b;font-size:11px;font-weight:600;">${m.join_source === 'qr_scan' ? '📷 QR Scan' : m.join_source === 'app' ? '📱 App' : (m.join_source || '—')}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
     function showMemberDetail(memberId) {
       const m = allMembers.find(x => x.id === memberId);
       if (!m) return;
@@ -3393,16 +3477,36 @@
       overlay.style.display = 'flex';
       document.getElementById('detail-title').textContent = m.full_name || 'Member Details';
 
-      const infoRow = (label, value) => `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9;"><span style="color:#64748b;font-weight:600;font-size:13px;">${label}</span><span style="font-weight:700;font-size:13px;color:#1a1a2e;">${value || '\u2014'}</span></div>`;
-      const statCard = (label, value, color) => `<div style="flex:1;min-width:120px;background:${color}08;border:1px solid ${color}20;border-radius:12px;padding:14px 16px;text-align:center;"><div style="font-size:24px;font-weight:900;color:${color};">${value}</div><div style="font-size:11px;font-weight:700;color:#64748b;margin-top:4px;text-transform:uppercase;letter-spacing:0.5px;">${label}</div></div>`;
+      const infoRow = (label, value) => `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9;"><span style="color:#64748b;font-weight:600;font-size:13px;">${label}</span><span style="font-weight:700;font-size:13px;color:#1a1a2e;">${value || '—'}</span></div>`;
+      const statCard = (label, value, color, onClick = '', hint = '') => `
+        <div ${onClick ? `onclick="${onClick}"` : ''} 
+             style="flex:1;min-width:120px;background:${color}08;border:1px solid ${color}20;border-radius:12px;padding:14px 16px;text-align:center;${onClick ? 'cursor:pointer;transition:transform 0.15s,box-shadow 0.15s,border-color 0.15s;' : ''}"
+             ${onClick ? `onmouseover="this.style.borderColor='${color}60';this.style.boxShadow='0 4px 12px ${color}18';"` : ''}
+             ${onClick ? `onmouseout="this.style.borderColor='${color}20';this.style.boxShadow='none';"` : ''}>
+          <div style="font-size:24px;font-weight:900;color:${color};">${value}</div>
+          <div style="font-size:11px;font-weight:700;color:#64748b;margin-top:4px;text-transform:uppercase;letter-spacing:0.5px;">${label}</div>
+          ${hint ? `<div style="font-size:10px;font-weight:700;color:${color};margin-top:4px;opacity:0.85;">${hint}</div>` : ''}
+        </div>`;
 
       const body = document.getElementById('merchant-detail-body');
       body.innerHTML = `
-        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px;">
-          ${statCard('Merchants', m.merchant_count || 0, '#5b3fa5')}
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;">
+          ${statCard('Merchants', m.merchant_count || 0, '#5b3fa5', `toggleMemberMerchants('${m.id}')`, 'Click to view ↓')}
           ${statCard('Redeemed/Claimed', m.redemption_count || 0, '#16a34a')}
           ${statCard('Joined (30d)', m.merchants_30d || 0, '#2563eb')}
           ${statCard('Redeemed/Claimed (30d)', m.redeemed_30d || 0, '#f59e0b')}
+        </div>
+
+        <div id="member-merchants-panel" style="display:none;background:#fdfcfe;border:1.5px solid rgba(91,63,165,0.2);border-radius:12px;margin-bottom:20px;overflow:hidden;box-shadow:0 4px 16px rgba(91,63,165,0.06);">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 18px;background:rgba(91,63,165,0.06);border-bottom:1px solid rgba(91,63,165,0.12);">
+            <div style="font-size:13px;font-weight:800;color:#5b3fa5;display:flex;align-items:center;gap:6px;">
+              <span>🏪</span> Joined Merchants (<span id="member-merchants-count">${m.merchant_count || 0}</span>)
+            </div>
+            <button type="button" onclick="toggleMemberMerchants('${m.id}')" style="background:none;border:none;color:#64748b;font-size:13px;font-weight:700;cursor:pointer;padding:2px 6px;">✕ Close</button>
+          </div>
+          <div id="member-merchants-content" style="padding:14px 18px;">
+            <div style="text-align:center;padding:18px;color:#94a3b8;font-size:13px;font-weight:600;">⏳ Loading joined merchants...</div>
+          </div>
         </div>
 
         <div style="background:#f8fafc;border-radius:12px;padding:18px 20px;margin-bottom:20px;">
