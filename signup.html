@@ -285,7 +285,7 @@
                 <p style="margin:0 0 10px;font-size:13px;color:var(--muted)">This code will be auto-assigned to your store for the <strong style="color:var(--purpleDark)">Welcome Offer for New Members</strong> only — not for your other campaigns. Members will use it at checkout when claiming their welcome perk. Set it up in your Shopify / WooCommerce / platform before going live.</p>
                 <div style="display:flex;align-items:center;gap:10px">
                   <span id="hello_code_display"
-                    style="font-size:18px;font-weight:700;font-family:monospace;color:var(--purple);letter-spacing:2px;background:#fff;padding:10px 18px;border-radius:8px;border:1px solid var(--border)">HELLO-...</span>
+                    style="font-size:18px;font-weight:700;font-family:monospace;color:var(--purple);letter-spacing:2px;background:#fff;padding:10px 18px;border-radius:8px;border:1px solid var(--border)">HI...</span>
                   <button type="button" onclick="copyHelloCode()" id="copy_hello_btn"
                     style="padding:10px 16px;background:var(--purple);color:#fff;border:none;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit">Copy</button>
                 </div>
@@ -542,7 +542,7 @@
               <p style="margin:0 0 6px;font-size:14px;font-weight:700;color:var(--purpleDark)">🎉 Your Account is Created!</p>
               <p style="margin:0 0 12px;font-size:13px;color:var(--muted)">Your Perkfinity welcome promo code is locked in. Set it up in your online store (Shopify, WooCommerce, etc.) so members can use it at checkout.</p>
               <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-                <span id="signup_hello_code_slot" style="font-size:20px;font-weight:700;font-family:monospace;color:var(--purple);letter-spacing:2px;background:#fff;padding:10px 18px;border-radius:8px;border:1px solid var(--border)">HELLO-...</span>
+                <span id="signup_hello_code_slot" style="font-size:20px;font-weight:700;font-family:monospace;color:var(--purple);letter-spacing:2px;background:#fff;padding:10px 18px;border-radius:8px;border:1px solid var(--border)">HI...</span>
                 <button type="button" onclick="(function(){const c=document.getElementById('signup_hello_code_slot').innerText;navigator.clipboard.writeText(c).then(()=>{this.innerText='Copied!';setTimeout(()=>this.innerText='Copy Code',2000)})}).call(this)"
                   style="padding:10px 16px;background:var(--purple);color:#fff;border:none;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit">Copy Code</button>
               </div>
@@ -1370,9 +1370,15 @@
       }
 
       function updateHelloCode() {
-        const name = (document.getElementById('store_name').value || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 12);
-        const code = name ? 'HELLO-' + name : 'HELLO-...';
-        document.getElementById('hello_code_display').innerText = code;
+        const rawName = document.getElementById('store_name').value || '';
+        if (!rawName.trim()) {
+          document.getElementById('hello_code_display').innerText = 'HI...';
+          return;
+        }
+        const words = rawName.trim().split(/\s+/);
+        const targetWord = (words[0].toLowerCase() === 'the' && words[1]) ? words[1] : words[0];
+        const cleanWord = targetWord.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8);
+        document.getElementById('hello_code_display').innerText = 'HI' + cleanWord;
       }
 
       function copyHelloCode() {
