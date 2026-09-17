@@ -95,8 +95,7 @@
     .price-card.featured .price-feat::before { color:#a78bfa; }
     .price-note { font-size:12px; color:#aaa; margin-top:16px; }
     .price-card.featured .price-note { color:rgba(255,255,255,0.45); }
-    .physical-row { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
-    @media (max-width:720px) { .price-grid { grid-template-columns:1fr; } .physical-row { grid-template-columns:1fr; } }
+    @media (max-width:720px) { .price-grid { grid-template-columns:1fr; } }
 
     /* ── GET STARTED CTA ── */
     .cta-section { background: linear-gradient(135deg,#1a0f3a,#0f0c1e); padding:80px 24px; text-align:center; }
@@ -237,63 +236,37 @@
         <h2 class="section-title">Flat rates. No commissions. Ever.</h2>
         <p class="section-sub">Pay once a month. Keep 100% of every redemption.</p>
 
-        <!-- Online Only + Hybrid pricing (shown by default) -->
-        <div id="pricing-online">
-          <div class="price-grid">
-            <div class="price-card">
-              <div class="price-tier">Starter</div>
-              <div class="price-amount">$149</div>
-              <div class="price-per">/ month</div>
-              <div class="price-feat">Up to 500 members</div>
-              <div class="price-feat">Promo code + QR redemption</div>
-              <div class="price-feat">Unlimited campaigns</div>
-              <div class="price-feat">Member analytics dashboard</div>
-              <div class="price-note">Billing deferred until you reach member threshold if using a promo signup code.</div>
-            </div>
-            <div class="price-card featured">
-              <div class="price-tier">Growth — Most Popular</div>
-              <div class="price-amount">$299</div>
-              <div class="price-per">/ month</div>
-              <div class="price-feat">Up to 2,500 members</div>
-              <div class="price-feat">All Starter features</div>
-              <div class="price-feat">Priority support</div>
-              <div class="price-feat">Advanced campaign targeting</div>
-              <div class="price-note">Billing deferred until you reach member threshold if using a promo signup code.</div>
-            </div>
-            <div class="price-card">
-              <div class="price-tier">Scale</div>
-              <div class="price-amount">$499</div>
-              <div class="price-per">/ month</div>
-              <div class="price-feat">Unlimited members</div>
-              <div class="price-feat">All Growth features</div>
-              <div class="price-feat">Dedicated account support</div>
-              <div class="price-feat">White-glove onboarding</div>
-              <div class="price-note">Billing deferred until you reach member threshold if using a promo signup code.</div>
-            </div>
+        <!-- Unified pricing: Starter, Growth, Scale for all business types -->
+        <div class="price-grid">
+          <div class="price-card">
+            <div class="price-tier">Starter</div>
+            <div class="price-amount">$149</div>
+            <div class="price-per">/ month</div>
+            <div class="price-feat">Up to 500 members</div>
+            <div class="price-feat">Promo code + QR redemption</div>
+            <div class="price-feat">Unlimited campaigns</div>
+            <div class="price-feat">Member analytics dashboard</div>
+            <div class="price-note">Billing deferred until you reach member threshold if using a promo signup code.</div>
           </div>
-        </div>
-
-        <!-- Physical + Mobile pricing (hidden by default) -->
-        <div id="pricing-physical" style="display:none">
-          <div class="physical-row">
-            <div class="price-card">
-              <div class="price-tier">Free Trial</div>
-              <div class="price-amount">$0</div>
-              <div class="price-per">up to 100 members</div>
-              <div class="price-feat">QR-based member enrollment</div>
-              <div class="price-feat">Welcome campaign included</div>
-              <div class="price-feat">Auto-upgrades when you hit 100</div>
-              <div class="price-note">No charge until you reach your free trial member limit or upgrade your plan.</div>
-            </div>
-            <div class="price-card featured">
-              <div class="price-tier">Connect</div>
-              <div class="price-amount">$29.99</div>
-              <div class="price-per">/ month</div>
-              <div class="price-feat">Unlimited members</div>
-              <div class="price-feat">QR redemption + campaigns</div>
-              <div class="price-feat">Full member analytics</div>
-              <div class="price-feat">Auto-billed when trial ends</div>
-            </div>
+          <div class="price-card featured">
+            <div class="price-tier">Growth — Most Popular</div>
+            <div class="price-amount">$299</div>
+            <div class="price-per">/ month</div>
+            <div class="price-feat">Up to 2,500 members</div>
+            <div class="price-feat">All Starter features</div>
+            <div class="price-feat">Priority support</div>
+            <div class="price-feat">Advanced campaign targeting</div>
+            <div class="price-note">Billing deferred until you reach member threshold if using a promo signup code.</div>
+          </div>
+          <div class="price-card">
+            <div class="price-tier">Scale</div>
+            <div class="price-amount">$499</div>
+            <div class="price-per">/ month</div>
+            <div class="price-feat">Unlimited members</div>
+            <div class="price-feat">All Growth features</div>
+            <div class="price-feat">Dedicated account support</div>
+            <div class="price-feat">White-glove onboarding</div>
+            <div class="price-note">Billing deferred until you reach member threshold if using a promo signup code.</div>
           </div>
         </div>
 
@@ -332,11 +305,6 @@
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
       document.getElementById('tab-' + id).classList.add('active');
       event.currentTarget.classList.add('active');
-
-      // Switch Pricing section to match
-      const isOnlineOrHybrid = (id === 'online' || id === 'hybrid');
-      document.getElementById('pricing-online').style.display   = isOnlineOrHybrid ? 'block' : 'none';
-      document.getElementById('pricing-physical').style.display = isOnlineOrHybrid ? 'none'  : 'block';
     }
   </script>
 </body>
