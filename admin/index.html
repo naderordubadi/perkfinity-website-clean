@@ -5757,7 +5757,9 @@
                 period = formatDate(ps) + ' \u2014 ' + formatDate(pe);
               }
             }
+            const isPouf = inv.revenue_type === 'pouf' || inv.billing_cycle === 'lifetime';
             const nextBilling = isDeleted ? '—'
+              : isPouf ? '<span style="color:var(--purple);font-weight:700;">One-time</span>'
               : isPendingCancel && inv.next_billing_date
                 ? `<span style="color:#ef4444;font-weight:600;">🚫 ${staleDateWarn(inv.next_billing_date, inv)}</span>`
                 : inv.next_billing_date ? staleDateWarn(inv.next_billing_date, inv) : '—';
