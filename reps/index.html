@@ -528,8 +528,9 @@
       document.getElementById('kpi-pending').textContent = fmt$(e.pending_cents);
       let rateInfo = '';
       if (e.rule) {
+        const isOngoing = e.rule.commission_duration_months === null || e.rule.commission_duration_months === undefined;
         const rate = ((e.rule.commission_rate || 0.25) * 100).toFixed(0);
-        const dur  = e.rule.commission_duration_months || 12;
+        const dur  = isOngoing ? 'Ongoing' : `${e.rule.commission_duration_months} mo`;
         const retainerHtml = e.rule.retainer_cents ? `
           <div class="kpi-card" style="--kpi-color:#22c55e;flex:1;min-width:120px;padding:14px 16px;">
             <div class="kpi-label">RETAINER</div><div class="kpi-value" style="font-size:22px;">${fmt$(e.rule.retainer_cents)}/mo</div>
@@ -539,7 +540,7 @@
             <div class="kpi-label">COMMISSION RATE</div><div class="kpi-value" style="font-size:22px;">${rate}%</div>
           </div>
           <div class="kpi-card" style="--kpi-color:#3b82f6;flex:1;min-width:120px;padding:14px 16px;">
-            <div class="kpi-label">DURATION</div><div class="kpi-value" style="font-size:22px;">${dur} mo</div>
+            <div class="kpi-label">DURATION</div><div class="kpi-value" style="font-size:22px;">${dur}</div>
           </div>${retainerHtml}
         </div>`;
       }
@@ -582,12 +583,17 @@
         </div>
         <div style="font-size:12px;color:var(--muted);">Assigned ${fmtDate(territory.assigned_at)}</div>`;
     } else {
-      document.getElementById('territory-content').innerHTML = '<div style="color:var(--muted);font-size:13px;">No territory assigned yet. Contact your administrator.</div>';
+      document.getElementById('territory-content').innerHTML = `
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          <span style="font-size:16px;">🌐</span>
+          <span style="font-size:15px;font-weight:800;color:var(--text);">Open Territory (Non-Exclusive)</span>
+        </div>
+        <div style="color:var(--muted);font-size:13px;line-height:1.5;">You can solicit and onboard merchants anywhere nationwide using your unique referral code. No exclusive ZIP restrictions apply.</div>`;
     }
 
     // ── Quota ────────────────────────────────────────────────────────
     const quota = quotaR?.data;
-    if (quota) {
+    if (quota && territory) {
       document.getElementById('quota-card').style.display = 'block';
       const qs = quota.period?.status || quota.status || 'active';
       const qc = { active:'#3b82f6', met:'#22c55e', missed:'#ef4444' }[qs] || '#94a3b8';
@@ -614,6 +620,10 @@
         ${qs === 'missed' ? '<div style="margin-top:12px;padding:12px 16px;background:#450a0a;border-radius:10px;color:#fca5a5;font-size:13px;font-weight:700;">⚠️ Quota period ended without reaching target. Please contact your administrator.</div>' : ''}
         ${qs === 'met' ? '<div style="margin-top:12px;padding:12px 16px;background:#052e16;border-radius:10px;color:#86efac;font-size:13px;font-weight:700;">🎉 Congratulations! You\'ve met your quota and your territory is permanently locked in.</div>' : ''}
       `;
+    } else {
+      document.getElementById('quota-card').style.display = 'none';
+      document.getElementById('kpi-quota').textContent = 'Open';
+      document.getElementById('kpi-quota-sub').textContent = 'No quota required';
     }
 
     // ── Compliance ───────────────────────────────────────────────────

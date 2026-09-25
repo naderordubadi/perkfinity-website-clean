@@ -665,17 +665,49 @@
             <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
               <div class="form-group" style="margin-bottom:0;">
                 <label class="form-label">Commission Rate %</label>
-                <input type="number" class="form-input" id="nc-rate" value="25" min="1" max="25" step="1" oninput="document.getElementById('nc-rate-err').style.display=this.value>25?'block':'none'"/>
-                <div id="nc-rate-err" style="color:#ef4444;font-size:11px;margin-top:3px;display:none;">Maximum is 25%</div>
+                <input type="number" class="form-input" id="nc-rate" value="25" min="1" max="50" step="1" oninput="document.getElementById('nc-rate-err').style.display=this.value>50?'block':'none'"/>
+                <div id="nc-rate-err" style="color:#ef4444;font-size:11px;margin-top:3px;display:none;">Maximum is 50%</div>
               </div>
               <div class="form-group" style="margin-bottom:0;">
-                <label class="form-label">Duration (months)</label>
-                <input type="number" class="form-input" id="nc-duration" value="12" min="1" max="24" step="1" oninput="document.getElementById('nc-dur-err').style.display=this.value>24?'block':'none'"/>
-                <div id="nc-dur-err" style="color:#ef4444;font-size:11px;margin-top:3px;display:none;">Maximum is 24 months</div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+                  <label class="form-label" style="margin-bottom:0;">Duration</label>
+                  <label style="display:flex;align-items:center;gap:4px;font-size:12px;font-weight:700;color:#5b3fa5;cursor:pointer;">
+                    <input type="checkbox" id="nc-ongoing" checked onchange="toggleNcDuration()"/> Ongoing
+                  </label>
+                </div>
+                <div id="nc-duration-container" style="display:none;">
+                  <input type="number" class="form-input" id="nc-duration" value="12" min="1" step="1"/>
+                </div>
+                <div id="nc-ongoing-badge" style="padding:7px 10px;background:#f3e8ff;color:#6b21a8;border-radius:6px;font-size:12px;font-weight:700;border:1px solid #e9d5ff;text-align:center;">
+                  ♾️ Ongoing
+                </div>
               </div>
               <div class="form-group" style="margin-bottom:0;">
                 <label class="form-label">Monthly Retainer $</label>
                 <input type="number" class="form-input" id="nc-retainer" value="0" min="0" step="1"/>
+              </div>
+            </div>
+          </div>
+          <div style="background:#f8fafc;border-radius:12px;padding:16px 18px;margin-bottom:16px;border:1px solid #e2e8f0;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+              <div style="font-size:13px;font-weight:800;color:#1a1a2e;">📍 Exclusive Territory Assignment</div>
+              <label style="display:flex;align-items:center;gap:4px;font-size:12px;font-weight:700;color:#5b3fa5;cursor:pointer;">
+                <input type="checkbox" id="nc-has-territory" onchange="toggleNcTerritory()"/> Assign Exclusive Territory
+              </label>
+            </div>
+            <div id="nc-open-territory-badge" style="padding:10px 12px;background:#f1f5f9;color:#475569;border-radius:8px;font-size:12px;border:1px solid #e2e8f0;">
+              🌐 <strong>Open Territory (Non-Exclusive):</strong> Rep can onboard merchants anywhere without ZIP locks or 90-day quotas.
+            </div>
+            <div id="nc-territory-container" style="display:none;">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                <div class="form-group" style="margin-bottom:0;">
+                  <label class="form-label">Territory Name / Label</label>
+                  <input type="text" class="form-input" id="nc-territory-label" placeholder="e.g. South Orange County"/>
+                </div>
+                <div class="form-group" style="margin-bottom:0;">
+                  <label class="form-label">ZIP Codes (comma-separated)</label>
+                  <input type="text" class="form-input" id="nc-territory-zips" placeholder="e.g. 92691, 92692, 92675"/>
+                </div>
               </div>
             </div>
           </div>
@@ -7713,8 +7745,9 @@
       const icaLabel = { signed:'🟢 Signed', sent:'🟡 Sent', not_sent:'⚫ Not Sent' }[c.ica_status] || '⚫ Not Sent';
       const ir = (label, value) => `<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f1f5f9;"><span style="color:#64748b;font-weight:600;font-size:13px;">${label}</span><span style="font-weight:700;font-size:13px;color:#1a1a2e;text-align:right;max-width:60%;">${value ?? '—'}</span></div>`;
       const rule = c.compensation_rule || c; // GET /admin/contractors/:id returns fields flat (commission_rate, etc.)
+      const isOngoing = rule.commission_duration_months === null || rule.commission_duration_months === undefined;
       const rate  = rule.commission_rate ? (parseFloat(rule.commission_rate)*100).toFixed(0)+'%' : '25%';
-      const dur   = rule.commission_duration_months ? rule.commission_duration_months+' months' : '12 months';
+      const dur   = isOngoing ? 'Ongoing' : (rule.commission_duration_months + ' months');
       const ret   = rule.retainer_cents ? '$'+(rule.retainer_cents/100).toFixed(2)+'/mo' : '$0.00';
 
       const canActivate = c.ica_status === 'signed';
@@ -7851,7 +7884,7 @@
         <div style="background:#f8fafc;border-radius:12px;padding:18px 20px;margin-bottom:20px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
             <div style="font-size:13px;font-weight:800;color:#1a1a2e;">💰 Compensation Rule</div>
-            <button onclick="openEditCompModal('${c.id}','${rule.commission_rate||0.25}','${rule.commission_duration_months||12}','${rule.retainer_cents||0}')" style="padding:5px 12px;border-radius:7px;border:1px solid var(--border);background:none;color:var(--text);font-size:12px;font-weight:700;cursor:pointer;">✏️ Edit</button>
+            <button onclick="openEditCompModal('${c.id}','${rule.commission_rate||0.25}',${isOngoing ? 'null' : rule.commission_duration_months},'${rule.retainer_cents||0}')" style="padding:5px 12px;border-radius:7px;border:1px solid var(--border);background:none;color:var(--text);font-size:12px;font-weight:700;cursor:pointer;">✏️ Edit</button>
           </div>
           <div style="display:flex;gap:14px;flex-wrap:wrap;">
             <div style="flex:1;min-width:110px;text-align:center;background:#5b3fa508;border:1px solid #5b3fa520;border-radius:10px;padding:12px;">
@@ -7872,15 +7905,25 @@
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
             <div style="font-size:13px;font-weight:800;color:#1a1a2e;">🗺️ Territory</div>
             <div style="display:flex;gap:8px;">
-              <button onclick="openAssignTerritoryModal('${c.id}')" style="padding:5px 12px;border-radius:7px;border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8;font-size:12px;font-weight:700;cursor:pointer;">${c.territory?'🔄 Reassign':'+ Assign Territory'}</button>
+              <button onclick="openAssignTerritoryModal('${c.id}')" style="padding:5px 12px;border-radius:7px;border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8;font-size:12px;font-weight:700;cursor:pointer;">${c.territory?'🔄 Reassign':'+ Assign Exclusive Territory'}</button>
               ${c.territory?`<button onclick="revokeTerritory('${c.id}')" style="padding:5px 12px;border-radius:7px;border:1px solid #fecaca;background:#fef2f2;color:#dc2626;font-size:12px;font-weight:700;cursor:pointer;">✕ Revoke</button>`:''}
             </div>
           </div>
           ${c.territory
             ? `<div style="font-weight:700;font-size:13px;">${c.territory.label}</div><div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px;">${(c.territory.zip_codes||[]).map(z=>`<span style="padding:2px 8px;border-radius:6px;background:#eff6ff;color:#1d4ed8;font-size:12px;font-weight:700;font-family:monospace;">${z}</span>`).join('')}</div><div style="margin-top:8px;font-size:11px;color:#94a3b8;">Assigned ${c.territory.assigned_at?new Date(c.territory.assigned_at).toLocaleDateString():''}</div>`
-            : '<div style="color:#94a3b8;font-size:13px;">No territory assigned.</div>'}
+            : '<div style="color:#64748b;font-size:13px;background:#f1f5f9;padding:10px 12px;border-radius:8px;">🌐 <strong>Open Territory (Non-Exclusive):</strong> Rep can onboard merchants anywhere without ZIP locks.</div>'}
         </div>
-        ${(()=>{const qd=c.quota;if(!qd)return`<div style="background:#f8fafc;border-radius:12px;padding:18px 20px;margin-bottom:20px;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><div style="font-size:13px;font-weight:800;color:#1a1a2e;">🎯 Quota Period</div><button onclick="startQuotaPeriod('${c.id}')" style="padding:5px 12px;border-radius:7px;border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8;font-size:12px;font-weight:700;cursor:pointer;">▶ Manual Start</button></div><div style="color:#94a3b8;font-size:13px;">No quota period yet. Auto-starts when ICA is marked signed.</div></div>`;const qs=qd.status,qc={active:'#3b82f6',met:'#22c55e',missed:'#ef4444'}[qs]||'#94a3b8',cur=qd.current_count||0,target=qd.quota_target||30,pct=qd.percent||0,days=qd.days_remaining;const psRaw=qd.period_start?qd.period_start.split('T')[0]:'';const quotaLabel=target>30?'📈 Ongoing Quota':'🎯 Initial Quota';return`<div style="background:#f8fafc;border-radius:12px;padding:18px 20px;margin-bottom:20px;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><div style="font-size:13px;font-weight:800;color:#1a1a2e;">${quotaLabel}</div><div style="display:flex;gap:8px;">${qs==='active'?`<button onclick="adjustQuotaDates('${c.id}','${psRaw}')" style="padding:5px 12px;border-radius:7px;border:1px solid #e2e8f0;background:#f8fafc;color:#475569;font-size:12px;font-weight:700;cursor:pointer;">✏️ Adjust Dates</button>`:''} ${qs==='active'?`<button onclick="evaluateQuota('${c.id}')" style="padding:5px 12px;border-radius:7px;border:1px solid #bbf7d0;background:#f0fdf4;color:#166534;font-size:12px;font-weight:700;cursor:pointer;">✓ Evaluate</button>`:''} ${qs==='active'?`<button onclick="extendQuota('${c.id}')" style="padding:5px 12px;border-radius:7px;border:1px solid #fde68a;background:#fffbeb;color:#92400e;font-size:12px;font-weight:700;cursor:pointer;">📅 Extend</button>`:''} ${(qs==='active'||qs==='missed')?`<button onclick="sendQuotaReminder('${c.id}')" style="padding:5px 12px;border-radius:7px;border:1px solid #e2e8f0;background:#f8fafc;color:#475569;font-size:12px;font-weight:700;cursor:pointer;">📧 Remind</button>`:''}</div></div><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span style="font-size:13px;font-weight:700;color:#1a1a2e;">${cur}/${target} active merchants</span><span style="padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;background:${qc}18;color:${qc};">${(qs||'?').toUpperCase()}</span></div><div style="height:10px;background:#e2e8f0;border-radius:999px;overflow:hidden;margin-bottom:8px;"><div style="height:100%;width:${pct}%;background:${qc};border-radius:999px;"></div></div><div style="display:flex;justify-content:space-between;font-size:11px;color:#64748b;"><span>Start: ${qd.period_start?new Date(qd.period_start).toLocaleDateString():'-'}</span><span>${pct}%</span><span>End: ${qd.period_end?new Date(qd.period_end).toLocaleDateString():'-'}</span></div>${qs==='active'&&days!==undefined?`<div style="margin-top:6px;font-size:12px;color:${days<=14?'#ef4444':'#64748b'};font-weight:600;">${days} days remaining</div>`:''}${qs==='missed'?'<div style="margin-top:8px;padding:8px 12px;background:#fef2f2;border-radius:8px;color:#dc2626;font-size:12px;font-weight:700;">⚠️ Quota missed — territory exclusivity revoked.</div>':''}</div>`;})()}
+        ${(()=>{
+          if (!c.territory) {
+            return `<div style="background:#f8fafc;border-radius:12px;padding:18px 20px;margin-bottom:20px;"><div style="font-size:13px;font-weight:800;color:#1a1a2e;margin-bottom:8px;">🎯 Quota Status</div><div style="color:#64748b;font-size:13px;">🌐 <strong>Open Territory:</strong> No onboarding quota is required.</div></div>`;
+          }
+          const qd=c.quota;
+          if(!qd)return`<div style="background:#f8fafc;border-radius:12px;padding:18px 20px;margin-bottom:20px;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><div style="font-size:13px;font-weight:800;color:#1a1a2e;">🎯 Quota Period</div><button onclick="startQuotaPeriod('${c.id}')" style="padding:5px 12px;border-radius:7px;border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8;font-size:12px;font-weight:700;cursor:pointer;">▶ Manual Start</button></div><div style="color:#94a3b8;font-size:13px;">No quota period yet. Auto-starts when ICA is marked signed.</div></div>`;
+          const qs=qd.status,qc={active:'#3b82f6',met:'#22c55e',missed:'#ef4444'}[qs]||'#94a3b8',cur=qd.current_count||0,target=qd.quota_target||30,pct=qd.percent||0,days=qd.days_remaining;
+          const psRaw=qd.period_start?qd.period_start.split('T')[0]:'';
+          const quotaLabel=target>30?'📈 Ongoing Quota':'🎯 Initial Quota';
+          return`<div style="background:#f8fafc;border-radius:12px;padding:18px 20px;margin-bottom:20px;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><div style="font-size:13px;font-weight:800;color:#1a1a2e;">${quotaLabel}</div><div style="display:flex;gap:8px;">${qs==='active'?`<button onclick="adjustQuotaDates('${c.id}','${psRaw}')" style="padding:5px 12px;border-radius:7px;border:1px solid #e2e8f0;background:#f8fafc;color:#475569;font-size:12px;font-weight:700;cursor:pointer;">✏️ Adjust Dates</button>`:''} ${qs==='active'?`<button onclick="evaluateQuota('${c.id}')" style="padding:5px 12px;border-radius:7px;border:1px solid #bbf7d0;background:#f0fdf4;color:#166534;font-size:12px;font-weight:700;cursor:pointer;">✓ Evaluate</button>`:''} ${qs==='active'?`<button onclick="extendQuota('${c.id}')" style="padding:5px 12px;border-radius:7px;border:1px solid #fde68a;background:#fffbeb;color:#92400e;font-size:12px;font-weight:700;cursor:pointer;">📅 Extend</button>`:''} ${(qs==='active'||qs==='missed')?`<button onclick="sendQuotaReminder('${c.id}')" style="padding:5px 12px;border-radius:7px;border:1px solid #e2e8f0;background:#f8fafc;color:#475569;font-size:12px;font-weight:700;cursor:pointer;">📧 Remind</button>`:''}</div></div><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span style="font-size:13px;font-weight:700;color:#1a1a2e;">${cur}/${target} active merchants</span><span style="padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;background:${qc}18;color:${qc};">${(qs||'?').toUpperCase()}</span></div><div style="height:10px;background:#e2e8f0;border-radius:999px;overflow:hidden;margin-bottom:8px;"><div style="height:100%;width:${pct}%;background:${qc};border-radius:999px;"></div></div><div style="display:flex;justify-content:space-between;font-size:11px;color:#64748b;"><span>Start: ${qd.period_start?new Date(qd.period_start).toLocaleDateString():'-'}</span><span>${pct}%</span><span>End: ${qd.period_end?new Date(qd.period_end).toLocaleDateString():'-'}</span></div>${qs==='active'&&days!==undefined?`<div style="margin-top:6px;font-size:12px;color:${days<=14?'#ef4444':'#64748b'};font-weight:600;">${days} days remaining</div>`:''}${qs==='missed'?'<div style="margin-top:8px;padding:8px 12px;background:#fef2f2;border-radius:8px;color:#dc2626;font-size:12px;font-weight:700;">⚠️ Quota missed — territory exclusivity revoked.</div>':''}</div>`;
+        })()}
         <div style="background:#f8fafc;border-radius:12px;padding:18px 20px;margin-bottom:20px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
             <div style="font-size:13px;font-weight:800;color:#1a1a2e;">🏪 Attributed Merchants (${merchants.length})</div>
@@ -7943,9 +7986,21 @@
     }
 
     // ── Add Contractor ────────────────────────────────────────────
+    function toggleNcDuration() {
+      const isOngoing = document.getElementById('nc-ongoing').checked;
+      document.getElementById('nc-duration-container').style.display = isOngoing ? 'none' : 'block';
+      document.getElementById('nc-ongoing-badge').style.display = isOngoing ? 'block' : 'none';
+    }
+
+    function toggleNcTerritory() {
+      const hasTerr = document.getElementById('nc-has-territory').checked;
+      document.getElementById('nc-territory-container').style.display = hasTerr ? 'block' : 'none';
+      document.getElementById('nc-open-territory-badge').style.display = hasTerr ? 'none' : 'block';
+    }
+
     function openAddContractorModal() {
       document.getElementById('add-contractor-modal').style.display = 'flex';
-      ['nc-full-name','nc-legal-name','nc-email','nc-phone','nc-address','nc-notes'].forEach(id => {
+      ['nc-full-name','nc-legal-name','nc-email','nc-phone','nc-address','nc-notes','nc-territory-label','nc-territory-zips'].forEach(id => {
         const el = document.getElementById(id); if (el) el.value = '';
       });
       const pwEl = document.getElementById('nc-password'); if (pwEl) pwEl.value = '';
@@ -7953,7 +8008,12 @@
       document.getElementById('nc-rate').value = '25';
       document.getElementById('nc-duration').value = '12';
       document.getElementById('nc-retainer').value = '0';
+      const ongoingEl = document.getElementById('nc-ongoing');
+      if (ongoingEl) { ongoingEl.checked = true; toggleNcDuration(); }
+      const terrEl = document.getElementById('nc-has-territory');
+      if (terrEl) { terrEl.checked = false; toggleNcTerritory(); }
       document.getElementById('nc-err').style.display = 'none';
+      document.getElementById('nc-rate-err').style.display = 'none';
       document.getElementById('nc-save-btn').disabled = false;
       const check = document.querySelector('[name="nc-payment-method"][value="check"]');
       if (check) check.checked = true;
@@ -7967,11 +8027,18 @@
       const address     = document.getElementById('nc-address').value.trim();
       const notes       = document.getElementById('nc-notes').value.trim();
       const rate        = parseFloat(document.getElementById('nc-rate').value);
-      const duration    = parseInt(document.getElementById('nc-duration').value);
+      const isOngoing   = document.getElementById('nc-ongoing').checked;
+      const duration    = isOngoing ? null : parseInt(document.getElementById('nc-duration').value);
       const retainer    = parseInt(document.getElementById('nc-retainer').value) || 0;
       const pay_method  = document.querySelector('[name="nc-payment-method"]:checked')?.value || 'check';
       const password    = document.getElementById('nc-password')?.value || '';
       const entity_type = document.getElementById('nc-entity-type')?.value || null;
+
+      const hasTerritory = document.getElementById('nc-has-territory').checked;
+      const territory_label = hasTerritory ? document.getElementById('nc-territory-label')?.value.trim() : null;
+      const territory_zips_raw = hasTerritory ? document.getElementById('nc-territory-zips')?.value.trim() : '';
+      const territory_zips = territory_zips_raw ? territory_zips_raw.split(',').map(s => s.trim()).filter(Boolean) : [];
+
       const errEl = document.getElementById('nc-err');
       errEl.style.display = 'none';
       if (!full_name || !legal_name || !email) {
@@ -7981,18 +8048,30 @@
       if (!password || password.length < 8) {
         document.getElementById('nc-pw-err').style.display = 'block'; return;
       }
-      if (rate < 1 || rate > 25) { document.getElementById('nc-rate-err').style.display = 'block'; return; }
-      if (duration < 1 || duration > 24) { document.getElementById('nc-dur-err').style.display = 'block'; return; }
+      if (rate < 1 || rate > 50) { document.getElementById('nc-rate-err').style.display = 'block'; return; }
+      if (!isOngoing && (isNaN(duration) || duration < 1)) {
+        errEl.textContent = 'Please enter a valid duration in months (minimum 1) or select Ongoing.';
+        errEl.style.display = 'block'; return;
+      }
       const btn = document.getElementById('nc-save-btn');
       btn.disabled = true; btn.textContent = 'Creating…';
       const token = sessionStorage.getItem('perkfinity_admin_token');
       try {
+        const payload = {
+          full_name, legal_name, email, phone, address, notes, payment_method: pay_method,
+          commission_rate: rate / 100,
+          commission_duration_months: isOngoing ? null : duration,
+          retainer_cents: retainer * 100,
+          password, entity_type: entity_type || undefined
+        };
+        if (hasTerritory && territory_label && territory_zips.length > 0) {
+          payload.territory_label = territory_label;
+          payload.territory_zips = territory_zips;
+        }
         const res = await fetch(API_BASE + '/admin/contractors', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-          body: JSON.stringify({ full_name, legal_name, email, phone, address, notes, payment_method: pay_method,
-            commission_rate: rate / 100, commission_duration_months: duration, retainer_cents: retainer * 100,
-            password, entity_type: entity_type || undefined })
+          body: JSON.stringify(payload)
         });
         const json = await res.json();
         if (json.success) {
@@ -8417,6 +8496,8 @@
     function openEditCompModal(id, rate, duration, retainerCents) {
       _editCompId = id;
       const curRate = (parseFloat(rate) * 100).toFixed(0);
+      const isOngoing = duration === null || duration === undefined || duration === '' || duration === 'null' || duration === 'ongoing';
+      const curDur = isOngoing ? 12 : (parseInt(duration) || 12);
       const existing = document.getElementById('edit-comp-overlay');
       if (existing) existing.remove();
       const el = document.createElement('div');
@@ -8426,14 +8507,23 @@
         <div style="width:420px;background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.3);padding:28px;">
           <div style="font-size:18px;font-weight:800;color:#1a1a2e;margin-bottom:20px;">✏️ Edit Compensation</div>
           <div class="form-group">
-            <label class="form-label" style="color:#475569;">Commission Rate % (1–25)</label>
-            <input type="number" class="form-input" id="ec-rate" value="${curRate}" min="1" max="25" step="1" style="color:#1a1a2e;background:#f8fafc;border-color:#e2e8f0;"/>
-            <div id="ec-rate-err" style="color:#ef4444;font-size:11px;display:none;">Maximum is 25%</div>
+            <label class="form-label" style="color:#475569;">Commission Rate % (1–50)</label>
+            <input type="number" class="form-input" id="ec-rate" value="${curRate}" min="1" max="50" step="1" style="color:#1a1a2e;background:#f8fafc;border-color:#e2e8f0;" oninput="document.getElementById('ec-rate-err').style.display=this.value>50?'block':'none'"/>
+            <div id="ec-rate-err" style="color:#ef4444;font-size:11px;display:none;">Maximum is 50%</div>
           </div>
           <div class="form-group">
-            <label class="form-label" style="color:#475569;">Duration months (1–24)</label>
-            <input type="number" class="form-input" id="ec-duration" value="${duration}" min="1" max="24" step="1" style="color:#1a1a2e;background:#f8fafc;border-color:#e2e8f0;"/>
-            <div id="ec-dur-err" style="color:#ef4444;font-size:11px;display:none;">Maximum is 24 months</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+              <label class="form-label" style="color:#475569;margin-bottom:0;">Duration</label>
+              <label style="display:flex;align-items:center;gap:4px;font-size:12px;font-weight:700;color:#5b3fa5;cursor:pointer;">
+                <input type="checkbox" id="ec-ongoing" ${isOngoing ? 'checked' : ''} onchange="toggleEcDuration()"/> Ongoing
+              </label>
+            </div>
+            <div id="ec-duration-container" style="display:${isOngoing ? 'none' : 'block'};">
+              <input type="number" class="form-input" id="ec-duration" value="${curDur}" min="1" step="1" style="color:#1a1a2e;background:#f8fafc;border-color:#e2e8f0;"/>
+            </div>
+            <div id="ec-ongoing-badge" style="display:${isOngoing ? 'block' : 'none'};padding:8px 10px;background:#f3e8ff;color:#6b21a8;border-radius:6px;font-size:12px;font-weight:700;border:1px solid #e9d5ff;text-align:center;">
+              ♾️ Ongoing
+            </div>
           </div>
           <div class="form-group">
             <label class="form-label" style="color:#475569;">Monthly Retainer $</label>
@@ -8450,21 +8540,31 @@
       document.body.appendChild(el);
     }
 
+    function toggleEcDuration() {
+      const isOngoing = document.getElementById('ec-ongoing').checked;
+      document.getElementById('ec-duration-container').style.display = isOngoing ? 'none' : 'block';
+      document.getElementById('ec-ongoing-badge').style.display = isOngoing ? 'block' : 'none';
+    }
+
     async function saveCompRule() {
       const rate     = parseFloat(document.getElementById('ec-rate').value);
-      const duration = parseInt(document.getElementById('ec-duration').value);
+      const isOngoing = document.getElementById('ec-ongoing').checked;
+      const duration = isOngoing ? null : parseInt(document.getElementById('ec-duration').value);
       const retainer = parseFloat(document.getElementById('ec-retainer').value) || 0;
       document.getElementById('ec-rate-err').style.display = 'none';
-      document.getElementById('ec-dur-err').style.display  = 'none';
-      if (rate < 1 || rate > 25)     { document.getElementById('ec-rate-err').style.display = 'block'; return; }
-      if (duration < 1 || duration > 24) { document.getElementById('ec-dur-err').style.display = 'block'; return; }
+      if (rate < 1 || rate > 50) { document.getElementById('ec-rate-err').style.display = 'block'; return; }
+      if (!isOngoing && (isNaN(duration) || duration < 1)) {
+        document.getElementById('ec-err').textContent = 'Please enter a valid duration (min 1 month) or select Ongoing.';
+        document.getElementById('ec-err').style.display = 'block';
+        return;
+      }
       const btn = document.getElementById('ec-save-btn');
       btn.disabled = true; btn.textContent = 'Saving…';
       const token = sessionStorage.getItem('perkfinity_admin_token');
       try {
         const res  = await fetch(API_BASE + '/admin/contractors/' + _editCompId + '/compensation', {
           method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-          body: JSON.stringify({ commission_rate: rate/100, commission_duration_months: duration, retainer_cents: Math.round(retainer*100) })
+          body: JSON.stringify({ commission_rate: rate/100, commission_duration_months: isOngoing ? null : duration, retainer_cents: Math.round(retainer*100) })
         });
         const json = await res.json();
         if (json.success) {
