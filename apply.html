@@ -4,7 +4,7 @@
 <meta name="description" content="Apply to join Perkfinity as an online business and reach members across the country."/>
 <link rel="icon" href="assets/Perkfinity-App-Icon.png"/>
 <link rel="stylesheet" href="styles.css"/>
-<script src="/config.js"></script>
+<script src="config.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://js.stripe.com/v3/"></script>
 <style>
@@ -54,6 +54,28 @@
 .agree-row{display:flex;align-items:flex-start;gap:10px;margin-bottom:18px;font-size:13px;font-weight:700;color:rgba(31,32,48,.65);line-height:1.5}
 .agree-row input{margin-top:2px;flex-shrink:0}
 .agree-row a{color:#5B3FA5}
+/* Compact Dropdown Helper Box */
+.type-helper-box {
+  margin-top: 8px;
+  padding: 11px 15px;
+  background: #f8f7ff;
+  border: 1px solid #ddd6fe;
+  border-radius: 11px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #4338ca;
+  line-height: 1.5;
+}
+.notice-box {
+  margin: 18px 0 22px;
+  padding: 14px 16px;
+  background: #f8f7ff;
+  border: 1px solid rgba(91,63,165,.2);
+  border-radius: 12px;
+  font-size: 13px;
+  color: #3F2B8A;
+  line-height: 1.5;
+}
 @media(max-width:640px){.tier-grid{grid-template-columns:1fr}.field-row{grid-template-columns:1fr}.apply-panel{padding:24px 18px}}
 </style>
 </head>
@@ -72,8 +94,8 @@
 <main class="apply-wrap">
 <div class="container">
 <div style="text-align:center;margin-bottom:28px">
-<div class="section-label" id="app-label" style="margin:0 auto 12px;display:inline-flex">🌐 Online Business Application</div>
-<div id="app-sub" style="color:rgba(255,255,255,.72);font-size:15px;font-weight:700">Complete all 5 steps to submit your application. We review within 1-2 business days.</div>
+<div class="section-label" id="app-label" style="margin:0 auto 12px;display:inline-flex;background:rgba(255,255,255,0.18);color:#fff;padding:6px 18px;border-radius:20px;font-weight:900;font-size:13.5px;letter-spacing:0.5px">🏢 BUSINESS APPLICATION</div>
+<div id="app-sub" style="color:rgba(255,255,255,.8);font-size:15px;font-weight:700">Complete all 5 steps to submit your application. We review within 1-2 business days.</div>
 </div>
 <div class="apply-panel">
 <!-- Progress bar -->
@@ -88,110 +110,230 @@
 <div class="step-pane active" id="step1">
 <div class="step-title" id="s1-title">Your Business &amp; Offer</div>
 <div class="step-sub" id="s1-sub">Tell us about your business and the welcome perk for new members.</div>
-<div style="margin:25px 0 20px;padding:16px;background:#f8f7ff;border:1px solid rgba(91,63,165,.2);border-radius:10px;font-size:13px;color:#3F2B8A;line-height:1.5;">
-<strong style="font-size:14px;display:block;margin-bottom:4px;">📢 Public Business Information</strong> The information below will be visible to members on your store card and store detail page on the Perkfinity web and app so customers can contact and find you directly.
+
+<!-- Public Info Banner -->
+<div class="notice-box">
+  <strong style="font-size:13.5px;display:block;margin-bottom:3px;">📢 Public Business Information</strong>
+  The information below will be visible to members on your store card and store detail page on the Perkfinity web and app so customers can contact and find you directly.
 </div>
-<div class="field"><label>Business Name *</label><input type="text" id="f-name" placeholder="e.g. Bella Botanicals" required></div>
-<div class="field"><label>Website URL *</label><input type="text" id="f-website" placeholder="e.g. www.yourbrand.com or https://..." onblur="if(this.value.trim() && !/^https?:\/\//i.test(this.value.trim())) this.value = 'https://' + this.value.trim()"></div>
+
+<!-- 1. Business Name -->
+<div class="field">
+  <label>Business Name *</label>
+  <input type="text" id="f-name" placeholder="e.g. Bella Botanicals" required oninput="updateHelloPreview()">
+</div>
+
+<!-- 2. Business Type Selector -->
+<div class="field" style="margin-bottom:22px">
+  <label style="margin-bottom:3px">Business Type *</label>
+  <div style="font-size:12.5px;font-weight:600;color:rgba(31,32,48,.6);margin-bottom:8px">
+    Choose your business presence type to see the required and optional fields.
+  </div>
+
+  <select id="f-type-dropdown" onchange="selectBusinessType(this.value)">
+    <option value="hybrid" selected>🏬 Single Storefront + Online Store (Hybrid — Storefront &amp; Website)</option>
+    <option value="physical">🏪 Single Storefront Location (Physical Only — No Website Needed)</option>
+    <option value="online">🌐 Online Only Business (No Physical Location)</option>
+    <option value="mobile">🚚 Mobile Business (Food Truck, Pop-Up, Farmers Market, On-Site Service)</option>
+    <option value="multiloc">🏢 Multiple Locations (5+ Locations / Chain / Franchise / HQ)</option>
+  </select>
+
+  <div id="type-helper-text" class="type-helper-box">
+    🏬 Physical storefront + Online Store. Both address and website are required for local foot-traffic and online deal discovery.
+  </div>
+</div>
+
+<!-- 3. Business Details Section -->
+<!-- Website URL -->
+<div class="field" id="field-website">
+  <label id="label-website">Website URL *</label>
+  <input type="text" id="f-website" placeholder="e.g. www.yourbrand.com or https://..." oninput="recalcPresence()" onblur="if(this.value.trim() && !/^https?:\/\//i.test(this.value.trim())) this.value = 'https://' + this.value.trim(); recalcPresence();">
+</div>
+
+<!-- Phone & Email Row -->
 <div class="field-row">
-<div class="field">
-<label>Public Business Phone (optional)</label>
-<input type="tel" id="f-public-phone" placeholder="xxx-xxx-xxxx" oninput="formatPhone(this)" maxlength="12">
+  <div class="field">
+    <label>Public Business Phone <span style="color:#aaa;font-weight:600">(optional)</span></label>
+    <input type="tel" id="f-public-phone" placeholder="xxx-xxx-xxxx" oninput="formatPhone(this)" maxlength="12">
+  </div>
+  <div class="field">
+    <label>Public Business Email <span style="color:#aaa;font-weight:600">(optional)</span></label>
+    <input type="email" id="f-public-email" placeholder="public@yourbusiness.com">
+  </div>
 </div>
-<div class="field">
-<label>Public Business Email (optional)</label>
-<input type="email" id="f-public-email" placeholder="public@yourbusiness.com">
-</div>
-</div>
-<div class="field"><label>Category *</label>
-<select id="f-category">
-<option value="">— Select category —</option>
-<option value="Restaurants &amp; Dining">🍽️ Restaurants &amp; Dining (Full-service, Fast casual, Food trucks, Bars)</option>
-<option value="Cafes, Bakery &amp; Desserts">☕ Cafes, Bakery &amp; Desserts (Coffee, Juice, Boba, Ice cream, Pastries)</option>
-<option value="Grocery &amp; Gourmet Market">🛒 Grocery &amp; Gourmet Market (Markets, Delis, Butchers, Wine &amp; Spirits)</option>
-<option value="Hair &amp; Barber Shops">✂️ Hair &amp; Barber Shops (Salons, Barbershops, Blow-dry bars)</option>
-<option value="Beauty, Spa &amp; Wellness">💅 Beauty, Spa &amp; Wellness (Nails, Skincare, Massage, Spas)</option>
-<option value="Fitness &amp; Movement">💪 Fitness &amp; Movement (Gyms, Yoga, Pilates, Martial Arts, Training)</option>
-<option value="Education &amp; Learning">📚 Education &amp; Learning (Tutoring, STEM academies, Music, Art, Test prep)</option>
-<option value="Health &amp; Medical">🏥 Health &amp; Medical (Dentists, Optometrists, Chiropractic, Clinics)</option>
-<option value="Retail &amp; Boutiques">🛍️ Retail &amp; Boutiques (Apparel, Jewelry, Gift shops, Online brands)</option>
-<option value="Professional &amp; Financial">💼 Professional &amp; Financial (Banks, Real Estate, Insurance, CPA, Legal)</option>
-<option value="Home, Auto &amp; Trade">🔧 Home, Auto &amp; Trade (Auto repair, Plumbing, Electricians, HVAC, Cleaning)</option>
-<option value="Pet Care &amp; Services">🐾 Pet Care &amp; Services (Veterinary, Grooming, Boarding, Pet supplies)</option>
-<option value="Entertainment &amp; Recreation">🎮 Entertainment &amp; Recreation (Arcades, Escape rooms, Bowling, Venues)</option>
-<option value="Photography &amp; Creative">📸 Photography &amp; Creative (Photo/video, Print, Graphic design, Marketing)</option>
-<option value="Other">🔖 Other (Specialized local businesses)</option>
-</select></div>
 
+<!-- Enterprise Note for Multiple Locations -->
+<div id="enterprise-notice" style="display:none;margin-bottom:18px;background:rgba(91,63,165,.07);border:1.5px solid rgba(91,63,165,.25);border-radius:14px;padding:16px;">
+  <div style="font-size:13.5px;font-weight:900;color:#3F2B8A;margin-bottom:4px">🏢 Multi-Location Aggregation Plan</div>
+  <div style="font-size:12.5px;color:rgba(31,32,48,.7);line-height:1.55;font-weight:600">
+    Customers will find their nearest branch directly via your website. Members across all your store locations will discover and join your brand under this primary account. If you have <strong>more than 5 locations</strong> or need location-based member segmentation, you can also <a href="mailto:hello@perkfinity.net?subject=Enterprise%20Multi-Location%20Inquiry" style="color:#5B3FA5;font-weight:800;text-decoration:none">contact our Enterprise team</a> for a tailored setup.
+  </div>
+</div>
 
-<!-- Welcome Offer context -->
-<div style="margin-bottom:16px;padding:16px 18px;background:rgba(107,193,122,.08);border:1px solid rgba(107,193,122,.28);border-radius:14px">
+<!-- Location / Address Section -->
+<div id="address-section">
+  <!-- Storefront: Street Address -->
+  <div class="field" id="field-street">
+    <label id="label-street">Street Address *</label>
+    <input type="text" id="f-address" placeholder="123 Main St">
+  </div>
+
+  <!-- Storefront: Suite + City row -->
+  <div class="field-row" id="row-suite-city">
+    <div class="field" id="field-suite">
+      <label id="label-suite">Suite / Unit <span style="color:#aaa;font-weight:600">(optional)</span></label>
+      <input type="text" id="f-suite" placeholder="Suite 100">
+    </div>
+    <div class="field" id="field-city">
+      <label id="label-city">City *</label>
+      <input type="text" id="f-city" placeholder="e.g. Mission Viejo">
+    </div>
+  </div>
+
+  <!-- Storefront: State + ZIP row -->
+  <div class="field-row" id="row-state-zip">
+    <div class="field" id="field-state">
+      <label id="label-state">State *</label>
+      <select id="f-state">
+        <option value="CA" selected>CA — California</option>
+        <option value="AL">AL — Alabama</option>
+        <option value="AK">AK — Alaska</option>
+        <option value="AZ">AZ — Arizona</option>
+        <option value="AR">AR — Arkansas</option>
+        <option value="CO">CO — Colorado</option>
+        <option value="CT">CT — Connecticut</option>
+        <option value="DE">DE — Delaware</option>
+        <option value="FL">FL — Florida</option>
+        <option value="GA">GA — Georgia</option>
+        <option value="HI">HI — Hawaii</option>
+        <option value="ID">ID — Idaho</option>
+        <option value="IL">IL — Illinois</option>
+        <option value="IN">IN — Indiana</option>
+        <option value="IA">IA — Iowa</option>
+        <option value="KS">KS — Kansas</option>
+        <option value="KY">KY — Kentucky</option>
+        <option value="LA">LA — Louisiana</option>
+        <option value="ME">ME — Maine</option>
+        <option value="MD">MD — Maryland</option>
+        <option value="MA">MA — Massachusetts</option>
+        <option value="MI">MI — Michigan</option>
+        <option value="MN">MN — Minnesota</option>
+        <option value="MS">MS — Mississippi</option>
+        <option value="MO">MO — Missouri</option>
+        <option value="MT">MT — Montana</option>
+        <option value="NE">NE — Nebraska</option>
+        <option value="NV">NV — Nevada</option>
+        <option value="NH">NH — New Hampshire</option>
+        <option value="NJ">NJ — New Jersey</option>
+        <option value="NM">NM — New Mexico</option>
+        <option value="NY">NY — New York</option>
+        <option value="NC">NC — North Carolina</option>
+        <option value="ND">ND — North Dakota</option>
+        <option value="OH">OH — Ohio</option>
+        <option value="OK">OK — Oklahoma</option>
+        <option value="OR">OR — Oregon</option>
+        <option value="PA">PA — Pennsylvania</option>
+        <option value="RI">RI — Rhode Island</option>
+        <option value="SC">SC — South Carolina</option>
+        <option value="SD">SD — South Dakota</option>
+        <option value="TN">TN — Tennessee</option>
+        <option value="TX">TX — Texas</option>
+        <option value="UT">UT — Utah</option>
+        <option value="VT">VT — Vermont</option>
+        <option value="VA">VA — Virginia</option>
+        <option value="WA">WA — Washington</option>
+        <option value="WV">WV — West Virginia</option>
+        <option value="WI">WI — Wisconsin</option>
+        <option value="WY">WY — Wyoming</option>
+      </select>
+    </div>
+    <div class="field" id="field-zip">
+      <label id="label-zip">ZIP Code *</label>
+      <input type="text" id="f-zip" placeholder="92691" maxlength="10">
+    </div>
+  </div>
+
+  <!-- Mobile-Only: City (Left) + ZIP (Right) row -->
+  <div class="field-row" id="row-mobile-city-zip" style="display:none">
+    <div class="field">
+      <label>Operating City <span style="color:#aaa;font-weight:600">(suggested)</span></label>
+      <input type="text" id="f-mobile-city" placeholder="e.g. Mission Viejo" oninput="document.getElementById('f-city').value=this.value">
+    </div>
+    <div class="field">
+      <label>Operating ZIP Code <span style="color:#aaa;font-weight:600">(suggested)</span></label>
+      <input type="text" id="f-mobile-zip" placeholder="e.g. 92691" maxlength="10" oninput="document.getElementById('f-zip').value=this.value">
+    </div>
+  </div>
+</div>
+
+<!-- 4. Category Dropdown -->
+<div class="field" style="margin-top:20px">
+  <label>Category *</label>
+  <select id="f-category">
+    <option value="">— Select category —</option>
+    <option value="Restaurants &amp; Dining">🍽️ Restaurants &amp; Dining (Full-service, Fast casual, Food trucks, Bars)</option>
+    <option value="Cafes, Bakery &amp; Desserts">☕ Cafes, Bakery &amp; Desserts (Coffee, Juice, Boba, Ice cream, Pastries)</option>
+    <option value="Grocery &amp; Gourmet Market">🛒 Grocery &amp; Gourmet Market (Markets, Delis, Butchers, Wine &amp; Spirits)</option>
+    <option value="Hair &amp; Barber Shops">✂️ Hair &amp; Barber Shops (Salons, Barbershops, Blow-dry bars)</option>
+    <option value="Beauty, Spa &amp; Wellness">💅 Beauty, Spa &amp; Wellness (Nails, Skincare, Massage, Spas)</option>
+    <option value="Fitness &amp; Movement">💪 Fitness &amp; Movement (Gyms, Yoga, Pilates, Martial Arts, Training)</option>
+    <option value="Education &amp; Learning">📚 Education &amp; Learning (Tutoring, STEM academies, Music, Art, Test prep)</option>
+    <option value="Health &amp; Medical">🏥 Health &amp; Medical (Dentists, Optometrists, Chiropractic, Clinics)</option>
+    <option value="Retail &amp; Boutiques">🛍️ Retail &amp; Boutiques (Apparel, Jewelry, Gift shops, Online brands)</option>
+    <option value="Professional &amp; Financial">💼 Professional &amp; Financial (Banks, Real Estate, Insurance, CPA, Legal)</option>
+    <option value="Home, Auto &amp; Trade">🔧 Home, Auto &amp; Trade (Auto repair, Plumbing, Electricians, HVAC, Cleaning)</option>
+    <option value="Pet Care &amp; Services">🐾 Pet Care &amp; Services (Veterinary, Grooming, Boarding, Pet supplies)</option>
+    <option value="Entertainment &amp; Recreation">🎮 Entertainment &amp; Recreation (Arcades, Escape rooms, Bowling, Venues)</option>
+    <option value="Photography &amp; Creative">📸 Photography &amp; Creative (Photo/video, Print, Graphic design, Marketing)</option>
+    <option value="Other">🔖 Other (Specialized local businesses)</option>
+  </select>
+</div>
+
+<!-- 5. Welcome Offer Context Banner -->
+<div style="margin:22px 0 16px;padding:16px 18px;background:rgba(107,193,122,.08);border:1px solid rgba(107,193,122,.28);border-radius:14px">
   <p style="margin:0 0 6px;font-size:14px;font-weight:800;color:#1e5c38">Welcome Offer for New Members</p>
-  <p id="welcome-offer-hint" style="margin:0;font-size:13px;font-weight:600;color:rgba(31,32,48,.65);line-height:1.55">Members discover your store on Perkfinity and tap <strong>Claim &amp; Reveal</strong> in the app to unlock your promo code. Once revealed, the code is theirs to use at your online checkout — and they instantly become your member. Choose an offer strong enough to earn that first click. You can update your welcome offer anytime from your dashboard.</p>
+  <p id="welcome-offer-hint" style="margin:0;font-size:13px;font-weight:600;color:rgba(31,32,48,.65);line-height:1.55">
+    Members discover your store on Perkfinity and tap <strong>Claim &amp; Reveal</strong> in the app to unlock your promo perk. Once revealed, the perk is theirs to redeem in-store or at your online checkout — and they instantly become your member.
+  </p>
 </div>
 
+<!-- 6. Welcome Offer Selection -->
 <div class="field">
-<label>Welcome Offer *</label>
-<select id="f-offer-select" onchange="onOfferSelectChange(this.value)">
-<option value="" disabled selected>— Select a welcome offer for new members —</option>
-<option value="10% Off Your First Purchase">10% Off Your First Purchase</option>
-<option value="15% Off Your First Purchase">15% Off Your First Purchase</option>
-<option value="20% Off Your First Purchase">20% Off Your First Purchase</option>
-<option value="$5 Off Your First Order">$5 Off Your First Order</option>
-<option value="$10 Off Your First Order">$10 Off Your First Order</option>
-<option value="Free Item with Any Purchase">Free Item with Any Purchase</option>
-<option value="Buy One, Get One Free">Buy One, Get One Free</option>
-<option value="Free Consultation / First Visit">Free Consultation / First Visit</option>
-<option value="Free Delivery on First Order">Free Delivery on First Order</option>
-<option value="Free Sample / Trial">Free Sample / Trial</option>
-<option value="2-for-1 on First Visit">2-for-1 on First Visit</option>
-<option value="__custom__">✏️ Custom Offer (write your own)</option>
-</select>
+  <label>Welcome Offer *</label>
+  <select id="f-offer-select" onchange="onOfferSelectChange(this.value)">
+    <option value="" disabled selected>— Select a welcome offer for new members —</option>
+    <option value="10% Off Your First Purchase">10% Off Your First Purchase</option>
+    <option value="15% Off Your First Purchase">15% Off Your First Purchase</option>
+    <option value="20% Off Your First Purchase">20% Off Your First Purchase</option>
+    <option value="$5 Off Your First Order">$5 Off Your First Order</option>
+    <option value="$10 Off Your First Order">$10 Off Your First Order</option>
+    <option value="Free Item with Any Purchase">Free Item with Any Purchase</option>
+    <option value="Buy One, Get One Free">Buy One, Get One Free</option>
+    <option value="Free Consultation / First Visit">Free Consultation / First Visit</option>
+    <option value="Free Delivery on First Order">Free Delivery on First Order</option>
+    <option value="Free Sample / Trial">Free Sample / Trial</option>
+    <option value="2-for-1 on First Visit">2-for-1 on First Visit</option>
+    <option value="__custom__">✏️ Custom Offer (write your own)</option>
+  </select>
 </div>
+
 <div id="custom-offer-row" style="display:none" class="field">
-<label>Your Custom Offer <span style="font-weight:600;color:#aaa">(max 60 characters)</span></label>
-<input type="text" id="f-offer-custom" maxlength="60" placeholder="e.g. Free dessert with any entrée" oninput="document.getElementById('offer-char-count').textContent=this.value.length+'/60'">
-<div style="text-align:right;font-size:12px;color:rgba(31,32,48,.5);margin-top:4px" id="offer-char-count">0/60</div>
+  <label>Your Custom Offer <span style="font-weight:600;color:#aaa">(max 60 characters)</span></label>
+  <input type="text" id="f-offer-custom" maxlength="60" placeholder="e.g. Free dessert with any entrée" oninput="document.getElementById('offer-char-count').textContent=this.value.length+'/60'">
+  <div style="text-align:right;font-size:12px;color:rgba(31,32,48,.5);margin-top:4px" id="offer-char-count">0/60</div>
 </div>
+
+<!-- 7. Welcome Offer Promo Code Box -->
 <div id="hello-code-preview" style="margin-top:16px;padding:14px 18px;background:rgba(91,63,165,.07);border:1.5px solid #5B3FA5;border-radius:12px">
-<p style="margin:0 0 4px;font-size:13px;font-weight:800;color:#3F2B8A">🔐 Your Welcome Offer Promo Code</p>
-<p style="margin:0 0 6px;font-size:13px;color:rgba(31,32,48,.6);line-height:1.55">This auto-generated code is reserved for your <strong>Welcome Offer only</strong> — the first perk every new member claims. For future campaigns you can create and use any code you like. Set this code up in your Shopify / WooCommerce / platform before you go live.</p>
+  <p style="margin:0 0 4px;font-size:13px;font-weight:800;color:#3F2B8A">🔐 Your Welcome Offer Promo Code</p>
+  <p style="margin:0 0 8px;font-size:13px;color:rgba(31,32,48,.6);line-height:1.5">This auto-generated code is reserved for your <strong>Welcome Offer only</strong> — the first perk every new member claims. For future campaigns you can create and use any custom code you like.</p>
 
-<div style="display:flex;align-items:center;gap:10px">
-<span id="hello-code-display" style="font-size:18px;font-weight:700;font-family:monospace;color:#5B3FA5;letter-spacing:2px;background:#fff;padding:10px 18px;border-radius:8px;border:1px solid rgba(91,63,165,.25)">HI...</span>
-<button type="button" onclick="copyHelloCode()" id="copy-hello-btn" style="padding:10px 16px;background:#5B3FA5;color:#fff;border:none;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit">Copy</button>
-</div>
-</div>
-<!-- Hybrid-only: multi-location toggle -->
-<div id="hybrid-location-section" style="display:none;margin-top:16px">
-<div class="field" style="background:#f8f6ff;border-radius:14px;padding:16px;border:1.5px solid rgba(91,63,165,.2)">
-<label style="display:flex;align-items:center;gap:12px;cursor:pointer;margin:0">
-<input type="checkbox" id="f-multiloc" onchange="toggleMultiLocation()" style="width:18px;height:18px;accent-color:#5B3FA5;cursor:pointer;flex-shrink:0">
-<span style="font-size:14px;font-weight:800;color:#3F2B8A">We have multiple locations (chain, franchise, or HQ)</span>
-</label>
-<div style="margin-top:10px;font-size:12px;font-weight:600;color:rgba(31,32,48,.55);line-height:1.6;padding-left:30px">
-If you have <strong style="color:rgba(31,32,48,.75)">more than 10 locations</strong> or need location-based member lists and performance tracking,
-<a href="mailto:hello@perkfinity.net?subject=Enterprise%20Inquiry" style="color:#5B3FA5;text-decoration:none;font-weight:700">fill in our Enterprise form</a> for a tailor-made plan.
-By using this plan, members and performance across all locations will be aggregated under this single account.
-</div>
-</div>
-<div id="multiloc-note" style="display:none;background:rgba(91,63,165,.06);border:1.5px solid rgba(91,63,165,.2);border-radius:12px;padding:14px 16px;margin-top:10px;font-size:13px;font-weight:700;color:#3F2B8A">📍 For chains: your members will find their nearest location via your website or Google.</div>
-<div id="hybrid-address-fields">
-<div style="margin-top:16px;padding-top:16px;border-top:1px solid rgba(230,230,240,.95)">
-<p style="font-size:13px;font-weight:800;color:#3F2B8A;margin:0 0 14px">📍 Primary Location Address</p>
-<div class="field"><label>Street Address *</label><input type="text" id="f-address" placeholder="123 Main St"></div>
-<div class="field-row">
-<div class="field"><label>Suite / Unit</label><input type="text" id="f-suite" placeholder="Optional"></div>
-<div class="field"><label>City *</label><input type="text" id="f-city" placeholder="City"></div>
-</div>
-<div class="field-row">
-<div class="field"><label>State *</label><input type="text" id="f-state" placeholder="CA" maxlength="2"></div>
-<div class="field"><label>ZIP Code *</label><input type="text" id="f-zip" placeholder="90210" maxlength="10"></div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <span id="hello-code-display" style="font-size:18px;font-weight:800;font-family:monospace;color:#5B3FA5;letter-spacing:2px;background:#fff;padding:8px 16px;border-radius:8px;border:1px solid rgba(91,63,165,.25)">HI...</span>
+    <button type="button" onclick="copyHelloCode()" id="copy-hello-btn" style="padding:9px 16px;background:#5B3FA5;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Copy</button>
+  </div>
 </div>
 
-</div>
-</div>
-</div>
 <div class="err-msg" id="err1"></div>
 <div class="nav-row"><button class="btn-next" style="flex:1" id="btn-next1" onclick="next(1)">Next →</button></div>
 </div>
@@ -424,17 +566,134 @@ let paymentMethodId=null;
 let isEditMode=false;
 let isFFL=false;
 
-const isHybrid=new URLSearchParams(location.search).get('type')==='hybrid';
-const resumeMode=new URLSearchParams(location.search).get('resume');
+let currentType = 'hybrid';
 
-// Apply hybrid UI
-if(isHybrid){
-  document.title='Perkfinity \u2014 Hybrid Brand Application';
-  document.getElementById('app-label').textContent='\ud83d\udcf1 Online + Physical (Hybrid) Application';
-  document.getElementById('s1-title').textContent='Your Business & Offer';
-  document.getElementById('s1-sub').textContent='Tell us about your business and the welcome perk for new members.';
-  document.getElementById('hybrid-location-section').style.display='block';
-  document.getElementById('welcome-offer-hint').innerHTML='Members discover your store on Perkfinity and tap <strong>Claim &amp; Reveal</strong> in the app to unlock your promo code. Once revealed, the code is theirs to use at your online checkout or in-store — and they instantly become your member. Choose an offer strong enough to earn that first click. You can update your welcome offer anytime from your dashboard.';
+const TYPE_CONFIG = {
+  physical: {
+    basePresence: 'physical',
+    websiteLabel: 'Website URL <span style="color:#aaa;font-weight:600">(optional)</span>',
+    websiteRequired: false,
+    showAddress: true,
+    addressRequired: true,
+    showEnterprise: false,
+    helper: '📍 Physical brick-and-mortar storefront where customers visit in person. Address is required; website is optional.'
+  },
+  hybrid: {
+    basePresence: 'hybrid',
+    websiteLabel: 'Website URL *',
+    websiteRequired: true,
+    showAddress: true,
+    addressRequired: true,
+    showEnterprise: false,
+    helper: '🏬 Physical storefront + Online Store. Both address and website are required for local foot-traffic and online deal discovery.'
+  },
+  online: {
+    basePresence: 'online',
+    websiteLabel: 'Website URL *',
+    websiteRequired: true,
+    showAddress: false,
+    addressRequired: false,
+    showEnterprise: false,
+    helper: '🌐 Online only business. Website URL is required to verify your digital storefront.'
+  },
+  mobile: {
+    basePresence: 'mobile',
+    websiteLabel: 'Website URL <span style="color:#aaa;font-weight:600">(optional)</span>',
+    websiteRequired: false,
+    showAddress: true,
+    addressRequired: false,
+    showEnterprise: false,
+    helper: '🚚 Mobile business (food truck, pop-up, farmers market, on-site service). We suggest adding your website, service city, and ZIP code so local members can find you.'
+  },
+  multiloc: {
+    basePresence: 'hybrid',
+    websiteLabel: 'Website URL *',
+    websiteRequired: true,
+    showAddress: true,
+    addressRequired: false,
+    showEnterprise: true,
+    helper: '🏢 Multi-location brand or chain. Primary headquarters address is optional. Customers will find their nearest location via your website.'
+  }
+};
+
+function selectBusinessType(type) {
+  currentType = type;
+  const dd = document.getElementById('f-type-dropdown');
+  if (dd) dd.value = type;
+
+  const cfg = TYPE_CONFIG[type] || TYPE_CONFIG.hybrid;
+  const webLabel = document.getElementById('label-website');
+  if (webLabel) webLabel.innerHTML = cfg.websiteLabel;
+  const helperEl = document.getElementById('type-helper-text');
+  if (helperEl) helperEl.innerHTML = cfg.helper;
+  const entNotice = document.getElementById('enterprise-notice');
+  if (entNotice) entNotice.style.display = cfg.showEnterprise ? 'block' : 'none';
+
+  const addrSec = document.getElementById('address-section');
+  if (addrSec) {
+    if (!cfg.showAddress) {
+      addrSec.style.display = 'none';
+    } else {
+      addrSec.style.display = 'block';
+      if (type === 'mobile') {
+        const fStreet = document.getElementById('field-street');
+        if (fStreet) fStreet.style.display = 'none';
+        const rSuiteCity = document.getElementById('row-suite-city');
+        if (rSuiteCity) rSuiteCity.style.display = 'none';
+        const rStateZip = document.getElementById('row-state-zip');
+        if (rStateZip) rStateZip.style.display = 'none';
+        const rMob = document.getElementById('row-mobile-city-zip');
+        if (rMob) rMob.style.display = 'grid';
+      } else {
+        const fStreet = document.getElementById('field-street');
+        if (fStreet) fStreet.style.display = 'block';
+        const rSuiteCity = document.getElementById('row-suite-city');
+        if (rSuiteCity) rSuiteCity.style.display = 'grid';
+        const rStateZip = document.getElementById('row-state-zip');
+        if (rStateZip) rStateZip.style.display = 'grid';
+        const rMob = document.getElementById('row-mobile-city-zip');
+        if (rMob) rMob.style.display = 'none';
+
+        const req = cfg.addressRequired;
+        const lStreet = document.getElementById('label-street');
+        if (lStreet) lStreet.innerHTML = req ? 'Street Address *' : 'Street Address <span style="color:#aaa;font-weight:600">(optional)</span>';
+        const lCity = document.getElementById('label-city');
+        if (lCity) lCity.innerHTML = req ? 'City *' : 'City <span style="color:#aaa;font-weight:600">(optional)</span>';
+        const lState = document.getElementById('label-state');
+        if (lState) lState.innerHTML = req ? 'State *' : 'State <span style="color:#aaa;font-weight:600">(optional)</span>';
+        const lZip = document.getElementById('label-zip');
+        if (lZip) lZip.innerHTML = req ? 'ZIP Code *' : 'ZIP Code <span style="color:#aaa;font-weight:600">(optional)</span>';
+      }
+    }
+  }
+}
+
+function recalcPresence() {
+  // Triggers re-check of auto-hybrid promotion on input
+  const webVal = document.getElementById('f-website')?.value?.trim() || '';
+  if (['physical', 'mobile'].includes(currentType) && webVal.length > 3) {
+    // If physical/mobile applicant enters a website, update helper note
+    const helperEl = document.getElementById('type-helper-text');
+    if (helperEl) {
+      helperEl.innerHTML = '✨ <strong>Website detected!</strong> Your account will be categorized as <strong>Hybrid</strong> to unlock digital promo codes and online marketplace presence.';
+    }
+  } else {
+    const cfg = TYPE_CONFIG[currentType];
+    if (cfg) {
+      const helperEl = document.getElementById('type-helper-text');
+      if (helperEl) helperEl.innerHTML = cfg.helper;
+    }
+  }
+}
+
+const typeParam = new URLSearchParams(location.search).get('type');
+const resumeMode = new URLSearchParams(location.search).get('resume');
+
+// Check URL parameter for pre-selecting type
+if (typeParam && TYPE_CONFIG[typeParam.toLowerCase()]) {
+  selectBusinessType(typeParam.toLowerCase());
+} else {
+  selectBusinessType('hybrid');
 }
 
 // Resume mode: restore session from localStorage and jump to correct step
@@ -724,30 +983,41 @@ function togglePassword(inputId, icon) {
 
 // --- Validators ---
 function validate1(){
-  const name=document.getElementById('f-name').value.trim();
-  let webRaw=document.getElementById('f-website').value.trim();
-  if(webRaw && !/^https?:\/\//i.test(webRaw)){webRaw='https://'+webRaw;document.getElementById('f-website').value=webRaw;}
-  const web=webRaw;
-  const cat=document.getElementById('f-category').value;
-  const offer=getOfferValue();
-  if(!name)return'Business name is required.';
-  if(!web||!web.startsWith('http'))return'Please enter a valid website URL (e.g. www.yourbusiness.com or https://yourbusiness.com).';
-  if(!cat)return'Please select a category.';
-  if(!offer)return'Please select or enter a welcome offer.';
-  if(document.getElementById('f-offer-select').value==='__custom__'&&offer.length<3)return'Please enter your custom offer text (at least 3 characters).';
-  if(isHybrid){
-    const isMulti=document.getElementById('f-multiloc').checked;
-    if(!isMulti){
-      if(!document.getElementById('f-address').value.trim())return'Street address is required.';
-      if(!document.getElementById('f-city').value.trim())return'City is required.';
-      if(!document.getElementById('f-state').value.trim())return'State is required.';
-      if(!document.getElementById('f-zip').value.trim())return'ZIP code is required.';
+  const name = document.getElementById('f-name')?.value?.trim() || '';
+  let webRaw = document.getElementById('f-website')?.value?.trim() || '';
+  if (webRaw && !/^https?:\/\//i.test(webRaw)) {
+    webRaw = 'https://' + webRaw;
+    document.getElementById('f-website').value = webRaw;
+  }
+  const cat = document.getElementById('f-category')?.value || '';
+  const offer = getOfferValue();
+
+  if (!name) return 'Business name is required.';
+
+  const cfg = TYPE_CONFIG[currentType] || TYPE_CONFIG.hybrid;
+  if (cfg.websiteRequired) {
+    if (!webRaw || !webRaw.startsWith('http') || webRaw.length < 8) {
+      return 'Please enter a valid website URL (e.g. www.yourbusiness.com or https://yourbusiness.com).';
     }
   }
-  // Show HELLO preview after validation passes
+
+  if (!cat) return 'Please select a category.';
+  if (!offer) return 'Please select or enter a welcome offer.';
+  if (document.getElementById('f-offer-select')?.value === '__custom__' && offer.length < 3) {
+    return 'Please enter your custom offer text (at least 3 characters).';
+  }
+
+  if (cfg.addressRequired) {
+    if (!document.getElementById('f-address')?.value?.trim()) return 'Street address is required.';
+    if (!document.getElementById('f-city')?.value?.trim()) return 'City is required.';
+    if (!document.getElementById('f-state')?.value?.trim()) return 'State is required.';
+    if (!document.getElementById('f-zip')?.value?.trim()) return 'ZIP code is required.';
+  }
+
   updateHelloPreview();
-  document.getElementById('hello-code-preview').style.display='block';
-  return'';
+  const helloBox = document.getElementById('hello-code-preview');
+  if (helloBox) helloBox.style.display = 'block';
+  return '';
 }
 
 function validate2(){return'';}
@@ -811,32 +1081,41 @@ async function createAccount(){
   const validErr=await validate3();
   if(validErr){errEl.textContent=validErr;return validErr;}
   btn.disabled=true;btn.textContent='Creating account\u2026';
-  const isMulti=isHybrid&&document.getElementById('f-multiloc').checked;
+
+  const webVal = (document.getElementById('f-website')?.value || '').trim();
+  const isMulti = currentType === 'multiloc';
+
   const body={
-    business_presence:isHybrid?'hybrid':'online',
-    name:document.getElementById('f-name').value.trim(),
-    website:document.getElementById('f-website').value.trim(),
-    category:document.getElementById('f-category').value,
-    welcome_offer_text:getOfferValue(),
-    tier:selectedTier,
-    billing_cycle:selectedBillingCycle,
-    promo_code:promoApplied?.code||null,
-    sales_volume_range:null,
-    contactName:document.getElementById('f-contact').value.trim(),
-    phone:document.getElementById('f-phone').value.trim(),
-    public_phone:(document.getElementById('f-public-phone')?.value||'').trim()||null,
-    public_email:(document.getElementById('f-public-email')?.value||'').trim()||null,
-    email:document.getElementById('f-email').value.trim(),
-    password:document.getElementById('f-pass').value,
-    is_multi_location:isMulti||false,
-    contractor_code:(document.getElementById('f-referral-code')?.value||'').trim().toUpperCase()||null,
-    ...(isHybrid&&!isMulti?{
-      address:document.getElementById('f-address').value.trim(),
-      suite:document.getElementById('f-suite').value.trim(),
-      city:document.getElementById('f-city').value.trim(),
-      state:document.getElementById('f-state').value.trim(),
-      zip:document.getElementById('f-zip').value.trim(),
-    }:{}),
+    business_presence: currentType,
+    name: document.getElementById('f-name').value.trim(),
+    website: webVal || null,
+    category: document.getElementById('f-category').value,
+    welcome_offer_text: getOfferValue(),
+    tier: selectedTier,
+    billing_cycle: selectedBillingCycle,
+    promo_code: promoApplied?.code || null,
+    sales_volume_range: null,
+    contactName: document.getElementById('f-contact').value.trim(),
+    phone: document.getElementById('f-phone').value.trim(),
+    public_phone: (document.getElementById('f-public-phone')?.value || '').trim() || null,
+    public_email: (document.getElementById('f-public-email')?.value || '').trim() || null,
+    email: document.getElementById('f-email').value.trim(),
+    password: document.getElementById('f-pass').value,
+    is_multi_location: isMulti,
+    contractor_code: (document.getElementById('f-referral-code')?.value || '').trim().toUpperCase() || null,
+    ...((currentType === 'physical' || currentType === 'hybrid') && !isMulti ? {
+      address: document.getElementById('f-address').value.trim(),
+      suite: document.getElementById('f-suite').value.trim(),
+      city: document.getElementById('f-city').value.trim(),
+      state: document.getElementById('f-state').value.trim(),
+      zip: document.getElementById('f-zip').value.trim(),
+    } : currentType === 'mobile' ? {
+      address: '',
+      suite: '',
+      city: (document.getElementById('f-mobile-city')?.value || document.getElementById('f-city')?.value || '').trim(),
+      state: 'CA',
+      zip: (document.getElementById('f-mobile-zip')?.value || document.getElementById('f-zip')?.value || '').trim(),
+    } : {})
   };
   try{
     const r=await fetch(`${BACKEND}/api/v1/merchants/apply-create-account`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
