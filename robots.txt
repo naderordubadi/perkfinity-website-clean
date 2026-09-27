@@ -1,0 +1,44 @@
+# Perkfinity robots.txt
+# https://perkfinity.net
+
+User-agent: *
+Allow: /
+Allow: /codes.html
+Allow: /localperks.html
+Allow: /merchants.html
+Allow: /get-started.html
+Allow: /apply.html
+Allow: /enterprise.html
+Allow: /about.html
+Allow: /faq.html
+Allow: /contact.html
+Allow: /privacy-policy.html
+Allow: /terms-of-use.html
+Allow: /assets/
+
+# Disallow authenticated, admin, and utility pages
+Disallow: /admin/
+Disallow: /dashboard.html
+Disallow: /login.html
+Disallow: /reset-password.html
+Disallow: /member-reset-password.html
+Disallow: /*preview*.html
+Disallow: /test-qr.html
+
+# AI Search & Indexing Crawlers (Explicitly Allowed for GEO)
+User-agent: GPTBot
+User-agent: ChatGPT-User
+User-agent: Google-Extended
+User-agent: PerplexityBot
+User-agent: ClaudeBot
+User-agent: Applebot-Extended
+Allow: /
+Disallow: /admin/
+Disallow: /dashboard.html
+Disallow: /login.html
+Disallow: /reset-password.html
+Disallow: /member-reset-password.html
+Disallow: /*preview*.html
+Disallow: /test-qr.html
+
+Sitemap: https://perkfinity.net/sitemap.xml

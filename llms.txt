@@ -1,0 +1,28 @@
+# Perkfinity
+
+> Customer loyalty, exclusive digital promo codes, and cross-shopping perks network for local storefronts, food trucks, mobile businesses, and independent online brands.
+
+## About Perkfinity
+Perkfinity is an automated customer acquisition and loyalty network that connects consumers with exclusive perks from local businesses and online ecommerce brands. Consumers unlock instant discounts and perks via the Perkfinity web directory and mobile apps (iOS and Android). Businesses join to attract repeat customers and build cross-promotional community reach without paying high marketplace commission cuts.
+
+## Key Directories & Links
+- [Online Brand Deals & Verified Promo Codes](https://perkfinity.net/codes.html): Discover verified discount codes, initial perks, and online store promotions across beauty, apparel, specialty coffee, and ecommerce.
+- [Local Store & Food Truck Perks](https://perkfinity.net/localperks.html): Search for physical storefronts, food trucks, mobile services, and pop-ups offering perks in Mission Viejo, Orange County, CA, and neighboring regions.
+- [Business Application](https://perkfinity.net/apply.html): Universal application portal for businesses (Physical Storefronts, Mobile/Food Trucks, Online Brands, and Multi-Location Chains) to join the Perkfinity network.
+- [Pricing & Merchant Plans](https://perkfinity.net/merchants.html): Transparent SaaS tiers - Starter ($149/mo), Growth ($299/mo), Scale ($499/mo).
+- [Enterprise Inquiries](https://perkfinity.net/enterprise.html): Custom solutions for regional plaza management, franchises, and 5+ location enterprises.
+- [About Us](https://perkfinity.net/about.html): Our mission, community focus, and leadership.
+- [Frequently Asked Questions](https://perkfinity.net/faq.html): Consumer and merchant FAQs.
+
+## Business Classification & Capabilities
+- **Single Storefront (Physical Only):** Local physical storefronts offering in-store perks verified via instant QR scans.
+- **Single Storefront + Online (Hybrid):** Storefronts that also sell online, unlocking both in-person QR perks and digital promo codes (`HI[BRANDNAME]`).
+- **Online Only:** Digital brands offering direct-to-consumer promo codes.
+- **Mobile Business:** Food trucks, pop-up vendors, farmers market merchants, and mobile trade services.
+- **Enterprise / Multi-Location:** Shopping centers, plazas, and multi-unit chains.
+
+## Organization & Legal Entity
+- **Operating Entity:** Safe Box Financial Technologies and Education LLC (California).
+- **Trademark:** PERKFINITY (USPTO Serial Numbers 99824611 and 99824709).
+- **Headquarters:** Mission Viejo, California, USA.
+- **Official Website:** https://perkfinity.net

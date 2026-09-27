@@ -4,11 +4,54 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Perkfinity — Nearby Deals &amp; Local Businesses</title>
-  <meta name="description" content="Search for local stores, mobile businesses, pop-ups, and food trucks offering exclusive Perkfinity perks near you." />
+  <meta name="description" content="Search for local storefronts, food trucks, pop-ups, and mobile businesses offering exclusive Perkfinity perks near you in Orange County and beyond." />
+  <link rel="canonical" href="https://perkfinity.net/localperks.html" />
+
+  <!-- OpenGraph / Facebook / LinkedIn -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://perkfinity.net/localperks.html" />
+  <meta property="og:title" content="Nearby Deals &amp; Local Business Perks — Perkfinity" />
+  <meta property="og:description" content="Find exclusive perks from local stores, food trucks, and mobile businesses in Orange County, CA. Free loyalty network." />
+  <meta property="og:image" content="https://perkfinity.net/assets/Perkfinity-App-Icon.png" />
+
+  <!-- Twitter / X -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Nearby Deals &amp; Local Business Perks — Perkfinity" />
+  <meta name="twitter:description" content="Discover local food trucks, storefronts, and pop-up perks near you on Perkfinity." />
+  <meta name="twitter:image" content="https://perkfinity.net/assets/Perkfinity-App-Icon.png" />
+
+  <!-- Structured Data / JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebPage",
+        "@id": "https://perkfinity.net/localperks.html#webpage",
+        "url": "https://perkfinity.net/localperks.html",
+        "name": "Nearby Deals & Local Business Perks",
+        "isPartOf": {
+          "@type": "WebSite",
+          "name": "Perkfinity",
+          "url": "https://perkfinity.net"
+        },
+        "description": "Directory of local storefronts, food trucks, and pop-ups offering member perks in Orange County, CA and surrounding areas."
+      },
+      {
+        "@type": "ItemList",
+        "name": "Local Store & Food Truck Perks",
+        "url": "https://perkfinity.net/localperks.html",
+        "itemListOrder": "https://schema.org/ItemListOrderAscending",
+        "numberOfItems": 50
+      }
+    ]
+  }
+  </script>
+
   <link rel="icon" href="assets/Perkfinity-App-Icon.png" />
   <link rel="stylesheet" href="styles.css" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  <script src="/config.js"></script>
+  <script src="config.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; }
     body { font-family: 'Inter', sans-serif; }
@@ -957,6 +1000,25 @@
       
       track.scrollTo({ left: newScroll, behavior: 'smooth' });
       startCarouselAutoSlide();
+    }
+
+    // Check deep-link URL search parameters (e.g. ?search=... or ?zip=... or ?city=...)
+    const urlParams = new URLSearchParams(window.location.search);
+    const searchParam = urlParams.get('search') || urlParams.get('store') || urlParams.get('q');
+    const zipParam = urlParams.get('zip') || urlParams.get('postal_code');
+    const cityParam = urlParams.get('city');
+
+    if (searchParam) {
+      const qInput = document.getElementById('search-query');
+      if (qInput) qInput.value = searchParam;
+    }
+    if (zipParam) {
+      const zipInput = document.getElementById('search-zip');
+      if (zipInput) zipInput.value = zipParam;
+    }
+    if (cityParam) {
+      const cityInput = document.getElementById('search-city');
+      if (cityInput) cityInput.value = cityParam;
     }
 
     // Auto-load all merchants on page open

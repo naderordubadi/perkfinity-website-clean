@@ -4,11 +4,62 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Perkfinity — Promo Codes &amp; Online Deals</title>
-  <meta name="description" content="Discover exclusive promo codes from top online brands and Claim &amp; Visit deals from hybrid merchants. Download Perkfinity to unlock your perk." />
+  <meta name="description" content="Discover exclusive, verified promo codes and discounts from top online brands and hybrid stores on Perkfinity. Free to join and unlock." />
+  <link rel="canonical" href="https://perkfinity.net/codes.html" />
+
+  <!-- OpenGraph / Facebook / LinkedIn -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://perkfinity.net/codes.html" />
+  <meta property="og:title" content="Verified Online Promo Codes &amp; Brand Deals — Perkfinity" />
+  <meta property="og:description" content="Unlock exclusive promo codes and discounts from verified online brands and hybrid stores. Privacy-first, free to join." />
+  <meta property="og:image" content="https://perkfinity.net/assets/Perkfinity-App-Icon.png" />
+
+  <!-- Twitter / X -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Verified Online Promo Codes &amp; Brand Deals — Perkfinity" />
+  <meta name="twitter:description" content="Discover verified discounts and promo codes from top online and hybrid brands on Perkfinity." />
+  <meta name="twitter:image" content="https://perkfinity.net/assets/Perkfinity-App-Icon.png" />
+
+  <!-- Structured Data / JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebPage",
+        "@id": "https://perkfinity.net/codes.html#webpage",
+        "url": "https://perkfinity.net/codes.html",
+        "name": "Verified Online Promo Codes & Brand Deals",
+        "isPartOf": {
+          "@type": "WebSite",
+          "name": "Perkfinity",
+          "url": "https://perkfinity.net"
+        },
+        "description": "Directory of verified online brand promo codes and instant discounts."
+      },
+      {
+        "@type": "OfferCatalog",
+        "name": "Perkfinity Online Brand Discounts & Promo Codes",
+        "url": "https://perkfinity.net/codes.html",
+        "numberOfItems": 50,
+        "itemListElement": [
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Perkfinity Member Verified Perks"
+            }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+
   <link rel="icon" href="assets/Perkfinity-App-Icon.png" />
   <link rel="stylesheet" href="styles.css" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  <script src="/config.js"></script>
+  <script src="config.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; }
     body { font-family: 'Inter', sans-serif; }
@@ -745,6 +796,17 @@
         const json = await res.json();
         allBrands = json.data || [];
         renderBrands(allBrands);
+
+        // Check for deep-link URL search parameters (e.g. ?search=... or ?brand=...)
+        const urlParams = new URLSearchParams(window.location.search);
+        const searchParam = urlParams.get('search') || urlParams.get('brand') || urlParams.get('q');
+        if (searchParam) {
+          const inp = document.getElementById('brand-search');
+          if (inp) {
+            inp.value = searchParam;
+            applyFilters();
+          }
+        }
       } catch (e) {
         state.innerHTML = '<div class="state-icon">😕</div><h3>Couldn\'t load deals</h3><p>Please try again in a moment.</p>';
       }
