@@ -2769,7 +2769,15 @@
         return `<a href="${fullUrl}" target="_blank" title="${url}" style="color:#5b3fa5;font-weight:600;display:inline-block;max-width:320px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;vertical-align:bottom;">${url}</a>`;
       };
 
-      const statCard = (label, value, color) => `<div style="flex:1;min-width:120px;background:${color}08;border:1px solid ${color}20;border-radius:12px;padding:14px 16px;text-align:center;"><div style="font-size:24px;font-weight:900;color:${color};">${value}</div><div style="font-size:11px;font-weight:700;color:#64748b;margin-top:4px;text-transform:uppercase;letter-spacing:0.5px;">${label}</div></div>`;
+      const statCard = (label, value, color, onClick = '', hint = '') => `
+        <div ${onClick ? `onclick="${onClick}"` : ''} 
+             style="flex:1;min-width:120px;background:${color}08;border:1px solid ${color}20;border-radius:12px;padding:14px 16px;text-align:center;${onClick ? 'cursor:pointer;transition:transform 0.15s,box-shadow 0.15s,border-color 0.15s;' : ''}"
+             ${onClick ? `onmouseover="this.style.borderColor='${color}60';this.style.boxShadow='0 4px 12px ${color}18';"` : ''}
+             ${onClick ? `onmouseout="this.style.borderColor='${color}20';this.style.boxShadow='none';"` : ''}>
+          <div style="font-size:24px;font-weight:900;color:${color};">${value}</div>
+          <div style="font-size:11px;font-weight:700;color:#64748b;margin-top:4px;text-transform:uppercase;letter-spacing:0.5px;">${label}</div>
+          ${hint ? `<div style="font-size:10px;font-weight:700;color:${color};margin-top:4px;opacity:0.85;">${hint}</div>` : ''}
+        </div>`;
 
       // Compute analytics from allMembers and allCampaigns
       const now = new Date();
@@ -2788,11 +2796,28 @@
 
       // Render core sections immediately (don't wait for attribution fetch)
       body.innerHTML = `
-        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px;">
-          ${statCard('Members', m.member_count || 0, '#5b3fa5')}
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;">
+          ${statCard('Members', m.member_count || 0, '#5b3fa5', `toggleMerchantMembers('${m.id}')`, 'Click to view ↓')}
           ${statCard('Campaigns', m.campaign_count || 0, '#2563eb')}
           ${statCard('Redemptions', m.redemption_count || totalRedemptions || 0, '#16a34a')}
           ${statCard('Campaigns (30d)', campaigns30, '#f59e0b')}
+        </div>
+
+        <div id="merchant-members-panel" style="display:none;background:#fdfcfe;border:1.5px solid rgba(91,63,165,0.2);border-radius:12px;margin-bottom:20px;overflow:hidden;box-shadow:0 4px 16px rgba(91,63,165,0.06);">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 18px;background:rgba(91,63,165,0.06);border-bottom:1px solid rgba(91,63,165,0.12);flex-wrap:wrap;gap:8px;">
+            <div style="font-size:13px;font-weight:800;color:#5b3fa5;display:flex;align-items:center;gap:6px;">
+              <span>👥</span> Joined Members (<span id="merchant-members-count">${m.member_count || 0}</span>)
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <button type="button" onclick="printMerchantMembers('${m.id}')" style="padding:4px 10px;font-size:11px;font-weight:700;border:1px solid #cbd5e1;border-radius:6px;background:#fff;cursor:pointer;color:#334155;font-family:inherit;display:inline-flex;align-items:center;gap:4px;">🖨️ Print</button>
+              <button type="button" onclick="exportMerchantMembersTXT('${m.id}')" style="padding:4px 10px;font-size:11px;font-weight:700;border:1px solid #cbd5e1;border-radius:6px;background:#fff;cursor:pointer;color:#334155;font-family:inherit;display:inline-flex;align-items:center;gap:4px;">📋 TXT</button>
+              <button type="button" onclick="exportMerchantMembersCSV('${m.id}')" style="padding:4px 10px;font-size:11px;font-weight:700;border:1px solid #cbd5e1;border-radius:6px;background:#fff;cursor:pointer;color:#334155;font-family:inherit;display:inline-flex;align-items:center;gap:4px;">📊 CSV</button>
+              <button type="button" onclick="toggleMerchantMembers('${m.id}')" style="background:none;border:none;color:#64748b;font-size:13px;font-weight:700;cursor:pointer;padding:2px 6px;margin-left:4px;">✕ Close</button>
+            </div>
+          </div>
+          <div id="merchant-members-content" style="padding:14px 18px;">
+            <div style="text-align:center;padding:18px;color:#94a3b8;font-size:13px;font-weight:600;">⏳ Loading joined members...</div>
+          </div>
         </div>
 
         <div style="background:#f8fafc;border-radius:12px;padding:18px 20px;margin-bottom:20px;">
@@ -3417,7 +3442,23 @@
       document.getElementById('billing-table')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
-    // ── Member Detail Panel ──────────────────────────────────────
+    // ── File Download Utility ────────────────────────────────────
+    function downloadAdminFile(content, mimeType, filename) {
+      const blob = new Blob([content], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }, 1000);
+    }
+
+    // ── Member Detail Panel & Joined Merchants ───────────────────
     let _memberMerchantsCache = {};
 
     async function toggleMemberMerchants(memberId) {
@@ -3444,6 +3485,8 @@
         const res = await adminFetch(`/admin/members/${memberId}/merchants`);
         if (res && res.success && Array.isArray(res.data)) {
           _memberMerchantsCache[memberId] = res.data;
+          const countEl = document.getElementById('member-merchants-count');
+          if (countEl) countEl.textContent = res.data.length;
           renderMemberMerchantsList(content, res.data);
         } else {
           content.innerHTML = `<div style="text-align:center;padding:16px;color:#ef4444;font-size:13px;font-weight:600;">Failed to load merchants: ${res?.error || 'Unknown error'}</div>`;
@@ -3502,8 +3545,422 @@
       `;
     }
 
-    function showMemberDetail(memberId) {
-      const m = allMembers.find(x => x.id === memberId);
+    async function getMemberMerchantsData(memberId) {
+      let member = (allMembers && allMembers.find(x => x.id === memberId)) || { full_name: 'Member', id: memberId };
+      if (!member.email && typeof allMembers !== 'undefined') {
+        const found = allMembers.find(x => x.id === memberId);
+        if (found) member = found;
+      }
+      if (!_memberMerchantsCache[memberId]) {
+        try {
+          const res = await adminFetch(`/admin/members/${memberId}/merchants`);
+          if (res && res.success && Array.isArray(res.data)) {
+            _memberMerchantsCache[memberId] = res.data;
+          }
+        } catch(e){}
+      }
+      const merchants = _memberMerchantsCache[memberId] || [];
+      return { member, merchants };
+    }
+
+    async function printMemberMerchants(memberId) {
+      const { member, merchants } = await getMemberMerchantsData(memberId);
+      if (!merchants || merchants.length === 0) {
+        alert('No joined merchants data to print.');
+        return;
+      }
+      const memberName = member.full_name || 'Member';
+      const loc = [member.city, member.zip_code].filter(Boolean).join(', ') || '—';
+      const win = window.open('', '_blank', 'width=880,height=750');
+      win.document.write(`<!DOCTYPE html><html><head>
+        <title>${memberName} — Joined Merchants</title>
+        <style>
+          *{box-sizing:border-box}
+          body{font-family:system-ui,-apple-system,sans-serif;padding:32px 36px;color:#1a1a2e;max-width:820px;margin:0 auto}
+          .header{border-bottom:2px solid #5b3fa5;padding-bottom:14px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:flex-end}
+          h1{font-size:20px;font-weight:800;color:#1a1a2e;margin:0 0 4px}
+          .sub{font-size:12.5px;color:#64748b;line-height:1.4}
+          .badge-brand{background:#5b3fa5;color:#fff;font-size:11px;font-weight:800;padding:4px 10px;border-radius:6px;text-transform:uppercase;letter-spacing:0.5px}
+          table{width:100%;border-collapse:collapse;margin-top:16px;font-size:12.5px}
+          th{background:#f8fafc;padding:10px 12px;border-bottom:2px solid #cbd5e1;text-align:left;font-weight:800;color:#475569;font-size:11px;text-transform:uppercase}
+          td{padding:9px 12px;border-bottom:1px solid #e2e8f0;vertical-align:middle}
+          tr:nth-child(even){background:#fafafa}
+          .footer{margin-top:28px;padding-top:12px;border-top:1px solid #e2e8f0;font-size:11px;color:#94a3b8;display:flex;justify-content:space-between}
+          .print-btn{margin-top:20px;padding:10px 24px;background:#5b3fa5;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer}
+          @media print{.print-btn{display:none!important}}
+        </style>
+      </head><body>
+        <div class="header">
+          <div>
+            <h1>${memberName}</h1>
+            <div class="sub">Joined Merchants Report • Email: ${member.email || '—'} • Phone: ${member.phone_number || '—'} • Location: ${loc}</div>
+          </div>
+          <div style="text-align:right">
+            <span class="badge-brand">Perkfinity Admin</span>
+            <div style="font-size:11px;color:#64748b;margin-top:4px;">Total: <strong>${merchants.length}</strong> merchants</div>
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Merchant</th>
+              <th>Location</th>
+              <th>Presence</th>
+              <th>Tier</th>
+              <th>Joined Date</th>
+              <th>Source</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${merchants.map((m, i) => `
+              <tr>
+                <td style="color:#64748b;font-weight:600;">${i + 1}</td>
+                <td style="font-weight:700;color:#1e293b;">${m.business_name || '—'}</td>
+                <td style="color:#475569;">${[m.location_city, m.location_zip].filter(Boolean).join(', ') || '—'}</td>
+                <td style="text-transform:capitalize;">${m.business_presence || '—'}</td>
+                <td>${(m.subscription_tier || 'Free').replace('online_', '').replace(/_/g, ' ')}</td>
+                <td style="white-space:nowrap;color:#475569;">${formatDate(m.joined_at)}</td>
+                <td style="color:#64748b;">${m.join_source === 'qr_scan' ? 'QR Scan' : m.join_source === 'app' ? 'App' : (m.join_source || '—')}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+        <div class="footer">
+          <span>Perkfinity Loyalty Platform</span>
+          <span>Exported on ${new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+        </div>
+        <button class="print-btn" onclick="window.print()">🖨️ Print this report</button>
+      </body></html>`);
+      win.document.close();
+      win.focus();
+      setTimeout(() => { try { win.print(); } catch(e){} }, 700);
+    }
+
+    async function exportMemberMerchantsCSV(memberId) {
+      const { member, merchants } = await getMemberMerchantsData(memberId);
+      if (!merchants || merchants.length === 0) {
+        alert('No joined merchants data to export.');
+        return;
+      }
+      const memberName = member.full_name || 'Member';
+      const rows = [
+        ['Member Name:', memberName],
+        ['Email:', member.email || '—'],
+        ['Phone:', member.phone_number || '—'],
+        ['Location:', [member.city, member.zip_code].filter(Boolean).join(', ') || '—'],
+        ['Total Joined Merchants:', merchants.length],
+        ['Report Generated:', new Date().toLocaleString()],
+        [''],
+        ['#', 'Merchant Name', 'Location', 'Presence', 'Tier', 'Joined Date', 'Join Source']
+      ];
+
+      merchants.forEach((m, idx) => {
+        rows.push([
+          idx + 1,
+          m.business_name || '—',
+          [m.location_city, m.location_zip].filter(Boolean).join(', ') || '—',
+          m.business_presence || '—',
+          (m.subscription_tier || 'Free').replace('online_', '').replace(/_/g, ' '),
+          formatDate(m.joined_at),
+          m.join_source === 'qr_scan' ? 'QR Scan' : m.join_source === 'app' ? 'App' : (m.join_source || '—')
+        ]);
+      });
+
+      const csv = '\uFEFF' + rows.map(r => r.map(c => '"' + String(c !== undefined && c !== null ? c : '').replace(/"/g, '""') + '"').join(',')).join('\r\n');
+      const filename = `${memberName.replace(/[^a-z0-9]/gi, '_')}_joined_merchants.csv`;
+      downloadAdminFile(csv, 'text/csv;charset=utf-8;', filename);
+    }
+
+    async function exportMemberMerchantsTXT(memberId) {
+      const { member, merchants } = await getMemberMerchantsData(memberId);
+      if (!merchants || merchants.length === 0) {
+        alert('No joined merchants data to export.');
+        return;
+      }
+      const memberName = member.full_name || 'Member';
+      let txt = `================================================================================\n`;
+      txt += `PERKFINITY — JOINED MERCHANTS REPORT\n`;
+      txt += `================================================================================\n`;
+      txt += `Member Name:            ${memberName}\n`;
+      txt += `Email:                  ${member.email || '—'}\n`;
+      txt += `Phone:                  ${member.phone_number || '—'}\n`;
+      txt += `Location:               ${[member.city, member.zip_code].filter(Boolean).join(', ') || '—'}\n`;
+      txt += `Total Joined Merchants: ${merchants.length}\n`;
+      txt += `Generated On:           ${new Date().toLocaleString()}\n`;
+      txt += `================================================================================\n\n`;
+      txt += `JOINED MERCHANTS LIST:\n`;
+      txt += `--------------------------------------------------------------------------------\n`;
+
+      merchants.forEach((m, idx) => {
+        txt += `${idx + 1}. ${m.business_name || '—'}\n`;
+        txt += `   Location:    ${[m.location_city, m.location_zip].filter(Boolean).join(', ') || '—'}\n`;
+        txt += `   Presence:    ${m.business_presence || '—'}\n`;
+        txt += `   Tier:        ${(m.subscription_tier || 'Free').replace('online_', '').replace(/_/g, ' ')}\n`;
+        txt += `   Joined Date: ${formatDate(m.joined_at)}\n`;
+        txt += `   Join Source: ${m.join_source === 'qr_scan' ? 'QR Scan' : m.join_source === 'app' ? 'App' : (m.join_source || '—')}\n\n`;
+      });
+
+      txt += `--------------------------------------------------------------------------------\n`;
+      txt += `Perkfinity Admin • Confidential Internal Report\n`;
+
+      const filename = `${memberName.replace(/[^a-z0-9]/gi, '_')}_joined_merchants.txt`;
+      downloadAdminFile(txt, 'text/plain;charset=utf-8;', filename);
+    }
+
+    // ── Merchant Detail Panel & Joined Members ───────────────────
+    let _merchantMembersCache = {};
+
+    async function toggleMerchantMembers(merchantId) {
+      const panel = document.getElementById('merchant-members-panel');
+      if (!panel) return;
+      if (panel.style.display !== 'none') {
+        panel.style.display = 'none';
+        return;
+      }
+      panel.style.display = 'block';
+      panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+      const content = document.getElementById('merchant-members-content');
+      if (!content) return;
+
+      if (_merchantMembersCache[merchantId]) {
+        renderMerchantMembersList(content, _merchantMembersCache[merchantId], merchantId);
+        return;
+      }
+
+      content.innerHTML = '<div style="text-align:center;padding:20px;color:#94a3b8;font-size:13px;font-weight:600;">⏳ Loading joined members...</div>';
+
+      try {
+        const res = await adminFetch(`/admin/merchants/${merchantId}/members`);
+        if (res && res.success && Array.isArray(res.data)) {
+          _merchantMembersCache[merchantId] = res.data;
+          const countEl = document.getElementById('merchant-members-count');
+          if (countEl) countEl.textContent = res.data.length;
+          renderMerchantMembersList(content, res.data, merchantId);
+        } else {
+          content.innerHTML = `<div style="text-align:center;padding:16px;color:#ef4444;font-size:13px;font-weight:600;">Failed to load members: ${res?.error || 'Unknown error'}</div>`;
+        }
+      } catch (err) {
+        content.innerHTML = `<div style="text-align:center;padding:16px;color:#ef4444;font-size:13px;font-weight:600;">Error loading members: ${err.message}</div>`;
+      }
+    }
+
+    function renderMerchantMembersList(container, members, merchantId) {
+      if (!members || members.length === 0) {
+        container.innerHTML = '<div style="text-align:center;padding:20px;color:#64748b;font-size:13px;font-weight:600;">No members have joined this merchant program yet.</div>';
+        return;
+      }
+
+      container.innerHTML = `
+        <div style="overflow-x:auto;">
+          <table style="width:100%;border-collapse:collapse;font-size:12px;">
+            <thead>
+              <tr style="background:#f8fafc;border-bottom:1.5px solid #e2e8f0;">
+                <th style="text-align:left;padding:8px 10px;font-size:11px;font-weight:800;color:#64748b;text-transform:uppercase;">Member Name</th>
+                <th style="text-align:left;padding:8px 10px;font-size:11px;font-weight:800;color:#64748b;text-transform:uppercase;">Email</th>
+                <th style="text-align:left;padding:8px 10px;font-size:11px;font-weight:800;color:#64748b;text-transform:uppercase;">Phone</th>
+                <th style="text-align:left;padding:8px 10px;font-size:11px;font-weight:800;color:#64748b;text-transform:uppercase;">City</th>
+                <th style="text-align:left;padding:8px 10px;font-size:11px;font-weight:800;color:#64748b;text-transform:uppercase;">ZIP</th>
+                <th style="text-align:left;padding:8px 10px;font-size:11px;font-weight:800;color:#64748b;text-transform:uppercase;">Joined Date</th>
+                <th style="text-align:left;padding:8px 10px;font-size:11px;font-weight:800;color:#64748b;text-transform:uppercase;">Source</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${members.map(u => `
+                <tr style="border-bottom:1px solid #f1f5f9;transition:background 0.15s;" onmouseover="this.style.background='#faf5ff'" onmouseout="this.style.background='transparent'">
+                  <td style="padding:10px 10px;font-weight:700;">
+                    <a href="#" onclick="showMemberDetail('${u.id}'); return false;" style="color:#5b3fa5;text-decoration:none;display:inline-flex;align-items:center;gap:4px;" title="View Member Details">
+                      ${u.full_name || '—'} ↗
+                    </a>
+                  </td>
+                  <td style="padding:10px 10px;color:#475569;">${u.email || '—'}</td>
+                  <td style="padding:10px 10px;color:#475569;white-space:nowrap;">${u.phone || '—'}</td>
+                  <td style="padding:10px 10px;color:#475569;">${u.city || '—'}</td>
+                  <td style="padding:10px 10px;color:#475569;">${u.zip || '—'}</td>
+                  <td style="padding:10px 10px;color:#475569;white-space:nowrap;">${formatDate(u.joined_at)}</td>
+                  <td style="padding:10px 10px;color:#64748b;font-size:11px;font-weight:600;">${u.join_source === 'qr_scan' ? '📷 QR Scan' : u.join_source === 'app' ? '📱 App' : (u.join_source || '—')}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    async function getMerchantMembersData(merchantId) {
+      let merchant = (allMerchants && allMerchants.find(x => x.id === merchantId)) || 
+                     (typeof _allPresetupMerchants !== 'undefined' && _allPresetupMerchants.find(x => x.id === merchantId)) || 
+                     { business_name: 'Merchant', id: merchantId };
+      if (!_merchantMembersCache[merchantId]) {
+        try {
+          const res = await adminFetch(`/admin/merchants/${merchantId}/members`);
+          if (res && res.success && Array.isArray(res.data)) {
+            _merchantMembersCache[merchantId] = res.data;
+          }
+        } catch(e){}
+      }
+      const members = _merchantMembersCache[merchantId] || [];
+      return { merchant, members };
+    }
+
+    async function printMerchantMembers(merchantId) {
+      const { merchant, members } = await getMerchantMembersData(merchantId);
+      if (!members || members.length === 0) {
+        alert('No joined members data to print.');
+        return;
+      }
+      const businessName = merchant.business_name || 'Merchant';
+      const loc = [merchant.location_city || merchant.city, merchant.location_zip || merchant.zip_code].filter(Boolean).join(', ') || '—';
+      const win = window.open('', '_blank', 'width=900,height=750');
+      win.document.write(`<!DOCTYPE html><html><head>
+        <title>${businessName} — Joined Members</title>
+        <style>
+          *{box-sizing:border-box}
+          body{font-family:system-ui,-apple-system,sans-serif;padding:32px 36px;color:#1a1a2e;max-width:860px;margin:0 auto}
+          .header{border-bottom:2px solid #5b3fa5;padding-bottom:14px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:flex-end}
+          h1{font-size:20px;font-weight:800;color:#1a1a2e;margin:0 0 4px}
+          .sub{font-size:12.5px;color:#64748b;line-height:1.4}
+          .badge-brand{background:#5b3fa5;color:#fff;font-size:11px;font-weight:800;padding:4px 10px;border-radius:6px;text-transform:uppercase;letter-spacing:0.5px}
+          table{width:100%;border-collapse:collapse;margin-top:16px;font-size:12.5px}
+          th{background:#f8fafc;padding:10px 12px;border-bottom:2px solid #cbd5e1;text-align:left;font-weight:800;color:#475569;font-size:11px;text-transform:uppercase}
+          td{padding:9px 12px;border-bottom:1px solid #e2e8f0;vertical-align:middle}
+          tr:nth-child(even){background:#fafafa}
+          .footer{margin-top:28px;padding-top:12px;border-top:1px solid #e2e8f0;font-size:11px;color:#94a3b8;display:flex;justify-content:space-between}
+          .print-btn{margin-top:20px;padding:10px 24px;background:#5b3fa5;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer}
+          @media print{.print-btn{display:none!important}}
+        </style>
+      </head><body>
+        <div class="header">
+          <div>
+            <h1>${businessName}</h1>
+            <div class="sub">Joined Members Report • Presence: ${merchant.business_presence || 'Local'} • Location: ${loc}</div>
+          </div>
+          <div style="text-align:right">
+            <span class="badge-brand">Perkfinity Admin</span>
+            <div style="font-size:11px;color:#64748b;margin-top:4px;">Total Members: <strong>${members.length}</strong></div>
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Member Name</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>City</th>
+              <th>ZIP</th>
+              <th>Joined Date</th>
+              <th>Source</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${members.map((u, i) => `
+              <tr>
+                <td style="color:#64748b;font-weight:600;">${i + 1}</td>
+                <td style="font-weight:700;color:#1e293b;">${u.full_name || '—'}</td>
+                <td style="color:#475569;">${u.email || '—'}</td>
+                <td style="color:#475569;white-space:nowrap;">${u.phone || '—'}</td>
+                <td style="color:#475569;">${u.city || '—'}</td>
+                <td style="color:#475569;">${u.zip || '—'}</td>
+                <td style="white-space:nowrap;color:#475569;">${formatDate(u.joined_at)}</td>
+                <td style="color:#64748b;">${u.join_source === 'qr_scan' ? 'QR Scan' : u.join_source === 'app' ? 'App' : (u.join_source || '—')}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+        <div class="footer">
+          <span>Perkfinity Loyalty Platform</span>
+          <span>Exported on ${new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+        </div>
+        <button class="print-btn" onclick="window.print()">🖨️ Print this report</button>
+      </body></html>`);
+      win.document.close();
+      win.focus();
+      setTimeout(() => { try { win.print(); } catch(e){} }, 700);
+    }
+
+    async function exportMerchantMembersCSV(merchantId) {
+      const { merchant, members } = await getMerchantMembersData(merchantId);
+      if (!members || members.length === 0) {
+        alert('No joined members data to export.');
+        return;
+      }
+      const businessName = merchant.business_name || 'Merchant';
+      const rows = [
+        ['Merchant Name:', businessName],
+        ['Presence:', merchant.business_presence || 'Local'],
+        ['Location:', [merchant.location_city || merchant.city, merchant.location_zip || merchant.zip_code].filter(Boolean).join(', ') || '—'],
+        ['Total Joined Members:', members.length],
+        ['Report Generated:', new Date().toLocaleString()],
+        [''],
+        ['#', 'Member Name', 'Email', 'Phone', 'City', 'ZIP', 'Joined Date', 'Join Source']
+      ];
+
+      members.forEach((u, idx) => {
+        rows.push([
+          idx + 1,
+          u.full_name || '—',
+          u.email || '—',
+          u.phone || '—',
+          u.city || '—',
+          u.zip || '—',
+          formatDate(u.joined_at),
+          u.join_source === 'qr_scan' ? 'QR Scan' : u.join_source === 'app' ? 'App' : (u.join_source || '—')
+        ]);
+      });
+
+      const csv = '\uFEFF' + rows.map(r => r.map(c => '"' + String(c !== undefined && c !== null ? c : '').replace(/"/g, '""') + '"').join(',')).join('\r\n');
+      const filename = `${businessName.replace(/[^a-z0-9]/gi, '_')}_joined_members.csv`;
+      downloadAdminFile(csv, 'text/csv;charset=utf-8;', filename);
+    }
+
+    async function exportMerchantMembersTXT(merchantId) {
+      const { merchant, members } = await getMerchantMembersData(merchantId);
+      if (!members || members.length === 0) {
+        alert('No joined members data to export.');
+        return;
+      }
+      const businessName = merchant.business_name || 'Merchant';
+      let txt = `================================================================================\n`;
+      txt += `PERKFINITY — JOINED MEMBERS REPORT\n`;
+      txt += `================================================================================\n`;
+      txt += `Merchant Name:          ${businessName}\n`;
+      txt += `Presence:               ${merchant.business_presence || 'Local'}\n`;
+      txt += `Location:               ${[merchant.location_city || merchant.city, merchant.location_zip || merchant.zip_code].filter(Boolean).join(', ') || '—'}\n`;
+      txt += `Total Joined Members:   ${members.length}\n`;
+      txt += `Generated On:           ${new Date().toLocaleString()}\n`;
+      txt += `================================================================================\n\n`;
+      txt += `JOINED MEMBERS LIST:\n`;
+      txt += `--------------------------------------------------------------------------------\n`;
+
+      members.forEach((u, idx) => {
+        txt += `${idx + 1}. ${u.full_name || '—'}\n`;
+        txt += `   Email:       ${u.email || '—'}\n`;
+        txt += `   Phone:       ${u.phone || '—'}\n`;
+        txt += `   Location:    ${[u.city, u.zip].filter(Boolean).join(', ') || '—'}\n`;
+        txt += `   Joined Date: ${formatDate(u.joined_at)}\n`;
+        txt += `   Join Source: ${u.join_source === 'qr_scan' ? 'QR Scan' : u.join_source === 'app' ? 'App' : (u.join_source || '—')}\n\n`;
+      });
+
+      txt += `--------------------------------------------------------------------------------\n`;
+      txt += `Perkfinity Admin • Confidential Internal Report\n`;
+
+      const filename = `${businessName.replace(/[^a-z0-9]/gi, '_')}_joined_members.txt`;
+      downloadAdminFile(txt, 'text/plain;charset=utf-8;', filename);
+    }
+
+    async function showMemberDetail(memberId) {
+      let m = allMembers && allMembers.find(x => x.id === memberId);
+      if (!m) {
+        try {
+          const res = await adminFetch('/admin/members');
+          if (res && res.success && res.data && res.data.members) {
+            allMembers = res.data.members;
+            m = allMembers.find(x => x.id === memberId);
+          }
+        } catch(e){}
+      }
       if (!m) return;
       const overlay = document.getElementById('merchant-detail-overlay');
       overlay.style.display = 'flex';
@@ -3530,11 +3987,16 @@
         </div>
 
         <div id="member-merchants-panel" style="display:none;background:#fdfcfe;border:1.5px solid rgba(91,63,165,0.2);border-radius:12px;margin-bottom:20px;overflow:hidden;box-shadow:0 4px 16px rgba(91,63,165,0.06);">
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 18px;background:rgba(91,63,165,0.06);border-bottom:1px solid rgba(91,63,165,0.12);">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 18px;background:rgba(91,63,165,0.06);border-bottom:1px solid rgba(91,63,165,0.12);flex-wrap:wrap;gap:8px;">
             <div style="font-size:13px;font-weight:800;color:#5b3fa5;display:flex;align-items:center;gap:6px;">
               <span>🏪</span> Joined Merchants (<span id="member-merchants-count">${m.merchant_count || 0}</span>)
             </div>
-            <button type="button" onclick="toggleMemberMerchants('${m.id}')" style="background:none;border:none;color:#64748b;font-size:13px;font-weight:700;cursor:pointer;padding:2px 6px;">✕ Close</button>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <button type="button" onclick="printMemberMerchants('${m.id}')" style="padding:4px 10px;font-size:11px;font-weight:700;border:1px solid #cbd5e1;border-radius:6px;background:#fff;cursor:pointer;color:#334155;font-family:inherit;display:inline-flex;align-items:center;gap:4px;">🖨️ Print</button>
+              <button type="button" onclick="exportMemberMerchantsTXT('${m.id}')" style="padding:4px 10px;font-size:11px;font-weight:700;border:1px solid #cbd5e1;border-radius:6px;background:#fff;cursor:pointer;color:#334155;font-family:inherit;display:inline-flex;align-items:center;gap:4px;">📋 TXT</button>
+              <button type="button" onclick="exportMemberMerchantsCSV('${m.id}')" style="padding:4px 10px;font-size:11px;font-weight:700;border:1px solid #cbd5e1;border-radius:6px;background:#fff;cursor:pointer;color:#334155;font-family:inherit;display:inline-flex;align-items:center;gap:4px;">📊 CSV</button>
+              <button type="button" onclick="toggleMemberMerchants('${m.id}')" style="background:none;border:none;color:#64748b;font-size:13px;font-weight:700;cursor:pointer;padding:2px 6px;margin-left:4px;">✕ Close</button>
+            </div>
           </div>
           <div id="member-merchants-content" style="padding:14px 18px;">
             <div style="text-align:center;padding:18px;color:#94a3b8;font-size:13px;font-weight:600;">⏳ Loading joined merchants...</div>
