@@ -661,7 +661,7 @@
             <input type="text" class="form-input" id="nc-address" placeholder="123 Main St, City, ST 00000"/>
           </div>
           <div style="background:#f8fafc;border-radius:12px;padding:16px 18px;margin-bottom:16px;border:1px solid #e2e8f0;">
-            <div style="font-size:13px;font-weight:800;color:#1a1a2e;margin-bottom:12px;">💰 Compensation</div>
+            <div style="font-size:13px;font-weight:800;color:#1a1a2e;margin-bottom:12px;">💰 Compensation &amp; Incentives</div>
             <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
               <div class="form-group" style="margin-bottom:0;">
                 <label class="form-label">Commission Rate %</label>
@@ -685,6 +685,19 @@
               <div class="form-group" style="margin-bottom:0;">
                 <label class="form-label">Monthly Retainer $</label>
                 <input type="number" class="form-input" id="nc-retainer" value="0" min="0" step="1"/>
+              </div>
+            </div>
+            <div style="margin-top:14px;padding-top:12px;border-top:1px dashed #cbd5e1;display:flex;align-items:center;justify-content:space-between;gap:16px;">
+              <div>
+                <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:#1e293b;cursor:pointer;">
+                  <input type="checkbox" id="nc-has-signup-bonus" onchange="toggleNcSignupBonus()"/> ⚡ Per-Signup Fast-Start Bonus
+                </label>
+                <div style="font-size:11px;color:#64748b;margin-top:2px;">Awarded on merchant's first paid invoice (plan or add-on upgrade).</div>
+              </div>
+              <div id="nc-signup-bonus-wrap" style="display:none;align-items:center;gap:6px;">
+                <span style="font-size:13px;font-weight:700;color:#475569;">$</span>
+                <input type="number" class="form-input" id="nc-signup-bonus" value="50" min="1" step="5" style="width:90px;padding:6px 10px;text-align:right;" placeholder="50"/>
+                <span style="font-size:12px;color:#64748b;">/ merchant</span>
               </div>
             </div>
           </div>
@@ -8341,6 +8354,7 @@
       const rate  = rule.commission_rate ? (parseFloat(rule.commission_rate)*100).toFixed(0)+'%' : '25%';
       const dur   = isOngoing ? 'Ongoing' : (rule.commission_duration_months + ' months');
       const ret   = rule.retainer_cents ? '$'+(rule.retainer_cents/100).toFixed(2)+'/mo' : '$0.00';
+      const sb    = rule.signup_bonus_cents ? '$'+(rule.signup_bonus_cents/100).toFixed(2) : '$0.00';
 
       const canActivate = c.ica_status === 'signed';
 
@@ -8476,7 +8490,7 @@
         <div style="background:#f8fafc;border-radius:12px;padding:18px 20px;margin-bottom:20px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
             <div style="font-size:13px;font-weight:800;color:#1a1a2e;">💰 Compensation Rule</div>
-            <button onclick="openEditCompModal('${c.id}','${rule.commission_rate||0.25}',${isOngoing ? 'null' : rule.commission_duration_months},'${rule.retainer_cents||0}')" style="padding:5px 12px;border-radius:7px;border:1px solid var(--border);background:none;color:var(--text);font-size:12px;font-weight:700;cursor:pointer;">✏️ Edit</button>
+            <button onclick="openEditCompModal('${c.id}','${rule.commission_rate||0.25}',${isOngoing ? 'null' : rule.commission_duration_months},'${rule.retainer_cents||0}','${rule.signup_bonus_cents||0}')" style="padding:5px 12px;border-radius:7px;border:1px solid var(--border);background:none;color:var(--text);font-size:12px;font-weight:700;cursor:pointer;">✏️ Edit</button>
           </div>
           <div style="display:flex;gap:14px;flex-wrap:wrap;">
             <div style="flex:1;min-width:110px;text-align:center;background:#5b3fa508;border:1px solid #5b3fa520;border-radius:10px;padding:12px;">
@@ -8490,6 +8504,10 @@
             <div style="flex:1;min-width:110px;text-align:center;background:#16a34a08;border:1px solid #16a34a20;border-radius:10px;padding:12px;">
               <div style="font-size:22px;font-weight:900;color:#16a34a;">${ret}</div>
               <div style="font-size:11px;font-weight:700;color:#64748b;margin-top:3px;">RETAINER</div>
+            </div>
+            <div style="flex:1;min-width:110px;text-align:center;background:#f59e0b08;border:1px solid #f59e0b20;border-radius:10px;padding:12px;">
+              <div style="font-size:22px;font-weight:900;color:#d97706;">${sb}</div>
+              <div style="font-size:11px;font-weight:700;color:#64748b;margin-top:3px;">FAST-START / STORE</div>
             </div>
           </div>
         </div>
@@ -8584,6 +8602,11 @@
       document.getElementById('nc-ongoing-badge').style.display = isOngoing ? 'block' : 'none';
     }
 
+    function toggleNcSignupBonus() {
+      const hasBonus = document.getElementById('nc-has-signup-bonus').checked;
+      document.getElementById('nc-signup-bonus-wrap').style.display = hasBonus ? 'flex' : 'none';
+    }
+
     function toggleNcTerritory() {
       const hasTerr = document.getElementById('nc-has-territory').checked;
       document.getElementById('nc-territory-container').style.display = hasTerr ? 'block' : 'none';
@@ -8602,6 +8625,10 @@
       document.getElementById('nc-retainer').value = '0';
       const ongoingEl = document.getElementById('nc-ongoing');
       if (ongoingEl) { ongoingEl.checked = true; toggleNcDuration(); }
+      const sbEl = document.getElementById('nc-has-signup-bonus');
+      if (sbEl) { sbEl.checked = false; toggleNcSignupBonus(); }
+      const sbValEl = document.getElementById('nc-signup-bonus');
+      if (sbValEl) sbValEl.value = '50';
       const terrEl = document.getElementById('nc-has-territory');
       if (terrEl) { terrEl.checked = false; toggleNcTerritory(); }
       document.getElementById('nc-err').style.display = 'none';
@@ -8622,6 +8649,8 @@
       const isOngoing   = document.getElementById('nc-ongoing').checked;
       const duration    = isOngoing ? null : parseInt(document.getElementById('nc-duration').value);
       const retainer    = parseInt(document.getElementById('nc-retainer').value) || 0;
+      const hasBonus    = document.getElementById('nc-has-signup-bonus')?.checked;
+      const signupBonus = hasBonus ? (parseFloat(document.getElementById('nc-signup-bonus')?.value) || 0) : 0;
       const pay_method  = document.querySelector('[name="nc-payment-method"]:checked')?.value || 'check';
       const password    = document.getElementById('nc-password')?.value || '';
       const entity_type = document.getElementById('nc-entity-type')?.value || null;
@@ -8654,6 +8683,7 @@
           commission_rate: rate / 100,
           commission_duration_months: isOngoing ? null : duration,
           retainer_cents: retainer * 100,
+          signup_bonus_cents: Math.round(signupBonus * 100),
           password, entity_type: entity_type || undefined
         };
         if (hasTerritory && territory_label && territory_zips.length > 0) {
@@ -9085,18 +9115,20 @@
 
     // ── Edit Compensation Modal ────────────────────────────────────
     let _editCompId = null;
-    function openEditCompModal(id, rate, duration, retainerCents) {
+    function openEditCompModal(id, rate, duration, retainerCents, signupBonusCents) {
       _editCompId = id;
       const curRate = (parseFloat(rate) * 100).toFixed(0);
       const isOngoing = duration === null || duration === undefined || duration === '' || duration === 'null' || duration === 'ongoing';
       const curDur = isOngoing ? 12 : (parseInt(duration) || 12);
+      const curBonusDollars = (parseInt(signupBonusCents) || 0) / 100;
+      const hasBonus = curBonusDollars > 0;
       const existing = document.getElementById('edit-comp-overlay');
       if (existing) existing.remove();
       const el = document.createElement('div');
       el.id = 'edit-comp-overlay';
       el.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:10005;display:flex;align-items:center;justify-content:center;';
       el.innerHTML = `
-        <div style="width:420px;background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.3);padding:28px;">
+        <div style="width:440px;background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.3);padding:28px;">
           <div style="font-size:18px;font-weight:800;color:#1a1a2e;margin-bottom:20px;">✏️ Edit Compensation</div>
           <div class="form-group">
             <label class="form-label" style="color:#475569;">Commission Rate % (1–50)</label>
@@ -9121,6 +9153,21 @@
             <label class="form-label" style="color:#475569;">Monthly Retainer $</label>
             <input type="number" class="form-input" id="ec-retainer" value="${(parseInt(retainerCents)||0)/100}" min="0" step="1" style="color:#1a1a2e;background:#f8fafc;border-color:#e2e8f0;"/>
           </div>
+          <div style="background:#f8fafc;border-radius:10px;padding:12px 14px;margin-bottom:16px;border:1px solid #e2e8f0;">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
+              <div>
+                <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:#1e293b;cursor:pointer;">
+                  <input type="checkbox" id="ec-has-signup-bonus" ${hasBonus ? 'checked' : ''} onchange="toggleEcSignupBonus()"/> ⚡ Per-Signup Bonus
+                </label>
+                <div style="font-size:11px;color:#64748b;margin-top:2px;">Awarded on 1st paid invoice (plan or add-on).</div>
+              </div>
+              <div id="ec-signup-bonus-wrap" style="display:${hasBonus ? 'flex' : 'none'};align-items:center;gap:6px;">
+                <span style="font-size:13px;font-weight:700;color:#475569;">$</span>
+                <input type="number" class="form-input" id="ec-signup-bonus" value="${hasBonus ? curBonusDollars : 50}" min="1" step="5" style="width:85px;padding:6px 10px;text-align:right;color:#1a1a2e;background:#fff;border-color:#cbd5e1;"/>
+                <span style="font-size:12px;color:#64748b;">/ store</span>
+              </div>
+            </div>
+          </div>
           <div id="ec-err" style="color:#ef4444;font-size:13px;margin-bottom:12px;display:none;"></div>
           <div style="display:flex;gap:10px;justify-content:flex-end;">
             <button onclick="document.getElementById('edit-comp-overlay').remove()" class="toolbar-btn" style="padding:10px 20px;">Cancel</button>
@@ -9138,11 +9185,18 @@
       document.getElementById('ec-ongoing-badge').style.display = isOngoing ? 'block' : 'none';
     }
 
+    function toggleEcSignupBonus() {
+      const hasBonus = document.getElementById('ec-has-signup-bonus').checked;
+      document.getElementById('ec-signup-bonus-wrap').style.display = hasBonus ? 'flex' : 'none';
+    }
+
     async function saveCompRule() {
-      const rate     = parseFloat(document.getElementById('ec-rate').value);
-      const isOngoing = document.getElementById('ec-ongoing').checked;
-      const duration = isOngoing ? null : parseInt(document.getElementById('ec-duration').value);
-      const retainer = parseFloat(document.getElementById('ec-retainer').value) || 0;
+      const rate        = parseFloat(document.getElementById('ec-rate').value);
+      const isOngoing   = document.getElementById('ec-ongoing').checked;
+      const duration    = isOngoing ? null : parseInt(document.getElementById('ec-duration').value);
+      const retainer    = parseFloat(document.getElementById('ec-retainer').value) || 0;
+      const hasBonus    = document.getElementById('ec-has-signup-bonus')?.checked;
+      const signupBonus = hasBonus ? (parseFloat(document.getElementById('ec-signup-bonus')?.value) || 0) : 0;
       document.getElementById('ec-rate-err').style.display = 'none';
       if (rate < 1 || rate > 50) { document.getElementById('ec-rate-err').style.display = 'block'; return; }
       if (!isOngoing && (isNaN(duration) || duration < 1)) {
@@ -9156,7 +9210,12 @@
       try {
         const res  = await fetch(API_BASE + '/admin/contractors/' + _editCompId + '/compensation', {
           method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-          body: JSON.stringify({ commission_rate: rate/100, commission_duration_months: isOngoing ? null : duration, retainer_cents: Math.round(retainer*100) })
+          body: JSON.stringify({
+            commission_rate: rate / 100,
+            commission_duration_months: isOngoing ? null : duration,
+            retainer_cents: Math.round(retainer * 100),
+            signup_bonus_cents: Math.round(signupBonus * 100)
+          })
         });
         const json = await res.json();
         if (json.success) {
@@ -9358,7 +9417,7 @@
       let html = periodStr;
       let csvRows = ["Item,Amount"];
 
-      if ((b.merchant_breakdown && b.merchant_breakdown.length) || (b.milestones && b.milestones.length) || (b.special_bonuses && b.special_bonuses.length) || payout.retainer_cents > 0) {
+      if ((b.merchant_breakdown && b.merchant_breakdown.length) || (b.signup_bonuses && b.signup_bonuses.length) || (b.milestones && b.milestones.length) || (b.special_bonuses && b.special_bonuses.length) || payout.retainer_cents > 0) {
         html += `<div style="font-weight:800;margin-bottom:8px;color:#1a1a2e;">Payout Details</div>`;
         html += `<table style="width:100%;border-collapse:collapse;margin-bottom:16px;">
           <tr style="border-bottom:1px solid #e2e8f0;"><th style="text-align:left;padding:6px 0;color:#64748b;font-size:11px;">Item</th><th style="text-align:right;color:#64748b;font-size:11px;">Amount</th></tr>`;
@@ -9376,6 +9435,7 @@
             const invSuffix = mb.invoice_id ? ` <span style="color:#64748b;font-size:11px;font-weight:500;">(...${mb.invoice_id.slice(-5)})</span>` : '';
             const comm = '$' + ((mb.commission||0)/100).toFixed(2);
             const rBon = '$' + ((mb.retention_bonus||0)/100).toFixed(2);
+            const sBon = '$' + ((mb.signup_bonus||0)/100).toFixed(2);
             const inv = '$' + ((mb.invoice_total||0)/100).toFixed(2);
             const rate = mb.invoice_total ? Math.round((mb.commission / mb.invoice_total) * 100) : 0;
             const calcStr = mb.invoice_total ? `<span style="color:#64748b;margin-right:8px;font-size:12px;">${inv} x ${rate}%</span> <b>${comm}</b>` : `<b>${comm}</b>`;
@@ -9384,9 +9444,24 @@
               html += `<tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:6px 0;font-weight:600;">${name}${invSuffix}</td><td style="text-align:right;">${calcStr}</td></tr>`;
               csvRows.push(`"${name} Commission (Calculation: ${inv} x ${rate}%)",${comm}`);
             }
+            if (mb.signup_bonus > 0) {
+              html += `<tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:6px 0;font-weight:600;">⚡ ${name} Fast-Start Signup Bonus</td><td style="text-align:right;"><b>${sBon}</b></td></tr>`;
+              csvRows.push(`"${name} Fast-Start Signup Bonus",${sBon}`);
+            }
             if (mb.retention_bonus > 0) {
               html += `<tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:6px 0;font-weight:600;">${name} Retention Bonus</td><td style="text-align:right;"><b>${rBon}</b></td></tr>`;
               csvRows.push(`"${name} Retention Bonus",${rBon}`);
+            }
+          }
+        }
+
+        if (b.signup_bonuses && b.signup_bonuses.length) {
+          for (const sb of b.signup_bonuses) {
+            if (!b.merchant_breakdown || !b.merchant_breakdown.some(m => m.merchant_id === sb.merchant_id && m.signup_bonus > 0)) {
+              const sName = sb.merchant_name || 'Merchant';
+              const sAmt = '$' + ((sb.amount || 0) / 100).toFixed(2);
+              html += `<tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:6px 0;font-weight:600;">⚡ ${sName} Fast-Start Signup Bonus</td><td style="text-align:right;"><b>${sAmt}</b></td></tr>`;
+              csvRows.push(`"${sName} Fast-Start Signup Bonus",${sAmt}`);
             }
           }
         }
