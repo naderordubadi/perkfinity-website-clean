@@ -3549,7 +3549,7 @@
                   <td style="padding:10px 10px;">${presBadge(m.business_presence)}</td>
                   <td style="padding:10px 10px;">${tierBadge(m)}</td>
                   <td style="padding:10px 10px;color:#475569;white-space:nowrap;">${formatDate(m.joined_at)}</td>
-                  <td style="padding:10px 10px;color:#64748b;font-size:11px;font-weight:600;">${m.join_source === 'qr_scan' ? '📷 QR Scan' : m.join_source === 'app' ? '📱 App' : (m.join_source || '—')}</td>
+                  <td style="padding:10px 10px;color:#64748b;font-size:11px;font-weight:600;">${m.join_source === 'qr_scan' ? '📷 QR Scan' : (m.join_source === 'app' || m.join_source === 'app_discovery') ? '📱 App' : (m.join_source || '—')}</td>
                 </tr>
               `).join('')}
             </tbody>
@@ -3634,7 +3634,7 @@
                 <td style="text-transform:capitalize;">${m.business_presence || '—'}</td>
                 <td>${(m.subscription_tier || 'Free').replace('online_', '').replace(/_/g, ' ')}</td>
                 <td style="white-space:nowrap;color:#475569;">${formatDate(m.joined_at)}</td>
-                <td style="color:#64748b;">${m.join_source === 'qr_scan' ? 'QR Scan' : m.join_source === 'app' ? 'App' : (m.join_source || '—')}</td>
+                <td style="color:#64748b;">${m.join_source === 'qr_scan' ? 'QR Scan' : (m.join_source === 'app' || m.join_source === 'app_discovery') ? 'App' : (m.join_source || '—')}</td>
               </tr>
             `).join('')}
           </tbody>
@@ -3676,7 +3676,7 @@
           m.business_presence || '—',
           (m.subscription_tier || 'Free').replace('online_', '').replace(/_/g, ' '),
           formatDate(m.joined_at),
-          m.join_source === 'qr_scan' ? 'QR Scan' : m.join_source === 'app' ? 'App' : (m.join_source || '—')
+          m.join_source === 'qr_scan' ? 'QR Scan' : (m.join_source === 'app' || m.join_source === 'app_discovery') ? 'App' : (m.join_source || '—')
         ]);
       });
 
@@ -3711,7 +3711,7 @@
         txt += `   Presence:    ${m.business_presence || '—'}\n`;
         txt += `   Tier:        ${(m.subscription_tier || 'Free').replace('online_', '').replace(/_/g, ' ')}\n`;
         txt += `   Joined Date: ${formatDate(m.joined_at)}\n`;
-        txt += `   Join Source: ${m.join_source === 'qr_scan' ? 'QR Scan' : m.join_source === 'app' ? 'App' : (m.join_source || '—')}\n\n`;
+        txt += `   Join Source: ${m.join_source === 'qr_scan' ? 'QR Scan' : (m.join_source === 'app' || m.join_source === 'app_discovery') ? 'App' : (m.join_source || '—')}\n\n`;
       });
 
       txt += `--------------------------------------------------------------------------------\n`;
@@ -3792,7 +3792,7 @@
                   <td style="padding:10px 10px;color:#475569;">${u.city || '—'}</td>
                   <td style="padding:10px 10px;color:#475569;">${u.zip || '—'}</td>
                   <td style="padding:10px 10px;color:#475569;white-space:nowrap;">${formatDate(u.joined_at)}</td>
-                  <td style="padding:10px 10px;color:#64748b;font-size:11px;font-weight:600;">${u.join_source === 'qr_scan' ? '📷 QR Scan' : u.join_source === 'app' ? '📱 App' : (u.join_source || '—')}</td>
+                  <td style="padding:10px 10px;color:#64748b;font-size:11px;font-weight:600;">${u.join_source === 'qr_scan' ? '📷 QR Scan' : (u.join_source === 'app' || u.join_source === 'app_discovery') ? '📱 App' : (u.join_source || '—')}</td>
                 </tr>
               `).join('')}
             </tbody>
@@ -3877,7 +3877,7 @@
                 <td style="color:#475569;">${u.city || '—'}</td>
                 <td style="color:#475569;">${u.zip || '—'}</td>
                 <td style="white-space:nowrap;color:#475569;">${formatDate(u.joined_at)}</td>
-                <td style="color:#64748b;">${u.join_source === 'qr_scan' ? 'QR Scan' : u.join_source === 'app' ? 'App' : (u.join_source || '—')}</td>
+                <td style="color:#64748b;">${u.join_source === 'qr_scan' ? 'QR Scan' : (u.join_source === 'app' || u.join_source === 'app_discovery') ? 'App' : (u.join_source || '—')}</td>
               </tr>
             `).join('')}
           </tbody>
@@ -3919,7 +3919,7 @@
           u.city || '—',
           u.zip || '—',
           formatDate(u.joined_at),
-          u.join_source === 'qr_scan' ? 'QR Scan' : u.join_source === 'app' ? 'App' : (u.join_source || '—')
+          u.join_source === 'qr_scan' ? 'QR Scan' : (u.join_source === 'app' || u.join_source === 'app_discovery') ? 'App' : (u.join_source || '—')
         ]);
       });
 
@@ -3953,7 +3953,7 @@
         txt += `   Phone:       ${u.phone || '—'}\n`;
         txt += `   Location:    ${[u.city, u.zip].filter(Boolean).join(', ') || '—'}\n`;
         txt += `   Joined Date: ${formatDate(u.joined_at)}\n`;
-        txt += `   Join Source: ${u.join_source === 'qr_scan' ? 'QR Scan' : u.join_source === 'app' ? 'App' : (u.join_source || '—')}\n\n`;
+        txt += `   Join Source: ${u.join_source === 'qr_scan' ? 'QR Scan' : (u.join_source === 'app' || u.join_source === 'app_discovery') ? 'App' : (u.join_source || '—')}\n\n`;
       });
 
       txt += `--------------------------------------------------------------------------------\n`;
