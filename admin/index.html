@@ -7851,6 +7851,7 @@
       }
 
       const activeMerchants = list.filter(m => 
+        !m.is_hidden &&
         m.status !== 'inactive' && 
         m.billing_status !== 'deleted' && 
         !m.account_blocked && 
@@ -7877,7 +7878,7 @@
       const pool = [];
       for (const m of list) {
         if (!m || !m.id || seenIds.has(m.id)) continue;
-        if (m.status === 'inactive' || m.billing_status === 'deleted' || m.account_blocked) continue;
+        if (m.is_hidden || m.status === 'inactive' || m.billing_status === 'deleted' || m.account_blocked) continue;
         seenIds.add(m.id);
         pool.push(m);
       }
