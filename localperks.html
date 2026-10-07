@@ -888,6 +888,8 @@
             </div>`;
           listEl.appendChild(row);
         });
+
+        checkAutoOpenMerchant();
       } catch (e) {
         stateEl.innerHTML = '<div class="state-icon">😕</div><h3>Search failed</h3><p>Please try again in a moment.</p>';
         stateEl.style.display = 'block';
@@ -897,6 +899,49 @@
     function openPopupById(id) {
       const m = window._localMerchantsMap ? window._localMerchantsMap[id] : null;
       if (m) openPopup(m);
+    }
+
+    let _autoOpenTriggered = false;
+    async function checkAutoOpenMerchant() {
+      if (_autoOpenTriggered) return;
+      const urlParams = new URLSearchParams(window.location.search);
+      const mParam = urlParams.get('m') || urlParams.get('merchant') || urlParams.get('code');
+      if (!mParam) return;
+
+      // 1. Check if already in local map
+      let targetMerchant = null;
+      if (window._localMerchantsMap) {
+        targetMerchant = window._localMerchantsMap[mParam] || Object.values(window._localMerchantsMap).find(m => m.qr_public_code === mParam || m.id === mParam);
+      }
+
+      // 2. If not found in current results, fetch directly from backend
+      if (!targetMerchant) {
+        try {
+          const res = await fetch(`${BACKEND}/api/v1/qr/resolve/${encodeURIComponent(mParam)}`);
+          const json = await res.json();
+          if (json.success && json.data && json.data.merchant) {
+            const m = json.data.merchant;
+            const loc = json.data.location || {};
+            targetMerchant = {
+              ...m,
+              address: loc.address || m.address,
+              city: loc.city || m.city,
+              state: loc.state || m.state,
+              zip_code: loc.postal_code || m.zip_code,
+              qr_public_code: mParam,
+              is_fullpage_sponsored: true // Ensure VIP card modal renders full details
+            };
+          }
+        } catch (e) {
+          console.error('Failed resolving target merchant for auto-open:', e);
+        }
+      }
+
+      if (targetMerchant && typeof openFullPageTakeover === 'function') {
+        _autoOpenTriggered = true;
+        // Open the VIP Business Card modal
+        openFullPageTakeover(targetMerchant);
+      }
     }
 
     

@@ -2007,6 +2007,24 @@
                 <input type="file" onchange="annAddAttachment(event)" style="display:none;" multiple>
               </label>
             </div>
+
+            <!-- Push Notification Broadcast Toggle -->
+            <div id="ann-push-section" class="form-group" style="background:rgba(91,63,165,0.05);border:1.5px solid rgba(91,63,165,0.18);border-radius:12px;padding:16px;margin-top:16px;">
+              <label style="display:flex;align-items:center;gap:10px;cursor:pointer;margin:0;font-weight:700;font-size:14px;color:var(--text);">
+                <input type="checkbox" id="ann-send-push" onchange="annTogglePushFields()" style="width:18px;height:18px;accent-color:var(--purple);cursor:pointer;">
+                <span>📲 Also Send Mobile Push Notification to Members</span>
+              </label>
+              <div id="ann-push-fields" style="display:none;margin-top:14px;padding-top:14px;border-top:1px dashed rgba(91,63,165,0.25);">
+                <div class="form-group" style="margin-bottom:10px;">
+                  <label class="form-label" style="font-size:12px;">Push Notification Title <span style="font-size:11px;color:var(--muted);">(max 65 chars)</span></label>
+                  <input type="text" class="form-input" id="ann-push-title" placeholder="e.g. 🎁 New Perk Unlocked!" maxlength="65" oninput="annPopulateReview()">
+                </div>
+                <div class="form-group" style="margin-bottom:0;">
+                  <label class="form-label" style="font-size:12px;">Push Notification Message <span style="font-size:11px;color:var(--muted);">(max 180 chars)</span></label>
+                  <textarea class="form-textarea" id="ann-push-body" placeholder="e.g. Discover our newest partner and tap to unlock your exclusive member perk today." style="min-height:60px;font-size:13px;" maxlength="180" oninput="annPopulateReview()"></textarea>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div style="display:flex;justify-content:space-between;margin-top:16px;">
@@ -2022,7 +2040,7 @@
 
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
               <div class="stat-card" style="text-align:left;">
-                <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">Recipients</div>
+                <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">Email Recipients</div>
                 <div id="ann-review-recipients" style="font-size:22px;font-weight:800;color:var(--purple);">0</div>
               </div>
               <div class="stat-card" style="text-align:left;">
@@ -2034,6 +2052,10 @@
                 <div id="ann-review-subject" style="font-size:14px;font-weight:600;color:var(--text);word-break:break-word;">—</div>
               </div>
               <div class="stat-card" style="text-align:left;">
+                <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">Mobile Push</div>
+                <div id="ann-review-push" style="font-size:14px;font-weight:600;color:var(--text);">🔕 Disabled</div>
+              </div>
+              <div class="stat-card" style="text-align:left;grid-column:span 2;">
                 <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">Attachments</div>
                 <div id="ann-review-attachments" style="font-size:14px;font-weight:600;color:var(--text);">None</div>
               </div>
@@ -7951,6 +7973,33 @@
       showToast('🔄 4 Partner cards shuffled!');
     }
 
+    function annTogglePushFields() {
+      const isChecked = document.getElementById('ann-send-push')?.checked;
+      const fields = document.getElementById('ann-push-fields');
+      if (fields) fields.style.display = isChecked ? 'block' : 'none';
+      if (isChecked) {
+        const titleInput = document.getElementById('ann-push-title');
+        const bodyInput = document.getElementById('ann-push-body');
+        if (_currentSpotlightMerchant) {
+          const m = _currentSpotlightMerchant;
+          const city = m.location_city || m.city;
+          const cityStr = city ? ` in ${city}` : '';
+          if (titleInput && !titleInput.value) {
+            titleInput.value = `🎁 New Perk: Welcome ${m.business_name}!`;
+          }
+          if (bodyInput && !bodyInput.value) {
+            bodyInput.value = `Discover ${m.business_name}${cityStr} and tap to unlock your exclusive member perk today.`;
+          }
+        } else {
+          const subject = document.getElementById('ann-subject')?.value;
+          if (titleInput && !titleInput.value && subject) {
+            titleInput.value = subject.slice(0, 65);
+          }
+        }
+      }
+      annPopulateReview();
+    }
+
     function annRenderSpotlightContent(m, partners) {
       const subjectInput = document.getElementById('ann-subject');
       const introInput = document.getElementById('ann-spotlight-intro');
@@ -7966,6 +8015,15 @@
       
       if (introInput && (!introInput.value || introInput.value.includes('We’re excited to introduce ') || introInput.value.startsWith('Hi there,') || introInput.value.startsWith('Hey Neighbor'))) {
         introInput.value = defaultIntro;
+      }
+
+      const pushTitleInput = document.getElementById('ann-push-title');
+      const pushBodyInput = document.getElementById('ann-push-body');
+      if (pushTitleInput && (!pushTitleInput.value || pushTitleInput.value.startsWith('🎁 New Perk: Welcome '))) {
+        pushTitleInput.value = `🎁 New Perk: Welcome ${m.business_name}!`;
+      }
+      if (pushBodyInput && (!pushBodyInput.value || pushBodyInput.value.includes('and tap to unlock your exclusive member perk'))) {
+        pushBodyInput.value = `Discover ${m.business_name}${cityStr} and tap to unlock your exclusive member perk today.`;
       }
     }
 
@@ -7986,7 +8044,7 @@
       const offer = m.welcome_offer_text || m.promo_description || 'Special Welcome Perk';
       const category = m.business_category || '';
       const heroCode = m.qr_public_code || m.public_code || m.id;
-      const heroLink = `https://perkfinity.net/join/${encodeURIComponent(heroCode)}`;
+      const heroLink = `https://perkfinity.net/localperks.html?m=${encodeURIComponent(heroCode)}`;
 
       // Convert custom intro plain text into clean paragraphs
       let introHtml = '';
@@ -8061,7 +8119,7 @@
             const pCity = p.location_city || p.city || '';
             const pOffer = p.welcome_offer_text || p.promo_description || 'Exclusive Member Perk';
             const pCode = p.qr_public_code || p.public_code || p.id;
-            const pLink = `https://perkfinity.net/join/${encodeURIComponent(pCode)}`;
+            const pLink = `https://perkfinity.net/localperks.html?m=${encodeURIComponent(pCode)}`;
             let pLogo = '';
             if (p.logo_url) {
               pLogo = `<img src="${p.logo_url}" alt="${p.business_name}" style="width:36px;height:36px;border-radius:8px;object-fit:contain;border:1px solid #e2e8f0;display:block;background:#fff;" />`;
@@ -8399,6 +8457,8 @@
         document.getElementById('ann-review-sender').textContent = _annSender;
         document.getElementById('ann-review-subject').textContent = document.getElementById('ann-subject').value || '(no subject)';
         document.getElementById('ann-review-attachments').textContent = 'None';
+        const pushEl = document.getElementById('ann-review-push');
+        if (pushEl) pushEl.innerHTML = '<span style="color:var(--muted);">🔕 N/A (Individual)</span>';
         document.getElementById('ann-review-shuffle-btn').style.display = 'none';
         const body = document.getElementById('ann-body').value;
         document.getElementById('ann-preview-html').innerHTML = annBuildIndividualPreview(body);
@@ -8413,6 +8473,17 @@
       document.getElementById('ann-review-subject').textContent = subject;
       document.getElementById('ann-review-attachments').textContent = _annAttachments.length ? _annAttachments.map(a => a.name).join(', ') : 'None';
       
+      const isPush = document.getElementById('ann-send-push')?.checked;
+      const pushEl = document.getElementById('ann-review-push');
+      if (pushEl) {
+        if (isPush) {
+          const pTitle = document.getElementById('ann-push-title')?.value.trim() || '(Auto-title)';
+          pushEl.innerHTML = `<span style="color:var(--green);font-weight:700;">📲 Enabled</span> <div style="font-size:11px;color:var(--muted);font-weight:400;margin-top:2px;">"${pTitle}"</div>`;
+        } else {
+          pushEl.innerHTML = '<span style="color:var(--muted);">🔕 Disabled</span>';
+        }
+      }
+
       const shuffleBtn = document.getElementById('ann-review-shuffle-btn');
       if (shuffleBtn) {
         shuffleBtn.style.display = (_annPreset === 'spotlight' && _currentSpotlightMerchant) ? 'inline-block' : 'none';
@@ -8509,20 +8580,23 @@
       }
 
       const isScheduled = !!scheduledAt;
+      const isPush = _annType !== 'individual' && !!document.getElementById('ann-send-push')?.checked;
 
       // Custom confirmation modal
       const recipientText = document.getElementById('ann-review-recipients').textContent;
       const scheduleInfo = isScheduled ? `<br><span style="font-size:12px;color:#999;">📅 Scheduled for: <strong style="color:#333;">${new Date(scheduledAt).toLocaleString()}</strong></span>` : '';
+      const pushInfo = isPush ? `<div style="margin-top:10px;padding:8px 12px;background:rgba(107,193,122,0.12);border:1px solid rgba(107,193,122,0.3);border-radius:8px;font-size:12px;color:#15803d;font-weight:700;">📲 + Mobile Push Notification broadcast included</div>` : '';
       const overlay = document.createElement('div');
       overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;';
       overlay.innerHTML = `
         <div style="background:#ffffff;border-radius:16px;padding:32px;max-width:420px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
           <div style="font-size:36px;margin-bottom:12px;">${isScheduled ? '📅' : '📧'}</div>
-          <h3 style="color:#1a1a2e;margin:0 0 8px;">${isScheduled ? 'Schedule Email' : 'Confirm Send'}</h3>
-          <p style="color:#666;margin:0 0 24px;font-size:14px;">${isScheduled ? 'Schedule' : 'Send'} this email to <strong style="color:var(--purple);">${recipientText}</strong> recipients?${scheduleInfo}</p>
-          <div style="display:flex;gap:12px;justify-content:center;">
+          <h3 style="color:#1a1a2e;margin:0 0 8px;">${isScheduled ? 'Schedule Announcement' : 'Confirm Broadcast'}</h3>
+          <p style="color:#666;margin:0 0 16px;font-size:14px;">${isScheduled ? 'Schedule' : 'Send'} to <strong style="color:var(--purple);">${recipientText}</strong> recipients?${scheduleInfo}</p>
+          ${pushInfo}
+          <div style="display:flex;gap:12px;justify-content:center;margin-top:20px;">
             <button id="ann-confirm-cancel" style="padding:10px 24px;border-radius:8px;border:1px solid #ddd;background:#f5f5f5;color:#333;cursor:pointer;font-size:14px;">Cancel</button>
-            <button id="ann-confirm-send" style="padding:10px 24px;border-radius:8px;border:none;background:linear-gradient(135deg,var(--purple),var(--green));color:#fff;cursor:pointer;font-weight:700;font-size:14px;">${isScheduled ? '📅 Schedule' : '✉️ Send'}</button>
+            <button id="ann-confirm-send" style="padding:10px 24px;border-radius:8px;border:none;background:linear-gradient(135deg,var(--purple),var(--green));color:#fff;cursor:pointer;font-weight:700;font-size:14px;">${isScheduled ? '📅 Schedule' : '✉️ Send Broadcast'}</button>
           </div>
         </div>`;
       document.body.appendChild(overlay);
@@ -8553,6 +8627,10 @@
           });
         } else {
           const html_body = annBuildEmailTemplate(subject, body);
+          const pushTitle = document.getElementById('ann-push-title')?.value.trim() || '';
+          const pushBody = document.getElementById('ann-push-body')?.value.trim() || '';
+          const merchantCode = _currentSpotlightMerchant ? (_currentSpotlightMerchant.qr_public_code || _currentSpotlightMerchant.public_code || _currentSpotlightMerchant.id) : null;
+          
           res = await fetch(API_BASE + '/admin/send-announcement', {
             method: 'POST',
             headers: getAdminHeaders({ 'Content-Type': 'application/json' }),
@@ -8563,7 +8641,11 @@
               audience: _annType !== 'external' ? annBuildAudience() : { type: 'external' },
               external_emails: annGetExternalEmails(),
               attachments: _annAttachments,
-              scheduled_at: scheduledAt
+              scheduled_at: scheduledAt,
+              send_push: isPush,
+              push_title: pushTitle,
+              push_body: pushBody,
+              merchant_code: merchantCode
             })
           });
         }
@@ -8574,9 +8656,10 @@
             showToast('📅 Email scheduled successfully!');
           } else {
             const count = json.data.sent || json.data.total_recipients;
-            const failText = json.data.failed ? ` (${json.data.failed} failed)` : '';
-            statusEl.innerHTML = `<span style="color:var(--green);">✅ Email sent to ${count} recipients successfully!${failText}</span>`;
-            showToast('✅ Email sent successfully!');
+            const failText = json.data.failed ? ` (${json.data.failed} email failed)` : '';
+            const pushText = json.data.pushed_count ? ` · 📲 ${json.data.pushed_count} push notification(s) sent` : '';
+            statusEl.innerHTML = `<span style="color:var(--green);">✅ Sent to ${count} recipient(s) successfully!${pushText}${failText}</span>`;
+            showToast('✅ Announcement sent successfully!');
           }
           annLoadHistory();
         } else {
