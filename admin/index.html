@@ -1780,8 +1780,8 @@
             <div class="form-group">
               <label class="form-label">Recipient Type</label>
               <div style="display:flex;gap:10px;">
-                <button class="ann-type-btn active" onclick="annSetType('merchants',this)">🏪 Merchants</button>
-                <button class="ann-type-btn" onclick="annSetType('members',this)">👤 Members</button>
+                <button class="ann-type-btn" onclick="annSetType('merchants',this)">🏪 Merchants</button>
+                <button class="ann-type-btn active" id="ann-type-members-btn" onclick="annSetType('members',this)">👤 Members</button>
                 <button class="ann-type-btn" onclick="annSetType('both',this)">🏪👤 Both</button>
                 <button class="ann-type-btn" onclick="annSetType('external',this)">📧 External Mass</button>
                 <button class="ann-type-btn" onclick="annSetType('individual',this)">✉️ Outreach</button>
@@ -1845,7 +1845,7 @@
               </div>
 
               <!-- Member-only filters -->
-              <div id="ann-group-member-only" style="display:none;background:rgba(37,99,235,0.05);border:1px solid rgba(37,99,235,0.15);border-radius:10px;padding:12px;">
+              <div id="ann-group-member-only" style="display:block;background:rgba(37,99,235,0.05);border:1px solid rgba(37,99,235,0.15);border-radius:10px;padding:12px;">
                 <div style="font-size:11px;font-weight:700;color:#3b82f6;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">👤 Member Filters</div>
                 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;">
                   <div class="form-group" style="margin-bottom:0">
@@ -1960,14 +1960,40 @@
               </select>
             </div>
 
+            <!-- Campaign Preset (Spotlight vs Custom) for Broadcast -->
+            <div id="ann-preset-section" class="form-group">
+              <label class="form-label">Campaign Preset</label>
+              <div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
+                <button type="button" class="ann-type-btn active" id="ann-preset-spotlight-btn" onclick="annSetPreset('spotlight')">🏪 Business Spotlight Announcement</button>
+                <button type="button" class="ann-type-btn" id="ann-preset-custom-btn" onclick="annSetPreset('custom')">✏️ Custom Email</button>
+              </div>
+
+              <!-- Spotlight Business Selection Card -->
+              <div id="ann-spotlight-controls" style="background:rgba(91,63,165,0.06);border:1px solid rgba(91,63,165,0.18);border-radius:12px;padding:16px;">
+                <div style="margin-bottom:8px;">
+                  <span style="font-size:12px;font-weight:700;color:var(--purple);text-transform:uppercase;letter-spacing:0.5px;">🏪 Select Business to Spotlight</span>
+                </div>
+                <select class="form-input" id="ann-spotlight-merchant-select" onchange="annOnSpotlightMerchantSelect()" style="font-size:14px;width:100%;">
+                  <option value="">— Choose an onboarded business —</option>
+                </select>
+                <div id="ann-spotlight-merchant-info" style="font-size:12px;color:var(--muted);margin-top:8px;display:none;"></div>
+              </div>
+            </div>
+
             <!-- Subject -->
             <div class="form-group">
               <label class="form-label">Subject Line</label>
               <input type="text" class="form-input" id="ann-subject" placeholder="e.g. Grow Your Business with Perkfinity">
             </div>
 
-            <!-- Body -->
-            <div class="form-group">
+            <!-- Spotlight Intro (Wordings for Business Spotlight) -->
+            <div id="ann-spotlight-intro-group" class="form-group">
+              <label class="form-label">Announcement Message <span style="font-size:12px;color:var(--muted);font-weight:400;">(Introduction text above the spotlight card)</span></label>
+              <textarea class="form-textarea" id="ann-spotlight-intro" placeholder="Write your introductory message here..." style="min-height:120px;font-family:inherit;font-size:14px;line-height:1.6;"></textarea>
+            </div>
+
+            <!-- Body (Raw HTML for Custom Email / Individual) -->
+            <div id="ann-body-group" class="form-group" style="display:none;">
               <label class="form-label">Email Body <span style="font-size:12px;color:var(--muted);font-weight:400;">HTML supported</span></label>
               <textarea class="form-textarea" id="ann-body" placeholder="Write your email content here..." style="min-height:200px;font-family:monospace;font-size:13px;"></textarea>
             </div>
@@ -2015,7 +2041,10 @@
 
             <!-- Preview -->
             <div style="margin-top:16px;">
-              <div style="font-size:13px;font-weight:600;color:var(--muted);margin-bottom:8px;">Email Preview</div>
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                <div style="font-size:13px;font-weight:600;color:var(--muted);">Email Preview</div>
+                <button type="button" class="toolbar-btn" id="ann-review-shuffle-btn" onclick="annShuffleSpotlightPartners()" style="font-size:12px;padding:5px 12px;display:none;background:rgba(91,63,165,0.1);color:var(--purple);border-color:rgba(91,63,165,0.3);cursor:pointer;">🔄 Shuffle Partners</button>
+              </div>
               <div id="ann-preview-html" style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:20px;max-height:400px;overflow-y:auto;color:#333;"></div>
             </div>
 
@@ -5961,6 +5990,28 @@
       }
     }
 
+    function tagPickerSetSelected(id, values) {
+      const tp = _tagPickers[id];
+      if (!tp) return;
+      const arr = Array.isArray(values) ? values : [values];
+      tp.selected = new Set(arr.filter(Boolean));
+      const panel = document.getElementById(id + '-panel');
+      if (panel) {
+        panel.querySelectorAll('input[type=checkbox]').forEach(cb => {
+          const isChecked = tp.selected.has(cb.value);
+          cb.checked = isChecked;
+          cb.closest('.tag-picker-item')?.classList.toggle('checked', isChecked);
+        });
+      }
+      const btn = document.getElementById(id + '-btn');
+      const count = tp.selected.size;
+      if (btn) {
+        btn.querySelector('.tp-label').textContent = count > 0 ? count + ' selected' : btn.dataset.label;
+        btn.classList.toggle('has-selection', count > 0);
+      }
+      if (tp.onChange) tp.onChange();
+    }
+
     // Close all pickers on outside click
     document.addEventListener('click', () =>
       document.querySelectorAll('.tag-picker-panel.open').forEach(p => p.classList.remove('open'))
@@ -7726,10 +7777,13 @@
       document.getElementById('ann-preview-sample').textContent = email.includes('@') ? email : 'Enter recipient email above';
     }
 
-    let _annType = 'merchants';
+    let _annType = 'members';
     let _annSender = 'hello@perkfinity.net';
     let _annAttachments = [];
     let _annPreviewTimer = null;
+    let _annPreset = 'spotlight';
+    let _currentSpotlightMerchant = null;
+    let _currentSpotlightPartners = [];
 
     function annGoStep(n) {
       document.querySelectorAll('.ann-step').forEach(s => s.classList.remove('active'));
@@ -7738,10 +7792,392 @@
       document.getElementById('ann-step-tab-' + n).classList.add('active');
       if (n === 2) {
         const tmplEl = document.getElementById('ann-template-section');
+        const presetEl = document.getElementById('ann-preset-section');
         if (tmplEl) tmplEl.style.display = _annType === 'individual' ? 'block' : 'none';
+        if (presetEl) presetEl.style.display = _annType === 'individual' ? 'none' : 'block';
+        if (_annType === 'individual') {
+          const introGroup = document.getElementById('ann-spotlight-intro-group');
+          const bodyGroup = document.getElementById('ann-body-group');
+          if (introGroup) introGroup.style.display = 'none';
+          if (bodyGroup) bodyGroup.style.display = 'block';
+        } else {
+          annSetPreset(_annPreset);
+        }
+        populateSpotlightMerchants();
       }
       if (n === 3) annPopulateReview();
       if (n === 1) annPreview();
+    }
+
+    function annSetPreset(preset) {
+      _annPreset = preset;
+      document.getElementById('ann-preset-spotlight-btn')?.classList.toggle('active', preset === 'spotlight');
+      document.getElementById('ann-preset-custom-btn')?.classList.toggle('active', preset === 'custom');
+      const controls = document.getElementById('ann-spotlight-controls');
+      if (controls) controls.style.display = (preset === 'spotlight') ? 'block' : 'none';
+
+      const introGroup = document.getElementById('ann-spotlight-intro-group');
+      const bodyGroup = document.getElementById('ann-body-group');
+      if (introGroup) introGroup.style.display = (preset === 'spotlight') ? 'block' : 'none';
+      if (bodyGroup) bodyGroup.style.display = (preset === 'custom') ? 'block' : 'none';
+
+      if (preset === 'spotlight' && _currentSpotlightMerchant) {
+        annRenderSpotlightContent(_currentSpotlightMerchant, _currentSpotlightPartners);
+      }
+    }
+
+    async function populateSpotlightMerchants() {
+      const select = document.getElementById('ann-spotlight-merchant-select');
+      if (!select) return;
+
+      if (!allMerchants || allMerchants.length === 0) {
+        try {
+          const res = await adminFetch('/admin/merchants');
+          if (res.success && res.data) {
+            allMerchants = res.data.merchants || [];
+          }
+        } catch (e) {
+          console.error('Failed loading merchants for spotlight:', e);
+        }
+      }
+
+      const list = [...(allMerchants || [])];
+      if (typeof _allPresetupMerchants !== 'undefined' && Array.isArray(_allPresetupMerchants)) {
+        for (const pm of _allPresetupMerchants) {
+          if (!list.find(m => m.id === pm.id)) {
+            list.push(pm);
+          }
+        }
+      }
+
+      const activeMerchants = list.filter(m => 
+        m.status !== 'inactive' && 
+        m.billing_status !== 'deleted' && 
+        !m.account_blocked && 
+        m.business_name
+      ).sort((a, b) => a.business_name.localeCompare(b.business_name));
+
+      const currentVal = select.value;
+      select.innerHTML = '<option value="">— Choose an onboarded business —</option>' +
+        activeMerchants.map(m => {
+          const city = m.location_city || m.city || '';
+          const offer = m.welcome_offer_text || m.promo_description || 'Special Perk';
+          const locStr = city ? ` (${city})` : '';
+          return `<option value="${m.id}">${m.business_name}${locStr} — ${offer}</option>`;
+        }).join('');
+
+      if (currentVal && activeMerchants.some(m => m.id === currentVal)) {
+        select.value = currentVal;
+      }
+    }
+
+    function annPickSpotlightPartners(spotlightId, city) {
+      const list = [...(allMerchants || []), ...(typeof _allPresetupMerchants !== 'undefined' ? _allPresetupMerchants : [])];
+      const seenIds = new Set([spotlightId]);
+      const pool = [];
+      for (const m of list) {
+        if (!m || !m.id || seenIds.has(m.id)) continue;
+        if (m.status === 'inactive' || m.billing_status === 'deleted' || m.account_blocked) continue;
+        seenIds.add(m.id);
+        pool.push(m);
+      }
+
+      if (pool.length === 0) return [];
+
+      const sameCity = pool.filter(m => {
+        const c = m.location_city || m.city;
+        return c && city && c.toLowerCase().trim() === city.toLowerCase().trim();
+      });
+      const otherPool = pool.filter(m => !sameCity.includes(m));
+
+      const shuffleArr = arr => [...arr].sort(() => 0.5 - Math.random());
+      return [...shuffleArr(sameCity), ...shuffleArr(otherPool)].slice(0, 4);
+    }
+
+    function annOnSpotlightMerchantSelect() {
+      const select = document.getElementById('ann-spotlight-merchant-select');
+      const merchantId = select?.value;
+      const infoEl = document.getElementById('ann-spotlight-merchant-info');
+
+      if (!merchantId) {
+        _currentSpotlightMerchant = null;
+        _currentSpotlightPartners = [];
+        if (infoEl) infoEl.style.display = 'none';
+        return;
+      }
+
+      const list = [...(allMerchants || []), ...(typeof _allPresetupMerchants !== 'undefined' ? _allPresetupMerchants : [])];
+      const m = list.find(x => x.id === merchantId);
+      if (!m) return;
+
+      _currentSpotlightMerchant = m;
+
+      const city = m.location_city || m.city;
+
+      // Pick 4 nearby/active partners
+      _currentSpotlightPartners = annPickSpotlightPartners(m.id, city);
+
+      // Auto-target city in Step 1 if member audience
+      if (city) {
+        const memberBtn = Array.from(document.querySelectorAll('.ann-type-btn')).find(b => b.textContent.includes('Members') && !b.textContent.includes('Both'));
+        if (memberBtn && _annType !== 'members') {
+          annSetType('members', memberBtn);
+        }
+        tagPickerSetSelected('ann-filter-city', [city]);
+        annPreview();
+      }
+
+      // Display merchant status info badge
+      if (infoEl) {
+        infoEl.style.display = 'block';
+        const hasCover = !!m.cover_photo_url;
+        const hasLogo = !!m.logo_url;
+        const cityStr = city || 'Location not specified';
+        infoEl.innerHTML = `📍 <strong>${cityStr}</strong> · Cover Photo: ${hasCover ? '✅' : '⚪ (Default)'} · Logo: ${hasLogo ? '✅' : '⚪ (Monogram)'} · Offer: <em>"${m.welcome_offer_text || 'None'}"</em>`;
+      }
+
+      annRenderSpotlightContent(m, _currentSpotlightPartners);
+    }
+
+    function annShuffleSpotlightPartners() {
+      if (!_currentSpotlightMerchant) {
+        showToast('⚠️ Please select a business first');
+        return;
+      }
+      const city = _currentSpotlightMerchant.location_city || _currentSpotlightMerchant.city;
+      _currentSpotlightPartners = annPickSpotlightPartners(_currentSpotlightMerchant.id, city);
+      annPopulateReview();
+      showToast('🔄 4 Partner cards shuffled!');
+    }
+
+    function annRenderSpotlightContent(m, partners) {
+      const subjectInput = document.getElementById('ann-subject');
+      const introInput = document.getElementById('ann-spotlight-intro');
+      
+      const defaultSubject = `New Perk Unlocked: Welcome ${m.business_name} to Perkfinity!`;
+      if (subjectInput && (!subjectInput.value || subjectInput.value.startsWith('New Perk Unlocked: Welcome '))) {
+        subjectInput.value = defaultSubject;
+      }
+
+      const city = m.location_city || m.city;
+      const cityStr = city ? ` in ${city}` : '';
+      const defaultIntro = `Hey Neighbor 👋,\n\nWe’re excited to introduce ${m.business_name} to our Perkfinity community${cityStr}! Discover your new favorite local spot and unlock exclusive perks every time you visit.`;
+      
+      if (introInput && (!introInput.value || introInput.value.includes('We’re excited to introduce ') || introInput.value.startsWith('Hi there,') || introInput.value.startsWith('Hey Neighbor'))) {
+        introInput.value = defaultIntro;
+      }
+    }
+
+    function annGenerateSpotlightBody(m, partners, customIntroText, isForEmail) {
+      if (!m) return '';
+      const isLocal = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+      const assetPrefix = (isForEmail || !isLocal) ? 'https://perkfinity.net/assets' : '/assets';
+      const city = m.location_city || m.city || '';
+      const state = m.location_state || m.state || 'CA';
+      const zip = m.location_zip || m.postal_code || '';
+      const street = m.location_address || m.address || '';
+      const addressParts = [street, city, state ? (state + (zip ? ' ' + zip : '')) : zip].filter(Boolean);
+      const fullAddress = addressParts.join(', ');
+      const mapsUrl = fullAddress ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fullAddress)}` : '';
+      const website = (m.website || '').trim();
+      const cleanWebsite = website ? website.replace(/^https?:\/\//, '').replace(/\/$/, '') : '';
+      const websiteUrl = website ? (website.startsWith('http') ? website : 'https://' + website) : '';
+      const offer = m.welcome_offer_text || m.promo_description || 'Special Welcome Perk';
+      const category = m.business_category || '';
+      const heroCode = m.qr_public_code || m.public_code || m.id;
+      const heroLink = `https://perkfinity.net/join/${encodeURIComponent(heroCode)}`;
+
+      // Convert custom intro plain text into clean paragraphs
+      let introHtml = '';
+      if (customIntroText && customIntroText.trim()) {
+        const rawParas = customIntroText.trim().split(/\n\s*\n+/);
+        introHtml = rawParas.map(p => {
+          const lines = p.split('\n').map(l => l.trim()).filter(Boolean).join('<br>');
+          return `<p style="margin:0 0 16px 0;font-size:15px;color:#333;line-height:1.6;">${lines}</p>`;
+        }).join('');
+      } else {
+        introHtml = `
+          <p style="margin:0 0 16px 0;font-size:15px;color:#333;line-height:1.6;">
+            Hey Neighbor 👋,<br><br>
+            We’re excited to introduce <strong>${m.business_name}</strong> to our Perkfinity community${city ? ' in <strong>' + city + '</strong>' : ''}! Discover your new favorite local spot and unlock exclusive perks every time you visit.
+          </p>`;
+      }
+
+      // Cover Photo
+      let coverHtml = '';
+      if (m.cover_photo_url) {
+        coverHtml = `
+          <div style="border-radius:12px;overflow:hidden;margin-bottom:16px;background:#f1f5f9;">
+            <a href="${heroLink}" target="_blank" style="text-decoration:none;display:block;">
+              <img src="${m.cover_photo_url}" alt="${m.business_name}" style="width:100%;max-height:220px;object-fit:cover;display:block;border:0;border-radius:12px;" />
+            </a>
+          </div>`;
+      }
+
+      // Logo Column
+      let logoHtml = '';
+      if (m.logo_url) {
+        logoHtml = `
+          <td style="width:54px;vertical-align:middle;padding-right:12px;">
+            <img src="${m.logo_url}" alt="${m.business_name}" style="width:48px;height:48px;border-radius:10px;object-fit:contain;border:1px solid #e2e8f0;display:block;background:#fff;" />
+          </td>`;
+      } else {
+        const initials = (m.business_name || 'P').split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
+        logoHtml = `
+          <td style="width:54px;vertical-align:middle;padding-right:12px;">
+            <div style="width:48px;height:48px;border-radius:10px;background:linear-gradient(135deg,#5B3FA5,#6BC17A);color:#fff;font-weight:800;font-size:18px;text-align:center;line-height:48px;display:block;">${initials}</div>
+          </td>`;
+      }
+
+      // Address & Website lines
+      let addressHtml = '';
+      if (fullAddress) {
+        addressHtml = `
+          <div style="margin-bottom:4px;">
+            <span style="display:inline-block;margin-right:4px;">📍</span>
+            <a href="${mapsUrl}" target="_blank" style="color:#475569;text-decoration:none;font-size:13px;">${fullAddress}</a>
+          </div>`;
+      }
+      let websiteRow = '';
+      if (cleanWebsite) {
+        websiteRow = `
+          <div style="margin-bottom:4px;">
+            <span style="display:inline-block;margin-right:4px;">🌐</span>
+            <a href="${websiteUrl}" target="_blank" style="color:#5B3FA5;text-decoration:none;font-weight:600;font-size:13px;">${cleanWebsite}</a>
+          </div>`;
+      }
+
+      // Partner Grid (2x2 table)
+      let partnerGridHtml = '';
+      if (partners && partners.length > 0) {
+        const rows = [];
+        for (let i = 0; i < partners.length; i += 2) {
+          const p1 = partners[i];
+          const p2 = partners[i + 1];
+
+          function renderPartnerCard(p) {
+            if (!p) return '<div style="height:100%;"></div>';
+            const pCity = p.location_city || p.city || '';
+            const pOffer = p.welcome_offer_text || p.promo_description || 'Exclusive Member Perk';
+            const pCode = p.qr_public_code || p.public_code || p.id;
+            const pLink = `https://perkfinity.net/join/${encodeURIComponent(pCode)}`;
+            let pLogo = '';
+            if (p.logo_url) {
+              pLogo = `<img src="${p.logo_url}" alt="${p.business_name}" style="width:36px;height:36px;border-radius:8px;object-fit:contain;border:1px solid #e2e8f0;display:block;background:#fff;" />`;
+            } else {
+              const pInit = (p.business_name || 'P').split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
+              pLogo = `<div style="width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,#5B3FA5,#6BC17A);color:#fff;font-weight:700;font-size:14px;text-align:center;line-height:36px;">${pInit}</div>`;
+            }
+
+            return `
+              <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:10px;padding:12px;text-align:left;box-sizing:border-box;height:100%;">
+                <table cellpadding="0" cellspacing="0" border="0" style="width:100%;margin-bottom:8px;">
+                  <tr>
+                    <td style="width:42px;vertical-align:middle;padding-right:8px;">
+                      <a href="${pLink}" target="_blank" style="text-decoration:none;">${pLogo}</a>
+                    </td>
+                    <td style="vertical-align:middle;">
+                      <a href="${pLink}" target="_blank" style="font-size:13px;font-weight:700;color:#1e293b;text-decoration:none;display:block;line-height:1.2;">${p.business_name}</a>
+                      ${pCity ? `<span style="font-size:11px;color:#64748b;">${pCity}</span>` : ''}
+                    </td>
+                  </tr>
+                </table>
+                <div style="font-size:11px;color:#15803d;font-weight:600;background:#f0fdf4;border:1px solid #dcfce7;padding:5px 8px;border-radius:6px;line-height:1.3;">
+                  ${pOffer}
+                </div>
+              </div>`;
+          }
+
+          rows.push(`
+            <tr>
+              <td style="width:50%;padding:4px;vertical-align:top;">
+                ${renderPartnerCard(p1)}
+              </td>
+              <td style="width:50%;padding:4px;vertical-align:top;">
+                ${renderPartnerCard(p2)}
+              </td>
+            </tr>
+          `);
+        }
+
+        partnerGridHtml = `
+          <div style="margin-top:28px;padding-top:20px;border-top:1px solid #e2e8f0;">
+            <div style="text-align:center;margin-bottom:16px;">
+              <a href="https://perkfinity.net/localperks.html" target="_blank" style="display:inline-block;background:#f5f3ff;color:#5B3FA5;font-weight:700;font-size:13px;padding:9px 18px;border-radius:20px;text-decoration:none;border:1px solid rgba(91,63,165,0.2);">
+                🗺️ Explore More Perks on Perkfinity →
+              </a>
+            </div>
+            <table cellpadding="0" cellspacing="0" border="0" style="width:100%;">
+              ${rows.join('')}
+            </table>
+          </div>`;
+      }
+
+      return `
+        ${introHtml}
+
+        <!-- ═══ HERO SPOTLIGHT CARD ═══ -->
+        <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:14px;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,0.06);margin-bottom:20px;">
+          ${coverHtml}
+          <div style="padding:16px 18px 20px;">
+            <!-- Logo + Title Row -->
+            <table cellpadding="0" cellspacing="0" border="0" style="width:100%;margin-bottom:12px;">
+              <tr>
+                ${logoHtml}
+                <td style="vertical-align:middle;">
+                  <h2 style="margin:0 0 2px;font-size:19px;font-weight:800;color:#1e293b;line-height:1.2;">${m.business_name}</h2>
+                  ${category ? `<div style="font-size:12px;color:#64748b;font-weight:500;">${category}</div>` : ''}
+                </td>
+              </tr>
+            </table>
+
+            <!-- Address & Web -->
+            <div style="margin-bottom:14px;font-size:13px;color:#475569;">
+              ${addressHtml}
+              ${websiteRow}
+            </div>
+
+            <!-- Highlighted Welcome Offer Box -->
+            <div style="background:#f0fdf4;border:2px dashed #22c55e;border-radius:10px;padding:14px;text-align:center;margin:14px 0;">
+              <div style="font-size:11px;font-weight:700;color:#15803d;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">🎁 Exclusive Welcome Offer</div>
+              <div style="font-size:17px;font-weight:800;color:#166534;line-height:1.3;">${offer}</div>
+            </div>
+
+            <!-- Hero CTA Button -->
+            <a href="${heroLink}" target="_blank" style="display:block;background:linear-gradient(135deg,#5B3FA5,#6BC17A);color:#ffffff;text-decoration:none;padding:13px 18px;border-radius:10px;font-weight:700;font-size:14px;text-align:center;box-shadow:0 3px 8px rgba(91,63,165,0.25);">
+              View ${m.business_name} in Perkfinity App →
+            </a>
+          </div>
+        </div>
+
+        <!-- ═══ 4-STEP REDEMPTION GUIDE ═══ -->
+        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:14px 10px;margin:20px 0;">
+          <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;text-align:center;margin-bottom:12px;">How to Redeem Your Perk</div>
+          <table cellpadding="0" cellspacing="0" border="0" style="width:100%;text-align:center;">
+            <tr>
+              <td style="width:25%;padding:4px;vertical-align:top;text-align:center;">
+                <img src="${assetPrefix}/step1-visit-store.png" alt="1. Visit Store" style="width:44px;height:44px;display:block;margin:0 auto 6px;border:0;" />
+                <div style="font-size:11px;font-weight:700;color:#1e293b;line-height:1.2;">1. Visit Store</div>
+              </td>
+              <td style="width:25%;padding:4px;vertical-align:top;text-align:center;">
+                <img src="${assetPrefix}/step2-scan-qr.png" alt="2. Scan QR Code" style="width:44px;height:44px;display:block;margin:0 auto 6px;border:0;" />
+                <div style="font-size:11px;font-weight:700;color:#1e293b;line-height:1.2;">2. Scan QR Code</div>
+              </td>
+              <td style="width:25%;padding:4px;vertical-align:top;text-align:center;">
+                <img src="${assetPrefix}/step3-activate-offer.png" alt="3. Activate Offer" style="width:44px;height:44px;display:block;margin:0 auto 6px;border:0;" />
+                <div style="font-size:11px;font-weight:700;color:#1e293b;line-height:1.2;">3. Activate Offer</div>
+              </td>
+              <td style="width:25%;padding:4px;vertical-align:top;text-align:center;">
+                <img src="${assetPrefix}/step4-enjoy.png" alt="4. Enjoy!" style="width:44px;height:44px;display:block;margin:0 auto 6px;border:0;" />
+                <div style="font-size:11px;font-weight:700;color:#1e293b;line-height:1.2;">4. Enjoy!</div>
+              </td>
+            </tr>
+          </table>
+        </div>
+
+        <!-- ═══ NEARBY PARTNERS SECTION ═══ -->
+        ${partnerGridHtml}
+      `;
     }
 
     function annSetType(type, btn) {
@@ -7962,6 +8398,7 @@
         document.getElementById('ann-review-sender').textContent = _annSender;
         document.getElementById('ann-review-subject').textContent = document.getElementById('ann-subject').value || '(no subject)';
         document.getElementById('ann-review-attachments').textContent = 'None';
+        document.getElementById('ann-review-shuffle-btn').style.display = 'none';
         const body = document.getElementById('ann-body').value;
         document.getElementById('ann-preview-html').innerHTML = annBuildIndividualPreview(body);
         return;
@@ -7971,25 +8408,60 @@
       const total = (parseInt(dbCount) || 0) + extCount;
       document.getElementById('ann-review-recipients').textContent = total + (extCount ? ` (${extCount} external)` : '');
       document.getElementById('ann-review-sender').textContent = _annSender;
-      document.getElementById('ann-review-subject').textContent = document.getElementById('ann-subject').value || '(no subject)';
+      const subject = document.getElementById('ann-subject').value || '(no subject)';
+      document.getElementById('ann-review-subject').textContent = subject;
       document.getElementById('ann-review-attachments').textContent = _annAttachments.length ? _annAttachments.map(a => a.name).join(', ') : 'None';
-      const body = document.getElementById('ann-body').value;
-      const subject = document.getElementById('ann-subject').value;
-      document.getElementById('ann-preview-html').innerHTML = annBuildEmailTemplate(subject, body);
+      
+      const shuffleBtn = document.getElementById('ann-review-shuffle-btn');
+      if (shuffleBtn) {
+        shuffleBtn.style.display = (_annPreset === 'spotlight' && _currentSpotlightMerchant) ? 'inline-block' : 'none';
+      }
+
+      let bodyHtml = '';
+      if (_annPreset === 'spotlight') {
+        if (_currentSpotlightMerchant) {
+          const customIntro = document.getElementById('ann-spotlight-intro')?.value || '';
+          bodyHtml = annGenerateSpotlightBody(_currentSpotlightMerchant, _currentSpotlightPartners, customIntro);
+        } else {
+          bodyHtml = '<p style="color:#e11d48;font-weight:600;padding:12px;background:#fff1f2;border-radius:8px;">⚠️ Please return to Step 2 and choose a business to spotlight.</p>';
+        }
+      } else {
+        bodyHtml = document.getElementById('ann-body').value;
+      }
+
+      document.getElementById('ann-preview-html').innerHTML = annBuildEmailTemplate(subject, bodyHtml);
     }
 
     function annBuildEmailTemplate(subject, body) {
+      let headerSubjectHtml = '';
+      if (subject && subject.includes(':')) {
+        const parts = subject.split(/:\s*(.+)/);
+        const prefix = (parts[0] || '').trim();
+        const rest = (parts[1] || '').trim();
+        if (rest) {
+          headerSubjectHtml = `
+            <div style="color:rgba(255,255,255,0.92);font-size:13px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;margin-bottom:6px;line-height:1.2;">${prefix}:</div>
+            <div style="color:#ffffff;font-size:19px;font-weight:800;line-height:1.3;letter-spacing:-0.2px;">${rest}</div>`;
+        } else {
+          headerSubjectHtml = `<div style="color:#ffffff;font-size:18px;font-weight:700;line-height:1.3;">${subject}</div>`;
+        }
+      } else {
+        headerSubjectHtml = `<div style="color:#ffffff;font-size:18px;font-weight:700;line-height:1.3;">${subject || ''}</div>`;
+      }
+
       return `
-        <div style="font-family:'Helvetica Neue',Arial,sans-serif;max-width:520px;margin:0 auto;background:#ffffff;border-radius:16px;overflow:hidden;border:1px solid #eee;">
-          <div style="background:linear-gradient(135deg,#5B3FA5,#6BC17A);padding:24px;text-align:center;">
-            <img src="https://perkfinity.net/assets/Perkfinity-Logo.png" alt="Perkfinity" style="height:32px;opacity:0.95;margin-bottom:8px;"/>
-            <div style="color:#fff;font-size:18px;font-weight:700;">${subject || ''}</div>
+        <div style="font-family:'Helvetica Neue',Arial,sans-serif;max-width:520px;margin:0 auto;background:#ffffff;border-radius:16px;overflow:hidden;border:1px solid #eee;box-shadow:0 4px 20px rgba(0,0,0,0.06);">
+          <div style="background:linear-gradient(135deg,#5B3FA5,#6BC17A);padding:24px 20px;text-align:center;">
+            <a href="https://perkfinity.net" target="_blank" style="text-decoration:none;display:inline-block;">
+              <img src="https://perkfinity.net/assets/Perkfinity-Logo.png" alt="Perkfinity" style="height:32px;opacity:0.95;margin-bottom:10px;border:0;display:inline-block;"/>
+            </a>
+            ${headerSubjectHtml}
           </div>
-          <div style="padding:24px 28px;font-size:15px;color:#333;line-height:1.7;">
+          <div style="padding:22px 24px;font-size:15px;color:#333;line-height:1.7;">
             ${body || '<p style="color:#999;">Email body will appear here...</p>'}
           </div>
-           <div style="padding:16px 28px;border-top:1px solid #f0f0f0;text-align:center;">
-            <div style="font-size:11px;color:#bbb;">Powered by <strong style="color:#5B3FA5;">Perkfinity</strong> — Your neighborhood perk platform</div>
+          <div style="padding:16px 24px;border-top:1px solid #f0f0f0;text-align:center;background:#fafafa;">
+            <div style="font-size:11px;color:#888;">Powered by <strong style="color:#5B3FA5;">Perkfinity</strong> — Your Local Guide, with Perks</div>
           </div>
         </div>
         <div style="height:240px;"></div>`;
@@ -7997,9 +8469,29 @@
 
     async function annSend() {
       const subject = document.getElementById('ann-subject').value.trim();
-      const body = document.getElementById('ann-body').value.trim();
       if (!subject) { showToast('⚠️ Subject is required'); annGoStep(2); return; }
-      if (!body) { showToast('⚠️ Email body is required'); annGoStep(2); return; }
+
+      let body = '';
+      if (_annType === 'individual') {
+        body = document.getElementById('ann-body').value.trim();
+        if (!body) { showToast('⚠️ Email body is required'); annGoStep(2); return; }
+      } else if (_annPreset === 'spotlight') {
+        if (!_currentSpotlightMerchant) {
+          showToast('⚠️ Please select a business to spotlight');
+          annGoStep(2);
+          return;
+        }
+        const customIntro = document.getElementById('ann-spotlight-intro')?.value.trim();
+        if (!customIntro) {
+          showToast('⚠️ Announcement message is required');
+          annGoStep(2);
+          return;
+        }
+        body = annGenerateSpotlightBody(_currentSpotlightMerchant, _currentSpotlightPartners, customIntro, true);
+      } else {
+        body = document.getElementById('ann-body').value.trim();
+        if (!body) { showToast('⚠️ Email body is required'); annGoStep(2); return; }
+      }
 
       const schedule = document.querySelector('input[name="ann-schedule"]:checked').value;
       let scheduledAt = null;
@@ -9762,6 +10254,7 @@
       if (name === 'announcements') {
         annGoStep(1);
         annLoadOptions();
+        populateSpotlightMerchants();
         annPreview();
         document.getElementById('ann-send-status').innerHTML = '';
       }
