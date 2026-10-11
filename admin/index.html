@@ -4811,7 +4811,10 @@
       }
 
       tbody.innerHTML = merchants.map((m, idx) => {
-        const tierName = (m.subscription_tier || 'Free / Starter').replace(/_/g, ' ');
+        const isPresetup = m.is_presetup || (m.subscription_tier && m.subscription_tier.startsWith('presetup'));
+        const tierName = isPresetup
+          ? `Pre-Setup (${m.member_limit || 50})`
+          : (m.subscription_tier || 'Free / Starter').replace(/online_/g, '').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
         const isDetailed = ['growth', 'scale', 'enterprise', 'online_growth', 'online_scale', 'hybrid_growth', 'hybrid_scale'].includes(m.subscription_tier || '');
         const tierBadge = isDetailed
           ? `<span class="badge" style="background:#8b5cf620;color:#c4b5fd;border:1px solid #8b5cf640;">${escapeHtml(tierName)}</span>`
