@@ -514,6 +514,9 @@
       <div class="nav-item active" onclick="showTab('overview')">
         <span class="icon">📊</span> Dashboard
       </div>
+      <div class="nav-item" onclick="showTab('traffic')" id="nav-traffic">
+        <span class="icon">📈</span> Traffic & Attribution
+      </div>
 
       <div class="nav-section">Data</div>
       <div class="nav-item" onclick="showTab('merchants')">
@@ -771,6 +774,104 @@
             <button onclick="saveNewContractor()" class="toolbar-btn primary" style="padding:10px 24px;" id="nc-save-btn">Create Rep</button>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!-- MERCHANT STORE ROI DRILLDOWN MODAL (TASK 11)                -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <div id="modal-merchant-roi" onclick="if(event.target===this)closeRoiModal()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:10007;align-items:center;justify-content:center;backdrop-filter:blur(4px);">
+      <div style="background:#1e1b4b;border:1px solid rgba(139,92,246,0.3);border-radius:20px;padding:28px 32px;width:720px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,0.5);color:#fff;font-family:'Outfit',sans-serif;">
+        
+        <!-- Header -->
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,0.1);">
+          <div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div id="roi-modal-title" style="font-size:20px;font-weight:800;color:#fff;">Store Name</div>
+              <span id="roi-modal-tier-badge" class="badge" style="background:#8b5cf620;color:#c4b5fd;">Tier</span>
+            </div>
+            <div id="roi-modal-period" style="font-size:12px;color:var(--mutedLight);margin-top:4px;">Period: All Time</div>
+          </div>
+          <button onclick="closeRoiModal()" style="background:none;border:none;font-size:22px;cursor:pointer;color:rgba(255,255,255,0.5);line-height:1;">✕</button>
+        </div>
+
+        <!-- Tier Preview Switcher for Admin -->
+        <div style="display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);padding:10px 14px;border-radius:12px;margin-bottom:20px;">
+          <span style="font-size:12px;font-weight:700;color:var(--mutedLight);">Preview Mode:</span>
+          <div style="display:flex;gap:6px;">
+            <button id="btn-roi-mode-basic" onclick="switchRoiPreviewMode('basic')" class="chart-period-btn" style="padding:4px 12px;font-size:11px;">Basic (Free / Starter)</button>
+            <button id="btn-roi-mode-detailed" onclick="switchRoiPreviewMode('detailed')" class="chart-period-btn active" style="padding:4px 12px;font-size:11px;">Detailed (Growth / Scale)</button>
+          </div>
+        </div>
+
+        <!-- Summary KPI Cards -->
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;">
+          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:14px;text-align:center;">
+            <div style="font-size:22px;font-weight:800;color:#a78bfa;" id="roi-stat-reach">—</div>
+            <div style="font-size:11px;font-weight:700;color:var(--mutedLight);text-transform:uppercase;">Directory Views</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:14px;text-align:center;">
+            <div style="font-size:22px;font-weight:800;color:#34d399;" id="roi-stat-actions">—</div>
+            <div style="font-size:11px;font-weight:700;color:var(--mutedLight);text-transform:uppercase;">Total Outbound Actions</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:14px;text-align:center;">
+            <div style="font-size:22px;font-weight:800;color:#fbbf24;" id="roi-stat-redemptions">—</div>
+            <div style="font-size:11px;font-weight:700;color:var(--mutedLight);text-transform:uppercase;">In-Store Redemptions</div>
+          </div>
+        </div>
+
+        <!-- Detailed Breakdown Section (Hidden in Basic Mode) -->
+        <div id="roi-detailed-section">
+          <!-- Channels (App vs Web) -->
+          <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:16px;margin-bottom:16px;">
+            <div style="font-size:13px;font-weight:800;color:#fff;margin-bottom:12px;">📱 Channel Attribution</div>
+            <div style="display:flex;gap:12px;">
+              <div style="flex:1;background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.25);border-radius:10px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;">
+                <span style="font-size:12px;font-weight:600;color:#c4b5fd;">📱 Mobile App</span>
+                <span style="font-size:15px;font-weight:800;color:#fff;" id="roi-chan-app">0</span>
+              </div>
+              <div style="flex:1;background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.25);border-radius:10px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;">
+                <span style="font-size:12px;font-weight:600;color:#93c5fd;">🌐 Web Directory</span>
+                <span style="font-size:15px;font-weight:800;color:#fff;" id="roi-chan-web">0</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Itemized Action Breakdown -->
+          <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:16px;margin-bottom:16px;">
+            <div style="font-size:13px;font-weight:800;color:#fff;margin-bottom:12px;">🔍 Itemized Consumer Actions</div>
+            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;" id="roi-actions-grid">
+              <!-- Injected dynamically -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Universal Contextual Ad Module -->
+        <div id="roi-ad-module" style="display:none;background:linear-gradient(135deg,rgba(245,158,11,0.1),rgba(139,92,246,0.1));border:1px solid rgba(245,158,11,0.3);border-radius:14px;padding:16px;margin-bottom:20px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+            <div style="font-size:13px;font-weight:800;color:#fbbf24;display:flex;align-items:center;gap:6px;">
+              <span>👑</span> Sponsorship & Boost Performance
+            </div>
+            <span id="roi-ad-status-pill" style="font-size:10px;font-weight:800;padding:2px 8px;border-radius:6px;background:#f59e0b20;color:#fbbf24;border:1px solid #f59e0b40;">Active</span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;">
+            <div style="background:rgba(0,0,0,0.25);border-radius:8px;padding:10px;text-align:center;">
+              <div style="font-size:16px;font-weight:800;color:#fff;" id="roi-ad-takeover">0</div>
+              <div style="font-size:10px;color:rgba(255,255,255,0.6);font-weight:600;">VIP Takeover Opens</div>
+            </div>
+            <div style="background:rgba(0,0,0,0.25);border-radius:8px;padding:10px;text-align:center;">
+              <div style="font-size:16px;font-weight:800;color:#fff;" id="roi-ad-carousel">0</div>
+              <div style="font-size:10px;color:rgba(255,255,255,0.6);font-weight:600;">Top Carousel Clicks</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer Actions -->
+        <div style="display:flex;justify-content:flex-end;gap:10px;padding-top:10px;">
+          <button onclick="exportSingleMerchantCSV()" class="toolbar-btn" style="padding:8px 16px;font-size:12px;">📥 Export Store CSV</button>
+          <button onclick="closeRoiModal()" class="toolbar-btn primary" style="padding:8px 20px;font-size:12px;">Done</button>
+        </div>
+
       </div>
     </div>
 
@@ -1160,6 +1261,145 @@
             <thead><tr><th>Business</th><th>Members</th><th>Campaigns</th><th>Redeemed</th><th>Tier</th></tr></thead>
             <tbody id="ov-top-merchants"><tr><td colspan="5" style="color:var(--muted);">Loading...</td></tr></tbody>
           </table>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════════════════════════ -->
+      <!-- TRAFFIC & ATTRIBUTION TAB (TASK 11)                         -->
+      <!-- ═══════════════════════════════════════════════════════════ -->
+      <div id="tab-traffic" class="tab-content">
+        <div class="page-header">
+          <div>
+            <div class="page-title">📈 Merchant Outbound Traffic &amp; Referral Attribution</div>
+            <div class="page-subtitle">Track outbound clicks, consumer actions, and ROI generated for merchants across Web &amp; Mobile App</div>
+          </div>
+          <div style="display:flex; gap:10px; align-items:center;">
+            <button class="toolbar-btn" onclick="exportTrafficSummaryCSV()">
+              📥 Export Network CSV
+            </button>
+            <button class="toolbar-btn primary" onclick="loadTrafficSummary()">
+              🔄 Refresh
+            </button>
+          </div>
+        </div>
+
+        <!-- Date Range Filter Bar -->
+        <div class="section-card" style="margin-bottom:20px; padding:16px 20px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+            <div style="display:flex; gap:6px; flex-wrap:wrap;">
+              <button class="chart-period-btn active" id="btn-traffic-all" onclick="setTrafficPreset('all')">All Time</button>
+              <button class="chart-period-btn" id="btn-traffic-today" onclick="setTrafficPreset('today')">Today</button>
+              <button class="chart-period-btn" id="btn-traffic-7d" onclick="setTrafficPreset('7d')">Last 7 Days</button>
+              <button class="chart-period-btn" id="btn-traffic-30d" onclick="setTrafficPreset('30d')">Last 30 Days</button>
+              <button class="chart-period-btn" id="btn-traffic-this_month" onclick="setTrafficPreset('this_month')">This Month</button>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="font-size:12px; font-weight:700; color:var(--mutedLight);">Custom Range:</span>
+              <input type="date" id="traffic-start-date" class="form-input" style="padding:6px 10px; font-size:12px; border-radius:8px; width:auto;" />
+              <span style="color:var(--mutedLight); font-size:12px;">to</span>
+              <input type="date" id="traffic-end-date" class="form-input" style="padding:6px 10px; font-size:12px; border-radius:8px; width:auto;" />
+              <button class="toolbar-btn" onclick="applyCustomTrafficDate()" style="padding:6px 12px; font-size:12px;">Apply</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4 Top KPI Cards -->
+        <div class="stat-grid">
+          <div class="stat-card">
+            <div class="stat-value green" id="stat-traffic-total">—</div>
+            <div class="stat-label">Total Outbound Actions</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value purple" id="stat-traffic-web">—</div>
+            <div class="stat-label">Web Actions</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value purple" id="stat-traffic-app">—</div>
+            <div class="stat-label">App Actions</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value amber" id="stat-traffic-merchants">—</div>
+            <div class="stat-label">Stores Receiving Traffic</div>
+          </div>
+        </div>
+
+        <!-- Action Types Breakdown Grid -->
+        <div class="section-card" style="margin-bottom:20px;">
+          <div class="section-title">📊 Network Action Breakdown</div>
+          <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap:12px;" id="traffic-action-breakdown">
+            <div style="background:var(--cardDark, rgba(255,255,255,0.03)); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:12px; text-align:center;">
+              <div style="font-size:1.4rem;">🌐</div>
+              <div style="font-size:1.1rem; font-weight:800; color:#fff;" id="act-website">0</div>
+              <div style="font-size:11px; color:var(--mutedLight); font-weight:600;">Website Clicks</div>
+            </div>
+            <div style="background:var(--cardDark, rgba(255,255,255,0.03)); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:12px; text-align:center;">
+              <div style="font-size:1.4rem;">🛒</div>
+              <div style="font-size:1.1rem; font-weight:800; color:#16a34a;" id="act-order">0</div>
+              <div style="font-size:11px; color:var(--mutedLight); font-weight:600;">Order / Booking</div>
+            </div>
+            <div style="background:var(--cardDark, rgba(255,255,255,0.03)); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:12px; text-align:center;">
+              <div style="font-size:1.4rem;">⭐</div>
+              <div style="font-size:1.1rem; font-weight:800; color:#eab308;" id="act-review_social">0</div>
+              <div style="font-size:11px; color:var(--mutedLight); font-weight:600;">Reviews &amp; Social</div>
+            </div>
+            <div style="background:var(--cardDark, rgba(255,255,255,0.03)); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:12px; text-align:center;">
+              <div style="font-size:1.4rem;">📞</div>
+              <div style="font-size:1.1rem; font-weight:800; color:#0d9488;" id="act-phone">0</div>
+              <div style="font-size:11px; color:var(--mutedLight); font-weight:600;">Phone Calls</div>
+            </div>
+            <div style="background:var(--cardDark, rgba(255,255,255,0.03)); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:12px; text-align:center;">
+              <div style="font-size:1.4rem;">✉️</div>
+              <div style="font-size:1.1rem; font-weight:800; color:#6366f1;" id="act-email">0</div>
+              <div style="font-size:11px; color:var(--mutedLight); font-weight:600;">Email Inquiries</div>
+            </div>
+            <div style="background:var(--cardDark, rgba(255,255,255,0.03)); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:12px; text-align:center;">
+              <div style="font-size:1.4rem;">📍</div>
+              <div style="font-size:1.1rem; font-weight:800; color:#f97316;" id="act-map_directions">0</div>
+              <div style="font-size:11px; color:var(--mutedLight); font-weight:600;">Map Directions</div>
+            </div>
+            <div style="background:var(--cardDark, rgba(255,255,255,0.03)); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:12px; text-align:center;">
+              <div style="font-size:1.4rem;">👑</div>
+              <div style="font-size:1.1rem; font-weight:800; color:#a855f7;" id="act-vip_takeover">0</div>
+              <div style="font-size:11px; color:var(--mutedLight); font-weight:600;">VIP Takeovers</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Merchant Ranking Table -->
+        <div class="section-card">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:12px;">
+            <div class="section-title" style="margin-bottom:0;">🏆 Merchant Attribution Leaderboard</div>
+            <div style="display:flex; gap:10px;">
+              <input type="text" id="traffic-search-input" class="toolbar-search" placeholder="Search merchant..." oninput="filterTrafficTable()" style="width:200px;" />
+              <select id="traffic-tier-filter" class="toolbar-select" onchange="filterTrafficTable()">
+                <option value="all">All Tiers</option>
+                <option value="growth">Growth &amp; Scale (Detailed)</option>
+                <option value="starter">Free &amp; Starter (Basic)</option>
+                <option value="sponsored">Active Sponsored Only</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th style="width:50px;">#</th>
+                  <th>Merchant</th>
+                  <th>Tier</th>
+                  <th>Presence</th>
+                  <th>Sponsorship</th>
+                  <th style="text-align:right;">Web</th>
+                  <th style="text-align:right;">App</th>
+                  <th style="text-align:right;">Total Actions</th>
+                  <th style="text-align:center; width:130px;">ROI Drilldown</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-traffic-merchants">
+                <tr><td colspan="9" style="text-align:center; padding:30px; color:var(--muted);">Loading attribution summary...</td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
@@ -4162,6 +4402,408 @@
       if (name === 'applications') loadApplications();
       if (name === 'enterprise') loadEnterpriseInquiries();
       if (name === 'presetup') loadPresetupMerchants();
+      if (name === 'traffic') loadTrafficSummary();
+    }
+
+    // ════════════════════════════════════════════════════════════════
+    // TRAFFIC & ATTRIBUTION FUNCTIONS (TASK 11)
+    // ════════════════════════════════════════════════════════════════
+    let _trafficSummaryData = null;
+    let _trafficStartDate = '';
+    let _trafficEndDate = '';
+    let _activeRoiData = null;
+    let _roiPreviewMode = 'detailed';
+
+    function setTrafficPreset(preset) {
+      document.querySelectorAll('.chart-period-btn[id^="btn-traffic-"]').forEach(b => b.classList.remove('active'));
+      const activeBtn = document.getElementById('btn-traffic-' + preset);
+      if (activeBtn) activeBtn.classList.add('active');
+
+      const now = new Date();
+      const pad = (n) => String(n).padStart(2, '0');
+      const fmt = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+
+      let start = '';
+      let end = '';
+
+      if (preset === 'today') {
+        start = fmt(now);
+        end = fmt(now);
+      } else if (preset === '7d') {
+        const d = new Date();
+        d.setDate(d.getDate() - 7);
+        start = fmt(d);
+        end = fmt(now);
+      } else if (preset === '30d') {
+        const d = new Date();
+        d.setDate(d.getDate() - 30);
+        start = fmt(d);
+        end = fmt(now);
+      } else if (preset === 'this_month') {
+        const d = new Date(now.getFullYear(), now.getMonth(), 1);
+        start = fmt(d);
+        end = fmt(now);
+      }
+
+      document.getElementById('traffic-start-date').value = start;
+      document.getElementById('traffic-end-date').value = end;
+      _trafficStartDate = start;
+      _trafficEndDate = end;
+      loadTrafficSummary();
+    }
+
+    function applyCustomTrafficDate() {
+      const start = document.getElementById('traffic-start-date').value;
+      const end = document.getElementById('traffic-end-date').value;
+      if (start && end && start > end) {
+        alert('Start date must be before or equal to end date.');
+        return;
+      }
+      document.querySelectorAll('.chart-period-btn[id^="btn-traffic-"]').forEach(b => b.classList.remove('active'));
+      _trafficStartDate = start;
+      _trafficEndDate = end;
+      loadTrafficSummary();
+    }
+
+    async function loadTrafficSummary() {
+      const tbody = document.getElementById('tbody-traffic-merchants');
+      if (tbody) tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding:30px; color:var(--muted);">Loading attribution summary...</td></tr>';
+
+      try {
+        let endpoint = '/admin/analytics/outbound-summary';
+        const params = new URLSearchParams();
+        if (_trafficStartDate) params.set('start_date', _trafficStartDate);
+        if (_trafficEndDate) params.set('end_date', _trafficEndDate);
+        if (params.toString()) endpoint += '?' + params.toString();
+
+        const json = await adminFetch(endpoint);
+        if (!json || !json.data) throw new Error(json?.error || 'Failed to load traffic data');
+
+        _trafficSummaryData = json.data;
+        const summary = _trafficSummaryData.summary || {};
+
+        // Top KPIs
+        document.getElementById('stat-traffic-total').textContent = (summary.total_actions || 0).toLocaleString();
+        document.getElementById('stat-traffic-web').textContent = (summary.web_actions || 0).toLocaleString();
+        document.getElementById('stat-traffic-app').textContent = (summary.app_actions || 0).toLocaleString();
+        document.getElementById('stat-traffic-merchants').textContent = (summary.total_merchants_with_actions || 0).toLocaleString();
+
+        // Breakdown cards
+        const bd = summary.action_breakdown || {};
+        document.getElementById('act-website').textContent = (bd.website || 0).toLocaleString();
+        document.getElementById('act-order').textContent = (bd.order || 0).toLocaleString();
+        document.getElementById('act-review_social').textContent = (bd.review_social || 0).toLocaleString();
+        document.getElementById('act-phone').textContent = (bd.phone || 0).toLocaleString();
+        document.getElementById('act-email').textContent = (bd.email || 0).toLocaleString();
+        document.getElementById('act-map_directions').textContent = (bd.map_directions || 0).toLocaleString();
+        document.getElementById('act-vip_takeover').textContent = (bd.vip_takeover || 0).toLocaleString();
+
+        filterTrafficTable();
+      } catch (err) {
+        console.error('Failed to load traffic summary:', err);
+        if (tbody) tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding:30px; color:#ef4444;">Error loading attribution data: ${escapeHtml(err.message)}</td></tr>`;
+      }
+    }
+
+    function filterTrafficTable() {
+      if (!_trafficSummaryData || !_trafficSummaryData.merchants) return;
+      const query = (document.getElementById('traffic-search-input')?.value || '').trim().toLowerCase();
+      const tierFilter = document.getElementById('traffic-tier-filter')?.value || 'all';
+
+      let filtered = _trafficSummaryData.merchants.filter(m => {
+        if (query && !m.merchant_name.toLowerCase().includes(query)) return false;
+        if (tierFilter === 'growth') {
+          const t = (m.subscription_tier || '').toLowerCase();
+          if (!t.includes('growth') && !t.includes('scale') && !t.includes('enterprise')) return false;
+        } else if (tierFilter === 'starter') {
+          const t = (m.subscription_tier || '').toLowerCase();
+          if (t.includes('growth') || t.includes('scale') || t.includes('enterprise')) return false;
+        } else if (tierFilter === 'sponsored') {
+          if (!m.is_app_sponsored && !m.is_web_sponsored && !m.is_fullpage_sponsored) return false;
+        }
+        return true;
+      });
+
+      renderTrafficTable(filtered);
+    }
+
+    function renderTrafficTable(merchants) {
+      const tbody = document.getElementById('tbody-traffic-merchants');
+      if (!tbody) return;
+
+      if (!merchants || merchants.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding:30px; color:var(--muted);">No merchant outbound actions found for this filter/period.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = merchants.map((m, idx) => {
+        const tierName = (m.subscription_tier || 'Free / Starter').replace(/_/g, ' ');
+        const isDetailed = ['growth', 'scale', 'enterprise', 'online_growth', 'online_scale', 'hybrid_growth', 'hybrid_scale'].includes(m.subscription_tier || '');
+        const tierBadge = isDetailed
+          ? `<span class="badge" style="background:#8b5cf620;color:#c4b5fd;border:1px solid #8b5cf640;">${escapeHtml(tierName)}</span>`
+          : `<span class="badge" style="background:rgba(255,255,255,0.06);color:var(--mutedLight);border:1px solid rgba(255,255,255,0.1);">${escapeHtml(tierName)}</span>`;
+
+        const sponsorships = [];
+        if (m.is_fullpage_sponsored) sponsorships.push('<span class="badge" style="background:#f59e0b20;color:#fbbf24;border:1px solid #f59e0b40;">VIP Takeover</span>');
+        if (m.is_app_sponsored || m.is_web_sponsored) sponsorships.push('<span class="badge" style="background:#3b82f620;color:#60a5fa;border:1px solid #3b82f640;">Carousel</span>');
+        const sponsorshipDisplay = sponsorships.length ? sponsorships.join(' ') : '<span style="color:var(--mutedLight);font-size:11px;">Standard</span>';
+
+        return `
+          <tr>
+            <td style="color:var(--mutedLight); font-weight:700;">${idx + 1}</td>
+            <td style="font-weight:700; color:#fff;">
+              ${escapeHtml(m.merchant_name)}
+            </td>
+            <td>${tierBadge}</td>
+            <td style="color:var(--mutedLight); text-transform:capitalize;">${escapeHtml(m.business_presence || 'Physical')}</td>
+            <td>${sponsorshipDisplay}</td>
+            <td style="text-align:right; font-weight:600; color:#93c5fd;">${(m.web_actions || 0).toLocaleString()}</td>
+            <td style="text-align:right; font-weight:600; color:#c4b5fd;">${(m.app_actions || 0).toLocaleString()}</td>
+            <td style="text-align:right; font-weight:800; color:#34d399; font-size:14px;">${(m.total_actions || 0).toLocaleString()}</td>
+            <td style="text-align:center;">
+              <button onclick="openRoiModal('${m.merchant_id}')" class="toolbar-btn" style="padding:4px 10px; font-size:11px; margin:0 auto;">
+                📊 View ROI
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    async function openRoiModal(merchantId) {
+      const modal = document.getElementById('modal-merchant-roi');
+      if (!modal) return;
+      modal.style.display = 'flex';
+
+      document.getElementById('roi-modal-title').textContent = 'Loading...';
+      document.getElementById('roi-stat-reach').textContent = '...';
+      document.getElementById('roi-stat-actions').textContent = '...';
+      document.getElementById('roi-stat-redemptions').textContent = '...';
+      document.getElementById('roi-ad-module').style.display = 'none';
+
+      try {
+        let endpoint = `/analytics/merchant-roi?merchant_id=${encodeURIComponent(merchantId)}`;
+        if (_trafficStartDate) endpoint += `&start_date=${encodeURIComponent(_trafficStartDate)}`;
+        if (_trafficEndDate) endpoint += `&end_date=${encodeURIComponent(_trafficEndDate)}`;
+
+        const json = await adminFetch(endpoint);
+        if (!json || !json.data) throw new Error(json?.error || 'Failed to load merchant ROI');
+
+        _activeRoiData = json.data;
+        const d = _activeRoiData;
+        const metrics = d.metrics || {};
+
+        document.getElementById('roi-modal-title').textContent = d.merchant_name || 'Store ROI';
+        const tierBadge = document.getElementById('roi-modal-tier-badge');
+        tierBadge.textContent = (d.tier || 'Free / Starter').replace(/_/g, ' ');
+
+        const periodLabel = d.period?.start_date && d.period?.end_date
+          ? `${d.period.start_date} to ${d.period.end_date}`
+          : 'All Time';
+        document.getElementById('roi-modal-period').textContent = `Period: ${periodLabel}`;
+
+        document.getElementById('roi-stat-reach').textContent = (metrics.total_reach || 0).toLocaleString();
+        document.getElementById('roi-stat-actions').textContent = (metrics.total_actions || 0).toLocaleString();
+        document.getElementById('roi-stat-redemptions').textContent = (metrics.in_store_redemptions || 0).toLocaleString();
+
+        // Channels
+        const channels = metrics.channels || { app: 0, web: 0 };
+        document.getElementById('roi-chan-app').textContent = (channels.app || 0).toLocaleString();
+        document.getElementById('roi-chan-web').textContent = (channels.web || 0).toLocaleString();
+
+        // Itemized actions
+        const actions = metrics.actions_breakdown || {};
+        const actionLabels = {
+          website: { label: 'Website Visits', icon: '🌐' },
+          order: { label: 'Online Orders / Bookings', icon: '🛒' },
+          review_social: { label: 'Reviews & Social', icon: '⭐' },
+          phone: { label: 'Phone Calls', icon: '📞' },
+          email: { label: 'Email Inquiries', icon: '✉️' },
+          map_directions: { label: 'Map Directions', icon: '📍' },
+          vip_takeover: { label: 'VIP Takeover Opens', icon: '👑' }
+        };
+
+        const grid = document.getElementById('roi-actions-grid');
+        grid.innerHTML = Object.keys(actionLabels).map(key => {
+          const count = actions[key] || 0;
+          const info = actionLabels[key];
+          return `
+            <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:8px 12px;display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-size:12px;color:var(--mutedLight);">${info.icon} ${info.label}</span>
+              <span style="font-size:13px;font-weight:700;color:#fff;">${count.toLocaleString()}</span>
+            </div>
+          `;
+        }).join('');
+
+        // Contextual Sponsorship Module
+        const sp = metrics.sponsorship || {};
+        const spMetrics = sp.metrics || {};
+        if (sp.hasActiveAds || sp.hasHistoricalAdActivity) {
+          const adMod = document.getElementById('roi-ad-module');
+          adMod.style.display = 'block';
+          document.getElementById('roi-ad-takeover').textContent = (spMetrics.takeoverClicks || 0).toLocaleString();
+          document.getElementById('roi-ad-carousel').textContent = (spMetrics.carouselClicks || 0).toLocaleString();
+          const pill = document.getElementById('roi-ad-status-pill');
+          if (sp.hasActiveAds) {
+            pill.textContent = 'Active Campaign';
+            pill.style.background = '#22c55e20';
+            pill.style.color = '#34d399';
+            pill.style.borderColor = '#22c55e40';
+          } else {
+            pill.textContent = 'Historical Campaign';
+            pill.style.background = 'rgba(255,255,255,0.06)';
+            pill.style.color = 'var(--mutedLight)';
+            pill.style.borderColor = 'rgba(255,255,255,0.1)';
+          }
+        }
+
+        switchRoiPreviewMode(d.reporting_level || 'detailed');
+      } catch (err) {
+        alert('Error loading store ROI: ' + err.message);
+        closeRoiModal();
+      }
+    }
+
+    function switchRoiPreviewMode(mode) {
+      _roiPreviewMode = mode;
+      const btnBasic = document.getElementById('btn-roi-mode-basic');
+      const btnDetailed = document.getElementById('btn-roi-mode-detailed');
+      const detailSec = document.getElementById('roi-detailed-section');
+
+      if (mode === 'basic') {
+        btnBasic.classList.add('active');
+        btnDetailed.classList.remove('active');
+        detailSec.innerHTML = `
+          <div style="background:rgba(255,255,255,0.02);border:1px dashed rgba(255,255,255,0.15);border-radius:14px;padding:24px;text-align:center;margin-bottom:16px;">
+            <div style="font-size:24px;margin-bottom:6px;">🔒</div>
+            <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:4px;">Itemized Multi-Channel Breakdown (Tier 2 Feature)</div>
+            <div style="font-size:11px;color:var(--mutedLight);max-width:440px;margin:0 auto;line-height:1.5;">
+              Starter & Free merchants see high-level combined actions. Itemized per-action channel attribution and automated monthly email reporting unlock automatically on Growth ($299/mo) and Scale ($499/mo).
+            </div>
+          </div>
+        `;
+      } else {
+        btnBasic.classList.remove('active');
+        btnDetailed.classList.add('active');
+        if (_activeRoiData) {
+          // Re-render detailed layout
+          const metrics = _activeRoiData.metrics || {};
+          const channels = metrics.channels || { app: 0, web: 0 };
+          const actions = metrics.actions_breakdown || {};
+          const actionLabels = {
+            website: { label: 'Website Visits', icon: '🌐' },
+            order: { label: 'Online Orders / Bookings', icon: '🛒' },
+            review_social: { label: 'Reviews & Social', icon: '⭐' },
+            phone: { label: 'Phone Calls', icon: '📞' },
+            email: { label: 'Email Inquiries', icon: '✉️' },
+            map_directions: { label: 'Map Directions', icon: '📍' },
+            vip_takeover: { label: 'VIP Takeover Opens', icon: '👑' }
+          };
+          detailSec.innerHTML = `
+            <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:16px;margin-bottom:16px;">
+              <div style="font-size:13px;font-weight:800;color:#fff;margin-bottom:12px;">📱 Channel Attribution</div>
+              <div style="display:flex;gap:12px;">
+                <div style="flex:1;background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.25);border-radius:10px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;">
+                  <span style="font-size:12px;font-weight:600;color:#c4b5fd;">📱 Mobile App</span>
+                  <span style="font-size:15px;font-weight:800;color:#fff;">${(channels.app || 0).toLocaleString()}</span>
+                </div>
+                <div style="flex:1;background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.25);border-radius:10px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;">
+                  <span style="font-size:12px;font-weight:600;color:#93c5fd;">🌐 Web Directory</span>
+                  <span style="font-size:15px;font-weight:800;color:#fff;">${(channels.web || 0).toLocaleString()}</span>
+                </div>
+              </div>
+            </div>
+
+            <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:16px;margin-bottom:16px;">
+              <div style="font-size:13px;font-weight:800;color:#fff;margin-bottom:12px;">🔍 Itemized Consumer Actions</div>
+              <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;">
+                ${Object.keys(actionLabels).map(key => `
+                  <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:8px 12px;display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-size:12px;color:var(--mutedLight);">${actionLabels[key].icon} ${actionLabels[key].label}</span>
+                    <span style="font-size:13px;font-weight:700;color:#fff;">${(actions[key] || 0).toLocaleString()}</span>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          `;
+        }
+      }
+    }
+
+    function closeRoiModal() {
+      const modal = document.getElementById('modal-merchant-roi');
+      if (modal) modal.style.display = 'none';
+      _activeRoiData = null;
+    }
+
+    function exportTrafficSummaryCSV() {
+      if (!_trafficSummaryData || !_trafficSummaryData.merchants) {
+        alert('No traffic data available to export.');
+        return;
+      }
+      const merchants = _trafficSummaryData.merchants;
+      const headers = ['Merchant Name', 'Subscription Tier', 'Presence', 'Web Actions', 'App Actions', 'Total Actions', 'Website', 'Orders', 'Reviews', 'Calls', 'Emails', 'Map Directions', 'VIP Takeover'];
+      const rows = merchants.map(m => {
+        const bd = m.action_breakdown || {};
+        return [
+          `"${(m.merchant_name || '').replace(/"/g, '""')}"`,
+          m.subscription_tier || 'free',
+          m.business_presence || 'physical',
+          m.web_actions || 0,
+          m.app_actions || 0,
+          m.total_actions || 0,
+          bd.website || 0,
+          bd.order || 0,
+          bd.review_social || 0,
+          bd.phone || 0,
+          bd.email || 0,
+          bd.map_directions || 0,
+          bd.vip_takeover || 0
+        ].join(',');
+      });
+
+      const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows].join('\n');
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement('a');
+      link.setAttribute('href', encodedUri);
+      link.setAttribute('download', `perkfinity_traffic_attribution_${_trafficStartDate || 'all'}_to_${_trafficEndDate || 'all'}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function exportSingleMerchantCSV() {
+      if (!_activeRoiData) return;
+      const d = _activeRoiData;
+      const m = d.metrics || {};
+      const bd = m.actions_breakdown || {};
+      const ch = m.channels || {};
+      const headers = ['Merchant Name', 'Tier', 'Directory Views', 'Total Actions', 'In-Store Redemptions', 'App Actions', 'Web Actions', 'Website Clicks', 'Orders', 'Reviews', 'Calls', 'Emails', 'Directions', 'VIP Takeovers'];
+      const row = [
+        `"${(d.merchant_name || '').replace(/"/g, '""')}"`,
+        d.tier || 'free',
+        m.total_reach || 0,
+        m.total_actions || 0,
+        m.in_store_redemptions || 0,
+        ch.app || 0,
+        ch.web || 0,
+        bd.website || 0,
+        bd.order || 0,
+        bd.review_social || 0,
+        bd.phone || 0,
+        bd.email || 0,
+        bd.map_directions || 0,
+        bd.vip_takeover || 0
+      ].join(',');
+
+      const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), row].join('\n');
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement('a');
+      link.setAttribute('href', encodedUri);
+      link.setAttribute('download', `perkfinity_roi_${(d.merchant_name || 'store').toLowerCase().replace(/\s+/g, '_')}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
 
     // ══════════════════════════════════════════
@@ -10378,6 +11020,9 @@
       }
       if (name === 'contractors') {
         loadContractors();
+      }
+      if (name === 'traffic') {
+        loadTrafficSummary();
       }
     };
 
