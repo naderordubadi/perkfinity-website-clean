@@ -351,13 +351,228 @@
   </div>
 </div>
 
+<!-- ══════════════════════════════════════════════════════
+     MERCHANT TRAFFIC & ROI MODAL
+══════════════════════════════════════════════════════ -->
+<div id="merchant-traffic-modal" onclick="if(event.target===this)closeMerchantTrafficModal()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:11005;align-items:center;justify-content:center;padding:20px;">
+  <div style="width:100%;max-width:820px;max-height:90vh;overflow-y:auto;background:var(--card);border:1px solid var(--border);border-radius:18px;box-shadow:0 24px 80px rgba(0,0,0,0.4);padding:30px;box-sizing:border-box;">
+    
+    <!-- Header -->
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:20px;border-bottom:1px solid var(--border);padding-bottom:18px;">
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <h2 id="modal-traffic-business-name" style="font-size:22px;font-weight:900;color:var(--text);margin:0;">Store Name</h2>
+          <span id="modal-traffic-tier-badge" class="badge badge-active" style="font-size:11.5px;padding:3px 10px;">Starter</span>
+        </div>
+        <p style="font-size:13px;color:var(--muted);margin-top:4px;">Consumer reach, customer actions, and traffic attribution snapshot.</p>
+      </div>
+      <button onclick="closeMerchantTrafficModal()" style="background:none;border:none;color:var(--muted);font-size:26px;cursor:pointer;line-height:1;padding:0;">&times;</button>
+    </div>
+
+    <!-- Date Range & Controls -->
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:22px;">
+      <div style="display:flex;gap:8px;background:var(--card2);padding:4px;border-radius:10px;border:1px solid var(--border);">
+        <button id="pill-period-30" onclick="switchTrafficPeriod('30d')" style="padding:6px 14px;border-radius:7px;border:none;background:var(--brand);color:#fff;font-size:12px;font-weight:700;cursor:pointer;">Last 30 Days</button>
+        <button id="pill-period-all" onclick="switchTrafficPeriod('all')" style="padding:6px 14px;border-radius:7px;border:none;background:transparent;color:var(--muted);font-size:12px;font-weight:700;cursor:pointer;">All Time</button>
+      </div>
+      <div id="modal-traffic-period-label" style="font-size:12px;color:var(--muted);font-weight:600;"></div>
+    </div>
+
+    <!-- Rep Upsell Tip Banner (Shown for Starter/FFL, NOT Growth/Scale) -->
+    <div id="rep-upsell-banner" style="display:none;background:linear-gradient(135deg,rgba(91,63,165,0.22),rgba(124,92,194,0.12));border:1.5px solid #7c5cc2;border-radius:12px;padding:14px 18px;margin-bottom:22px;">
+      <div style="display:flex;align-items:flex-start;gap:12px;">
+        <span style="font-size:22px;line-height:1;flex-shrink:0;">💡</span>
+        <div>
+          <div style="font-size:13.5px;font-weight:800;color:#f1f5f9;margin-bottom:4px;">Here is an idea to help you upsell to this business and earn more!</div>
+          <div style="font-size:12.5px;color:#cbd5e1;line-height:1.45;">
+            This merchant is on the <strong>Starter</strong> subscription and only sees high-level totals on their dashboard. Share these itemized actions with them (calls, map directions, online orders) to encourage an upgrade to <strong>Growth</strong> or <strong>Scale</strong> to unlock full self-service intelligence — and boost your monthly recurring earnings!
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div id="modal-traffic-loading" style="display:flex;justify-content:center;align-items:center;min-height:180px;">
+      <div class="spinner"></div>
+    </div>
+
+    <!-- Content State -->
+    <div id="modal-traffic-body" style="display:none;">
+      <!-- 4 Core KPIs Grid -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:22px;">
+        <div class="kpi-card" style="padding:16px;">
+          <div class="kpi-label">TOTAL REACH</div>
+          <div class="kpi-value" id="kpi-reach-val" style="font-size:24px;">0</div>
+          <div class="kpi-sub">Storefront views</div>
+        </div>
+        <div class="kpi-card" style="padding:16px;--kpi-color:#22c55e;">
+          <div class="kpi-label">CUSTOMER ACTIONS</div>
+          <div class="kpi-value" id="kpi-actions-val" style="font-size:24px;color:#22c55e;">0</div>
+          <div class="kpi-sub">Direct intent actions</div>
+        </div>
+        <div class="kpi-card" style="padding:16px;--kpi-color:#a855f7;">
+          <div class="kpi-label">PERKS REDEEMED</div>
+          <div class="kpi-value" id="kpi-redemptions-val" style="font-size:24px;color:#a855f7;">0</div>
+          <div class="kpi-sub">In-store claims</div>
+        </div>
+        <div class="kpi-card" style="padding:16px;--kpi-color:#3b82f6;">
+          <div class="kpi-label">MEMBERS JOINED</div>
+          <div class="kpi-value" id="kpi-members-val" style="font-size:24px;color:#3b82f6;">0</div>
+          <div class="kpi-sub">VIP customers captured</div>
+        </div>
+      </div>
+
+      <!-- Promotional Placement & Boost Performance (Carousel & VIP) -->
+      <div id="rep-traffic-sponsor-card" style="background:linear-gradient(135deg,rgba(245,158,11,0.12),rgba(124,92,194,0.12));border:1.5px solid rgba(245,158,11,0.35);border-radius:14px;padding:16px 20px;margin-bottom:22px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+          <div style="font-size:13px;font-weight:800;color:#fbbf24;display:flex;align-items:center;gap:6px;">
+            <span>👑</span> Sponsorship &amp; Boost Performance
+          </div>
+          <span id="rep-traffic-sponsor-status" style="font-size:11px;font-weight:800;padding:2px 8px;border-radius:6px;background:rgba(34,197,94,0.15);color:#34d399;border:1px solid rgba(34,197,94,0.3);">Active Campaign</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;">
+          <div style="background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:12px 14px;text-align:center;">
+            <div style="font-size:22px;font-weight:900;color:#fff;" id="rep-sponsor-takeover-val">0</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.7);font-weight:600;margin-top:2px;">VIP Takeover Opens</div>
+          </div>
+          <div style="background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:12px 14px;text-align:center;">
+            <div style="font-size:22px;font-weight:900;color:#fff;" id="rep-sponsor-carousel-val">0</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.7);font-weight:600;margin-top:2px;">Top Carousel Clicks</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Channel Breakdown -->
+      <div style="background:var(--card2);border:1px solid var(--border);border-radius:14px;padding:18px 20px;margin-bottom:22px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-size:12.5px;font-weight:700;">
+          <span>📱 Mobile App: <strong id="channel-app-val">0</strong> (<span id="channel-app-pct">0%</span>)</span>
+          <span>💻 Web &amp; Directory: <strong id="channel-web-val">0</strong> (<span id="channel-web-pct">0%</span>)</span>
+        </div>
+        <div style="height:10px;background:rgba(255,255,255,0.06);border-radius:999px;overflow:hidden;display:flex;">
+          <div id="channel-app-bar" style="width:50%;background:#7c5cc2;transition:width 0.4s ease;"></div>
+          <div id="channel-web-bar" style="width:50%;background:#22c55e;transition:width 0.4s ease;"></div>
+        </div>
+      </div>
+
+      <!-- Itemized Customer Actions Grid -->
+      <div style="margin-bottom:24px;">
+        <div style="font-size:13px;font-weight:800;color:var(--text);margin-bottom:14px;">🎯 Itemized Customer Intent Actions</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;">
+          <div style="background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;">
+            <div>
+              <div style="font-size:11px;font-weight:700;color:var(--muted);">🛒 ONLINE ORDERS / BOOKINGS</div>
+              <div style="font-size:12px;color:var(--muted);margin-top:2px;">Direct checkout clicks</div>
+            </div>
+            <div id="act-order-val" style="font-size:20px;font-weight:900;color:var(--text);">0</div>
+          </div>
+          <div style="background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;">
+            <div>
+              <div style="font-size:11px;font-weight:700;color:var(--muted);">🌐 WEBSITE VISITS</div>
+              <div style="font-size:12px;color:var(--muted);margin-top:2px;">Store website traffic</div>
+            </div>
+            <div id="act-website-val" style="font-size:20px;font-weight:900;color:var(--text);">0</div>
+          </div>
+          <div style="background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;">
+            <div>
+              <div style="font-size:11px;font-weight:700;color:var(--muted);">📍 MAP DIRECTIONS</div>
+              <div style="font-size:12px;color:var(--muted);margin-top:2px;">In-person navigation</div>
+            </div>
+            <div id="act-map-val" style="font-size:20px;font-weight:900;color:var(--text);">0</div>
+          </div>
+          <div style="background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;">
+            <div>
+              <div style="font-size:11px;font-weight:700;color:var(--muted);">📞 PHONE CALLS</div>
+              <div style="font-size:12px;color:var(--muted);margin-top:2px;">Direct phone inquiries</div>
+            </div>
+            <div id="act-phone-val" style="font-size:20px;font-weight:900;color:var(--text);">0</div>
+          </div>
+          <div style="background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;">
+            <div>
+              <div style="font-size:11px;font-weight:700;color:var(--muted);">⭐ REVIEWS &amp; SOCIAL</div>
+              <div style="font-size:12px;color:var(--muted);margin-top:2px;">Yelp, Google, Social visits</div>
+            </div>
+            <div id="act-social-val" style="font-size:20px;font-weight:900;color:var(--text);">0</div>
+          </div>
+          <div style="background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;">
+            <div>
+              <div style="font-size:11px;font-weight:700;color:var(--muted);">✉️ EMAIL INQUIRIES</div>
+              <div style="font-size:12px;color:var(--muted);margin-top:2px;">Store contact inquiries</div>
+            </div>
+            <div id="act-email-val" style="font-size:20px;font-weight:900;color:var(--text);">0</div>
+          </div>
+          <div style="background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;">
+            <div>
+              <div style="font-size:11px;font-weight:700;color:var(--muted);">👑 VIP TAKEOVER OPENS</div>
+              <div style="font-size:12px;color:var(--muted);margin-top:2px;">VIP hero showcase views</div>
+            </div>
+            <div id="act-viptakeover-val" style="font-size:20px;font-weight:900;color:var(--text);">0</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Footer Buttons -->
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;border-top:1px solid var(--border);padding-top:20px;margin-top:10px;">
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button onclick="openEmailRoiModal()" style="padding:10px 18px;border-radius:10px;border:none;background:linear-gradient(135deg,#7c5cc2,#5b3fa5);color:#fff;font-size:13px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;gap:6px;">
+            ✉️ Email Report to Merchant
+          </button>
+          <button onclick="printMerchantTrafficPDF()" style="padding:10px 16px;border-radius:10px;border:1px solid var(--border);background:var(--card2);color:var(--text);font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;">
+            🖨️ Print / Save PDF
+          </button>
+          <button onclick="exportRepTrafficCSV()" style="padding:10px 16px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:13px;font-weight:700;cursor:pointer;">
+            📥 Export CSV
+          </button>
+        </div>
+        <button onclick="closeMerchantTrafficModal()" style="padding:10px 18px;border-radius:10px;border:1px solid var(--border);background:var(--card2);color:var(--text);font-size:13px;font-weight:700;cursor:pointer;">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Send ROI Email Modal -->
+<div id="rep-email-roi-modal" onclick="if(event.target===this)closeEmailRoiModal()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:11006;align-items:center;justify-content:center;padding:20px;">
+  <div style="width:100%;max-width:520px;background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.4);padding:26px;box-sizing:border-box;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+      <div style="font-size:17px;font-weight:800;color:var(--text);">✉️ Send Performance Report</div>
+      <button onclick="closeEmailRoiModal()" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:0;">&times;</button>
+    </div>
+
+    <div style="margin-bottom:14px;">
+      <div class="field-label">RECIPIENT EMAIL</div>
+      <input type="email" id="rep-send-to-email" class="field-input" placeholder="merchant@email.com">
+      <div style="font-size:11.5px;color:var(--muted);margin-top:4px;">Pre-filled from merchant profile. You can change this to the owner's personal email.</div>
+    </div>
+
+    <div style="margin-bottom:16px;">
+      <div class="field-label">PERSONAL NOTE (OPTIONAL)</div>
+      <textarea id="rep-send-note" class="field-input" rows="3" style="resize:vertical;" placeholder="Add a friendly note to your client..."></textarea>
+    </div>
+
+    <div style="margin-bottom:20px;display:flex;align-items:center;gap:8px;">
+      <input type="checkbox" id="rep-send-cc" checked style="accent-color:#7c5cc2;width:16px;height:16px;cursor:pointer;">
+      <label for="rep-send-cc" style="font-size:13px;color:var(--text);cursor:pointer;user-select:none;">CC me on this email (<span id="rep-cc-email-label"></span>)</label>
+    </div>
+
+    <div style="display:flex;justify-content:flex-end;gap:10px;">
+      <button onclick="closeEmailRoiModal()" style="padding:10px 16px;border-radius:10px;border:1px solid var(--border);background:var(--card2);color:var(--text);font-size:13px;font-weight:700;cursor:pointer;">Cancel</button>
+      <button id="btn-do-send-roi-email" onclick="submitSendRoiEmail()" style="padding:10px 20px;border-radius:10px;border:none;background:linear-gradient(135deg,#7c5cc2,#5b3fa5);color:#fff;font-size:13px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;gap:6px;">
+        🚀 Send Report Email
+      </button>
+    </div>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <script>
   'use strict';
 
-  // ── Config ──────────────────────────────────────────────────────────
-  const API_BASE = (window.PerkfinityConfig?.BACKEND_URL || 'http://localhost:3001') + '/api/v1';
+  const API_BASE = ((typeof PerkfinityConfig !== 'undefined' && PerkfinityConfig.BACKEND_URL)
+    ? PerkfinityConfig.BACKEND_URL
+    : (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:') ? 'http://localhost:3001' : 'https://perkfinity-backend.vercel.app')
+  ) + '/api/v1';
   const TOKEN_KEY = 'perkfinity_rep_token';
   const REP_KEY   = 'perkfinity_rep_data';
 
@@ -433,14 +648,16 @@
     // Load all data in parallel
     const token = getToken();
     const headers = { 'Authorization': 'Bearer ' + token };
-    const [profileR, merchantsR, earningsR, payoutsR, quotaR, territoryR] = await Promise.all([
+    const [profileR, merchantsR, earningsR, payoutsR, quotaR, territoryR, featuresR] = await Promise.all([
       fetch(API_BASE + '/rep/profile',   { headers }).then(r => r.json()).catch(() => null),
       fetch(API_BASE + '/rep/merchants', { headers }).then(r => r.json()).catch(() => null),
       fetch(API_BASE + '/rep/earnings',  { headers }).then(r => r.json()).catch(() => null),
       fetch(API_BASE + '/rep/payouts',   { headers }).then(r => r.json()).catch(() => null),
       fetch(API_BASE + '/rep/quota',     { headers }).then(r => r.json()).catch(() => null),
       fetch(API_BASE + '/rep/territory', { headers }).then(r => r.json()).catch(() => null),
+      fetch(API_BASE + '/features/public').then(r => r.json()).catch(() => null),
     ]);
+    window._roiRepsEnabled = featuresR?.roi_reps_enabled === true;
 
     // ── Profile ──────────────────────────────────────────────────────
     if (profileR?.success) {
@@ -470,10 +687,10 @@
       document.getElementById('merchants-content').innerHTML = `
         <div style="overflow-x:auto;">
           <table class="tbl">
-            <thead><tr><th>Business</th><th>Tier</th><th>Type</th><th>Pay Frequency</th><th>Est. Gross</th><th>Est. Commission</th><th>Status</th><th>Members</th><th>Since</th></tr></thead>
+            <thead><tr><th>Business</th><th>Tier</th><th>Type</th><th>Pay Frequency</th><th>Est. Gross</th><th>Est. Commission</th><th>Status</th><th>Members</th><th>Since</th>${window._roiRepsEnabled ? '<th>Actions</th>' : ''}</tr></thead>
             <tbody>
               ${merchants.map(m => {
-                const tierMap = { tier1:'Connect', free_for_life:'Free For Life', online_starter:'Starter', online_growth:'Growth', online_scale:'Scale', enterprise:'Enterprise', trial:'Free Trial', free_trial:'Free Trial', presetup_50: 'Pre-Setup' };
+                const tierMap = { tier1:'Starter', free_for_life:'Free For Life', online_starter:'Starter', online_growth:'Growth', online_scale:'Scale', enterprise:'Enterprise', trial:'Starter', free_trial:'Starter', presetup_50: 'Pre-Setup' };
                 const typeMap = { monthly:'Monthly', annual:'Annual', lifetime:'POUF' };
                 let freq = (m.billing_cycle === 'monthly') ? 'Recurring' : (m.billing_cycle === 'lifetime' || m.billing_cycle === 'annual') ? 'Single' : '—';
                 
@@ -500,9 +717,13 @@
                 const displayStatus = isPresetupUnclaimed ? 'UNCLAIMED' : ((m.application_status === 'pending') ? 'PENDING' : (m.billing_status || '—').toUpperCase());
                 const badgeClass = isPresetupUnclaimed ? 'pending' : (displayStatus === 'ACTIVE' ? 'active' : displayStatus === 'PENDING' ? 'pending' : 'inactive');
 
+                const contactEmail = m.owner_email || m.public_email || '';
+                const isPresetup = m.is_presetup || m.tier === 'presetup_50' || (m.tier && m.tier.startsWith('presetup'));
+                const displayTier = isPresetup ? `Pre-Setup (${m.member_limit || 50})` : (tierMap[m.tier] || (m.tier||'—').toUpperCase());
+
                 return `<tr>
                   <td style="font-weight:700;">${m.business_name || '—'}</td>
-                  <td><span class="badge badge-${m.tier}">${tierMap[m.tier] || (m.tier||'—').toUpperCase()}</span></td>
+                  <td><span class="badge badge-${m.tier}">${displayTier}</span></td>
                   <td><span style="font-size:12px;font-weight:700;color:var(--muted);">${typeMap[m.billing_cycle] || (m.billing_cycle||'—').toUpperCase()}</span></td>
                   <td><span style="font-size:12px;font-weight:700;color:var(--muted);">${freq}</span></td>
                   <td style="font-size:12px;font-weight:700;">${grossFmt}</td>
@@ -510,6 +731,11 @@
                   <td><span class="badge badge-${badgeClass}">${displayStatus}</span></td>
                   <td style="font-size:12px;font-weight:700;color:var(--text);">${m.member_count || 0}</td>
                   <td style="color:var(--muted);">${fmtDate(m.attributed_at)}</td>
+                  ${window._roiRepsEnabled ? `<td>
+                    <button onclick="openMerchantTrafficModal('${m.merchant_id}', '${encodeURIComponent(m.business_name || '')}', '${m.tier || ''}', '${encodeURIComponent(contactEmail)}', ${m.member_limit || 50})" style="padding:6px 12px;border-radius:8px;border:1px solid #7c5cc2;background:rgba(124,92,194,0.12);color:#7c5cc2;font-size:11.5px;font-weight:700;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:4px;transition:all 0.2s ease;">
+                      📊 Traffic &amp; ROI
+                    </button>
+                  </td>` : ''}
                 </tr>`;
               }).join('')}
             </tbody>
@@ -988,6 +1214,779 @@
     printWindow.document.close();
     printWindow.focus();
     setTimeout(() => { printWindow.print(); printWindow.close(); }, 250);
+  }
+
+  // ── Merchant Traffic & ROI Modal Functions ─────────────────────────
+  window.currentTrafficMerchant = null;
+  window.currentTrafficPeriod = '30d';
+  window.currentTrafficMetrics = null;
+
+  async function openMerchantTrafficModal(merchantId, encodedName, tier, encodedEmail, memberLimit = 50) {
+    if (window._roiRepsEnabled === false) {
+      showToast('⚠️ Traffic & ROI feature is currently disabled.');
+      return;
+    }
+    const businessName = decodeURIComponent(encodedName || 'Merchant');
+    const merchantEmail = decodeURIComponent(encodedEmail || '');
+
+    // Formatted tier badge (Starter, Growth, Scale, Free For Life, Enterprise, Pre-Setup)
+    const tierMap = {
+      tier1: 'Starter',
+      online_starter: 'Starter',
+      trial: 'Starter',
+      free_trial: 'Starter',
+      online_growth: 'Growth',
+      growth: 'Growth',
+      online_scale: 'Scale',
+      scale: 'Scale',
+      free_for_life: 'Free For Life',
+      enterprise: 'Enterprise'
+    };
+    const isPresetup = tier === 'presetup_50' || (tier && tier.startsWith('presetup'));
+    const displayTier = isPresetup ? `Pre-Setup (${memberLimit || 50})` : (tierMap[tier] || (tier ? tier.toUpperCase() : 'STARTER'));
+
+    window.currentTrafficMerchant = {
+      id: merchantId,
+      name: businessName,
+      tier: tier,
+      displayTier: displayTier,
+      memberLimit: memberLimit,
+      email: merchantEmail
+    };
+    window.currentTrafficPeriod = '30d';
+    window.currentTrafficMetrics = null;
+
+    document.getElementById('modal-traffic-business-name').textContent = businessName;
+
+    const badgeEl = document.getElementById('modal-traffic-tier-badge');
+    badgeEl.textContent = displayTier;
+    badgeEl.className = 'badge badge-' + (tier || 'online_starter');
+
+    // Rep Upsell Opportunity Banner: Show for Starter / Free For Life, hide for Growth / Scale
+    const isStarterOrFFL = ['starter', 'online_starter', 'tier1', 'trial', 'free_trial', 'free_for_life', 'free', 'presetup_50'].includes((tier || '').toLowerCase());
+    const upsellBanner = document.getElementById('rep-upsell-banner');
+    if (upsellBanner) {
+      upsellBanner.style.display = isStarterOrFFL ? 'block' : 'none';
+    }
+
+    // Reset period pill styles
+    updateTrafficPeriodPills('30d');
+
+    // Show modal
+    document.getElementById('merchant-traffic-modal').style.display = 'flex';
+
+    // Fetch data
+    await loadMerchantTrafficData(merchantId, '30d');
+  }
+
+  function closeMerchantTrafficModal() {
+    document.getElementById('merchant-traffic-modal').style.display = 'none';
+  }
+
+  function updateTrafficPeriodPills(period) {
+    const p30 = document.getElementById('pill-period-30');
+    const pAll = document.getElementById('pill-period-all');
+    if (period === '30d') {
+      p30.style.background = 'var(--brand)';
+      p30.style.color = '#fff';
+      pAll.style.background = 'transparent';
+      pAll.style.color = 'var(--muted)';
+    } else {
+      pAll.style.background = 'var(--brand)';
+      pAll.style.color = '#fff';
+      p30.style.background = 'transparent';
+      p30.style.color = 'var(--muted)';
+    }
+  }
+
+  async function switchTrafficPeriod(period) {
+    if (!window.currentTrafficMerchant) return;
+    window.currentTrafficPeriod = period;
+    updateTrafficPeriodPills(period);
+    await loadMerchantTrafficData(window.currentTrafficMerchant.id, period);
+  }
+
+  async function loadMerchantTrafficData(merchantId, period) {
+    const loadingEl = document.getElementById('modal-traffic-loading');
+    const bodyEl = document.getElementById('modal-traffic-body');
+    const labelEl = document.getElementById('modal-traffic-period-label');
+
+    loadingEl.style.display = 'flex';
+    bodyEl.style.display = 'none';
+
+    let startDateStr = '';
+    const now = new Date();
+    const endDateStr = now.toISOString().split('T')[0];
+
+    if (period === '30d') {
+      const past = new Date(Date.now() - 30 * 86400000);
+      startDateStr = past.toISOString().split('T')[0];
+      labelEl.textContent = `Showing: ${startDateStr} to ${endDateStr}`;
+    } else {
+      labelEl.textContent = `Showing: All Time (up to ${endDateStr})`;
+    }
+
+    try {
+      const query = new URLSearchParams({ merchant_id: merchantId });
+      if (startDateStr) query.append('start_date', startDateStr);
+      if (endDateStr) query.append('end_date', endDateStr);
+
+      const res = await fetch(`${API_BASE}/analytics/merchant-roi?${query.toString()}`, {
+        headers: {
+          'Authorization': `Bearer ${getToken()}`
+        }
+      });
+      const json = await res.json();
+
+      if (json.success && json.metrics) {
+        window.currentTrafficMetrics = json.metrics;
+        renderMerchantTrafficModal(json.metrics);
+        loadingEl.style.display = 'none';
+        bodyEl.style.display = 'block';
+      } else {
+        showToast('⚠️ Unable to load traffic metrics: ' + (json.error || 'Server error'));
+        loadingEl.style.display = 'none';
+      }
+    } catch (err) {
+      console.error('[loadMerchantTrafficData] error:', err);
+      showToast('❌ Connection error loading traffic metrics.');
+      loadingEl.style.display = 'none';
+    }
+  }
+
+  function renderMerchantTrafficModal(metrics) {
+    // 4 Core KPIs
+    document.getElementById('kpi-reach-val').textContent = (metrics.total_reach || 0).toLocaleString();
+    document.getElementById('kpi-actions-val').textContent = (metrics.total_actions || 0).toLocaleString();
+    document.getElementById('kpi-redemptions-val').textContent = (metrics.in_store_redemptions || 0).toLocaleString();
+    document.getElementById('kpi-members-val').textContent = (metrics.in_store_members_joined || 0).toLocaleString();
+
+    // Sponsorship & Boost Performance (Carousel & VIP)
+    const sp = metrics.sponsorship || {};
+    const spMetrics = sp.metrics || {};
+    const takeoverCount = Number(spMetrics.takeoverClicks || 0);
+    const carouselCount = Number(spMetrics.carouselClicks || 0);
+    const isCurrentlySponsored = !!sp.hasActiveAds;
+    const hasHistorical = !!sp.hasHistoricalAdActivity || takeoverCount > 0 || carouselCount > 0;
+
+    const sponsorStatus = document.getElementById('rep-traffic-sponsor-status');
+    const takeoverEl = document.getElementById('rep-sponsor-takeover-val');
+    const carouselEl = document.getElementById('rep-sponsor-carousel-val');
+
+    if (takeoverEl) takeoverEl.textContent = takeoverCount.toLocaleString();
+    if (carouselEl) carouselEl.textContent = carouselCount.toLocaleString();
+
+    if (sponsorStatus) {
+      if (isCurrentlySponsored) {
+        sponsorStatus.textContent = 'Active Campaign';
+        sponsorStatus.style.background = 'rgba(34,197,94,0.18)';
+        sponsorStatus.style.color = '#34d399';
+        sponsorStatus.style.borderColor = 'rgba(34,197,94,0.35)';
+      } else if (hasHistorical) {
+        sponsorStatus.textContent = 'Historical Campaign';
+        sponsorStatus.style.background = 'rgba(255,255,255,0.06)';
+        sponsorStatus.style.color = 'var(--muted)';
+        sponsorStatus.style.borderColor = 'rgba(255,255,255,0.1)';
+      } else {
+        sponsorStatus.textContent = 'No Active Ads';
+        sponsorStatus.style.background = 'rgba(255,255,255,0.04)';
+        sponsorStatus.style.color = 'var(--muted)';
+        sponsorStatus.style.borderColor = 'rgba(255,255,255,0.08)';
+      }
+    }
+
+    // Channels
+    const appViews = metrics.channels?.app || 0;
+    const webViews = metrics.channels?.web || 0;
+    const totalViews = appViews + webViews;
+    const appPct = totalViews > 0 ? Math.round((appViews / totalViews) * 100) : 50;
+    const webPct = totalViews > 0 ? (100 - appPct) : 50;
+
+    document.getElementById('channel-app-val').textContent = appViews.toLocaleString();
+    document.getElementById('channel-app-pct').textContent = (totalViews > 0 ? appPct : 0) + '%';
+    document.getElementById('channel-web-val').textContent = webViews.toLocaleString();
+    document.getElementById('channel-web-pct').textContent = (totalViews > 0 ? webPct : 0) + '%';
+
+    document.getElementById('channel-app-bar').style.width = (totalViews > 0 ? appPct : 50) + '%';
+    document.getElementById('channel-web-bar').style.width = (totalViews > 0 ? webPct : 50) + '%';
+
+    // Itemized Actions
+    const acts = metrics.actions_breakdown || {};
+    document.getElementById('act-order-val').textContent = (acts.order || 0).toLocaleString();
+    document.getElementById('act-website-val').textContent = (acts.website || 0).toLocaleString();
+    document.getElementById('act-map-val').textContent = (acts.map_directions || 0).toLocaleString();
+    document.getElementById('act-phone-val').textContent = (acts.phone || 0).toLocaleString();
+    document.getElementById('act-social-val').textContent = (acts.review_social || 0).toLocaleString();
+    document.getElementById('act-email-val').textContent = (acts.email || 0).toLocaleString();
+    const actVip = document.getElementById('act-viptakeover-val');
+    if (actVip) actVip.textContent = (acts.vip_takeover || takeoverCount).toLocaleString();
+  }
+
+  // ── Send Email ROI Modal Functions ──────────────────────────────────
+  function openEmailRoiModal() {
+    if (!window.currentTrafficMerchant) return;
+    const m = window.currentTrafficMerchant;
+    const rep = getRepData();
+
+    document.getElementById('rep-send-to-email').value = m.email || '';
+    document.getElementById('rep-cc-email-label').textContent = rep?.email || 'your email';
+    document.getElementById('rep-send-cc').checked = true;
+
+    document.getElementById('rep-send-note').value = 
+      `Hi ${m.name},\n\nHere is your latest customer traffic and ROI performance report from Perkfinity. Let me know if you would like to go over these metrics or discuss strategies to grow your customer reach!`;
+
+    document.getElementById('rep-email-roi-modal').style.display = 'flex';
+  }
+
+  function closeEmailRoiModal() {
+    document.getElementById('rep-email-roi-modal').style.display = 'none';
+  }
+
+  async function submitSendRoiEmail() {
+    if (!window.currentTrafficMerchant) return;
+    const toEmail = document.getElementById('rep-send-to-email').value.trim();
+    const personalNote = document.getElementById('rep-send-note').value.trim();
+    const ccRep = document.getElementById('rep-send-cc').checked;
+    const btn = document.getElementById('btn-do-send-roi-email');
+
+    if (!toEmail || !toEmail.includes('@')) {
+      showToast('⚠️ Please enter a valid recipient email address.');
+      return;
+    }
+
+    btn.disabled = true;
+    const originalBtnText = btn.innerHTML;
+    btn.innerHTML = '⏳ Sending Report…';
+
+    let startDateStr = null;
+    const now = new Date();
+    const endDateStr = now.toISOString().split('T')[0];
+    if (window.currentTrafficPeriod === '30d') {
+      const past = new Date(Date.now() - 30 * 86400000);
+      startDateStr = past.toISOString().split('T')[0];
+    }
+
+    try {
+      const res = await fetch(`${API_BASE}/analytics/merchant-roi/send-email`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${getToken()}`
+        },
+        body: JSON.stringify({
+          merchant_id: window.currentTrafficMerchant.id,
+          recipient_email: toEmail,
+          personal_note: personalNote,
+          cc_rep: ccRep,
+          start_date: startDateStr,
+          end_date: endDateStr
+        })
+      });
+
+      const json = await res.json();
+      if (json.success) {
+        showToast('✅ Report successfully emailed to ' + toEmail + (ccRep ? ' (and CC\'d to you)!' : '!'));
+        closeEmailRoiModal();
+      } else {
+        showToast('❌ ' + (json.error || 'Failed to send email.'));
+      }
+    } catch (e) {
+      console.error('[submitSendRoiEmail] error:', e);
+      showToast('❌ Connection error sending email report.');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = originalBtnText;
+    }
+  }
+
+  // ── Print / Save PDF Leave-Behind ───────────────────────────────────
+  function printMerchantTrafficPDF() {
+    if (!window.currentTrafficMerchant || !window.currentTrafficMetrics) {
+      showToast('⚠️ Please wait for metrics to finish loading.');
+      return;
+    }
+
+    const m = window.currentTrafficMerchant;
+    const rep = getRepData();
+    const metrics = window.currentTrafficMetrics;
+    const acts = metrics.actions_breakdown || {};
+    const periodLabel = window.currentTrafficPeriod === '30d' ? 'Last 30 Days' : 'All Time';
+
+    const escapeHtml = (str) => String(str || '').replace(/[&<>"']/g, s => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[s]));
+    const safeMerchantName = escapeHtml(m.name);
+    const safeRepName = escapeHtml(rep?.full_name || 'Partner Representative');
+    const safeRepEmail = rep?.email ? `(${escapeHtml(rep.email)})` : '';
+    const generatedDate = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+    const totalReach = metrics.total_reach || 0;
+    const totalActions = metrics.total_actions || 0;
+    const redemptions = metrics.in_store_redemptions || 0;
+    const membersJoined = metrics.in_store_members_joined || 0;
+
+    const appViews = metrics.channels?.app || 0;
+    const webViews = metrics.channels?.web || 0;
+    const totalViews = appViews + webViews;
+    const appPct = totalViews > 0 ? Math.round((appViews / totalViews) * 100) : 50;
+    const webPct = totalViews > 0 ? (100 - appPct) : 50;
+
+    const sp = metrics.sponsorship || {};
+    const spMetrics = sp.metrics || {};
+    const takeoverCount = Number(spMetrics.takeoverClicks || 0);
+    const carouselCount = Number(spMetrics.carouselClicks || 0);
+    const isCurrentlySponsored = !!sp.hasActiveAds;
+    const hasHistorical = !!sp.hasHistoricalAdActivity || takeoverCount > 0 || carouselCount > 0;
+
+    const printWin = window.open('', '_blank');
+    if (!printWin) {
+      showToast('⚠️ Popup blocked. Please allow popups to view/print report.');
+      return;
+    }
+
+    const htmlContent = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Perkfinity Traffic &amp; ROI Report - ${safeMerchantName}</title>
+  <style>
+    @page { size: portrait; margin: 16mm 14mm; }
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      color: #0f172a;
+      background: #f8fafc;
+      margin: 0;
+      padding: 0;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .no-print-bar {
+      position: sticky;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: #0f172a;
+      color: #fff;
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+      z-index: 9999;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    .no-print-bar .title {
+      font-size: 13.5px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .no-print-bar .hint {
+      font-size: 12px;
+      color: #94a3b8;
+      font-weight: 400;
+    }
+    .no-print-bar .actions {
+      display: flex;
+      gap: 10px;
+    }
+    .btn-print {
+      background: #7c5cc2;
+      color: #fff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 12.5px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-print:hover { background: #6947b0; }
+    .btn-close {
+      background: #334155;
+      color: #e2e8f0;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-close:hover { background: #475569; }
+    
+    .report-sheet {
+      max-width: 820px;
+      margin: 24px auto;
+      background: #fff;
+      padding: 36px 40px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+      border: 1px solid #e2e8f0;
+    }
+
+    @media print {
+      body { background: #fff !important; }
+      .no-print-bar { display: none !important; }
+      .report-sheet {
+        margin: 0 !important;
+        padding: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
+        max-width: 100% !important;
+      }
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 2px solid #5b3fa5;
+      padding-bottom: 16px;
+      margin-bottom: 20px;
+    }
+    .brand-title {
+      font-size: 24px;
+      font-weight: 900;
+      color: #5b3fa5;
+      letter-spacing: -0.5px;
+    }
+    .brand-sub {
+      font-size: 12px;
+      font-weight: 600;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .meta-block {
+      text-align: right;
+      font-size: 12px;
+      color: #475569;
+    }
+    .merchant-heading {
+      font-size: 20px;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 0 0 4px 0;
+    }
+    .section-title {
+      font-size: 13px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: #334155;
+      margin: 18px 0 10px 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .kpi-box {
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 14px 12px;
+      background: #f8fafc;
+      text-align: center;
+    }
+    .kpi-lbl {
+      font-size: 10.5px;
+      font-weight: 700;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      margin-bottom: 4px;
+    }
+    .kpi-val {
+      font-size: 22px;
+      font-weight: 900;
+      color: #0f172a;
+    }
+    .kpi-sub {
+      font-size: 11px;
+      color: #94a3b8;
+      margin-top: 2px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    th {
+      background: #f1f5f9;
+      text-align: left;
+      padding: 9px 12px;
+      font-size: 11.5px;
+      font-weight: 700;
+      color: #475569;
+      text-transform: uppercase;
+      border-bottom: 1px solid #cbd5e1;
+    }
+    td {
+      padding: 9px 12px;
+      border-bottom: 1px solid #e2e8f0;
+      font-size: 12.5px;
+      color: #1e293b;
+    }
+    tr:last-child td {
+      border-bottom: none;
+    }
+    .footer-note {
+      margin-top: 28px;
+      padding: 14px 16px;
+      background: #fdf4ff;
+      border-left: 4px solid #7c5cc2;
+      border-radius: 6px;
+      font-size: 12px;
+      color: #4c1d95;
+      line-height: 1.5;
+    }
+    .rep-signoff {
+      margin-top: 24px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 11.5px;
+      color: #64748b;
+      border-top: 1px solid #e2e8f0;
+      padding-top: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="no-print-bar">
+    <div class="title">
+      <span>📄 Perkfinity Report Preview</span>
+      <span class="hint">— View on screen or print/save as PDF</span>
+    </div>
+    <div class="actions">
+      <button class="btn-print" onclick="window.print()">🖨️ Print / Save PDF</button>
+      <button class="btn-close" onclick="window.close()">Close Tab</button>
+    </div>
+  </div>
+
+  <div class="report-sheet">
+    <div class="header">
+      <div>
+        <div class="brand-title">Perkfinity</div>
+        <div class="brand-sub">Traffic &amp; ROI Executive Intelligence Report</div>
+      </div>
+      <div class="meta-block">
+        <div><strong>Report Period:</strong> ${periodLabel}</div>
+        <div><strong>Generated:</strong> ${generatedDate}</div>
+      </div>
+    </div>
+
+    <div style="margin-bottom:18px;">
+      <h1 class="merchant-heading">${safeMerchantName}</h1>
+      <div style="font-size:12px;color:#64748b;">Attributed Partner Performance Summary</div>
+    </div>
+
+    <div class="section-title">📊 Executive Performance Summary</div>
+    <div class="kpi-grid">
+      <div class="kpi-box">
+        <div class="kpi-lbl">Total Reach</div>
+        <div class="kpi-val">${totalReach.toLocaleString()}</div>
+        <div class="kpi-sub">Storefront views</div>
+      </div>
+      <div class="kpi-box">
+        <div class="kpi-lbl">Customer Actions</div>
+        <div class="kpi-val" style="color:#16a34a;">${totalActions.toLocaleString()}</div>
+        <div class="kpi-sub">Direct intent actions</div>
+      </div>
+      <div class="kpi-box">
+        <div class="kpi-lbl">Perks Claimed</div>
+        <div class="kpi-val" style="color:#7c3aed;">${redemptions.toLocaleString()}</div>
+        <div class="kpi-sub">In-store redemptions</div>
+      </div>
+      <div class="kpi-box">
+        <div class="kpi-lbl">VIP Members</div>
+        <div class="kpi-val" style="color:#2563eb;">${membersJoined.toLocaleString()}</div>
+        <div class="kpi-sub">Joined customer club</div>
+      </div>
+    </div>
+
+    <div class="section-title">👑 Sponsorship &amp; Boost Performance</div>
+    <div style="background:#fffbeb;border:1.5px solid #fde68a;border-radius:10px;padding:14px 18px;margin-bottom:20px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <div style="font-size:12px;font-weight:800;color:#b45309;text-transform:uppercase;letter-spacing:0.5px;">Promotional Carousel &amp; VIP Placements</div>
+        <span style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:6px;${isCurrentlySponsored ? 'background:#dcfce7;color:#15803d;border:1px solid #bbf7d0;' : 'background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0;'}">${isCurrentlySponsored ? 'Active Campaign' : (hasHistorical ? 'Historical Campaign' : 'No Active Ads')}</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;">
+        <div style="background:#fff;border:1px solid #fef3c7;border-radius:8px;padding:12px;text-align:center;">
+          <div style="font-size:20px;font-weight:900;color:#92400e;">${takeoverCount.toLocaleString()}</div>
+          <div style="font-size:11px;color:#78350f;font-weight:600;margin-top:2px;">VIP Takeover Opens</div>
+        </div>
+        <div style="background:#fff;border:1px solid #fef3c7;border-radius:8px;padding:12px;text-align:center;">
+          <div style="font-size:20px;font-weight:900;color:#92400e;">${carouselCount.toLocaleString()}</div>
+          <div style="font-size:11px;color:#78350f;font-weight:600;margin-top:2px;">Top Carousel Clicks</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">📱 Channel Distribution</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Channel Platform</th>
+          <th style="text-align:right;">Views / Impressions</th>
+          <th style="text-align:right;">Share of Traffic</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>📱 Perkfinity Mobile App</strong> (iOS &amp; Android)</td>
+          <td style="text-align:right;">${appViews.toLocaleString()}</td>
+          <td style="text-align:right;">${totalViews > 0 ? appPct : 0}%</td>
+        </tr>
+        <tr>
+          <td><strong>💻 Perkfinity Web Directory</strong> (Desktop &amp; Mobile Web)</td>
+          <td style="text-align:right;">${webViews.toLocaleString()}</td>
+          <td style="text-align:right;">${totalViews > 0 ? webPct : 0}%</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="section-title">🎯 Itemized Customer Intent Actions</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Customer Action</th>
+          <th>Customer Intent Description</th>
+          <th style="text-align:right;">Count</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>🛒 Online Orders &amp; Bookings</td>
+          <td>Direct clicks to merchant ordering/booking URL</td>
+          <td style="text-align:right;font-weight:700;">${(acts.order || 0).toLocaleString()}</td>
+        </tr>
+        <tr>
+          <td>🌐 Store Website Visits</td>
+          <td>Clicks directly to store official website</td>
+          <td style="text-align:right;font-weight:700;">${(acts.website || 0).toLocaleString()}</td>
+        </tr>
+        <tr>
+          <td>📍 Map &amp; Navigation Directions</td>
+          <td>Turn-by-turn navigation clicks (Google Maps / Apple Maps)</td>
+          <td style="text-align:right;font-weight:700;">${(acts.map_directions || 0).toLocaleString()}</td>
+        </tr>
+        <tr>
+          <td>📞 Phone Calls</td>
+          <td>One-click phone calls to store line</td>
+          <td style="text-align:right;font-weight:700;">${(acts.phone || 0).toLocaleString()}</td>
+        </tr>
+        <tr>
+          <td>⭐ Review &amp; Social Inquiries</td>
+          <td>Clicks to Yelp, Google Reviews, Instagram, Facebook</td>
+          <td style="text-align:right;font-weight:700;">${(acts.review_social || 0).toLocaleString()}</td>
+        </tr>
+        <tr>
+          <td>✉️ Email Inquiries</td>
+          <td>Direct customer email inquiries to merchant</td>
+          <td style="text-align:right;font-weight:700;">${(acts.email || 0).toLocaleString()}</td>
+        </tr>
+        <tr>
+          <td>👑 VIP Takeover Opens</td>
+          <td>VIP hero showcase views and interactions</td>
+          <td style="text-align:right;font-weight:700;">${(acts.vip_takeover || takeoverCount).toLocaleString()}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="footer-note">
+      <strong>Perkfinity Growth Recommendation:</strong><br>
+      High intent actions like map directions, phone calls, and online orders indicate real purchasing customers. Upgrading to Perkfinity Growth or Scale allows you to configure automated loyalty triggers, VIP rewards, and customer takeover spotlights.
+    </div>
+
+    <div class="rep-signoff">
+      <div>Prepared by Perkfinity Partner Representative: <strong>${safeRepName}</strong> ${safeRepEmail}</div>
+      <div>www.perkfinity.com</div>
+    </div>
+  </div>
+</body>
+</html>`;
+
+    printWin.document.open();
+    printWin.document.write(htmlContent);
+    printWin.document.close();
+    printWin.focus();
+
+    setTimeout(() => {
+      printWin.print();
+    }, 350);
+  }
+
+  // ── Export CSV Function ─────────────────────────────────────────────
+  function exportRepTrafficCSV() {
+    if (!window.currentTrafficMerchant || !window.currentTrafficMetrics) {
+      showToast('⚠️ Please wait for metrics to finish loading.');
+      return;
+    }
+
+    const m = window.currentTrafficMerchant;
+    const metrics = window.currentTrafficMetrics;
+    const acts = metrics.actions_breakdown || {};
+    const periodLabel = window.currentTrafficPeriod === '30d' ? 'Last 30 Days' : 'All Time';
+
+    const sp = metrics.sponsorship || {};
+    const spMetrics = sp.metrics || {};
+    const takeoverCount = Number(spMetrics.takeoverClicks || 0);
+    const carouselCount = Number(spMetrics.carouselClicks || 0);
+    const isCurrentlySponsored = !!sp.hasActiveAds;
+    const hasHistorical = !!sp.hasHistoricalAdActivity || takeoverCount > 0 || carouselCount > 0;
+
+    const rows = [
+      ['Merchant Name', `"${m.name.replace(/"/g, '""')}"`],
+      ['Tier', `"${m.displayTier || m.tier || 'Starter'}"`],
+      ['Report Period', `"${periodLabel}"`],
+      ['Export Date', `"${new Date().toISOString().split('T')[0]}"`],
+      [],
+      ['Metric', 'Value'],
+      ['Total Reach (Impressions)', metrics.total_reach || 0],
+      ['Total Customer Actions', metrics.total_actions || 0],
+      ['Perks Redeemed', metrics.in_store_redemptions || 0],
+      ['VIP Members Joined', metrics.in_store_members_joined || 0],
+      [],
+      ['Promotional Placement & Boost', 'Value'],
+      ['Campaign Status', isCurrentlySponsored ? 'Active Campaign' : (hasHistorical ? 'Historical Campaign' : 'No Active Ads')],
+      ['VIP Takeover Opens', takeoverCount],
+      ['Top Carousel Clicks', carouselCount],
+      [],
+      ['Channel Platform', 'Views'],
+      ['Mobile App (iOS/Android)', metrics.channels?.app || 0],
+      ['Web & Directory', metrics.channels?.web || 0],
+      [],
+      ['Itemized Customer Action', 'Count'],
+      ['Online Orders / Bookings', acts.order || 0],
+      ['Website Visits', acts.website || 0],
+      ['Map Directions', acts.map_directions || 0],
+      ['Phone Calls', acts.phone || 0],
+      ['Review & Social Visits', acts.review_social || 0],
+      ['Email Inquiries', acts.email || 0],
+      ['VIP Takeover Opens', acts.vip_takeover || takeoverCount]
+    ];
+
+    const csvContent = rows.map(r => r.join(',')).join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const safeName = m.name.replace(/[^a-zA-Z0-9_-]/g, '_');
+    a.download = `Perkfinity_Traffic_Report_${safeName}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('📥 CSV exported successfully!');
   }
 </script>
 </body>

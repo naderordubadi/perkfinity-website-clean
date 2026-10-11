@@ -15,6 +15,16 @@ window.buildAttributedUrl = function(rawUrl, medium = 'web_referral', campaign =
   }
 };
 
+window.getAttributionBackendUrl = function() {
+  if (typeof PerkfinityConfig !== 'undefined' && PerkfinityConfig.BACKEND_URL) return PerkfinityConfig.BACKEND_URL;
+  if (typeof API_BASE_URL !== 'undefined') return API_BASE_URL;
+  if (typeof BACKEND !== 'undefined') return BACKEND;
+  if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+    return 'http://localhost:3001';
+  }
+  return 'https://perkfinity-backend.vercel.app';
+};
+
 window.trackOutboundClick = function(merchantId, actionType, targetUrl, source = 'web_localperks', platform = 'web') {
   if (!merchantId || !actionType) return;
   const payload = JSON.stringify({
@@ -25,7 +35,7 @@ window.trackOutboundClick = function(merchantId, actionType, targetUrl, source =
     target_url: targetUrl || null
   });
 
-  const apiUrl = (typeof API_BASE_URL !== 'undefined' ? API_BASE_URL : 'https://perkfinity-backend.vercel.app') + '/api/v1/analytics/outbound-click';
+  const apiUrl = window.getAttributionBackendUrl() + '/api/v1/analytics/outbound-click';
 
   if (typeof navigator !== 'undefined' && navigator.sendBeacon) {
     const blob = new Blob([payload], { type: 'application/json' });
@@ -232,8 +242,8 @@ window.openPopup = function(merchant) {
   const initials = businessName.split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
   
   let contactParts = [];
-  if (merchant.public_phone) contactParts.push(`<a href="tel:${merchant.public_phone}" style="color:var(--purple);font-weight:700;text-decoration:none;">📞 Call Business</a>`);
-  if (merchant.public_email) contactParts.push(`<a href="mailto:${merchant.public_email}" style="color:var(--purple);font-weight:700;text-decoration:none;">✉️ Email Business</a>`);
+  if (merchant.public_phone) contactParts.push(`<a href="tel:${merchant.public_phone}" onclick="window.trackOutboundClick('${merchant.id}', 'phone', 'tel:${merchant.public_phone}', 'web_localperks')" style="color:var(--purple);font-weight:700;text-decoration:none;">📞 Call Business</a>`);
+  if (merchant.public_email) contactParts.push(`<a href="mailto:${merchant.public_email}" onclick="window.trackOutboundClick('${merchant.id}', 'email', 'mailto:${merchant.public_email}', 'web_localperks')" style="color:var(--purple);font-weight:700;text-decoration:none;">✉️ Email Business</a>`);
   const contactHtml = contactParts.length > 0 ? `<div style="margin-top:6px;font-size:12.5px;display:flex;gap:10px;flex-wrap:wrap;">${contactParts.join('<span style="color:var(--muted)">•</span>')}</div>` : '';
 
   const logoHtml = merchant.logo_url

@@ -715,9 +715,11 @@
 
     <!-- Shared Modal Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
-  <script src="assets/js/merchant-modals.js?v=1.8"></script>
-  <script>
-    const BACKEND = (typeof PerkfinityConfig !== 'undefined') ? PerkfinityConfig.BACKEND_URL : 'https://perkfinity-backend.vercel.app';
+    <script src="assets/js/merchant-modals.js?v=1.8"></script>
+    <script>
+    const BACKEND = (typeof PerkfinityConfig !== 'undefined' && PerkfinityConfig.BACKEND_URL)
+      ? PerkfinityConfig.BACKEND_URL
+      : (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? 'http://localhost:3001' : 'https://perkfinity-backend.vercel.app');
     // Multi-value tag arrays (optional power feature — add multiple cities/zips)
     const extraCities = [], extraZips = [];
     let activePresence = 'all';
@@ -869,7 +871,12 @@
 
           const row = document.createElement('article');
           row.className = 'merchant-row';
-          row.onclick = () => openPopup(m);
+          row.onclick = () => {
+            if (typeof window.trackOutboundClick === 'function') {
+              window.trackOutboundClick(m.id, 'view', null, 'web_localperks', 'web');
+            }
+            openPopup(m);
+          };
           row.innerHTML = `
             ${coverHtml}
             <div class="merch-card-top">
@@ -884,7 +891,7 @@
             </div>
             <div class="merch-card-body">
               <div class="merch-offer">${m.welcome_offer_text || 'Exclusive member perk'}</div>
-              <button class="join-btn" onclick="event.stopPropagation();openPopupById('${m.id}')">Get Perk →</button>
+              <button class="join-btn" onclick="event.stopPropagation();if(typeof window.trackOutboundClick==='function'){window.trackOutboundClick('${m.id}','view',null,'web_localperks','web');}openPopupById('${m.id}')">Get Perk →</button>
             </div>`;
           listEl.appendChild(row);
         });
@@ -1004,8 +1011,13 @@
                 </div>
               </div>
             `;
-            // Re-use openPopup for carousel items too!
-            item.onclick = () => openPopup(m);
+            // Re-use openPopup for carousel items too, and track carousel click!
+            item.onclick = () => {
+              if (typeof window.trackOutboundClick === 'function') {
+                window.trackOutboundClick(m.id, 'view', null, 'web_sponsored', 'web');
+              }
+              openPopup(m);
+            };
             track.appendChild(item);
           });
 

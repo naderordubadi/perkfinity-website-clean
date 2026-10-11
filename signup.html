@@ -645,7 +645,7 @@
           <!-- Hidden elements to generate source QR and Logo for templates -->
           <div style="position: absolute; left: -9999px; top: -9999px; visibility: hidden;">
             <div id="qr-canvas-target"></div>
-            <img id="printLogoImg" src="">
+            <img id="printLogoImg">
             <div id="poster-store">Store Name</div>
             <div id="poster-perk">Your Welcome Offer</div>
           </div>
@@ -1221,8 +1221,10 @@
 
       const storeName = (document.getElementById('poster-store')?.innerText || localStorage.getItem('perkfinity_business_name') || 'Store Name').trim();
       const perk = (document.getElementById('poster-perk')?.innerText || localStorage.getItem('perkfinity_welcome_offer_text') || localStorage.getItem('perkfinity_member_perk') || 'Your Welcome Offer').trim();
-      const rawLogo = document.getElementById('printLogoImg')?.src || '';
-      const logoImg = (rawLogo && !rawLogo.includes('Perkfinity-App-Icon')) ? rawLogo : '';
+      const printLogoEl = document.getElementById('printLogoImg');
+      const rawLogo = (printLogoEl?.dataset?.src || printLogoEl?.getAttribute('src') || '').trim();
+      const isRealLogo = rawLogo && !rawLogo.includes('Perkfinity-App-Icon') && !rawLogo.endsWith('.html') && !rawLogo.includes(window.location.pathname);
+      const logoImg = isRealLogo ? rawLogo : '';
       const qrImg = document.getElementById('qr-canvas-target')?.querySelector('img')?.src
         || document.getElementById('qr-canvas-target')?.querySelector('canvas')?.toDataURL() || '';
 
@@ -1234,8 +1236,10 @@
       variant = variant || 'square1';
       const storeName = (document.getElementById('poster-store')?.innerText || localStorage.getItem('perkfinity_business_name') || 'Store Name').trim();
       const perk = (document.getElementById('poster-perk')?.innerText || localStorage.getItem('perkfinity_welcome_offer_text') || localStorage.getItem('perkfinity_member_perk') || 'Your Welcome Offer').trim();
-      const rawLogo = document.getElementById('printLogoImg')?.src || '';
-      const logoImg = (rawLogo && !rawLogo.includes('Perkfinity-App-Icon')) ? rawLogo : '';
+      const printLogoEl = document.getElementById('printLogoImg');
+      const rawLogo = (printLogoEl?.dataset?.src || printLogoEl?.getAttribute('src') || '').trim();
+      const isRealLogo = rawLogo && !rawLogo.includes('Perkfinity-App-Icon') && !rawLogo.endsWith('.html') && !rawLogo.includes(window.location.pathname);
+      const logoImg = isRealLogo ? rawLogo : '';
       const qrImg = document.getElementById('qr-canvas-target')?.querySelector('img')?.src
         || document.getElementById('qr-canvas-target')?.querySelector('canvas')?.toDataURL() || '';
 
@@ -2100,7 +2104,11 @@
         document.getElementById('logoUploadPrompt').style.display = 'none';
         const logoNote = document.getElementById('signup-logo-note');
         if (logoNote) logoNote.style.display = 'none';
-        document.getElementById('printLogoImg').src = uploadedLogoBase64;
+        const printLogoEl = document.getElementById('printLogoImg');
+        if (printLogoEl) {
+          printLogoEl.src = uploadedLogoBase64;
+          printLogoEl.dataset.src = uploadedLogoBase64;
+        }
 
         // QR preview + wide logo check
         const img = new Image();
@@ -2165,7 +2173,10 @@
         const finishBtn = document.getElementById('btnFinish');
         if (finishBtn) { finishBtn.disabled = false; finishBtn.style.opacity = ''; finishBtn.style.cursor = ''; }
         const printImg = document.getElementById('printLogoImg');
-        if (printImg) printImg.src = '';
+        if (printImg) {
+          printImg.removeAttribute('src');
+          printImg.dataset.src = '';
+        }
         document.getElementById('logoUpload').value = '';
       }
 
@@ -2329,7 +2340,13 @@
         const printLogo = document.getElementById('printLogoImg');
         if (printLogo) {
           const logoCandidate = uploadedLogoBase64 || localStorage.getItem('perkfinity_logo_url') || '';
-          printLogo.src = (!logoCandidate.includes('Perkfinity-App-Icon')) ? logoCandidate : '';
+          if (logoCandidate && !logoCandidate.includes('Perkfinity-App-Icon')) {
+            printLogo.src = logoCandidate;
+            printLogo.dataset.src = logoCandidate;
+          } else {
+            printLogo.removeAttribute('src');
+            printLogo.dataset.src = '';
+          }
         }
 
         // Generate the physical QR Code using client-side library

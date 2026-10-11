@@ -158,6 +158,73 @@
     .toolbar-btn.primary:hover { opacity:0.9; }
     .toolbar-btn.green { background:rgba(107,193,122,0.15); border-color:rgba(107,193,122,0.3); color:var(--green); }
 
+    /* Segmented Period Controls (Purple Pill Styling) */
+    .period-btn-group {
+      display: inline-flex;
+      align-items: center;
+      background: rgba(139, 92, 246, 0.08);
+      border: 1px solid rgba(139, 92, 246, 0.22);
+      border-radius: 12px;
+      padding: 4px;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+    .chart-period-btn {
+      background: transparent;
+      color: #c4b5fd;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      padding: 7px 14px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: 'Outfit', sans-serif;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+      white-space: nowrap;
+    }
+    .chart-period-btn:hover {
+      background: rgba(139, 92, 246, 0.18);
+      color: #ffffff;
+      border-color: rgba(139, 92, 246, 0.35);
+    }
+    .chart-period-btn.active {
+      background: linear-gradient(135deg, #8B5CF6, #6D28D9);
+      color: #ffffff;
+      border-color: transparent;
+      box-shadow: 0 2px 10px rgba(139, 92, 246, 0.4);
+      font-weight: 800;
+    }
+    .custom-date-box {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(139, 92, 246, 0.08);
+      border: 1px solid rgba(139, 92, 246, 0.22);
+      border-radius: 12px;
+      padding: 4px 12px;
+      flex-wrap: wrap;
+    }
+    .custom-date-input {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(139, 92, 246, 0.3);
+      border-radius: 8px;
+      color: #ffffff;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-family: 'Outfit', sans-serif;
+      color-scheme: dark;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .custom-date-input:focus {
+      border-color: #8b5cf6;
+      box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+    }
+
     /* Data Table */
     .table-wrap {
       background:var(--bgCard); border:1px solid var(--border); border-radius:var(--radius);
@@ -484,6 +551,52 @@
     .tag-picker-item:hover { background:rgba(255,255,255,0.06); color:#fff; }
     .tag-picker-item.checked { color:#fff; background:rgba(139,92,246,0.1); }
     .tag-picker-item input[type=checkbox] { accent-color:var(--purple); width:14px; height:14px; cursor:pointer; flex-shrink:0; }
+
+    /* Modern Switch Toggle */
+    .switch-toggle {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 24px;
+      flex-shrink: 0;
+    }
+    .switch-toggle input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+      position: absolute;
+    }
+    .switch-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #334155;
+      transition: all 0.25s ease;
+      border-radius: 24px;
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+    .switch-slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 2px;
+      bottom: 2px;
+      background-color: white;
+      transition: all 0.25s ease;
+      border-radius: 50%;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.35);
+    }
+    .switch-toggle input:checked + .switch-slider {
+      background-color: var(--green);
+      border-color: rgba(107,193,122,0.4);
+    }
+    .switch-toggle input:checked + .switch-slider:before {
+      transform: translateX(20px);
+    }
+    .switch-toggle input:focus + .switch-slider {
+      box-shadow: 0 0 1px var(--green);
+    }
   </style>
 </head>
 <body>
@@ -798,9 +911,9 @@
         <!-- Tier Preview Switcher for Admin -->
         <div style="display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);padding:10px 14px;border-radius:12px;margin-bottom:20px;">
           <span style="font-size:12px;font-weight:700;color:var(--mutedLight);">Preview Mode:</span>
-          <div style="display:flex;gap:6px;">
-            <button id="btn-roi-mode-basic" onclick="switchRoiPreviewMode('basic')" class="chart-period-btn" style="padding:4px 12px;font-size:11px;">Basic (Free / Starter)</button>
-            <button id="btn-roi-mode-detailed" onclick="switchRoiPreviewMode('detailed')" class="chart-period-btn active" style="padding:4px 12px;font-size:11px;">Detailed (Growth / Scale)</button>
+          <div class="period-btn-group">
+            <button id="btn-roi-mode-basic" onclick="switchRoiPreviewMode('basic')" class="chart-period-btn" style="padding:5px 12px;font-size:11px;">Basic (Free / Starter)</button>
+            <button id="btn-roi-mode-detailed" onclick="switchRoiPreviewMode('detailed')" class="chart-period-btn active" style="padding:5px 12px;font-size:11px;">Detailed (Growth / Scale)</button>
           </div>
         </div>
 
@@ -843,6 +956,15 @@
             <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;" id="roi-actions-grid">
               <!-- Injected dynamically -->
             </div>
+          </div>
+        </div>
+
+        <!-- Locked Breakdown Teaser (Shown in Basic Mode) -->
+        <div id="roi-locked-section" style="display:none;background:rgba(255,255,255,0.02);border:1px dashed rgba(255,255,255,0.15);border-radius:14px;padding:24px;text-align:center;margin-bottom:16px;">
+          <div style="font-size:24px;margin-bottom:6px;">🔒</div>
+          <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:4px;">Itemized Multi-Channel Breakdown (Tier 2 Feature)</div>
+          <div style="font-size:11px;color:var(--mutedLight);max-width:440px;margin:0 auto;line-height:1.5;">
+            Starter &amp; Free merchants see high-level combined actions. Itemized per-action channel attribution and automated monthly email reporting unlock automatically on Growth ($299/mo) and Scale ($499/mo).
           </div>
         </div>
 
@@ -1283,22 +1405,64 @@
           </div>
         </div>
 
+        <!-- Feature Visibility & Rollout Toggles -->
+        <div class="section-card" style="margin-bottom:20px; padding:18px 24px; background:linear-gradient(135deg, rgba(139,92,246,0.12) 0%, rgba(15,23,42,0.6) 100%); border:1px solid rgba(139,92,246,0.25); border-radius:var(--radius);">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+            <div>
+              <div style="font-size:15px; font-weight:800; color:#fff; display:flex; align-items:center; gap:8px;">
+                <span>🚀 Traffic &amp; ROI Feature Rollout Controls</span>
+                <span id="roi-toggles-status-badge" style="font-size:11px; font-weight:700; padding:2px 8px; border-radius:6px; background:rgba(255,255,255,0.08); color:var(--muted);">Checking status...</span>
+              </div>
+              <div style="font-size:12px; color:var(--muted); margin-top:3px;">
+                Independent global toggles to enable or hide Traffic &amp; ROI analytics for external portals. Admin dashboard always retains access.
+              </div>
+            </div>
+
+            <!-- Toggles Group -->
+            <div style="display:flex; gap:16px; align-items:center; flex-wrap:wrap;">
+              <!-- Toggle 1: Sales Reps -->
+              <div style="display:flex; align-items:center; gap:12px; background:rgba(255,255,255,0.04); padding:8px 14px; border-radius:10px; border:1px solid rgba(255,255,255,0.08);">
+                <div>
+                  <div style="font-size:13px; font-weight:700; color:#fff;">Sales Reps Portal</div>
+                  <div style="font-size:11px; color:var(--muted);" id="roi-rep-toggle-label">Disabled (Hidden)</div>
+                </div>
+                <label class="switch-toggle" style="margin:0;">
+                  <input type="checkbox" id="roi-toggle-reps" onchange="handleRoiToggleChange('reps', this.checked)">
+                  <span class="switch-slider"></span>
+                </label>
+              </div>
+
+              <!-- Toggle 2: Merchants -->
+              <div style="display:flex; align-items:center; gap:12px; background:rgba(255,255,255,0.04); padding:8px 14px; border-radius:10px; border:1px solid rgba(255,255,255,0.08);">
+                <div>
+                  <div style="font-size:13px; font-weight:700; color:#fff;">Merchant Dashboard</div>
+                  <div style="font-size:11px; color:var(--muted);" id="roi-merchant-toggle-label">Disabled (Hidden)</div>
+                </div>
+                <label class="switch-toggle" style="margin:0;">
+                  <input type="checkbox" id="roi-toggle-merchants" onchange="handleRoiToggleChange('merchants', this.checked)">
+                  <span class="switch-slider"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Date Range Filter Bar -->
         <div class="section-card" style="margin-bottom:20px; padding:16px 20px;">
           <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
-            <div style="display:flex; gap:6px; flex-wrap:wrap;">
+            <div class="period-btn-group">
               <button class="chart-period-btn active" id="btn-traffic-all" onclick="setTrafficPreset('all')">All Time</button>
               <button class="chart-period-btn" id="btn-traffic-today" onclick="setTrafficPreset('today')">Today</button>
               <button class="chart-period-btn" id="btn-traffic-7d" onclick="setTrafficPreset('7d')">Last 7 Days</button>
               <button class="chart-period-btn" id="btn-traffic-30d" onclick="setTrafficPreset('30d')">Last 30 Days</button>
               <button class="chart-period-btn" id="btn-traffic-this_month" onclick="setTrafficPreset('this_month')">This Month</button>
             </div>
-            <div style="display:flex; align-items:center; gap:8px;">
-              <span style="font-size:12px; font-weight:700; color:var(--mutedLight);">Custom Range:</span>
-              <input type="date" id="traffic-start-date" class="form-input" style="padding:6px 10px; font-size:12px; border-radius:8px; width:auto;" />
-              <span style="color:var(--mutedLight); font-size:12px;">to</span>
-              <input type="date" id="traffic-end-date" class="form-input" style="padding:6px 10px; font-size:12px; border-radius:8px; width:auto;" />
-              <button class="toolbar-btn" onclick="applyCustomTrafficDate()" style="padding:6px 12px; font-size:12px;">Apply</button>
+            <div class="custom-date-box">
+              <span style="font-size:12px; font-weight:700; color:#c4b5fd;">Custom Range:</span>
+              <input type="date" id="traffic-start-date" class="custom-date-input" />
+              <span style="color:#a78bfa; font-size:12px; font-weight:600;">to</span>
+              <input type="date" id="traffic-end-date" class="custom-date-input" />
+              <button class="toolbar-btn primary" onclick="applyCustomTrafficDate()" style="padding:6px 14px; font-size:12px; border-radius:8px;">Apply</button>
             </div>
           </div>
         </div>
@@ -3049,7 +3213,8 @@
       document.getElementById('detail-title').textContent = m.business_name || 'Merchant Details';
 
       let tierLabel = '—';
-      if (m.tier === 'tier1') tierLabel = 'Connect';
+      if (m.is_presetup || m.tier === 'presetup_50' || (m.tier && m.tier.startsWith('presetup'))) tierLabel = `Pre-Setup (${m.member_limit || 50})`;
+      else if (m.tier === 'tier1') tierLabel = 'Connect';
       else if (m.tier === 'free_for_life') tierLabel = 'Free For Life';
       else if (m.tier === 'online_starter') tierLabel = 'Starter';
       else if (m.tier === 'online_growth') tierLabel = 'Growth';
@@ -4402,7 +4567,10 @@
       if (name === 'applications') loadApplications();
       if (name === 'enterprise') loadEnterpriseInquiries();
       if (name === 'presetup') loadPresetupMerchants();
-      if (name === 'traffic') loadTrafficSummary();
+      if (name === 'traffic') {
+        loadTrafficSummary();
+        loadRoiToggles();
+      }
     }
 
     // ════════════════════════════════════════════════════════════════
@@ -4413,6 +4581,99 @@
     let _trafficEndDate = '';
     let _activeRoiData = null;
     let _roiPreviewMode = 'detailed';
+
+    // ── ROI Feature Access Toggles ─────────────────────────────────
+    async function loadRoiToggles() {
+      try {
+        const badge = document.getElementById('roi-toggles-status-badge');
+        const res = await adminFetch('/admin/settings/roi-toggles');
+        if (res && res.success) {
+          const repsCheckbox = document.getElementById('roi-toggle-reps');
+          const merchantsCheckbox = document.getElementById('roi-toggle-merchants');
+          const repsLabel = document.getElementById('roi-rep-toggle-label');
+          const merchantsLabel = document.getElementById('roi-merchant-toggle-label');
+
+          if (repsCheckbox) repsCheckbox.checked = !!res.roi_reps_enabled;
+          if (merchantsCheckbox) merchantsCheckbox.checked = !!res.roi_merchants_enabled;
+
+          if (repsLabel) {
+            repsLabel.textContent = res.roi_reps_enabled ? 'Active (Visible to Reps)' : 'Disabled (Hidden from Reps)';
+            repsLabel.style.color = res.roi_reps_enabled ? 'var(--green)' : 'var(--muted)';
+          }
+          if (merchantsLabel) {
+            merchantsLabel.textContent = res.roi_merchants_enabled ? 'Active (Visible to Merchants)' : 'Disabled (Hidden from Merchants)';
+            merchantsLabel.style.color = res.roi_merchants_enabled ? 'var(--green)' : 'var(--muted)';
+          }
+
+          if (badge) {
+            const bothActive = res.roi_reps_enabled && res.roi_merchants_enabled;
+            const anyActive = res.roi_reps_enabled || res.roi_merchants_enabled;
+            if (bothActive) {
+              badge.textContent = 'Live Everywhere';
+              badge.style.background = 'rgba(107,193,122,0.2)';
+              badge.style.color = 'var(--green)';
+            } else if (anyActive) {
+              badge.textContent = 'Phased Rollout';
+              badge.style.background = 'rgba(245,158,11,0.2)';
+              badge.style.color = 'var(--amber)';
+            } else {
+              badge.textContent = 'Admin Only (Internal)';
+              badge.style.background = 'rgba(139,92,246,0.2)';
+              badge.style.color = 'var(--purple)';
+            }
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load ROI toggles:', err);
+      }
+    }
+
+    async function handleRoiToggleChange(type, isEnabled) {
+      const repsLabel = document.getElementById('roi-rep-toggle-label');
+      const merchantsLabel = document.getElementById('roi-merchant-toggle-label');
+      const badge = document.getElementById('roi-toggles-status-badge');
+
+      if (badge) {
+        badge.textContent = 'Saving...';
+        badge.style.background = 'rgba(255,255,255,0.08)';
+        badge.style.color = 'var(--muted)';
+      }
+
+      const payload = {};
+      if (type === 'reps') {
+        payload.roi_reps_enabled = isEnabled;
+        if (repsLabel) {
+          repsLabel.textContent = isEnabled ? 'Active (Visible to Reps)' : 'Disabled (Hidden from Reps)';
+          repsLabel.style.color = isEnabled ? 'var(--green)' : 'var(--muted)';
+        }
+      } else if (type === 'merchants') {
+        payload.roi_merchants_enabled = isEnabled;
+        if (merchantsLabel) {
+          merchantsLabel.textContent = isEnabled ? 'Active (Visible to Merchants)' : 'Disabled (Hidden from Merchants)';
+          merchantsLabel.style.color = isEnabled ? 'var(--green)' : 'var(--muted)';
+        }
+      }
+
+      try {
+        const res = await adminFetch('/admin/settings/roi-toggles', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (res && res.success) {
+          showToast(`✅ ${type === 'reps' ? 'Sales Reps' : 'Merchant Dashboard'} ROI feature ${isEnabled ? 'enabled' : 'disabled'}`);
+          loadRoiToggles();
+        } else {
+          showToast(`❌ Error saving toggle: ${res && res.error ? res.error : 'Unknown error'}`);
+          loadRoiToggles();
+        }
+      } catch (err) {
+        console.error('Error saving ROI toggle:', err);
+        showToast('❌ Failed to update setting');
+        loadRoiToggles();
+      }
+    }
 
     function setTrafficPreset(preset) {
       document.querySelectorAll('.chart-period-btn[id^="btn-traffic-"]').forEach(b => b.classList.remove('active'));
@@ -4467,7 +4728,7 @@
 
     async function loadTrafficSummary() {
       const tbody = document.getElementById('tbody-traffic-merchants');
-      if (tbody) tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding:30px; color:var(--muted);">Loading attribution summary...</td></tr>';
+      if (tbody) tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding:30px; color:var(--muted);"><span class="loading-spinner" style="display:inline-block;margin-right:8px;vertical-align:middle;"></span> Loading attribution summary...</td></tr>';
 
       try {
         let endpoint = '/admin/analytics/outbound-summary';
@@ -4477,10 +4738,21 @@
         if (params.toString()) endpoint += '?' + params.toString();
 
         const json = await adminFetch(endpoint);
-        if (!json || !json.data) throw new Error(json?.error || 'Failed to load traffic data');
+        if (!json) throw new Error('Failed to load traffic data');
 
-        _trafficSummaryData = json.data;
-        const summary = _trafficSummaryData.summary || {};
+        let rawData = json.data !== undefined ? json.data : json;
+        let summary = {};
+        let merchants = [];
+
+        if (Array.isArray(rawData)) {
+          merchants = rawData;
+          summary = json.summary || {};
+        } else if (rawData && typeof rawData === 'object') {
+          summary = rawData.summary || {};
+          merchants = rawData.merchants || [];
+        }
+
+        _trafficSummaryData = { summary, merchants };
 
         // Top KPIs
         document.getElementById('stat-traffic-total').textContent = (summary.total_actions || 0).toLocaleString();
@@ -4506,12 +4778,14 @@
     }
 
     function filterTrafficTable() {
-      if (!_trafficSummaryData || !_trafficSummaryData.merchants) return;
+      if (!_trafficSummaryData) return;
+      const merchantsList = _trafficSummaryData.merchants || [];
       const query = (document.getElementById('traffic-search-input')?.value || '').trim().toLowerCase();
       const tierFilter = document.getElementById('traffic-tier-filter')?.value || 'all';
 
-      let filtered = _trafficSummaryData.merchants.filter(m => {
-        if (query && !m.merchant_name.toLowerCase().includes(query)) return false;
+      let filtered = merchantsList.filter(m => {
+        const name = (m.merchant_name || m.business_name || '').toLowerCase();
+        if (query && !name.includes(query)) return false;
         if (tierFilter === 'growth') {
           const t = (m.subscription_tier || '').toLowerCase();
           if (!t.includes('growth') && !t.includes('scale') && !t.includes('enterprise')) return false;
@@ -4575,11 +4849,16 @@
       if (!modal) return;
       modal.style.display = 'flex';
 
-      document.getElementById('roi-modal-title').textContent = 'Loading...';
-      document.getElementById('roi-stat-reach').textContent = '...';
-      document.getElementById('roi-stat-actions').textContent = '...';
-      document.getElementById('roi-stat-redemptions').textContent = '...';
-      document.getElementById('roi-ad-module').style.display = 'none';
+      const titleEl = document.getElementById('roi-modal-title');
+      if (titleEl) titleEl.textContent = 'Loading...';
+      const reachEl = document.getElementById('roi-stat-reach');
+      if (reachEl) reachEl.textContent = '...';
+      const actionsEl = document.getElementById('roi-stat-actions');
+      if (actionsEl) actionsEl.textContent = '...';
+      const redemptionsEl = document.getElementById('roi-stat-redemptions');
+      if (redemptionsEl) redemptionsEl.textContent = '...';
+      const adModEl = document.getElementById('roi-ad-module');
+      if (adModEl) adModEl.style.display = 'none';
 
       try {
         let endpoint = `/analytics/merchant-roi?merchant_id=${encodeURIComponent(merchantId)}`;
@@ -4587,32 +4866,41 @@
         if (_trafficEndDate) endpoint += `&end_date=${encodeURIComponent(_trafficEndDate)}`;
 
         const json = await adminFetch(endpoint);
-        if (!json || !json.data) throw new Error(json?.error || 'Failed to load merchant ROI');
+        if (!json) throw new Error('Failed to load merchant ROI');
 
-        _activeRoiData = json.data;
+        _activeRoiData = json.data !== undefined ? json.data : json;
         const d = _activeRoiData;
-        const metrics = d.metrics || {};
+        const metrics = d.metrics || d.summary || {};
 
-        document.getElementById('roi-modal-title').textContent = d.merchant_name || 'Store ROI';
+        if (titleEl) titleEl.textContent = d.merchant_name || d.business_name || 'Store ROI';
         const tierBadge = document.getElementById('roi-modal-tier-badge');
-        tierBadge.textContent = (d.tier || 'Free / Starter').replace(/_/g, ' ');
+        if (tierBadge) {
+          tierBadge.textContent = (d.tier || d.subscription_tier || 'Free / Starter').replace(/_/g, ' ');
+        }
 
         const periodLabel = d.period?.start_date && d.period?.end_date
           ? `${d.period.start_date} to ${d.period.end_date}`
-          : 'All Time';
-        document.getElementById('roi-modal-period').textContent = `Period: ${periodLabel}`;
+          : (d.period?.startDate && d.period?.endDate ? `${d.period.startDate} to ${d.period.endDate}` : 'All Time');
+        const periodEl = document.getElementById('roi-modal-period');
+        if (periodEl) periodEl.textContent = `Period: ${periodLabel}`;
 
-        document.getElementById('roi-stat-reach').textContent = (metrics.total_reach || 0).toLocaleString();
-        document.getElementById('roi-stat-actions').textContent = (metrics.total_actions || 0).toLocaleString();
-        document.getElementById('roi-stat-redemptions').textContent = (metrics.in_store_redemptions || 0).toLocaleString();
+        const totalReach = metrics.total_reach !== undefined ? metrics.total_reach : (metrics.totalReach || 0);
+        const totalActions = metrics.total_actions !== undefined ? metrics.total_actions : (metrics.totalActions || 0);
+        const inStoreRedemptions = metrics.in_store_redemptions !== undefined ? metrics.in_store_redemptions : (metrics.inStoreRedemptions || 0);
+
+        if (reachEl) reachEl.textContent = Number(totalReach).toLocaleString();
+        if (actionsEl) actionsEl.textContent = Number(totalActions).toLocaleString();
+        if (redemptionsEl) redemptionsEl.textContent = Number(inStoreRedemptions).toLocaleString();
 
         // Channels
         const channels = metrics.channels || { app: 0, web: 0 };
-        document.getElementById('roi-chan-app').textContent = (channels.app || 0).toLocaleString();
-        document.getElementById('roi-chan-web').textContent = (channels.web || 0).toLocaleString();
+        const chanApp = document.getElementById('roi-chan-app');
+        if (chanApp) chanApp.textContent = Number(channels.app || 0).toLocaleString();
+        const chanWeb = document.getElementById('roi-chan-web');
+        if (chanWeb) chanWeb.textContent = Number(channels.web || 0).toLocaleString();
 
         // Itemized actions
-        const actions = metrics.actions_breakdown || {};
+        const actions = metrics.actions_breakdown || metrics.actionsBreakdown || {};
         const actionLabels = {
           website: { label: 'Website Visits', icon: '🌐' },
           order: { label: 'Online Orders / Bookings', icon: '🛒' },
@@ -4624,41 +4912,47 @@
         };
 
         const grid = document.getElementById('roi-actions-grid');
-        grid.innerHTML = Object.keys(actionLabels).map(key => {
-          const count = actions[key] || 0;
-          const info = actionLabels[key];
-          return `
-            <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:8px 12px;display:flex;justify-content:space-between;align-items:center;">
-              <span style="font-size:12px;color:var(--mutedLight);">${info.icon} ${info.label}</span>
-              <span style="font-size:13px;font-weight:700;color:#fff;">${count.toLocaleString()}</span>
-            </div>
-          `;
-        }).join('');
+        if (grid) {
+          grid.innerHTML = Object.keys(actionLabels).map(key => {
+            const count = actions[key] || 0;
+            const info = actionLabels[key];
+            return `
+              <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:8px 12px;display:flex;justify-content:space-between;align-items:center;">
+                <span style="font-size:12px;color:var(--mutedLight);">${info.icon} ${info.label}</span>
+                <span style="font-size:13px;font-weight:700;color:#fff;">${Number(count).toLocaleString()}</span>
+              </div>
+            `;
+          }).join('');
+        }
 
         // Contextual Sponsorship Module
-        const sp = metrics.sponsorship || {};
+        const sp = metrics.sponsorship || d.sponsorship || {};
         const spMetrics = sp.metrics || {};
         if (sp.hasActiveAds || sp.hasHistoricalAdActivity) {
-          const adMod = document.getElementById('roi-ad-module');
-          adMod.style.display = 'block';
-          document.getElementById('roi-ad-takeover').textContent = (spMetrics.takeoverClicks || 0).toLocaleString();
-          document.getElementById('roi-ad-carousel').textContent = (spMetrics.carouselClicks || 0).toLocaleString();
+          if (adModEl) adModEl.style.display = 'block';
+          const adTakeover = document.getElementById('roi-ad-takeover');
+          if (adTakeover) adTakeover.textContent = Number(spMetrics.takeoverClicks || 0).toLocaleString();
+          const adCarousel = document.getElementById('roi-ad-carousel');
+          if (adCarousel) adCarousel.textContent = Number(spMetrics.carouselClicks || 0).toLocaleString();
           const pill = document.getElementById('roi-ad-status-pill');
-          if (sp.hasActiveAds) {
-            pill.textContent = 'Active Campaign';
-            pill.style.background = '#22c55e20';
-            pill.style.color = '#34d399';
-            pill.style.borderColor = '#22c55e40';
-          } else {
-            pill.textContent = 'Historical Campaign';
-            pill.style.background = 'rgba(255,255,255,0.06)';
-            pill.style.color = 'var(--mutedLight)';
-            pill.style.borderColor = 'rgba(255,255,255,0.1)';
+          if (pill) {
+            if (sp.hasActiveAds) {
+              pill.textContent = 'Active Campaign';
+              pill.style.background = '#22c55e20';
+              pill.style.color = '#34d399';
+              pill.style.borderColor = '#22c55e40';
+            } else {
+              pill.textContent = 'Historical Campaign';
+              pill.style.background = 'rgba(255,255,255,0.06)';
+              pill.style.color = 'var(--mutedLight)';
+              pill.style.borderColor = 'rgba(255,255,255,0.1)';
+            }
           }
         }
 
-        switchRoiPreviewMode(d.reporting_level || 'detailed');
+        switchRoiPreviewMode(d.reporting_level || d.reportingLevel || 'detailed');
       } catch (err) {
+        console.error('Error loading store ROI:', err);
         alert('Error loading store ROI: ' + err.message);
         closeRoiModal();
       }
@@ -4669,64 +4963,18 @@
       const btnBasic = document.getElementById('btn-roi-mode-basic');
       const btnDetailed = document.getElementById('btn-roi-mode-detailed');
       const detailSec = document.getElementById('roi-detailed-section');
+      const lockedSec = document.getElementById('roi-locked-section');
 
       if (mode === 'basic') {
-        btnBasic.classList.add('active');
-        btnDetailed.classList.remove('active');
-        detailSec.innerHTML = `
-          <div style="background:rgba(255,255,255,0.02);border:1px dashed rgba(255,255,255,0.15);border-radius:14px;padding:24px;text-align:center;margin-bottom:16px;">
-            <div style="font-size:24px;margin-bottom:6px;">🔒</div>
-            <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:4px;">Itemized Multi-Channel Breakdown (Tier 2 Feature)</div>
-            <div style="font-size:11px;color:var(--mutedLight);max-width:440px;margin:0 auto;line-height:1.5;">
-              Starter & Free merchants see high-level combined actions. Itemized per-action channel attribution and automated monthly email reporting unlock automatically on Growth ($299/mo) and Scale ($499/mo).
-            </div>
-          </div>
-        `;
+        if (btnBasic) btnBasic.classList.add('active');
+        if (btnDetailed) btnDetailed.classList.remove('active');
+        if (detailSec) detailSec.style.display = 'none';
+        if (lockedSec) lockedSec.style.display = 'block';
       } else {
-        btnBasic.classList.remove('active');
-        btnDetailed.classList.add('active');
-        if (_activeRoiData) {
-          // Re-render detailed layout
-          const metrics = _activeRoiData.metrics || {};
-          const channels = metrics.channels || { app: 0, web: 0 };
-          const actions = metrics.actions_breakdown || {};
-          const actionLabels = {
-            website: { label: 'Website Visits', icon: '🌐' },
-            order: { label: 'Online Orders / Bookings', icon: '🛒' },
-            review_social: { label: 'Reviews & Social', icon: '⭐' },
-            phone: { label: 'Phone Calls', icon: '📞' },
-            email: { label: 'Email Inquiries', icon: '✉️' },
-            map_directions: { label: 'Map Directions', icon: '📍' },
-            vip_takeover: { label: 'VIP Takeover Opens', icon: '👑' }
-          };
-          detailSec.innerHTML = `
-            <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:16px;margin-bottom:16px;">
-              <div style="font-size:13px;font-weight:800;color:#fff;margin-bottom:12px;">📱 Channel Attribution</div>
-              <div style="display:flex;gap:12px;">
-                <div style="flex:1;background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.25);border-radius:10px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;">
-                  <span style="font-size:12px;font-weight:600;color:#c4b5fd;">📱 Mobile App</span>
-                  <span style="font-size:15px;font-weight:800;color:#fff;">${(channels.app || 0).toLocaleString()}</span>
-                </div>
-                <div style="flex:1;background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.25);border-radius:10px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;">
-                  <span style="font-size:12px;font-weight:600;color:#93c5fd;">🌐 Web Directory</span>
-                  <span style="font-size:15px;font-weight:800;color:#fff;">${(channels.web || 0).toLocaleString()}</span>
-                </div>
-              </div>
-            </div>
-
-            <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:16px;margin-bottom:16px;">
-              <div style="font-size:13px;font-weight:800;color:#fff;margin-bottom:12px;">🔍 Itemized Consumer Actions</div>
-              <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;">
-                ${Object.keys(actionLabels).map(key => `
-                  <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:8px 12px;display:flex;justify-content:space-between;align-items:center;">
-                    <span style="font-size:12px;color:var(--mutedLight);">${actionLabels[key].icon} ${actionLabels[key].label}</span>
-                    <span style="font-size:13px;font-weight:700;color:#fff;">${(actions[key] || 0).toLocaleString()}</span>
-                  </div>
-                `).join('')}
-              </div>
-            </div>
-          `;
-        }
+        if (btnBasic) btnBasic.classList.remove('active');
+        if (btnDetailed) btnDetailed.classList.add('active');
+        if (detailSec) detailSec.style.display = 'block';
+        if (lockedSec) lockedSec.style.display = 'none';
       }
     }
 
@@ -6969,6 +7217,7 @@
       }
 
       document.getElementById('refresh-spinner').style.display = 'none';
+      loadRoiToggles();
       renderCharts();
       showToast('✅ Dashboard data refreshed');
     }
@@ -9624,10 +9873,12 @@
         const commEnd = m.commission_end_date
           ? new Date(m.commission_end_date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})
           : '—';
+        const isPresetup = m.is_presetup || m.tier === 'presetup_50' || (m.tier && m.tier.startsWith('presetup'));
+        const displayTier = isPresetup ? `Pre-Setup (${m.member_limit || 50})` : (tierMap[m.tier] || m.tier || '—');
         return `<tr style="border-bottom:1px solid #f1f5f9;">
           <td style="padding:8px 10px;font-weight:600;font-size:12px;"><a href="#" onclick="fetchAndShowMerchantDetail('${m.merchant_id}'); return false;" style="color:#2563eb;text-decoration:none;cursor:pointer;">${m.business_name||'—'}</a></td>
           <td style="padding:8px 10px;font-size:12px;color:#1a1a2e;font-weight:700;">${m.member_count || 0}</td>
-          <td style="padding:8px 10px;font-size:12px;color:#1a1a2e;">${tierMap[m.tier]||m.tier||'—'}</td>
+          <td style="padding:8px 10px;font-size:12px;color:#1a1a2e;">${displayTier}</td>
           <td style="padding:8px 10px;font-size:12px;color:#1a1a2e;">${commStart}</td>
           <td style="padding:8px 10px;font-size:12px;color:#1a1a2e;">${commEnd}</td>
           <td style="padding:8px 10px;font-size:12px;text-align:center;color:#1a1a2e;">${m.retention_bonuses_paid||0}</td>
