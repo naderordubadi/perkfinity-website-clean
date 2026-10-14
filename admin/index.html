@@ -3965,6 +3965,17 @@
       }
     }
 
+    function getMemberMerchantTierLabel(m) {
+      if (!m) return '—';
+      const isPresetup = m.is_presetup || m.subscription_tier === 'presetup_50' || (m.subscription_tier && m.subscription_tier.startsWith('presetup'));
+      if (isPresetup) return `Pre-Setup (${m.member_limit || 50})`;
+      if (m.subscription_tier === 'free_for_life') return 'Free For Life';
+      const tMap = { tier1:'Connect', online_starter:'Starter', online_growth:'Growth', online_scale:'Scale', enterprise:'Enterprise' };
+      if (tMap[m.subscription_tier]) return tMap[m.subscription_tier];
+      if (m.subscription_tier === 'trial' || m.subscription_tier === 'free_trial' || m.subscription_tier === 'extended_trial') return 'Free Trial';
+      return (m.subscription_tier || 'Free').replace('online_', '').replace(/_/g, ' ');
+    }
+
     function renderMemberMerchantsList(container, merchants) {
       if (!merchants || merchants.length === 0) {
         container.innerHTML = '<div style="text-align:center;padding:20px;color:#64748b;font-size:13px;font-weight:600;">This member has not joined any merchant programs yet.</div>';
@@ -3973,6 +3984,8 @@
       const presBadge = p => p === 'online' ? '<span style="font-size:11px;font-weight:700;color:#2563eb;background:#eff6ff;padding:2px 7px;border-radius:6px;border:1px solid #dbeafe;">🌐 Online</span>' : p === 'hybrid' ? '<span style="font-size:11px;font-weight:700;color:#d97706;background:#fffbeb;padding:2px 7px;border-radius:6px;border:1px solid #fef3c7;">📱 Hybrid</span>' : p === 'mobile' ? '<span style="font-size:11px;font-weight:700;color:#059669;background:#ecfdf5;padding:2px 7px;border-radius:6px;border:1px solid #d1fae5;">🚐 Mobile</span>' : '<span style="font-size:11px;font-weight:700;color:#475569;background:#f1f5f9;padding:2px 7px;border-radius:6px;border:1px solid #e2e8f0;">📍 Local</span>';
       
       const tierBadge = m => {
+        const isPresetup = m.is_presetup || m.subscription_tier === 'presetup_50' || (m.subscription_tier && m.subscription_tier.startsWith('presetup'));
+        if (isPresetup) return `<span class="badge tier1" style="font-size:10px;padding:2px 6px;">Pre-Setup (${m.member_limit || 50})</span>`;
         if (m.subscription_tier === 'free_for_life') return '<span class="badge ffl" style="font-size:10px;padding:2px 6px;">FFL</span>';
         const tMap = { tier1:'Connect', online_starter:'Starter', online_growth:'Growth', online_scale:'Scale', enterprise:'Enterprise' };
         if (tMap[m.subscription_tier]) return `<span class="badge tier1" style="font-size:10px;padding:2px 6px;">${tMap[m.subscription_tier]}</span>`;
@@ -4088,7 +4101,7 @@
                 <td style="font-weight:700;color:#1e293b;">${m.business_name || '—'}</td>
                 <td style="color:#475569;">${[m.location_city, m.location_zip].filter(Boolean).join(', ') || '—'}</td>
                 <td style="text-transform:capitalize;">${m.business_presence || '—'}</td>
-                <td>${(m.subscription_tier || 'Free').replace('online_', '').replace(/_/g, ' ')}</td>
+                <td>${getMemberMerchantTierLabel(m)}</td>
                 <td style="white-space:nowrap;color:#475569;">${formatDate(m.joined_at)}</td>
                 <td style="color:#64748b;">${m.join_source === 'qr_scan' ? 'QR Scan' : (m.join_source === 'app' || m.join_source === 'app_discovery') ? 'App' : (m.join_source || '—')}</td>
               </tr>
@@ -4130,7 +4143,7 @@
           m.business_name || '—',
           [m.location_city, m.location_zip].filter(Boolean).join(', ') || '—',
           m.business_presence || '—',
-          (m.subscription_tier || 'Free').replace('online_', '').replace(/_/g, ' '),
+          getMemberMerchantTierLabel(m),
           formatDate(m.joined_at),
           m.join_source === 'qr_scan' ? 'QR Scan' : (m.join_source === 'app' || m.join_source === 'app_discovery') ? 'App' : (m.join_source || '—')
         ]);
@@ -4165,7 +4178,7 @@
         txt += `${idx + 1}. ${m.business_name || '—'}\n`;
         txt += `   Location:    ${[m.location_city, m.location_zip].filter(Boolean).join(', ') || '—'}\n`;
         txt += `   Presence:    ${m.business_presence || '—'}\n`;
-        txt += `   Tier:        ${(m.subscription_tier || 'Free').replace('online_', '').replace(/_/g, ' ')}\n`;
+        txt += `   Tier:        ${getMemberMerchantTierLabel(m)}\n`;
         txt += `   Joined Date: ${formatDate(m.joined_at)}\n`;
         txt += `   Join Source: ${m.join_source === 'qr_scan' ? 'QR Scan' : (m.join_source === 'app' || m.join_source === 'app_discovery') ? 'App' : (m.join_source || '—')}\n\n`;
       });
