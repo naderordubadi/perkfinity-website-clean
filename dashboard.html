@@ -4318,8 +4318,7 @@
           const raw = r.metadata;
           const m = raw ? (typeof raw === 'string' ? JSON.parse(raw) : raw) : {};
           const assigned = parseInt(m.assigned_count ?? 0);
-          const isOnline = !!r.promo_code;
-          const actionCount = isOnline ? parseInt(r.claimed_count ?? 0) : parseInt(r.redeemed_count ?? 0);
+          const actionCount = parseInt(r.redeemed_count ?? 0) + parseInt(r.claimed_count ?? 0);
           const rate = assigned > 0 ? ((actionCount / assigned) * 100).toFixed(1) : '—';
           const rateColor = assigned === 0 ? '#999' : (actionCount / assigned >= 0.5 ? 'var(--green)' : actionCount / assigned >= 0.2 ? '#f59e0b' : '#ef4444');
           const created = r.created_at ? new Date(r.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '-';
@@ -4360,8 +4359,7 @@
         const raw = r.metadata;
         const m = raw ? (typeof raw === 'string' ? JSON.parse(raw) : raw) : {};
         const assigned = parseInt(m.assigned_count ?? 0);
-        const isOnline = !!r.promo_code;
-        const actionCount = isOnline ? parseInt(r.claimed_count ?? 0) : parseInt(r.redeemed_count ?? 0);
+        const actionCount = parseInt(r.redeemed_count ?? 0) + parseInt(r.claimed_count ?? 0);
         const rate = assigned > 0 ? ((actionCount / assigned) * 100).toFixed(1) + '%' : '—';
         const created = r.created_at ? new Date(r.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '-';
         const expires = r.end_at ? new Date(r.end_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '-';
