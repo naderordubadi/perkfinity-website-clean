@@ -5587,8 +5587,8 @@
         website: normalizeUrl(document.getElementById('psc-website').value),
         review_url: normalizeUrl(document.getElementById('psc-review-url').value) || null,
         order_url: normalizeUrl(document.getElementById('psc-order-url').value) || null,
-        logo_url: _presetupImages.logo || normalizeUrl(document.getElementById('psc-logo-url').value) || null,
-        cover_photo_url: _presetupImages.cover || normalizeUrl(document.getElementById('psc-cover-url').value) || null,
+        logo_url: _presetupImages.logo || (normalizeUrl(document.getElementById('psc-logo-url').value).includes('__custom__') ? null : (normalizeUrl(document.getElementById('psc-logo-url').value) || null)),
+        cover_photo_url: _presetupImages.cover || (normalizeUrl(document.getElementById('psc-cover-url').value).includes('__custom__') ? null : (normalizeUrl(document.getElementById('psc-cover-url').value) || null)),
         promo_description: document.getElementById('psc-promo-desc').value.trim(),
         member_limit: parseInt(document.getElementById('psc-member-limit').value) || 50,
         is_web_sponsored: document.getElementById('psc-web-sponsor').checked,
@@ -5717,11 +5717,11 @@
       // Media / Images
       clearPresetupImage('logo');
       clearPresetupImage('cover');
-      if (m.logo_url) {
+      if (m.logo_url && !m.logo_url.includes('__custom__')) {
         document.getElementById('psc-logo-url').value = m.logo_url;
         handlePresetupUrlChange('logo');
       }
-      if (m.cover_photo_url) {
+      if (m.cover_photo_url && !m.cover_photo_url.includes('__custom__')) {
         document.getElementById('psc-cover-url').value = m.cover_photo_url;
         handlePresetupUrlChange('cover');
       }
