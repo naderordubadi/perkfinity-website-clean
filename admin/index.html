@@ -2374,8 +2374,13 @@
 
               <!-- Spotlight Business Selection Card -->
               <div id="ann-spotlight-controls" style="background:rgba(91,63,165,0.06);border:1px solid rgba(91,63,165,0.18);border-radius:12px;padding:16px;">
-                <div style="margin-bottom:8px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
                   <span style="font-size:12px;font-weight:700;color:var(--purple);text-transform:uppercase;letter-spacing:0.5px;">🏪 Select Business to Spotlight</span>
+                  <div style="display:inline-flex;gap:4px;background:rgba(0,0,0,0.25);padding:3px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);">
+                    <button type="button" id="ann-filter-unsent-btn" class="ann-spotlight-filter-btn" onclick="annSetSpotlightFilter('unsent')" style="padding:4px 10px;font-size:11px;font-weight:700;border-radius:6px;border:none;cursor:pointer;background:#5b3fa5;color:#fff;transition:all 0.15s;">⏳ Not Sent Yet <span id="ann-count-unsent">(0)</span></button>
+                    <button type="button" id="ann-filter-sent-btn" class="ann-spotlight-filter-btn" onclick="annSetSpotlightFilter('sent')" style="padding:4px 10px;font-size:11px;font-weight:700;border-radius:6px;border:none;cursor:pointer;background:transparent;color:var(--muted);transition:all 0.15s;">✅ Already Sent <span id="ann-count-sent">(0)</span></button>
+                    <button type="button" id="ann-filter-all-btn" class="ann-spotlight-filter-btn" onclick="annSetSpotlightFilter('all')" style="padding:4px 10px;font-size:11px;font-weight:700;border-radius:6px;border:none;cursor:pointer;background:transparent;color:var(--muted);transition:all 0.15s;">All <span id="ann-count-all">(0)</span></button>
+                  </div>
                 </div>
                 <select class="form-input" id="ann-spotlight-merchant-select" onchange="annOnSpotlightMerchantSelect()" style="font-size:14px;width:100%;">
                   <option value="">— Choose an onboarded business —</option>
@@ -3380,7 +3385,20 @@
         </div>
 
         <div style="background:#f8fafc;border-radius:12px;padding:18px 20px;">
-          <div style="font-size:14px;font-weight:800;color:#1a1a2e;margin-bottom:12px;">⚙️ Actions</div>
+          <div style="padding:14px;background:${m.spotlight_sent_at ? 'rgba(107,193,122,0.08)' : 'rgba(91,63,165,0.08)'};border:1.5px solid ${m.spotlight_sent_at ? 'rgba(107,193,122,0.25)' : 'rgba(91,63,165,0.25)'};border-radius:10px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+            <div>
+              <div style="font-size:13px;font-weight:800;color:${m.spotlight_sent_at ? '#15803d' : '#5b3fa5'};display:flex;align-items:center;gap:6px;">
+                <span>${m.spotlight_sent_at ? '✅' : '📢'}</span> Member Spotlight Announcement
+              </div>
+              <div style="font-size:12px;color:#64748b;margin-top:2px;">
+                ${m.spotlight_sent_at ? `Broadcast dispatched on <strong>${formatDate(m.spotlight_sent_at)}</strong>` : 'No announcement sent yet to members.'}
+              </div>
+            </div>
+            <button onclick="annLaunchSpotlightForMerchant('${m.id}')" style="padding:8px 16px;border-radius:8px;border:none;background:linear-gradient(135deg,#5b3fa5,#7c3aed);color:white;font-weight:700;font-size:12px;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px;box-shadow:0 2px 8px rgba(91,63,165,0.25);">
+              ${m.spotlight_sent_at ? '📢 Re-Send Spotlight' : '📢 Compose Spotlight Announcement →'}
+            </button>
+          </div>
+
           <div style="display:flex;gap:10px;align-items:center;margin-bottom:16px;">
             <button onclick="toggleVisibility('${merchantId}', ${!m.is_hidden})" style="padding:8px 16px;border-radius:8px;border:none;background:${m.is_hidden ? '#10b981' : '#64748b'};color:white;font-weight:700;cursor:pointer;font-family:inherit;">
               ${m.is_hidden ? '👁️ Unhide Merchant' : '🙈 Hide Merchant'}
@@ -4574,8 +4592,12 @@
     function showTab(name) {
       document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-      document.getElementById('tab-' + name).classList.add('active');
-      event.target.closest('.nav-item').classList.add('active');
+      const tabEl = document.getElementById('tab-' + name);
+      if (tabEl) tabEl.classList.add('active');
+      const navItem = (typeof event !== 'undefined' && event && event.target && event.target.closest) 
+        ? event.target.closest('.nav-item') 
+        : document.querySelector(`.nav-item[onclick*="'${name}'"]`);
+      if (navItem) navItem.classList.add('active');
       if (name === 'access-codes') loadAccessCodes();
       if (name === 'applications') loadApplications();
       if (name === 'enterprise') loadEnterpriseInquiries();
@@ -5181,7 +5203,10 @@
               </div>
             </td>
             <td onclick="event.stopPropagation();" style="text-align:right;">
-              <div style="display:flex;gap:6px;justify-content:flex-end;">
+              <div style="display:flex;gap:6px;justify-content:flex-end;align-items:center;">
+                <button onclick="annLaunchSpotlightForMerchant('${m.id}')" title="${m.spotlight_sent_at ? 'Spotlight already sent (' + formatDate(m.spotlight_sent_at) + ') — Click to re-send' : 'Send Member Spotlight Announcement'}" style="padding:6px 10px;border-radius:8px;font-size:12px;font-weight:700;background:${m.spotlight_sent_at ? 'rgba(107,193,122,0.15)' : 'rgba(91,63,165,0.15)'};color:${m.spotlight_sent_at ? 'var(--green)' : 'var(--purple)'};border:1px solid ${m.spotlight_sent_at ? 'rgba(107,193,122,0.3)' : 'rgba(91,63,165,0.3)'};cursor:pointer;">
+                  ${m.spotlight_sent_at ? '✅' : '📢'}
+                </button>
                 <button onclick="adminPrintPresetup('${m.id}')" style="padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;background:rgba(139,92,246,0.15);color:var(--purple);border:1px solid rgba(139,92,246,0.3);cursor:pointer;">
                   🖨️ Print 2-Page
                 </button>
@@ -7286,6 +7311,7 @@
                   <strong style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${escapeHtml(m.business_name || '')}">${escapeHtml(m.business_name || '—')}</strong>
                   ${isMerchantDeleted ? '<span style="background:rgba(239,68,68,0.18);color:#f87171;border:1px solid rgba(239,68,68,0.35);font-size:10px;padding:1px 6px;border-radius:5px;font-weight:700;flex-shrink:0;">DELETED</span>' : ''}
                   ${m.is_hidden ? '<span style="background:rgba(148,163,184,0.14);color:#94a3b8;border:1px solid rgba(148,163,184,0.28);font-size:10px;padding:1.5px 6px;border-radius:5px;font-weight:700;letter-spacing:0.3px;flex-shrink:0;">🙈 HIDDEN</span>' : ''}
+                  ${!isMerchantDeleted ? (m.spotlight_sent_at ? `<span onclick="event.stopPropagation();annLaunchSpotlightForMerchant('${m.id}')" title="Spotlight announcement sent on ${formatDate(m.spotlight_sent_at)} — Click to re-send" style="background:rgba(107,193,122,0.15);color:#10b981;border:1px solid rgba(107,193,122,0.3);font-size:10px;padding:1px 6px;border-radius:5px;font-weight:700;cursor:pointer;flex-shrink:0;">✅ SPOTLIGHTED</span>` : `<span onclick="event.stopPropagation();annLaunchSpotlightForMerchant('${m.id}')" title="Click to compose member spotlight announcement" style="background:rgba(91,63,165,0.15);color:#a855f7;border:1px solid rgba(91,63,165,0.3);font-size:10px;padding:1px 6px;border-radius:5px;font-weight:700;cursor:pointer;flex-shrink:0;">📢 SPOTLIGHT</span>`) : ''}
                 </div>
               </td>
               <td>${m.location_city || m.city || '—'}</td>
@@ -8760,6 +8786,24 @@
       }
     }
 
+    let _spotlightFilter = 'unsent'; // 'unsent' | 'sent' | 'all'
+
+    function annSetSpotlightFilter(filter) {
+      _spotlightFilter = filter;
+      document.querySelectorAll('.ann-spotlight-filter-btn').forEach(b => {
+        b.style.background = 'transparent';
+        b.style.color = 'var(--muted)';
+        b.classList.remove('active');
+      });
+      const activeBtn = document.getElementById(`ann-filter-${filter}-btn`);
+      if (activeBtn) {
+        activeBtn.style.background = '#5b3fa5';
+        activeBtn.style.color = '#fff';
+        activeBtn.classList.add('active');
+      }
+      populateSpotlightMerchants();
+    }
+
     async function populateSpotlightMerchants() {
       const select = document.getElementById('ann-spotlight-merchant-select');
       if (!select) return;
@@ -8792,18 +8836,69 @@
         m.business_name
       ).sort((a, b) => a.business_name.localeCompare(b.business_name));
 
+      const unsentList = activeMerchants.filter(m => !m.spotlight_sent_at);
+      const sentList = activeMerchants.filter(m => !!m.spotlight_sent_at);
+
+      // Update count indicators
+      const unsentEl = document.getElementById('ann-count-unsent');
+      const sentEl = document.getElementById('ann-count-sent');
+      const allEl = document.getElementById('ann-count-all');
+      if (unsentEl) unsentEl.textContent = `(${unsentList.length})`;
+      if (sentEl) sentEl.textContent = `(${sentList.length})`;
+      if (allEl) allEl.textContent = `(${activeMerchants.length})`;
+
+      // Filter list based on selected view
+      let displayList = activeMerchants;
+      if (_spotlightFilter === 'unsent') displayList = unsentList;
+      else if (_spotlightFilter === 'sent') displayList = sentList;
+
       const currentVal = select.value;
-      select.innerHTML = '<option value="">— Choose an onboarded business —</option>' +
-        activeMerchants.map(m => {
+      const placeholderText = _spotlightFilter === 'unsent'
+        ? `— Choose from ${unsentList.length} unsent businesses —`
+        : _spotlightFilter === 'sent'
+        ? `— Choose from ${sentList.length} already announced businesses —`
+        : `— Choose from all ${activeMerchants.length} businesses —`;
+
+      select.innerHTML = `<option value="">${placeholderText}</option>` +
+        displayList.map(m => {
           const city = m.location_city || m.city || '';
           const offer = m.welcome_offer_text || m.promo_description || 'Special Perk';
           const locStr = city ? ` (${city})` : '';
-          return `<option value="${m.id}">${m.business_name}${locStr} — ${offer}</option>`;
+          const sentTag = m.spotlight_sent_at ? ` [✅ Sent ${formatDate(m.spotlight_sent_at)}]` : '';
+          return `<option value="${m.id}">${m.business_name}${locStr} — ${offer}${sentTag}</option>`;
         }).join('');
 
-      if (currentVal && activeMerchants.some(m => m.id === currentVal)) {
+      if (currentVal && displayList.some(m => m.id === currentVal)) {
         select.value = currentVal;
       }
+    }
+
+    async function annLaunchSpotlightForMerchant(merchantId) {
+      if (!merchantId) return;
+      const overlay = document.getElementById('merchant-detail-overlay');
+      if (overlay) overlay.style.display = 'none';
+
+      showTab('announcements');
+      annSetPreset('spotlight');
+      await populateSpotlightMerchants();
+
+      const list = [...(allMerchants || []), ...(typeof _allPresetupMerchants !== 'undefined' ? _allPresetupMerchants : [])];
+      const m = list.find(x => x.id === merchantId);
+      if (m) {
+        if (m.spotlight_sent_at && _spotlightFilter === 'unsent') {
+          annSetSpotlightFilter('sent');
+        } else if (!m.spotlight_sent_at && _spotlightFilter === 'sent') {
+          annSetSpotlightFilter('unsent');
+        }
+      }
+
+      const select = document.getElementById('ann-spotlight-merchant-select');
+      if (select) {
+        select.value = merchantId;
+        annOnSpotlightMerchantSelect();
+      }
+      annGoStep(2);
+      showToast(`🏪 Spotlight loaded for ${m ? m.business_name : 'merchant'}`);
     }
 
     function annPickSpotlightPartners(spotlightId, city) {
@@ -8868,7 +8963,11 @@
         const hasCover = !!m.cover_photo_url;
         const hasLogo = !!m.logo_url;
         const cityStr = city || 'Location not specified';
-        infoEl.innerHTML = `📍 <strong>${cityStr}</strong> · Cover Photo: ${hasCover ? '✅' : '⚪ (Default)'} · Logo: ${hasLogo ? '✅' : '⚪ (Monogram)'} · Offer: <em>"${m.welcome_offer_text || 'None'}"</em>`;
+        let alertBanner = '';
+        if (m.spotlight_sent_at) {
+          alertBanner = `<div style="margin-bottom:10px;padding:8px 12px;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.35);border-radius:8px;color:#f59e0b;font-weight:700;font-size:12px;">⚠️ Notice: A member spotlight announcement for <strong>${escapeHtml(m.business_name)}</strong> was already sent on <strong>${formatDate(m.spotlight_sent_at)}</strong>. Sending again will broadcast a duplicate spotlight.</div>`;
+        }
+        infoEl.innerHTML = `${alertBanner}📍 <strong>${cityStr}</strong> · Cover Photo: ${hasCover ? '✅' : '⚪ (Default)'} · Logo: ${hasLogo ? '✅' : '⚪ (Monogram)'} · Offer: <em>"${escapeHtml(m.welcome_offer_text || 'None')}"</em>`;
       }
 
       annRenderSpotlightContent(m, _currentSpotlightPartners);
@@ -9524,6 +9623,9 @@
       const recipientText = document.getElementById('ann-review-recipients').textContent;
       const scheduleInfo = isScheduled ? `<br><span style="font-size:12px;color:#999;">📅 Scheduled for: <strong style="color:#333;">${new Date(scheduledAt).toLocaleString()}</strong></span>` : '';
       const pushInfo = isPush ? `<div style="margin-top:10px;padding:8px 12px;background:rgba(107,193,122,0.12);border:1px solid rgba(107,193,122,0.3);border-radius:8px;font-size:12px;color:#15803d;font-weight:700;">📲 + Mobile Push Notification broadcast included</div>` : '';
+      const repeatWarning = (_annPreset === 'spotlight' && _currentSpotlightMerchant && _currentSpotlightMerchant.spotlight_sent_at)
+        ? `<div style="margin-top:10px;padding:8px 12px;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.35);border-radius:8px;font-size:12px;color:#d97706;font-weight:700;">⚠️ Notice: A member spotlight announcement for ${_currentSpotlightMerchant.business_name} was already sent on ${formatDate(_currentSpotlightMerchant.spotlight_sent_at)}. This will broadcast a duplicate announcement.</div>`
+        : '';
       const overlay = document.createElement('div');
       overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;';
       overlay.innerHTML = `
@@ -9532,6 +9634,7 @@
           <h3 style="color:#1a1a2e;margin:0 0 8px;">${isScheduled ? 'Schedule Announcement' : 'Confirm Broadcast'}</h3>
           <p style="color:#666;margin:0 0 16px;font-size:14px;">${isScheduled ? 'Schedule' : 'Send'} to <strong style="color:var(--purple);">${recipientText}</strong> recipients?${scheduleInfo}</p>
           ${pushInfo}
+          ${repeatWarning}
           <div style="display:flex;gap:12px;justify-content:center;margin-top:20px;">
             <button id="ann-confirm-cancel" style="padding:10px 24px;border-radius:8px;border:1px solid #ddd;background:#f5f5f5;color:#333;cursor:pointer;font-size:14px;">Cancel</button>
             <button id="ann-confirm-send" style="padding:10px 24px;border-radius:8px;border:none;background:linear-gradient(135deg,var(--purple),var(--green));color:#fff;cursor:pointer;font-weight:700;font-size:14px;">${isScheduled ? '📅 Schedule' : '✉️ Send Broadcast'}</button>
@@ -9568,6 +9671,7 @@
           const pushTitle = document.getElementById('ann-push-title')?.value.trim() || '';
           const pushBody = document.getElementById('ann-push-body')?.value.trim() || '';
           const merchantCode = _currentSpotlightMerchant ? (_currentSpotlightMerchant.qr_public_code || _currentSpotlightMerchant.public_code || _currentSpotlightMerchant.id) : null;
+          const merchantId = _currentSpotlightMerchant ? _currentSpotlightMerchant.id : null;
           
           res = await fetch(API_BASE + '/admin/send-announcement', {
             method: 'POST',
@@ -9583,12 +9687,27 @@
               send_push: isPush,
               push_title: pushTitle,
               push_body: pushBody,
-              merchant_code: merchantCode
+              merchant_code: merchantCode,
+              merchant_id: merchantId
             })
           });
         }
         const json = await res.json();
         if (json.success) {
+          if (_annPreset === 'spotlight' && _currentSpotlightMerchant) {
+            const nowIso = new Date().toISOString();
+            _currentSpotlightMerchant.spotlight_sent_at = nowIso;
+            const mId = _currentSpotlightMerchant.id;
+            if (typeof allMerchants !== 'undefined' && Array.isArray(allMerchants)) {
+              const found = allMerchants.find(x => x.id === mId);
+              if (found) found.spotlight_sent_at = nowIso;
+            }
+            if (typeof _allPresetupMerchants !== 'undefined' && Array.isArray(_allPresetupMerchants)) {
+              const found = _allPresetupMerchants.find(x => x.id === mId);
+              if (found) found.spotlight_sent_at = nowIso;
+            }
+            populateSpotlightMerchants();
+          }
           if (isScheduled) {
             statusEl.innerHTML = `<span style="color:var(--green);">✅ Scheduled Successfully</span>`;
             showToast('📅 Email scheduled successfully!');
