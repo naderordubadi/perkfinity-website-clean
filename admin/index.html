@@ -8947,15 +8947,12 @@
       // Pick 4 nearby/active partners
       _currentSpotlightPartners = annPickSpotlightPartners(m.id, city);
 
-      // Auto-target city in Step 1 if member audience
-      if (city) {
-        const memberBtn = Array.from(document.querySelectorAll('.ann-type-btn')).find(b => b.textContent.includes('Members') && !b.textContent.includes('Both'));
-        if (memberBtn && _annType !== 'members') {
-          annSetType('members', memberBtn);
-        }
-        tagPickerSetSelected('ann-filter-city', [city]);
-        annPreview();
+      // Default audience type to Members for spotlight announcements
+      const memberBtn = Array.from(document.querySelectorAll('.ann-type-btn')).find(b => b.textContent.includes('Members') && !b.textContent.includes('Both'));
+      if (memberBtn && _annType !== 'members') {
+        annSetType('members', memberBtn);
       }
+      annPreview();
 
       // Display merchant status info badge
       if (infoEl) {
@@ -8993,13 +8990,11 @@
         const bodyInput = document.getElementById('ann-push-body');
         if (_currentSpotlightMerchant) {
           const m = _currentSpotlightMerchant;
-          const city = m.location_city || m.city;
-          const cityStr = city ? ` in ${city}` : '';
           if (titleInput && !titleInput.value) {
             titleInput.value = `🎁 New Perk: Welcome ${m.business_name}!`;
           }
           if (bodyInput && !bodyInput.value) {
-            bodyInput.value = `Discover ${m.business_name}${cityStr} and tap to unlock your exclusive member perk today.`;
+            bodyInput.value = `Discover ${m.business_name} and tap to unlock your exclusive member perk today.`;
           }
         } else {
           const subject = document.getElementById('ann-subject')?.value;
@@ -9020,11 +9015,9 @@
         subjectInput.value = defaultSubject;
       }
 
-      const city = m.location_city || m.city;
-      const cityStr = city ? ` in ${city}` : '';
-      const defaultIntro = `Hey Neighbor 👋,\n\nWe’re excited to introduce ${m.business_name} to our Perkfinity community${cityStr}! Discover your new favorite local spot and unlock exclusive perks every time you visit.`;
+      const defaultIntro = `Hello!\n\nWe’re excited to introduce ${m.business_name} to our Perkfinity community! Discover exciting new perks and unlock exclusive member savings every time you shop or visit.`;
       
-      if (introInput && (!introInput.value || introInput.value.includes('We’re excited to introduce ') || introInput.value.startsWith('Hi there,') || introInput.value.startsWith('Hey Neighbor'))) {
+      if (introInput && (!introInput.value || introInput.value.includes('We’re excited to introduce ') || introInput.value.startsWith('Hi there,') || introInput.value.startsWith('Hey Neighbor') || introInput.value.startsWith('Hello'))) {
         introInput.value = defaultIntro;
       }
 
@@ -9034,7 +9027,7 @@
         pushTitleInput.value = `🎁 New Perk: Welcome ${m.business_name}!`;
       }
       if (pushBodyInput && (!pushBodyInput.value || pushBodyInput.value.includes('and tap to unlock your exclusive member perk'))) {
-        pushBodyInput.value = `Discover ${m.business_name}${cityStr} and tap to unlock your exclusive member perk today.`;
+        pushBodyInput.value = `Discover ${m.business_name} and tap to unlock your exclusive member perk today.`;
       }
     }
 
@@ -9068,8 +9061,8 @@
       } else {
         introHtml = `
           <p style="margin:0 0 16px 0;font-size:15px;color:#333;line-height:1.6;">
-            Hey Neighbor 👋,<br><br>
-            We’re excited to introduce <strong>${m.business_name}</strong> to our Perkfinity community${city ? ' in <strong>' + city + '</strong>' : ''}! Discover your new favorite local spot and unlock exclusive perks every time you visit.
+            Hello!<br><br>
+            We’re excited to introduce <strong>${m.business_name}</strong> to our Perkfinity community! Discover exciting new perks and unlock exclusive member savings every time you shop or visit.
           </p>`;
       }
 
