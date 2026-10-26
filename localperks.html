@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
+  <base href="/" />
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Perkfinity — Nearby Deals &amp; Local Businesses</title>
@@ -48,10 +49,10 @@
   }
   </script>
 
-  <link rel="icon" href="assets/Perkfinity-App-Icon.png" />
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="/assets/Perkfinity-App-Icon.png" />
+  <link rel="stylesheet" href="/styles.css" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  <script src="config.js"></script>
+  <script src="/config.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; }
     body { font-family: 'Inter', sans-serif; }
@@ -602,7 +603,7 @@
   <header class="site-header">
     <div class="nav-inner">
       <a class="nav-brand" href="index.html" aria-label="Perkfinity home">
-        <img src="assets/Perkfinity-Logo.png" alt="Perkfinity" />
+        <img src="/assets/Perkfinity-Logo.png" alt="Perkfinity" />
       </a>
       <button class="nav-mobile-btn" onclick="this.nextElementSibling.classList.toggle('open')" aria-label="Toggle menu">☰</button>
       <nav class="nav-links" aria-label="Primary navigation">
@@ -746,11 +747,19 @@
 
     <!-- Shared Modal Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
-    <script src="assets/js/merchant-modals.js?v=1.8"></script>
+    <script src="/assets/js/merchant-modals.js?v=1.8"></script>
     <script>
     const BACKEND = (typeof PerkfinityConfig !== 'undefined' && PerkfinityConfig.BACKEND_URL)
       ? PerkfinityConfig.BACKEND_URL
       : (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? 'http://localhost:3001' : 'https://perkfinity-backend.vercel.app');
+
+    function slugify(text) {
+      if (!text) return '';
+      return text.toString().toLowerCase().trim()
+        .replace(/['’]/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+    }
     // Multi-value tag arrays (optional power feature — add multiple cities/zips)
     const extraCities = [], extraZips = [];
     let activePresence = 'all';
@@ -848,7 +857,9 @@
         results = results.sort((a, b) => a.business_name.localeCompare((b.business_name || b.merchant_name || 'Brand')));
 
         // If a store slug is requested in the URL, pin that store to the very top
-        const currentStoreSlug = new URLSearchParams(window.location.search).get('store');
+        const urlParams = new URLSearchParams(window.location.search);
+        const storeFromPath = (window.location.pathname.match(/\/store\/([^/?#]+)/) || [])[1];
+        const currentStoreSlug = urlParams.get('store') || (storeFromPath ? decodeURIComponent(storeFromPath) : null);
         if (currentStoreSlug && typeof slugify === 'function') {
           const sSlug = slugify(currentStoreSlug);
           const matchIdx = results.findIndex(m => {
@@ -961,20 +972,13 @@
       if (m) openPopup(m);
     }
 
-    function slugify(text) {
-      if (!text) return '';
-      return text.toString().toLowerCase().trim()
-        .replace(/['’]/g, '')
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-+|-+$/g, '');
-    }
-
     let _autoOpenTriggered = false;
     async function checkAutoOpenMerchant() {
       if (_autoOpenTriggered) return;
       const urlParams = new URLSearchParams(window.location.search);
       const mParam = urlParams.get('m') || urlParams.get('merchant') || urlParams.get('code');
-      const storeParam = urlParams.get('store');
+      const storeFromPath = (window.location.pathname.match(/\/store\/([^/?#]+)/) || [])[1];
+      const storeParam = urlParams.get('store') || (storeFromPath ? decodeURIComponent(storeFromPath) : null);
       if (!mParam && !storeParam) return;
 
       let targetMerchant = null;
@@ -1214,10 +1218,11 @@
     }
 
     const urlParams = new URLSearchParams(window.location.search);
+    const locFromPath = (window.location.pathname.match(/\/deals\/([^/?#]+)/) || [])[1];
     const searchParam = urlParams.get('search') || urlParams.get('q');
     const zipParam = urlParams.get('zip') || urlParams.get('postal_code');
     const cityParam = urlParams.get('city');
-    const locParam = urlParams.get('loc') || urlParams.get('location');
+    const locParam = urlParams.get('loc') || urlParams.get('location') || (locFromPath ? decodeURIComponent(locFromPath) : null);
 
     let geo = null;
     if (locParam) {
