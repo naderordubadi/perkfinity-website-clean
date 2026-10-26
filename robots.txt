@@ -45,4 +45,4 @@ Disallow: /member-reset-password.html
 Disallow: /*preview*.html
 Disallow: /test-qr.html
 
-Sitemap: https://perkfinity.net/sitemap.xml
+Sitemap: https://www.perkfinity.net/sitemap.xml
