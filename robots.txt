@@ -6,6 +6,7 @@ Allow: /
 Allow: /codes.html
 Allow: /localperks.html
 Allow: /deals/
+Allow: /store/
 Allow: /merchants.html
 Allow: /get-started.html
 Allow: /apply.html

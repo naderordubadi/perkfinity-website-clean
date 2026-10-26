@@ -708,11 +708,20 @@
             </ul>
             <p style="color:#555; font-size:14px; margin-bottom:14px;">To discover deals near your current location and scan in-store QR counter stands, download the free Perkfinity app for iOS and Android, or enable JavaScript.</p>
             <h3 style="font-size:16px; font-weight:700; color:#5b3fa5;">Active Regional Directories</h3>
-            <p style="color:#555; line-height:1.6; margin-bottom:0;">
+            <p style="color:#555; line-height:1.6; margin-bottom:14px;">
               <a href="/deals/orange-county" style="color:#5b3fa5; font-weight:700; text-decoration:underline;">Orange County Deals Hub</a> · 
               <a href="/deals/mission-viejo" style="color:#5b3fa5; font-weight:700; text-decoration:underline;">Mission Viejo Local Perks</a> · 
               <a href="/deals/lake-forest" style="color:#5b3fa5; font-weight:700; text-decoration:underline;">Lake Forest Perks</a> · 
               <a href="/deals/irvine" style="color:#5b3fa5; font-weight:700; text-decoration:underline;">Irvine Deals</a>
+            </p>
+            <h3 style="font-size:16px; font-weight:700; color:#5b3fa5;">Featured Local Merchants &amp; Perks</h3>
+            <p style="color:#555; line-height:1.6; margin-bottom:0;">
+              <a href="/store/juicy-way" style="color:#5b3fa5; font-weight:700; text-decoration:underline;">Juicy Way (Mission Viejo)</a> · 
+              <a href="/store/sattva-rasoi" style="color:#5b3fa5; font-weight:700; text-decoration:underline;">Sattva Rasoi (Mission Viejo)</a> · 
+              <a href="/store/stemtree-of-mission-viejo" style="color:#5b3fa5; font-weight:700; text-decoration:underline;">Stemtree of Mission Viejo</a> · 
+              <a href="/store/cali-curry-house" style="color:#5b3fa5; font-weight:700; text-decoration:underline;">Cali Curry House</a> · 
+              <a href="/store/chai-me-to-the-moon" style="color:#5b3fa5; font-weight:700; text-decoration:underline;">Chai Me To The Moon</a> · 
+              <a href="/store/lms-auto-repair-tires" style="color:#5b3fa5; font-weight:700; text-decoration:underline;">LMS Auto Repair (Lake Forest)</a>
             </p>
           </div>
         </noscript>
@@ -838,6 +847,20 @@
 
         results = results.sort((a, b) => a.business_name.localeCompare((b.business_name || b.merchant_name || 'Brand')));
 
+        // If a store slug is requested in the URL, pin that store to the very top
+        const currentStoreSlug = new URLSearchParams(window.location.search).get('store');
+        if (currentStoreSlug && typeof slugify === 'function') {
+          const sSlug = slugify(currentStoreSlug);
+          const matchIdx = results.findIndex(m => {
+            const mSlug = slugify(m.business_name || m.merchant_name);
+            return mSlug === sSlug || mSlug.includes(sSlug) || sSlug.includes(mSlug);
+          });
+          if (matchIdx > -1) {
+            const [matchedStore] = results.splice(matchIdx, 1);
+            results.unshift(matchedStore);
+          }
+        }
+
         stateEl.style.display = 'none';
         const hasFilters = q || cityVal || zipVal || allCities.length || allZips.length;
         countEl.textContent = results.length === 0
@@ -857,6 +880,7 @@
                The more they join, the more perks <em>you</em> get! 🎉</p>`
             : `<div class="state-icon">🔍</div><h3>No merchants found</h3><p>Try a different name, city, or ZIP code.</p>`;
           stateEl.style.display = 'block';
+          checkAutoOpenMerchant();
           return;
         }
 
@@ -937,21 +961,42 @@
       if (m) openPopup(m);
     }
 
+    function slugify(text) {
+      if (!text) return '';
+      return text.toString().toLowerCase().trim()
+        .replace(/['’]/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+    }
+
     let _autoOpenTriggered = false;
     async function checkAutoOpenMerchant() {
       if (_autoOpenTriggered) return;
       const urlParams = new URLSearchParams(window.location.search);
       const mParam = urlParams.get('m') || urlParams.get('merchant') || urlParams.get('code');
-      if (!mParam) return;
+      const storeParam = urlParams.get('store');
+      if (!mParam && !storeParam) return;
 
-      // 1. Check if already in local map
       let targetMerchant = null;
-      if (window._localMerchantsMap) {
+
+      // 1. Resolve store slug
+      if (storeParam && window._localMerchantsMap) {
+        const storeSlug = slugify(storeParam);
+        // Exact slug match
+        targetMerchant = Object.values(window._localMerchantsMap).find(m => slugify(m.business_name || m.merchant_name) === storeSlug);
+        // Partial/fuzzy match
+        if (!targetMerchant) {
+          targetMerchant = Object.values(window._localMerchantsMap).find(m => {
+            const mSlug = slugify(m.business_name || m.merchant_name);
+            return mSlug.includes(storeSlug) || storeSlug.includes(mSlug);
+          });
+        }
+      } else if (mParam && window._localMerchantsMap) {
         targetMerchant = window._localMerchantsMap[mParam] || Object.values(window._localMerchantsMap).find(m => m.qr_public_code === mParam || m.id === mParam);
       }
 
-      // 2. If not found in current results, fetch directly from backend
-      if (!targetMerchant) {
+      // 2. If not found in current results, fetch directly from backend qr resolve
+      if (!targetMerchant && mParam) {
         try {
           const res = await fetch(`${BACKEND}/api/v1/qr/resolve/${encodeURIComponent(mParam)}`);
           const json = await res.json();
@@ -973,10 +1018,62 @@
         }
       }
 
-      if (targetMerchant && typeof openFullPageTakeover === 'function') {
+      // 3. If storeParam is not in local merchants, check if it's an online brand
+      if (!targetMerchant && storeParam) {
+        try {
+          const res = await fetch(`${BACKEND}/api/v1/public/online-merchants`);
+          const json = await res.json();
+          const onlineMerchants = json.data || [];
+          const storeSlug = slugify(storeParam);
+          const onlineMatch = onlineMerchants.find(m => {
+            const mSlug = slugify(m.business_name || m.merchant_name);
+            return mSlug === storeSlug || mSlug.includes(storeSlug) || storeSlug.includes(mSlug);
+          });
+          if (onlineMatch) {
+            window.location.href = `/codes.html?brand=${encodeURIComponent(storeSlug)}`;
+            return;
+          }
+        } catch (e) {}
+      }
+
+      if (targetMerchant) {
         _autoOpenTriggered = true;
-        // Open the VIP Business Card modal
-        openFullPageTakeover(targetMerchant);
+
+        const bName = targetMerchant.business_name || targetMerchant.merchant_name || 'Brand';
+        const bCity = targetMerchant.city || 'Orange County';
+        const bState = targetMerchant.state || 'CA';
+        document.title = `${bName} (${bCity}) — Verified Deals & Member Perks | Perkfinity`;
+
+        const heroTitle = document.getElementById('hero-title');
+        const heroSub = document.getElementById('hero-sub');
+        const breadcrumb = document.getElementById('geo-breadcrumb');
+
+        if (heroTitle) heroTitle.textContent = `${bName} — Exclusive Member Perks`;
+        if (heroSub) heroSub.textContent = `Claim verified in-store discounts, welcome perks, and VIP loyalty rewards at ${bName} in ${bCity}, ${bState}.`;
+        if (breadcrumb) {
+          const parentSlug = slugify(bCity);
+          breadcrumb.innerHTML = `<a href="/deals/orange-county" style="color:#c4b5fd; text-decoration:none;">Orange County</a> &rsaquo; <a href="/deals/${parentSlug}" style="color:#c4b5fd; text-decoration:none;">${bCity}</a> &rsaquo; <span style="color:#fff;">${bName}</span>`;
+          breadcrumb.style.display = 'block';
+        }
+
+        const metaDesc = document.querySelector('meta[name="description"]');
+        if (metaDesc) metaDesc.setAttribute('content', `Get exclusive verified member discounts and perks at ${bName} in ${bCity}, ${bState} on Perkfinity.`);
+        const ogTitle = document.querySelector('meta[property="og:title"]');
+        if (ogTitle) ogTitle.setAttribute('content', `${bName} Deals & Member Perks — Perkfinity`);
+
+        // Automatically open the appropriate modal:
+        // openPopup() handles both: VIP Takeover if is_fullpage_sponsored, else standard perk modal!
+        if (typeof openPopup === 'function') {
+          openPopup(targetMerchant);
+        } else if (typeof openFullPageTakeover === 'function') {
+          openFullPageTakeover(targetMerchant);
+        }
+      } else if (storeParam) {
+        // Friendly notice when store not found
+        const heroTitle = document.getElementById('hero-title');
+        const heroSub = document.getElementById('hero-sub');
+        if (heroTitle) heroTitle.textContent = `Local Stores & Perks Near You`;
+        if (heroSub) heroSub.innerHTML = `We couldn't find an active store matching <strong>"${storeParam.replace(/[-_]/g, ' ')}"</strong>. Explore all participating local perks below!`;
       }
     }
 
@@ -1117,7 +1214,7 @@
     }
 
     const urlParams = new URLSearchParams(window.location.search);
-    const searchParam = urlParams.get('search') || urlParams.get('store') || urlParams.get('q');
+    const searchParam = urlParams.get('search') || urlParams.get('q');
     const zipParam = urlParams.get('zip') || urlParams.get('postal_code');
     const cityParam = urlParams.get('city');
     const locParam = urlParams.get('loc') || urlParams.get('location');
