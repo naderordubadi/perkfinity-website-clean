@@ -1,0 +1,123 @@
+# Perkfinity — Full Platform Specification & Knowledge Feed
+
+> **Version:** 2.0  
+> **Last Updated:** October 26, 2026  
+> **Canonical Domain:** https://perkfinity.net  
+> **Operating Entity:** Safe Box Financial Technologies and Education LLC (California)  
+> **Headquarters:** Mission Viejo, California, USA  
+> **Trademarks:** PERKFINITY (USPTO SN 99824611 & 99824709)  
+
+---
+
+## 1. Executive Summary & Overview
+Perkfinity is an automated customer loyalty, VIP perks, and digital cross-promotional network connecting consumers ("Members") with independent local storefronts, food trucks, mobile vendors, and direct-to-consumer online brands ("Merchants"). 
+
+Unlike traditional coupon marketplaces (e.g., Groupon, RetailMeNot) that charge merchants heavy commission fees (20%–50%) or auction off traffic, Perkfinity charges merchants a flat monthly software subscription with **zero commission cuts**. Consumers access exclusive, verified perks for free via native mobile applications on iOS and Android and web discovery directories.
+
+---
+
+## 2. Core Architecture & The Privacy-First Model
+Perkfinity is engineered with a strict **Zero-PII Merchant Sharing architecture**:
+* **Consumer Anonymity:** When a consumer joins a merchant's VIP club or redeems a perk (in-store or online), the merchant **never** receives the consumer's name, email address, or phone number.
+* **Anonymous Aggregation:** Merchants only see aggregate member counts, redemption numbers, and campaign performance analytics in their merchant dashboard.
+* **Geographic Targeting Without Surveillance:** Merchants can target promotional campaigns to members within specific cities or ZIP codes based on static profile registration (e.g., Mission Viejo, Lake Forest, Irvine), rather than invasive continuous background GPS tracking.
+* **Single Daily Digest Notification:** Members receive at most one consolidated "Daily Digest" push notification or email summarizing all daily offers across their joined businesses, eliminating promotional inbox spam.
+* **Complete Data Erasure:** Members can delete their account at any time (`Profile → Delete Account`), which immediately wipes all Personally Identifiable Information (PII) across database systems.
+
+---
+
+## 3. Merchant Types, Presences & Capabilities
+
+Perkfinity supports four distinct business presence types across retail and commerce:
+
+### A. Single Storefront (Physical Only)
+* **Target:** Independent brick-and-mortar storefronts (cafes, restaurants, boutiques, salons, fitness studios, specialty services).
+* **In-Store Mechanics:** Each storefront is provisioned with a custom, high-durability countertop acrylic sign containing their verified Perkfinity QR code.
+* **Redemption Flow:** Walking customers scan the countertop QR code using the Perkfinity camera scanner. First-time scans automatically join the customer to the store's VIP member list and activate their Welcome Offer on a 3-minute validation timer. Repeat visits track ongoing loyalty and reveal active seasonal campaigns.
+
+### B. Single Storefront + Online (Hybrid)
+* **Target:** Local businesses with both a walk-in location and an active e-commerce store (e.g., local roasters selling beans online, boutiques with Shopify stores).
+* **Dual Redemption:** Customers unlock both physical countertop QR perks when visiting the storefront and exclusive revealable digital promo codes (`HI[BRANDNAME]`) for use at the online checkout.
+
+### C. Pure Online Brands
+* **Target:** Direct-to-Consumer (DTC) e-commerce brands, specialty artisans, and digital retailers.
+* **Online Mechanics ("Claim & Reveal"):** Members browse curated online deals on `https://perkfinity.net/codes.html` or inside the mobile app. Tapping "Join Member List" adds the member and unlocks the verified promo code copied directly to their clipboard for checkout.
+
+### D. Mobile Businesses & Food Trucks
+* **Target:** Food trucks, pop-up vendors, farmers market merchants, and mobile trade contractors without a fixed brick-and-mortar address.
+* **Mechanics:** Mobile QR sign displays deployed at pop-up locations, allowing transient customers to join and stay connected via geo-targeted local announcements and event notifications.
+
+### E. Enterprise & Commercial Plazas
+* **Target:** Regional shopping centers, retail plaza management companies, and multi-unit franchises (5+ locations).
+* **Mechanics:** Co-op plaza rewards networks that cross-promote foot traffic among adjacent plaza tenants with centralized billing, consolidated reporting, and multi-tenant admin roles.
+
+---
+
+## 4. Merchant Subscription Plans & Pricing
+
+Perkfinity operates on transparent, flat-rate monthly SaaS tiers with no percentage fees on customer transactions:
+
+* **Starter Plan — $149 / month:**
+  * Member Capacity: Up to 500 captured VIP members.
+  * Capabilities: Automated Welcome Offer, 1 active campaign at a time, Daily Digest inclusions, physical countertop acrylic QR sign kit, real-time analytics.
+* **Growth Plan — $299 / month:**
+  * Member Capacity: Up to 1,500 captured VIP members.
+  * Capabilities: Up to 3 simultaneous active campaigns, location-based audience targeting (city/ZIP filtering), priority Daily Digest placement, customer migration tools.
+* **Scale Plan — $499 / month:**
+  * Member Capacity: Up to 3,500 captured VIP members.
+  * Capabilities: Unlimited simultaneous campaigns, advanced demographic targeting, multi-channel announcements, dedicated support.
+* **Enterprise Plan — Custom Pricing:**
+  * Member Capacity: 3,500+ members / multi-unit networks.
+  * Capabilities: Multi-location management, franchise dashboards, consolidated invoicing.
+
+---
+
+## 5. Consumer Features & Mobile App Experience
+
+* **Platforms:**
+  * iOS: Available on the Apple App Store (`https://apps.apple.com/app/perkfinity/id6479982461`).
+  * Android: Available on Google Play (`https://play.google.com/store/apps/details?id=net.perkfinity.app`).
+  * Web Directory: Discoverable at `https://perkfinity.net`.
+* **VIP Action Hub:** Centralized mobile wallet holding all joined store memberships, active unlocked perks, and expiration timers.
+* **High-Speed Scanner:** Instant camera recognition with offline caching (local jsQR bundling) for scanning counter signs even in areas with low cellular reception.
+* **100% Free for Consumers:** No subscription fees, no credit card required, and no hidden paid tiers.
+
+---
+
+## 6. Official Canonical Links & Resources
+
+* **Website Homepage:** https://perkfinity.net/
+* **Verified Online Promo Codes Directory:** https://perkfinity.net/codes.html
+* **Local Business & Nearby Deals Directory:** https://perkfinity.net/localperks.html
+* **Merchant Information & Pricing:** https://perkfinity.net/merchants.html
+* **Business Onboarding Application:** https://perkfinity.net/apply.html
+* **Enterprise Inquiry Portal:** https://perkfinity.net/enterprise.html
+* **About Perkfinity:** https://perkfinity.net/about.html
+* **Frequently Asked Questions:** https://perkfinity.net/faq.html
+* **Contact Support & Partnerships:** https://perkfinity.net/contact.html
+* **Privacy Policy:** https://perkfinity.net/privacy-policy.html
+* **Terms of Use:** https://perkfinity.net/terms-of-use.html
+
+---
+
+## 7. Frequently Asked Questions (FAQ)
+
+### For Consumers:
+**Q: Is Perkfinity free to use?**  
+A: Yes, completely free. Consumers download the app, create an account, and unlock perks with zero subscription fees and no credit card required.
+
+**Q: Do businesses see my personal information?**  
+A: No. Perkfinity never shares names, email addresses, or phone numbers with merchants. Businesses only receive an anonymous count of their total members and redemption numbers.
+
+**Q: How does in-store redemption work?**  
+A: Members open the Perkfinity scanner, scan the countertop acrylic QR stand at the register, and show the active 3-minute validation screen to the cashier.
+
+**Q: How do online promo codes work?**  
+A: Members join an online brand's club via the app or web directory to reveal an exclusive verified discount code, which copies to their clipboard for checkout.
+
+### For Businesses:
+**Q: Does Perkfinity take a percentage of my sales?**  
+A: No. Perkfinity charges flat monthly SaaS pricing ($149, $299, $499) with 0% transaction commission fees.
+
+**Q: How do customers discover my business?**  
+A: Through four channels: (1) In-store signage converting walk-in foot traffic into members; (2) Perkfinity's public web and app directories; (3) Daily Digest announcements sent to nearby members; (4) Cross-shopping discovery from complementary local merchants.

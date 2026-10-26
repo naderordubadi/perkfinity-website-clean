@@ -6,6 +6,7 @@
 Perkfinity is an automated customer acquisition and loyalty network that connects consumers with exclusive perks from local businesses and online ecommerce brands. Consumers unlock instant discounts and perks via the Perkfinity web directory and mobile apps (iOS and Android). Businesses join to attract repeat customers and build cross-promotional community reach without paying high marketplace commission cuts.
 
 ## Key Directories & Links
+- [Full LLM Specification & Directory Feed](https://perkfinity.net/llms-full.txt): Complete platform architecture, merchant pricing tiers, FAQ documentation, and operational standards.
 - [Online Brand Deals & Verified Promo Codes](https://perkfinity.net/codes.html): Discover verified discount codes, initial perks, and online store promotions across beauty, apparel, specialty coffee, and ecommerce.
 - [Local Store & Food Truck Perks](https://perkfinity.net/localperks.html): Search for physical storefronts, food trucks, mobile services, and pop-ups offering perks in Mission Viejo, Orange County, CA, and neighboring regions.
 - [Business Application](https://perkfinity.net/apply.html): Universal application portal for businesses (Physical Storefronts, Mobile/Food Trucks, Online Brands, and Multi-Location Chains) to join the Perkfinity network.
