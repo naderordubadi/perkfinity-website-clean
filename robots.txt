@@ -5,6 +5,7 @@ User-agent: *
 Allow: /
 Allow: /codes.html
 Allow: /localperks.html
+Allow: /deals/
 Allow: /merchants.html
 Allow: /get-started.html
 Allow: /apply.html

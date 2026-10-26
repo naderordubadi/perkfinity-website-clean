@@ -629,8 +629,9 @@
 
         <div style="display: flex; align-items: center; justify-content: space-between; max-width: 1100px; margin: 0 auto 24px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 16px 24px; flex-wrap: wrap; gap: 16px;">
           <div style="text-align: left;">
-            <h1 style="font-size: 20px; margin: 0 0 4px 0; color: #fff;">Local Stores, Food Trucks &amp; Mobile Businesses</h1>
-            <p style="font-size: 14px; margin: 0; color: rgba(255,255,255,0.8);">Find exclusive perks from local businesses near you.</p>
+            <div id="geo-breadcrumb" style="display:none; font-size:12px; margin-bottom:6px; font-weight:600;"></div>
+            <h1 id="hero-title" style="font-size: 20px; margin: 0 0 4px 0; color: #fff;">Local Stores, Food Trucks &amp; Mobile Businesses</h1>
+            <p id="hero-sub" style="font-size: 14px; margin: 0; color: rgba(255,255,255,0.8);">Find exclusive perks from local businesses near you.</p>
           </div>
           <button id="filter-toggle-btn" class="filter-toggle-btn" onclick="toggleFilters()" style="margin: 0; border-radius: 12px; padding: 12px 20px;">
             <span style="font-size:16px;">🔍</span> Search &amp; Filters
@@ -705,7 +706,14 @@
               <li><strong>Family &amp; Children:</strong> STEM learning centers, martial arts, tutoring, and family entertainment.</li>
               <li><strong>Automotive &amp; Home Services:</strong> Trusted local mechanics, detailing, and home contractors.</li>
             </ul>
-            <p style="color:#555; font-size:14px; margin-bottom:0;">To discover deals near your current location and scan in-store QR counter stands, download the free Perkfinity app for iOS and Android, or enable JavaScript.</p>
+            <p style="color:#555; font-size:14px; margin-bottom:14px;">To discover deals near your current location and scan in-store QR counter stands, download the free Perkfinity app for iOS and Android, or enable JavaScript.</p>
+            <h3 style="font-size:16px; font-weight:700; color:#5b3fa5;">Active Regional Directories</h3>
+            <p style="color:#555; line-height:1.6; margin-bottom:0;">
+              <a href="/deals/orange-county" style="color:#5b3fa5; font-weight:700; text-decoration:underline;">Orange County Deals Hub</a> · 
+              <a href="/deals/mission-viejo" style="color:#5b3fa5; font-weight:700; text-decoration:underline;">Mission Viejo Local Perks</a> · 
+              <a href="/deals/lake-forest" style="color:#5b3fa5; font-weight:700; text-decoration:underline;">Lake Forest Perks</a> · 
+              <a href="/deals/irvine" style="color:#5b3fa5; font-weight:700; text-decoration:underline;">Irvine Deals</a>
+            </p>
           </div>
         </noscript>
         <div id="lp-state" class="state-box" style="display:none;"></div>
@@ -751,6 +759,13 @@
       document.querySelector('.presence-row .pres-chip[data-pres="all"]')?.classList.add('active');
       document.querySelectorAll('.filter-bar .filter-chip').forEach(c => c.classList.remove('active'));
       document.querySelector('.filter-bar .filter-chip[data-cat="all"]')?.classList.add('active');
+      const breadcrumb = document.getElementById('geo-breadcrumb');
+      if (breadcrumb) breadcrumb.style.display = 'none';
+      const heroTitle = document.getElementById('hero-title');
+      if (heroTitle) heroTitle.textContent = 'Local Stores, Food Trucks & Mobile Businesses';
+      const heroSub = document.getElementById('hero-sub');
+      if (heroSub) heroSub.textContent = 'Find exclusive perks from local businesses near you.';
+      document.title = 'Nearby Deals & Local Business Perks — Perkfinity';
       renderTags();
       doSearch();
     }
@@ -1073,22 +1088,90 @@
       startCarouselAutoSlide();
     }
 
-    // Check deep-link URL search parameters (e.g. ?search=... or ?zip=... or ?city=...)
+    // Programmatic Geo-Routing & Deep-Link Parameter Parser
+    const GEO_MAP = {
+      'orange-county': { name: 'Orange County', type: 'county', state: 'CA' },
+      'oc': { name: 'Orange County', type: 'county', state: 'CA' },
+      'mission-viejo': { name: 'Mission Viejo', type: 'city', state: 'CA', county: 'Orange County', parentSlug: 'orange-county' },
+      'lake-forest': { name: 'Lake Forest', type: 'city', state: 'CA', county: 'Orange County', parentSlug: 'orange-county' },
+      'irvine': { name: 'Irvine', type: 'city', state: 'CA', county: 'Orange County', parentSlug: 'orange-county' },
+      'laguna-niguel': { name: 'Laguna Niguel', type: 'city', state: 'CA', county: 'Orange County', parentSlug: 'orange-county' },
+      'rancho-santa-margarita': { name: 'Rancho Santa Margarita', type: 'city', state: 'CA', county: 'Orange County', parentSlug: 'orange-county' },
+      'aliso-viejo': { name: 'Aliso Viejo', type: 'city', state: 'CA', county: 'Orange County', parentSlug: 'orange-county' },
+      'san-clemente': { name: 'San Clemente', type: 'city', state: 'CA', county: 'Orange County', parentSlug: 'orange-county' },
+      'dana-point': { name: 'Dana Point', type: 'city', state: 'CA', county: 'Orange County', parentSlug: 'orange-county' },
+      'ladera-ranch': { name: 'Ladera Ranch', type: 'city', state: 'CA', county: 'Orange County', parentSlug: 'orange-county' },
+      'los-angeles': { name: 'Los Angeles', type: 'county', state: 'CA' },
+      'la': { name: 'Los Angeles', type: 'county', state: 'CA' },
+      'pasadena': { name: 'Pasadena', type: 'city', state: 'CA', county: 'Los Angeles', parentSlug: 'los-angeles' },
+      'long-beach': { name: 'Long Beach', type: 'city', state: 'CA', county: 'Los Angeles', parentSlug: 'los-angeles' },
+      'glendale': { name: 'Glendale', type: 'city', state: 'CA', county: 'Los Angeles', parentSlug: 'los-angeles' }
+    };
+
+    function resolveGeoLocation(slug) {
+      if (!slug) return null;
+      const clean = slug.toLowerCase().trim().replace(/[^a-z0-9\-]/g, '');
+      if (GEO_MAP[clean]) return GEO_MAP[clean];
+      const title = clean.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+      return { name: title, type: 'city', state: 'CA' };
+    }
+
     const urlParams = new URLSearchParams(window.location.search);
     const searchParam = urlParams.get('search') || urlParams.get('store') || urlParams.get('q');
     const zipParam = urlParams.get('zip') || urlParams.get('postal_code');
     const cityParam = urlParams.get('city');
+    const locParam = urlParams.get('loc') || urlParams.get('location');
+
+    let geo = null;
+    if (locParam) {
+      geo = resolveGeoLocation(locParam);
+    } else if (cityParam) {
+      geo = resolveGeoLocation(cityParam.toLowerCase().replace(/\s+/g, '-')) || { name: cityParam, type: 'city', state: 'CA' };
+    }
 
     if (searchParam) {
-      const qInput = document.getElementById('search-query');
+      const qInput = document.getElementById('search-q');
       if (qInput) qInput.value = searchParam;
     }
     if (zipParam) {
-      const zipInput = document.getElementById('search-zip');
+      const zipInput = document.getElementById('zip-input');
       if (zipInput) zipInput.value = zipParam;
     }
-    if (cityParam) {
-      const cityInput = document.getElementById('search-city');
+
+    if (geo) {
+      const heroTitle = document.getElementById('hero-title');
+      const heroSub = document.getElementById('hero-sub');
+      const breadcrumb = document.getElementById('geo-breadcrumb');
+
+      if (geo.type === 'county') {
+        if (heroTitle) heroTitle.textContent = `Exclusive Deals & Local Perks Across ${geo.name}, ${geo.state}`;
+        if (heroSub) heroSub.textContent = `Discover verified dining, retail, and service perks from local businesses across ${geo.name}.`;
+        document.title = `${geo.name} Deals, Local Discounts & Promo Codes | Perkfinity`;
+        if (breadcrumb) {
+          breadcrumb.innerHTML = `<span style="color:#a78bfa;">📍 California</span> &rsaquo; <span style="color:#fff;">${geo.name}</span>`;
+          breadcrumb.style.display = 'block';
+        }
+      } else {
+        // City level
+        if (heroTitle) heroTitle.textContent = `Exclusive Deals & Local Perks in ${geo.name}, ${geo.state}`;
+        if (heroSub) heroSub.textContent = `Discover verified dining, retail, and local service perks in ${geo.name}.`;
+        document.title = `${geo.name} Deals, Local Discounts & Promo Codes | Perkfinity`;
+        const cityInput = document.getElementById('city-input');
+        if (cityInput) cityInput.value = geo.name;
+        if (breadcrumb) {
+          const parentName = geo.county || 'Orange County';
+          const parentSlug = geo.parentSlug || 'orange-county';
+          breadcrumb.innerHTML = `<a href="/deals/${parentSlug}" style="color:#c4b5fd; text-decoration:none;">${parentName}</a> &rsaquo; <span style="color:#fff;">${geo.name}</span>`;
+          breadcrumb.style.display = 'block';
+        }
+      }
+
+      const metaDesc = document.querySelector('meta[name="description"]');
+      if (metaDesc) metaDesc.setAttribute('content', `Discover exclusive perks and discounts from local businesses in ${geo.name}, ${geo.state} with Perkfinity.`);
+      const ogTitle = document.querySelector('meta[property="og:title"]');
+      if (ogTitle) ogTitle.setAttribute('content', `${geo.name} Deals & Local Perks — Perkfinity`);
+    } else if (cityParam) {
+      const cityInput = document.getElementById('city-input');
       if (cityInput) cityInput.value = cityParam;
     }
 
