@@ -4913,7 +4913,37 @@
         if (titleEl) titleEl.textContent = d.merchant_name || d.business_name || 'Store ROI';
         const tierBadge = document.getElementById('roi-modal-tier-badge');
         if (tierBadge) {
-          tierBadge.textContent = (d.tier || d.subscription_tier || 'Free / Starter').replace(/_/g, ' ');
+          const memMerchant = (typeof _trafficSummaryData !== 'undefined' && _trafficSummaryData?.merchants?.find(x => (x.merchant_id || x.id) === merchantId))
+            || (typeof allMerchants !== 'undefined' && allMerchants?.find(x => x.id === merchantId))
+            || (typeof _allPresetupMerchants !== 'undefined' && _allPresetupMerchants?.find(x => x.id === merchantId))
+            || {};
+
+          const isPresetup = d.is_presetup || memMerchant.is_presetup || (d.tier && d.tier.startsWith('presetup')) || (memMerchant.tier && memMerchant.tier.startsWith('presetup')) || (memMerchant.subscription_tier && memMerchant.subscription_tier.startsWith('presetup'));
+          const memberLimit = d.member_limit || memMerchant.member_limit;
+          const tierRaw = d.tier || d.subscription_tier || memMerchant.tier || memMerchant.subscription_tier || 'free';
+
+          let formattedTier = 'Free / Starter';
+          if (isPresetup) {
+            formattedTier = `Pre-Setup (${memberLimit || 50})`;
+          } else if (tierRaw === 'tier1') {
+            formattedTier = 'Connect';
+          } else if (tierRaw === 'free_for_life') {
+            formattedTier = 'Free For Life';
+          } else if (tierRaw === 'online_starter' || tierRaw === 'starter') {
+            formattedTier = 'Starter';
+          } else if (tierRaw === 'online_growth' || tierRaw === 'growth') {
+            formattedTier = 'Growth';
+          } else if (tierRaw === 'online_scale' || tierRaw === 'scale') {
+            formattedTier = 'Scale';
+          } else if (tierRaw === 'enterprise') {
+            formattedTier = 'Enterprise';
+          } else if (tierRaw === 'trial' || tierRaw === 'free_trial' || tierRaw === 'extended_trial') {
+            formattedTier = 'Free Trial';
+          } else {
+            formattedTier = tierRaw.replace('online_', '').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+          }
+
+          tierBadge.textContent = formattedTier;
         }
 
         const periodLabel = d.period?.start_date && d.period?.end_date
