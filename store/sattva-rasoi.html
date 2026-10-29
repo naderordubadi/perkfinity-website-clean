@@ -165,6 +165,22 @@
     .qr-disclaimer a { color: #5B3FA5; text-decoration: none; }
     .qr-disclaimer a:hover { text-decoration: underline; }
 
+    /* Standard / Non-VIP Store Card (matches reveal-popup-dynamic) */
+    .store-standard-card {
+      max-width: 520px; margin: 0 auto 48px; background: #fff; border-radius: 24px; padding: 28px 24px;
+      box-shadow: 0 20px 45px -10px rgba(0,0,0,0.08); border: 1px solid #E2E8F0; text-align: center;
+    }
+    .standard-brand-row { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; text-align: left; }
+    .standard-logo-wrap { width: 56px; height: 56px; border-radius: 14px; overflow: hidden; flex-shrink: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.05); display: grid; place-items: center; border: 1px solid #E2E8F0; background: #fff; }
+    .standard-logo-img { width: 100%; height: 100%; object-fit: contain; }
+    .standard-brand-name { font-size: 20px; font-weight: 900; color: #0F172A; margin: 0 0 4px; }
+    .standard-offer-text { font-size: 14.5px; color: #7C3AED; font-weight: 700; margin: 0 0 6px; }
+    .standard-meta-row { font-size: 12px; color: #64748B; font-weight: 600; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .standard-contact-links { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; font-size: 12.5px; }
+    .standard-contact-links a { color: #5B3FA5; font-weight: 700; text-decoration: none; }
+    .standard-contact-links a:hover { text-decoration: underline; }
+    .standard-qr-box { background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 16px; padding: 20px; margin-bottom: 20px; }
+
     /* Download App Modal */
     .download-modal-overlay {
       position: fixed; inset: 0; background: rgba(15,23,42,0.65); z-index: 9999;
@@ -262,98 +278,100 @@
 
   <!-- Store Landing Main -->
   <main class="store-container">
-    <article class="store-hero-card" id="store-card">
-      
-      <!-- Main Content Column -->
-      <div class="store-main-col">
+    
+      <article class="store-hero-card" id="store-card">
         
-          <div class="store-banner-wrap">
-            <span id="sponsored-badge" class="store-sponsored-badge">Sponsored</span>
-            <img src="https://abpxpzs9x2k2a7ay.public.blob.vercel-storage.com/merchants/03904dc9-6544-4ed8-8fb2-b6a250c82aa7/cover-OzXAXtmJ7sO84j3E9Hc0AfQNVoDXgD.jpg" alt="Sattva Rasoi Banner" class="store-banner-img" onerror="this.style.display='none';">
-          </div>
-        
+        <!-- Main Content Column -->
+        <div class="store-main-col">
+          
+            <div class="store-banner-wrap">
+              <span id="sponsored-badge" class="store-sponsored-badge">Sponsored</span>
+              <img src="https://abpxpzs9x2k2a7ay.public.blob.vercel-storage.com/merchants/03904dc9-6544-4ed8-8fb2-b6a250c82aa7/cover-OzXAXtmJ7sO84j3E9Hc0AfQNVoDXgD.jpg" alt="Sattva Rasoi Banner" class="store-banner-img" onerror="this.style.display='none';">
+            </div>
+          
 
-        <div class="store-brand-header">
-          <div class="store-logo-wrap">
-            <img src="https://abpxpzs9x2k2a7ay.public.blob.vercel-storage.com/merchants/03904dc9-6544-4ed8-8fb2-b6a250c82aa7/logo-GCdkdOIuyenXtZxaHGYa8O0jae8AZy.jpg" alt="Sattva Rasoi Logo" class="store-logo-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><div class="store-logo-placeholder" style="display:none;">SR</div>
-          </div>
-          <div>
-            <h1 class="store-title">Sattva Rasoi</h1>
-            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-              <span class="store-cat-badge">🏪 Restaurants &amp; Dining</span>
-              
-              <span style="font-size:13px; color:#64748B; font-weight:600;">📍 Mission Viejo, CA</span>
+          <div class="store-brand-header">
+            <div class="store-logo-wrap">
+              <img src="https://abpxpzs9x2k2a7ay.public.blob.vercel-storage.com/merchants/03904dc9-6544-4ed8-8fb2-b6a250c82aa7/logo-GCdkdOIuyenXtZxaHGYa8O0jae8AZy.jpg" alt="Sattva Rasoi Logo" class="store-logo-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><div class="store-logo-placeholder" style="display:none;">SR</div>
+            </div>
+            <div>
+              <h1 class="store-title">Sattva Rasoi</h1>
+              <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                <span class="store-cat-badge">🏪 Restaurants &amp; Dining</span>
+                
+                <span style="font-size:13px; color:#64748B; font-weight:600;">📍 Mission Viejo, CA</span>
+              </div>
             </div>
           </div>
-        </div>
 
-        
-          <div class="store-desc-box">
-            <strong>📝 About this Business &amp; Promotion:</strong>
-            Welcome to Sattva Indian Rasoi in Mission Viejo, where the warmth of a traditional Indian kitchen meets authentic regional culinary craft. 
+          
+            <div class="store-desc-box">
+              <strong>📝 About this Business &amp; Promotion:</strong>
+              Welcome to Sattva Indian Rasoi in Mission Viejo, where the warmth of a traditional Indian kitchen meets authentic regional culinary craft. 
 
 True to our name—&quot;Rasoi,&quot; meaning kitchen—we bring you wholesome, homestyle Indian delicacies prepared with the freshest ingredients, whole spices, and time-honored techniques from Northern, Central, and Southern India.
 
 From our piping-hot clay tandoor churning out tender tikkas, kebabs, and freshly baked garlic naans, to slow-simmered curries, aromatic biryanis, and rich vegetarian specialties, every dish is crafted with care and passion. Whether you are joining us for lunch, an intimate family dinner, or ordering your favorite takeout, Sattva Indian Rasoi is dedicated to delivering genuine hospitality and the true flavors of home.
-          </div>
-        
-
-        <!-- The Verified Deal -->
-        <div class="perk-highlight-box">
-          <div class="perk-tag">🏷️ Exclusive Member Perk</div>
-          <div class="perk-title" id="live-perk-text">$5 Off Order of $35 (Lunch Menu Excluded - Dine-in Only)</div>
-          <p class="perk-sub">Scan the QR code to open/download Perkfinity and claim this offer!</p>
-        </div>
-      </div>
-
-      <!-- Action & QR Column -->
-      <aside class="store-side-col">
-        <div class="qr-card-wrap">
-          <div class="qr-canvas-holder" id="qr-container">
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&amp;data=https%3A%2F%2Fperkfinity.net%2Fjoin%2FmrMUqf_uljsQ" alt="Perkfinity Counter QR Code" width="180" height="180" style="border-radius:12px; display:block;" />
-          </div>
-          <a href="https://perkfinity.net/join/mrMUqf_uljsQ" target="_blank" rel="noopener" class="qr-link">https://perkfinity.net/join/mrMUqf_uljsQ</a>
-
-          <div class="qr-paths">
-            <div class="qr-path-amber">
-              <div class="qr-path-title-amber">📱 DON&#39;T HAVE THE APP?</div>
-              <p class="qr-path-desc-amber">Open your phone&#39;s camera → Scan the QR code → Download Perkfinity → Join the merchant → Visit the store to activate your perk.</p>
             </div>
-            <div class="qr-path-green">
-              <div class="qr-path-title-green">✅ ALREADY HAVE THE APP?</div>
-              <p class="qr-path-desc-green">Open Perkfinity → Tap <strong>Scan</strong> → Scan this QR code → Join the merchant → Visit the store and scan again to activate.</p>
-            </div>
-          </div>
+          
 
-          <p class="qr-disclaimer">
-            Unlock your perk inside the app to redeem in person or online.<br>
-            By joining, you agree to our <a href="/terms-of-use.html" target="_blank">Terms of Use</a> &amp;
-            <a href="/privacy-policy.html" target="_blank">Privacy Policy</a>.
-          </p>
+          <!-- The Verified Deal -->
+          <div class="perk-highlight-box">
+            <div class="perk-tag">🏷️ Exclusive Member Perk</div>
+            <div class="perk-title" id="live-perk-text">$5 Off Order of $35 (Lunch Menu Excluded - Dine-in Only)</div>
+            <p class="perk-sub">Scan the QR code to open/download Perkfinity and claim this offer!</p>
+          </div>
         </div>
 
-        <div class="action-btn-group">
-          <a href="https://www.sattvaindian.com/online-ordering?locationId=6aedd869-7a35-4fd8-9538-e6da79ee4a50" target="_blank" rel="noopener nofollow" class="act-btn act-btn-order">🛒 Order / Book Now</a>
-          <a href="https://www.yelp.com/biz/sattva-indian-rasoi-mission-viejo-3?utm_campaign=www_business_share_popup&amp;utm_medium=copy_link&amp;utm_source=(direct)" target="_blank" rel="noopener nofollow" class="act-btn act-btn-review">⭐ View Yelp Reviews</a>
-          <a href="https://www.sattvaindianrasoi.com" target="_blank" rel="noopener nofollow" class="act-btn act-btn-web">🌐 Official Website</a>
-          <a href="tel:9493289374" class="act-btn act-btn-phone">📞 Call Business</a>
-          <a href="mailto:sattvaindianrasoi@yahoo.com" class="act-btn act-btn-email">✉️ Email Business</a>
-        </div>
+        <!-- Action & QR Column -->
+        <aside class="store-side-col">
+          <div class="qr-card-wrap">
+            <div class="qr-canvas-holder" id="qr-container">
+              <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&amp;data=https%3A%2F%2Fperkfinity.net%2Fjoin%2FmrMUqf_uljsQ" alt="Perkfinity Counter QR Code" width="180" height="180" style="border-radius:12px; display:block;" />
+            </div>
+            <a href="https://perkfinity.net/join/mrMUqf_uljsQ" target="_blank" rel="noopener" class="qr-link">https://perkfinity.net/join/mrMUqf_uljsQ</a>
 
-        
-          <div style="width:100%; margin-top:20px;">
-            <div style="font-weight:700; font-size:13.5px; color:#1E293B; margin-bottom:8px;">📍 Where To Redeem</div>
-            <div class="store-map-wrap" style="margin-top:0;">
-              <iframe width="100%" height="180" frameborder="0" style="border:0;" src="https://maps.google.com/maps?q=23981%20Alicia%20Pkwy%20Ste%20130%2C%20Mission%20Viejo%2C%20CA%2C%2092691&t=&z=14&ie=UTF8&iwloc=&output=embed" allowfullscreen loading="lazy"></iframe>
+            <div class="qr-paths">
+              <div class="qr-path-amber">
+                <div class="qr-path-title-amber">📱 DON&#39;T HAVE THE APP?</div>
+                <p class="qr-path-desc-amber">Open your phone&#39;s camera → Scan the QR code → Download Perkfinity → Join the merchant → Visit the store to activate your perk.</p>
+              </div>
+              <div class="qr-path-green">
+                <div class="qr-path-title-green">✅ ALREADY HAVE THE APP?</div>
+                <p class="qr-path-desc-green">Open Perkfinity → Tap <strong>Scan</strong> → Scan this QR code → Join the merchant → Visit the store and scan again to activate.</p>
+              </div>
             </div>
-            <div class="store-address-text">
-              <span>📍 23981 Alicia Pkwy Ste 130, Mission Viejo, CA, 92691</span>
-            </div>
+
+            <p class="qr-disclaimer">
+              Unlock your perk inside the app to redeem in person or online.<br>
+              By joining, you agree to our <a href="/terms-of-use.html" target="_blank">Terms of Use</a> &amp;
+              <a href="/privacy-policy.html" target="_blank">Privacy Policy</a>.
+            </p>
           </div>
-        
-      </aside>
 
-    </article>
+          <div class="action-btn-group">
+            <a href="https://www.sattvaindian.com/online-ordering?locationId=6aedd869-7a35-4fd8-9538-e6da79ee4a50" target="_blank" rel="noopener nofollow" class="act-btn act-btn-order">🛒 Order / Book Now</a>
+            <a href="https://www.yelp.com/biz/sattva-indian-rasoi-mission-viejo-3?utm_campaign=www_business_share_popup&amp;utm_medium=copy_link&amp;utm_source=(direct)" target="_blank" rel="noopener nofollow" class="act-btn act-btn-review">⭐ View Yelp Reviews</a>
+            <a href="https://www.sattvaindianrasoi.com" target="_blank" rel="noopener nofollow" class="act-btn act-btn-web">🌐 Official Website</a>
+            <a href="tel:9493289374" class="act-btn act-btn-phone">📞 Call Business</a>
+            <a href="mailto:sattvaindianrasoi@yahoo.com" class="act-btn act-btn-email">✉️ Email Business</a>
+          </div>
+
+          
+            <div style="width:100%; margin-top:20px;">
+              <div style="font-weight:700; font-size:13.5px; color:#1E293B; margin-bottom:8px;">📍 Where To Redeem</div>
+              <div class="store-map-wrap" style="margin-top:0;">
+                <iframe width="100%" height="180" frameborder="0" style="border:0;" src="https://maps.google.com/maps?q=23981%20Alicia%20Pkwy%20Ste%20130%2C%20Mission%20Viejo%2C%20CA%2C%2092691&t=&z=14&ie=UTF8&iwloc=&output=embed" allowfullscreen loading="lazy"></iframe>
+              </div>
+              <div class="store-address-text">
+                <span>📍 23981 Alicia Pkwy Ste 130, Mission Viejo, CA, 92691</span>
+              </div>
+            </div>
+          
+        </aside>
+
+      </article>
+    
 
     <!-- Nearby Merchants Section -->
     
@@ -458,9 +476,10 @@ From our piping-hot clay tandoor churning out tender tikkas, kebabs, and freshly
     (function() {
       // 1. Render high-res canvas QR code locally if QRCode library is active
       const joinUrl = "https://perkfinity.net/join/mrMUqf_uljsQ";
+      const qrCanvasSize = 180;
       if (typeof QRCode !== 'undefined') {
         const qrContainer = document.getElementById('qr-container');
-        QRCode.toCanvas(document.createElement('canvas'), joinUrl, { width: 180, margin: 0 }, function(err, canvas) {
+        QRCode.toCanvas(document.createElement('canvas'), joinUrl, { width: qrCanvasSize, margin: 0 }, function(err, canvas) {
           if (!err && canvas) {
             qrContainer.innerHTML = '';
             canvas.style.borderRadius = '12px';
