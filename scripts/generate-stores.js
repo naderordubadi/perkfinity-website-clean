@@ -547,10 +547,12 @@ async function main() {
 
     const htmlContent = buildStorePageHtml(m, merchants);
     const indexPath = path.join(storeSubdir, 'index.html');
+    const flatPath = path.join(STORE_DIR, `${slug}.html`);
 
     fs.writeFileSync(indexPath, htmlContent, 'utf8');
+    fs.writeFileSync(flatPath, htmlContent, 'utf8');
     generatedSlugs.push(slug);
-    console.log(`  ✓ Generated: /store/${slug}/index.html (${m.business_name})`);
+    console.log(`  ✓ Generated: /store/${slug} (${m.business_name})`);
   }
 
   // Auto-sync sitemap.xml

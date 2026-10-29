@@ -1,4 +1,6 @@
 {
+  "cleanUrls": true,
+  "trailingSlash": false,
   "headers": [
     { "source": "/(.*)", "headers": [{ "key": "Cache-Control", "value": "no-store" }] },
     {
@@ -11,7 +13,6 @@
     }
   ],
   "rewrites": [
-    { "source": "/store/:merchant", "destination": "/localperks.html?store=:merchant" },
     { "source": "/deals/store/:merchant", "destination": "/localperks.html?store=:merchant" },
     { "source": "/deals/:location", "destination": "/localperks.html?loc=:location" },
     { "source": "/deals", "destination": "/localperks.html" },
