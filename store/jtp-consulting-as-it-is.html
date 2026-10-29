@@ -107,8 +107,9 @@
     .store-banner-img { width: 100%; height: 260px; object-fit: cover; display: block; }
     .store-sponsored-badge {
       position: absolute; top: 12px; left: 12px; z-index: 5;
-      background: rgba(0,0,0,0.55); color: #fff; border: 1px solid rgba(255,255,255,0.25);
-      backdrop-filter: blur(6px); padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: 700;
+      background: rgba(0,0,0,0.55); color: rgba(255,255,255,0.92); border: 1px solid rgba(255,255,255,0.2);
+      backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; letter-spacing: 0.2px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
     }
 
     .store-brand-header { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; }
@@ -266,7 +267,7 @@
       <div class="store-main-col">
         
           <div class="store-banner-wrap">
-            <span class="store-sponsored-badge">Verified Partner</span>
+            <span id="sponsored-badge" class="store-sponsored-badge">Sponsored</span>
             <img src="https://abpxpzs9x2k2a7ay.public.blob.vercel-storage.com/merchants/33f92f19-7f77-4fda-b7e9-078b65592ec8/banner-WeBwmCFcRdANOReF2AY60UDF3HlESz.jpg" alt="JTP Consulting as it is Banner" class="store-banner-img" onerror="this.style.display='none';">
           </div>
         
@@ -477,9 +478,17 @@
             if (card) {
               card.innerHTML = '<div style="padding:48px; text-align:center; width:100%;"><h2 style="color:#991B1B;">Offer Currently Unavailable</h2><p style="color:#64748B;">This merchant offer has ended or is currently paused.</p><a href="/localperks.html" style="display:inline-block; margin-top:16px; background:#5B3FA5; color:#fff; padding:10px 24px; border-radius:10px; text-decoration:none; font-weight:700;">Explore Other Deals →</a></div>';
             }
-          } else if (currentStore.welcome_offer_text && currentStore.welcome_offer_text !== "Free Consultation / First Visit") {
-            const perkEl = document.getElementById('live-perk-text');
-            if (perkEl) perkEl.textContent = currentStore.welcome_offer_text;
+          } else {
+            if (currentStore.welcome_offer_text && currentStore.welcome_offer_text !== "Free Consultation / First Visit") {
+              const perkEl = document.getElementById('live-perk-text');
+              if (perkEl) perkEl.textContent = currentStore.welcome_offer_text;
+            }
+            // Real-time Sponsored badge verification (omitted if not paid/expired)
+            const isNowVip = Boolean(currentStore.is_fullpage_sponsored && (!currentStore.fullpage_sponsored_until || new Date(currentStore.fullpage_sponsored_until) >= new Date()));
+            const badge = document.getElementById('sponsored-badge');
+            if (badge && !isNowVip) {
+              badge.remove();
+            }
           }
         })
         .catch(err => {
