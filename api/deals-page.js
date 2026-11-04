@@ -252,7 +252,16 @@ module.exports = async function handler(req, res) {
       || (req.url.match(/\/deals\/([^/?#]+)/) || [])[1]
       || 'orange-county';
 
-    const merchants = await fetchMerchants();
+    const cleanLoc = slugify(decodeURIComponent(rawLoc));
+    const isCounty = Boolean(COUNTY_MAP[cleanLoc] || cleanLoc.endsWith('-county'));
+    let merchants = [];
+    if (!isCounty && cleanLoc) {
+      const cityQuery = cleanLoc.replace(/-/g, ' ');
+      merchants = await fetchMerchants({ city: cityQuery });
+    }
+    if (!merchants || merchants.length === 0) {
+      merchants = await fetchMerchants();
+    }
     const html = buildDealsPageHtml(decodeURIComponent(rawLoc), merchants);
 
     res.setHeader('Content-Type', 'text/html; charset=utf-8');

@@ -75,9 +75,14 @@ function getReviewSocialBtnLabel(url, ratingPlatform, ratingScore) {
   return '⭐ View Reviews';
 }
 
-function fetchMerchants() {
+function fetchMerchants(queryParams = {}) {
   return new Promise((resolve, reject) => {
-    https.get(API_URL, (res) => {
+    const qs = new URLSearchParams();
+    Object.entries(queryParams || {}).forEach(([k, v]) => {
+      if (v) qs.append(k, v);
+    });
+    const fullUrl = qs.toString() ? `${API_URL}?${qs.toString()}` : API_URL;
+    https.get(fullUrl, (res) => {
       let raw = '';
       res.on('data', chunk => raw += chunk);
       res.on('end', () => {
@@ -709,11 +714,11 @@ function buildStorePageHtml(m, allMerchants) {
         }
       });
 
-      fetch("${API_URL}")
+      fetch("${API_URL}?id=${escapeHtml(m.id)}")
         .then(res => res.json())
         .then(json => {
           if (!json.success || !Array.isArray(json.data)) return;
-          const currentStore = json.data.find(item => item.id === "${m.id}");
+          const currentStore = json.data[0];
           if (!currentStore || currentStore.is_hidden) {
             const card = document.getElementById('store-card');
             if (card) {
@@ -751,9 +756,10 @@ module.exports = async function handler(req, res) {
       return res.end();
     }
 
-    const merchants = await fetchMerchants();
+    const merchants = await fetchMerchants({ slug: targetSlug });
     const match = merchants.find(m => slugify(m.business_name) === targetSlug)
-      || merchants.find(m => slugify(m.business_name).startsWith(targetSlug) || targetSlug.startsWith(slugify(m.business_name)));
+      || merchants.find(m => slugify(m.business_name).startsWith(targetSlug) || targetSlug.startsWith(slugify(m.business_name)))
+      || merchants[0];
 
     if (!match) {
       // Fallback to localperks with store query so online brands or unknown slugs are handled gracefully
