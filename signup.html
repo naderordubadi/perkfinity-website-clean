@@ -1751,16 +1751,9 @@
           const r = await fetch(`${PerkfinityConfig.BACKEND_URL}/api/v1/admin/access-codes/validate?code=${encodeURIComponent(code)}`);
           const j = await r.json();
           if (j.success && j.data?.type === 'pouf') {
-            if (selectedBillingCycle !== 'annual') {
-              res.style.cssText = 'display:block;background:rgba(245,158,11,.08);border:1.5px solid rgba(245,158,11,.35);border-radius:12px;padding:12px 16px;font-size:13px;font-weight:800;color:#d97706;margin-top:10px';
-              res.textContent = '⚠️ This Pay Once Use Forever code requires Annual billing. Switch to Annual to apply.';
-            } else {
-              res.style.cssText = 'display:block;background:rgba(107,193,122,.10);border:1.5px solid rgba(107,193,122,.35);border-radius:12px;padding:12px 16px;font-size:13px;font-weight:800;color:#1e5c38;margin-top:10px';
-              res.textContent = '✓ Pay Once Use Forever applied — you will only be charged a one-time lifetime fee!';
-              const priceEl = document.getElementById('connect-price-display');
-              if (priceEl) priceEl.innerHTML = '$305.89<span style="font-size:14px;color:var(--muted)"> (Fully Paid)</span>';
-              window._isPoufApplied = true;
-            }
+            res.style.cssText = 'display:block;background:rgba(245,158,11,.08);border:1.5px solid rgba(245,158,11,.35);border-radius:12px;padding:12px 16px;font-size:13px;font-weight:800;color:#d97706;margin-top:10px';
+            res.textContent = '⚠️ Pay Once Use Forever codes are only valid on the Scale (Annual) plan.';
+            window._isPoufApplied = false;
           } else if (j.success && j.data?.type === 'extended_trial') {
             res.style.cssText = 'display:block;background:rgba(107,193,122,.10);border:1.5px solid rgba(107,193,122,.35);border-radius:12px;padding:12px 16px;font-size:13px;font-weight:800;color:#1e5c38;margin-top:10px';
             res.textContent = `✓ Promo applied — first ${j.data.member_limit || 150} members FREE before billing starts!`;

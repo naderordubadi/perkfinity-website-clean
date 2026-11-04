@@ -857,6 +857,13 @@ function selectTier(tier,el){
   selectedTier=tier;
   document.querySelectorAll('.tier-opt').forEach(e=>e.classList.remove('selected'));
   el.classList.add('selected');
+  if (promoApplied && promoApplied.isPOUF && tier !== 'online_scale') {
+    const accessCodeInput = document.getElementById('f-access-code');
+    if (accessCodeInput) accessCodeInput.value = '';
+    promoApplied = null;
+    const res = document.getElementById('promo-result');
+    if (res) res.style.display = 'none';
+  }
 }
 
 // --- Image compression ---
@@ -987,15 +994,15 @@ async function applyPromo(){
       res.textContent=`\u2713 Promo applied \u2014 first ${promoApplied.member_limit} members FREE before billing starts!`;
       if(fflNote)fflNote.style.display='none';
     }else if(j.success&&j.data?.type==='pouf'){
-      if(selectedBillingCycle !== 'annual'){
+      if(selectedTier !== 'online_scale' || selectedBillingCycle !== 'annual'){
         res.style.cssText='display:block;background:rgba(245,158,11,.08);border:1.5px solid rgba(245,158,11,.35);border-radius:12px;padding:12px 16px;font-size:13px;font-weight:800;color:#d97706;margin-top:10px';
-        res.textContent='\u26A0\uFE0F This Pay Once Use Forever code requires Annual billing. Switch to Annual to apply.';
+        res.textContent='\u26A0\uFE0F This Pay Once Use Forever code is only valid on the Scale (Annual) plan. Please select Scale and switch to Annual to apply.';
         promoApplied=null;
         if(fflNote)fflNote.style.display='none';
       } else {
         promoApplied={code,isPOUF:true};
         res.style.cssText='display:block;background:rgba(107,193,122,.10);border:1.5px solid rgba(107,193,122,.35);border-radius:12px;padding:12px 16px;font-size:13px;font-weight:800;color:#1e5c38;margin-top:10px';
-        res.innerHTML='\u2713 Pay Once Use Forever applied \u2014 you will only be charged a one-time lifetime fee!<br><span style="display:block;margin-top:6px;font-size:12px;font-weight:600;opacity:0.9">Please choose wisely! In case you need to upgrade later, you will lose your Pay Once Use Forever privilege and you will need to subscribe for a monthly or annual plan.</span>';
+        res.textContent='\u2713 Pay Once Use Forever applied \u2014 you will only be charged a one-time lifetime fee!';
         if(fflNote)fflNote.style.display='none';
       }
     }else{
