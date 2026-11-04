@@ -256,7 +256,7 @@ module.exports = async function handler(req, res) {
     const html = buildDealsPageHtml(decodeURIComponent(rawLoc), merchants);
 
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    res.setHeader('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=3600');
+    res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
     return res.status(200).send(html);
   } catch (err) {
     console.error('SSR deals-page error:', err);

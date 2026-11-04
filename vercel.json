@@ -17,6 +17,7 @@
     { "source": "/deals/store/:merchant", "destination": "/api/store-page?slug=:merchant" },
     { "source": "/deals/:location", "destination": "/api/deals-page?location=:location" },
     { "source": "/deals", "destination": "/localperks.html" },
+    { "source": "/sitemap.xml", "destination": "/api/sitemap" },
     { "source": "/sitemap-live.xml", "destination": "/api/sitemap" },
     { "source": "/join/:code", "destination": "/join/index.html" },
     { "source": "/codes", "destination": "/codes.html" },

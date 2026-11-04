@@ -1330,10 +1330,12 @@
       const heroSub = document.getElementById('hero-sub');
       const breadcrumb = document.getElementById('geo-breadcrumb');
 
+      const isSsrDealsPage = window.location.pathname.startsWith('/deals/');
+
       if (geo.type === 'county') {
         if (heroTitle) heroTitle.textContent = `Exclusive Deals & Local Perks Across ${geo.name}, ${geo.state}`;
         if (heroSub) heroSub.textContent = `Discover verified dining, retail, and service perks from local businesses across ${geo.name}.`;
-        document.title = `${geo.name} Deals, Local Discounts & Promo Codes | Perkfinity`;
+        if (!isSsrDealsPage) document.title = `${geo.name} Deals, Local Discounts & Promo Codes | Perkfinity`;
         if (breadcrumb) {
           breadcrumb.innerHTML = `<span style="color:#a78bfa;">📍 California</span> &rsaquo; <span style="color:#fff;">${geo.name}</span>`;
           breadcrumb.style.display = 'block';
@@ -1342,7 +1344,7 @@
         // City level
         if (heroTitle) heroTitle.textContent = `Exclusive Deals & Local Perks in ${geo.name}, ${geo.state}`;
         if (heroSub) heroSub.textContent = `Discover verified dining, retail, and local service perks in ${geo.name}.`;
-        document.title = `${geo.name} Deals, Local Discounts & Promo Codes | Perkfinity`;
+        if (!isSsrDealsPage) document.title = `${geo.name} Deals, Local Discounts & Promo Codes | Perkfinity`;
         const cityInput = document.getElementById('city-input');
         if (cityInput) cityInput.value = geo.name;
         if (breadcrumb) {
@@ -1353,10 +1355,12 @@
         }
       }
 
-      const metaDesc = document.querySelector('meta[name="description"]');
-      if (metaDesc) metaDesc.setAttribute('content', `Discover exclusive perks and discounts from local businesses in ${geo.name}, ${geo.state} with Perkfinity.`);
-      const ogTitle = document.querySelector('meta[property="og:title"]');
-      if (ogTitle) ogTitle.setAttribute('content', `${geo.name} Deals & Local Perks — Perkfinity`);
+      if (!isSsrDealsPage) {
+        const metaDesc = document.querySelector('meta[name="description"]');
+        if (metaDesc) metaDesc.setAttribute('content', `Discover exclusive perks and discounts from local businesses in ${geo.name}, ${geo.state} with Perkfinity.`);
+        const ogTitle = document.querySelector('meta[property="og:title"]');
+        if (ogTitle) ogTitle.setAttribute('content', `${geo.name} Deals & Local Perks — Perkfinity`);
+      }
     } else if (cityParam) {
       const cityInput = document.getElementById('city-input');
       if (cityInput) cityInput.value = cityParam;

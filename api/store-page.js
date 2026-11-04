@@ -41,6 +41,19 @@ function formatPhone(phone) {
   return phone;
 }
 
+function buildAttributedUrl(rawUrl, medium = 'web_store_page', campaign = 'merchant_directory') {
+  if (!rawUrl) return '';
+  try {
+    const url = new URL(rawUrl.startsWith('http') ? rawUrl : 'https://' + rawUrl);
+    url.searchParams.set('utm_source', 'perkfinity');
+    url.searchParams.set('utm_medium', medium);
+    url.searchParams.set('utm_campaign', campaign);
+    return url.toString();
+  } catch (e) {
+    return rawUrl;
+  }
+}
+
 function getReviewSocialBtnLabel(url, ratingPlatform, ratingScore) {
   if (!url && !ratingPlatform) return '⭐ View Reviews';
   const u = (url || '').toLowerCase();
@@ -102,6 +115,9 @@ function buildStorePageHtml(m, allMerchants) {
   const website = m.website || '';
   const orderUrl = m.order_url || '';
   const reviewUrl = m.review_url || '';
+  const attributedOrderUrl = buildAttributedUrl(orderUrl, 'web_store_page', 'order_booking');
+  const attributedReviewUrl = buildAttributedUrl(reviewUrl, 'web_store_page', 'review_social');
+  const attributedWebsiteUrl = buildAttributedUrl(website, 'web_store_page', 'official_website');
   const reviewBtnLabel = getReviewSocialBtnLabel(reviewUrl, m.rating_platform, m.rating_score);
   const qrPublicCode = m.qr_public_code || '';
   const joinUrl = `https://perkfinity.net/join/${qrPublicCode}`;
@@ -251,6 +267,7 @@ function buildStorePageHtml(m, allMerchants) {
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <script src="/config.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+  <script src="/assets/js/merchant-modals.js?v=1.8"></script>
 
   <style>
     *, *::before, *::after { box-sizing: border-box; }
@@ -546,11 +563,11 @@ function buildStorePageHtml(m, allMerchants) {
           </div>
 
           <div class="action-btn-group">
-            ${orderUrl ? `<a href="${escapeHtml(orderUrl)}" target="_blank" rel="noopener nofollow" class="act-btn act-btn-order">🛒 Order / Book Now</a>` : ''}
-            ${reviewUrl ? `<a href="${escapeHtml(reviewUrl)}" target="_blank" rel="noopener nofollow" class="act-btn act-btn-review">${escapeHtml(reviewBtnLabel)}</a>` : ''}
-            ${website ? `<a href="${escapeHtml(website)}" target="_blank" rel="noopener nofollow" class="act-btn act-btn-web">🌐 Official Website</a>` : ''}
-            ${cleanPhone ? `<a href="tel:${escapeHtml(cleanPhone)}" class="act-btn act-btn-phone">📞 Call Business</a>` : ''}
-            ${email ? `<a href="mailto:${escapeHtml(email)}" class="act-btn act-btn-email">✉️ Email Business</a>` : ''}
+            ${orderUrl ? `<a href="${escapeHtml(attributedOrderUrl)}" target="_blank" rel="noopener nofollow" onclick="if(window.trackOutboundClick)window.trackOutboundClick('${escapeHtml(m.id)}','order','${escapeHtml(attributedOrderUrl)}','web_store_page')" class="act-btn act-btn-order">🛒 Order / Book Now</a>` : ''}
+            ${reviewUrl ? `<a href="${escapeHtml(attributedReviewUrl)}" target="_blank" rel="noopener nofollow" onclick="if(window.trackOutboundClick)window.trackOutboundClick('${escapeHtml(m.id)}','review_social','${escapeHtml(attributedReviewUrl)}','web_store_page')" class="act-btn act-btn-review">${escapeHtml(reviewBtnLabel)}</a>` : ''}
+            ${website ? `<a href="${escapeHtml(attributedWebsiteUrl)}" target="_blank" rel="noopener nofollow" onclick="if(window.trackOutboundClick)window.trackOutboundClick('${escapeHtml(m.id)}','website','${escapeHtml(attributedWebsiteUrl)}','web_store_page')" class="act-btn act-btn-web">🌐 Official Website</a>` : ''}
+            ${cleanPhone ? `<a href="tel:${escapeHtml(cleanPhone)}" onclick="if(window.trackOutboundClick)window.trackOutboundClick('${escapeHtml(m.id)}','phone','tel:${escapeHtml(cleanPhone)}','web_store_page')" class="act-btn act-btn-phone">📞 Call Business</a>` : ''}
+            ${email ? `<a href="mailto:${escapeHtml(email)}" onclick="if(window.trackOutboundClick)window.trackOutboundClick('${escapeHtml(m.id)}','email','mailto:${escapeHtml(email)}','web_store_page')" class="act-btn act-btn-email">✉️ Email Business</a>` : ''}
           </div>
 
           ${fullAddr ? `
@@ -585,9 +602,9 @@ function buildStorePageHtml(m, allMerchants) {
             </div>
             ${(cleanPhone || email || website) ? `
               <div class="standard-contact-links">
-                ${cleanPhone ? `<a href="tel:${escapeHtml(cleanPhone)}">📞 Call Business</a>` : ''}
-                ${email ? `<a href="mailto:${escapeHtml(email)}">✉️ Email Business</a>` : ''}
-                ${website ? `<a href="${escapeHtml(website)}" target="_blank" rel="noopener nofollow">🌐 Website</a>` : ''}
+                ${cleanPhone ? `<a href="tel:${escapeHtml(cleanPhone)}" onclick="if(window.trackOutboundClick)window.trackOutboundClick('${escapeHtml(m.id)}','phone','tel:${escapeHtml(cleanPhone)}','web_store_page')">📞 Call Business</a>` : ''}
+                ${email ? `<a href="mailto:${escapeHtml(email)}" onclick="if(window.trackOutboundClick)window.trackOutboundClick('${escapeHtml(m.id)}','email','mailto:${escapeHtml(email)}','web_store_page')">✉️ Email Business</a>` : ''}
+                ${website ? `<a href="${escapeHtml(attributedWebsiteUrl)}" target="_blank" rel="noopener nofollow" onclick="if(window.trackOutboundClick)window.trackOutboundClick('${escapeHtml(m.id)}','website','${escapeHtml(attributedWebsiteUrl)}','web_store_page')">🌐 Website</a>` : ''}
               </div>
             ` : ''}
           </div>
@@ -746,7 +763,7 @@ module.exports = async function handler(req, res) {
 
     const html = buildStorePageHtml(match, merchants);
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    res.setHeader('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=3600');
+    res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
     return res.status(200).send(html);
   } catch (err) {
     console.error('SSR store-page error:', err);
