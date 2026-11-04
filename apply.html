@@ -994,17 +994,17 @@ async function applyPromo(){
       res.textContent=`\u2713 Promo applied \u2014 first ${promoApplied.member_limit} members FREE before billing starts!`;
       if(fflNote)fflNote.style.display='none';
     }else if(j.success&&j.data?.type==='pouf'){
-      if(selectedTier !== 'online_scale' || selectedBillingCycle !== 'annual'){
-        res.style.cssText='display:block;background:rgba(245,158,11,.08);border:1.5px solid rgba(245,158,11,.35);border-radius:12px;padding:12px 16px;font-size:13px;font-weight:800;color:#d97706;margin-top:10px';
-        res.textContent='\u26A0\uFE0F This Pay Once Use Forever code is only valid on the Scale (Annual) plan. Please select Scale and switch to Annual to apply.';
-        promoApplied=null;
-        if(fflNote)fflNote.style.display='none';
-      } else {
-        promoApplied={code,isPOUF:true};
-        res.style.cssText='display:block;background:rgba(107,193,122,.10);border:1.5px solid rgba(107,193,122,.35);border-radius:12px;padding:12px 16px;font-size:13px;font-weight:800;color:#1e5c38;margin-top:10px';
-        res.textContent='\u2713 Pay Once Use Forever applied \u2014 you will only be charged a one-time lifetime fee!';
-        if(fflNote)fflNote.style.display='none';
+      if(selectedBillingCycle !== 'annual'){
+        setApplyBillingCycle('annual');
       }
+      const scaleEl = document.getElementById('t-scale');
+      if(selectedTier !== 'online_scale' && scaleEl){
+        selectTier('online_scale', scaleEl);
+      }
+      promoApplied={code,isPOUF:true};
+      res.style.cssText='display:block;background:rgba(107,193,122,.10);border:1.5px solid rgba(107,193,122,.35);border-radius:12px;padding:12px 16px;font-size:13px;font-weight:800;color:#1e5c38;margin-top:10px';
+      res.textContent='\u2713 Pay Once Use Forever applied \u2014 switched to Scale ($5,089.80 one-time lifetime fee)!';
+      if(fflNote)fflNote.style.display='none';
     }else{
       res.style.cssText='display:block;background:rgba(220,38,38,.08);border:1.5px solid rgba(220,38,38,.35);border-radius:12px;padding:12px 16px;font-size:13px;font-weight:800;color:#dc2626;margin-top:10px';
       res.textContent='\u2717 Invalid or expired promo code.';promoApplied=null;

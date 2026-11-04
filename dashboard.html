@@ -2315,25 +2315,64 @@
           </div>
         </div>
 
-        <div class="billing-section">
+        <div class="billing-section" id="psh-upgrade-box">
           <h3>Available Upgrades</h3>
-          <div class="plan-card" style="border:2px solid var(--purple);background:linear-gradient(135deg,rgba(91,63,165,0.03) 0%,rgba(124,95,214,0.06) 100%);">
-            <div class="plan-details">
-              <span class="plan-badge" style="background:var(--purple);color:#fff;">RECOMMENDED</span>
-              <div style="font-size:20px;font-weight:900;color:var(--purpleDark);margin-top:8px;">Starter Plan</div>
-              <div class="plan-price">$149 <span>/month</span></div>
-              <ul class="plan-features">
-                <li>Up to <strong>500 members</strong></li>
-                <li>Promo code + QR redemption</li>
-                <li>Unlimited campaigns</li>
-                <li>Member analytics dashboard</li>
-              </ul>
+
+          <!-- Billing cycle toggle -->
+          <div style="text-align:center;margin-bottom:20px;">
+            <span style="font-size:13px;color:var(--muted);margin-right:12px;font-weight:700;">Billing:</span>
+            <div style="display:inline-flex;background:#f1f0f6;border-radius:50px;padding:4px;gap:4px;">
+              <button type="button" id="psh-btn-monthly" onclick="setPshBillingCycle('monthly')" style="padding:7px 18px;border:none;border-radius:50px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;background:var(--purple);color:#fff;transition:all .2s;">Monthly</button>
+              <button type="button" id="psh-btn-annual" onclick="setPshBillingCycle('annual')" style="padding:7px 18px;border:none;border-radius:50px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;background:transparent;color:var(--purpleDark);transition:all .2s;">Annual <span style="color:#16a34a;font-size:11px;">Save 15%</span></button>
             </div>
-            <div style="display:flex;align-items:center;justify-content:center;">
-              <button class="btn btn-purple" onclick="doUpgrade('online_starter','psh-upgrade-box')" style="padding:12px 28px;font-size:14px;font-weight:800;border-radius:12px;cursor:pointer;">
-                🚀 Upgrade to Starter ($149/mo)
-              </button>
+          </div>
+
+          <!-- 3 Compact Side-by-Side Plan Cards -->
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;margin-bottom:20px;">
+            <!-- Starter (Default Recommended) -->
+            <div id="psh-tier-online_starter" class="psh-tier-card" onclick="selectPshTier('online_starter')" style="position:relative;border:2px solid var(--purple);background:rgba(91,63,165,0.06);border-radius:16px;padding:22px 18px 18px;cursor:pointer;text-align:center;transition:all .2s;">
+              <div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:var(--purple);color:#fff;font-size:10px;font-weight:800;padding:3px 10px;border-radius:20px;letter-spacing:.04em;white-space:nowrap;">RECOMMENDED</div>
+              <div style="font-size:16px;font-weight:900;color:var(--purpleDark);margin-bottom:6px;">Starter</div>
+              <div id="psh-price-online_starter" style="font-size:28px;font-weight:900;color:var(--ink);line-height:1.1;margin-bottom:4px;">$149<span style="font-size:13px;font-weight:600;color:var(--muted);">/mo</span></div>
+              <div id="psh-savings-online_starter" style="display:none;font-size:11px;font-weight:700;color:#16a34a;margin-bottom:4px;">Save $268.20/year</div>
+              <div style="font-size:12.5px;font-weight:700;color:var(--muted);margin-bottom:10px;">Up to 500 members</div>
+              <div style="font-size:12px;color:#475569;line-height:1.5;">Promo code + QR redemption · Unlimited campaigns</div>
             </div>
+
+            <!-- Growth -->
+            <div id="psh-tier-online_growth" class="psh-tier-card" onclick="selectPshTier('online_growth')" style="position:relative;border:2px solid var(--border);background:#fff;border-radius:16px;padding:22px 18px 18px;cursor:pointer;text-align:center;transition:all .2s;">
+              <div style="font-size:16px;font-weight:900;color:var(--purpleDark);margin-bottom:6px;">Growth</div>
+              <div id="psh-price-online_growth" style="font-size:28px;font-weight:900;color:var(--ink);line-height:1.1;margin-bottom:4px;">$299<span style="font-size:13px;font-weight:600;color:var(--muted);">/mo</span></div>
+              <div id="psh-savings-online_growth" style="display:none;font-size:11px;font-weight:700;color:#16a34a;margin-bottom:4px;">Save $538.20/year</div>
+              <div style="font-size:12.5px;font-weight:700;color:var(--muted);margin-bottom:10px;">Up to 2,500 members</div>
+              <div style="font-size:12px;color:#475569;line-height:1.5;">Unlocks Full Traffic &amp; ROI Analytics · Priority support</div>
+            </div>
+
+            <!-- Scale -->
+            <div id="psh-tier-online_scale" class="psh-tier-card" onclick="selectPshTier('online_scale')" style="position:relative;border:2px solid var(--border);background:#fff;border-radius:16px;padding:22px 18px 18px;cursor:pointer;text-align:center;transition:all .2s;">
+              <div style="font-size:16px;font-weight:900;color:var(--purpleDark);margin-bottom:6px;">Scale</div>
+              <div id="psh-price-online_scale" style="font-size:28px;font-weight:900;color:var(--ink);line-height:1.1;margin-bottom:4px;">$499<span style="font-size:13px;font-weight:600;color:var(--muted);">/mo</span></div>
+              <div id="psh-savings-online_scale" style="display:none;font-size:11px;font-weight:700;color:#16a34a;margin-bottom:4px;">Save $898.20/year</div>
+              <div style="font-size:12.5px;font-weight:700;color:var(--muted);margin-bottom:10px;">Unlimited members</div>
+              <div style="font-size:12px;color:#475569;line-height:1.5;">All Growth features · White-glove support · POUF eligible</div>
+            </div>
+          </div>
+
+          <!-- Optional Promo / POUF Code Box -->
+          <div style="max-width:480px;margin:0 auto 20px;">
+            <label style="display:block;font-size:12.5px;font-weight:700;color:var(--muted);margin-bottom:6px;">Promo / Invite Code (optional)</label>
+            <div style="display:flex;gap:10px;">
+              <input type="text" id="psh-promo-code" placeholder="e.g. POUF-XXXX-XXXX" style="text-transform:uppercase;flex:1;padding:11px 14px;border-radius:12px;border:1.5px solid var(--border);font-size:14px;font-family:inherit;outline:none;">
+              <button type="button" onclick="applyPshPromo()" style="padding:0 18px;border-radius:12px;border:1.5px solid rgba(91,63,165,.4);background:#f8f6ff;color:var(--purple);font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap;">Apply</button>
+            </div>
+            <div id="psh-promo-result" style="display:none;"></div>
+          </div>
+
+          <!-- Single Action CTA -->
+          <div style="text-align:center;">
+            <button type="button" id="psh-upgrade-btn" class="btn btn-purple" onclick="doPshUpgrade()" style="padding:14px 36px;font-size:15px;font-weight:800;border-radius:12px;cursor:pointer;">
+              🚀 Upgrade to Starter ($149/mo)
+            </button>
           </div>
         </div>
       </div>
@@ -3554,15 +3593,25 @@
       }
 
       if (urlParams.get('upgrade_success') === 'true') {
+        const upgSessionId = urlParams.get('session_id');
         history.replaceState({}, '', window.location.pathname);
         const banner = document.createElement('div');
         banner.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#6BC17A;color:#fff;padding:14px 28px;border-radius:12px;font-weight:800;font-size:15px;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.15)';
-        banner.innerHTML = '✅ Plan Upgraded Successfully! Your new limits and monthly cycle are active.';
+        banner.innerHTML = '✅ Plan Upgraded Successfully! Your new limits and billing plan are active.';
         document.body.appendChild(banner);
         setTimeout(() => banner.remove(), 4000);
         switchTab('billing');
-        // Give webhook a tiny bit of time to complete before reloading billing data
-        setTimeout(loadBilling, 1000);
+        const mId = localStorage.getItem('perkfinity_merchant_id');
+        const tok = localStorage.getItem('perkfinity_token');
+        if (mId && upgSessionId) {
+          fetch(`${BACKEND_URL}/api/v1/stripe/confirm-checkout`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${tok}` },
+            body: JSON.stringify({ merchant_id: mId, session_id: upgSessionId })
+          }).finally(() => setTimeout(loadBilling, 500));
+        } else {
+          setTimeout(loadBilling, 1000);
+        }
       }
 
       if (urlParams.get('sponsor_success') === 'true') {
@@ -4790,19 +4839,146 @@
       }
     }
 
+    // ── Pre-Setup Upgrade Controls (Starter / Growth / Scale + Annual + POUF) ──
+    let pshSelectedTier = 'online_starter';
+    let pshBillingCycle = 'monthly';
+    let pshPromoApplied = null;
+
+    function updatePshUpgradeBtn() {
+      const btn = document.getElementById('psh-upgrade-btn');
+      if (!btn) return;
+      if (pshPromoApplied?.isFFL) {
+        btn.textContent = '🎖️ Activate Free For Life Plan';
+        return;
+      }
+      if (pshPromoApplied?.isPOUF) {
+        btn.textContent = '🚀 Upgrade to Scale ($5,089.80 Lifetime)';
+        return;
+      }
+      const labels = {
+        online_starter: { name: 'Starter', monthly: '$149/mo', annual: '$1,519.80/yr' },
+        online_growth:  { name: 'Growth',  monthly: '$299/mo', annual: '$3,049.80/yr' },
+        online_scale:   { name: 'Scale',   monthly: '$499/mo', annual: '$5,089.80/yr' }
+      };
+      const info = labels[pshSelectedTier] || labels.online_starter;
+      btn.textContent = `🚀 Upgrade to ${info.name} (${pshBillingCycle === 'annual' ? info.annual : info.monthly})`;
+    }
+
+    function setPshBillingCycle(cycle) {
+      pshBillingCycle = cycle;
+      const btnM = document.getElementById('psh-btn-monthly');
+      const btnA = document.getElementById('psh-btn-annual');
+      if (btnM) {
+        btnM.style.background = cycle === 'monthly' ? 'var(--purple)' : 'transparent';
+        btnM.style.color = cycle === 'monthly' ? '#fff' : 'var(--purpleDark)';
+      }
+      if (btnA) {
+        btnA.style.background = cycle === 'annual' ? 'var(--purple)' : 'transparent';
+        btnA.style.color = cycle === 'annual' ? '#fff' : 'var(--purpleDark)';
+      }
+      const prices = {
+        online_starter: ['$149<span style="font-size:13px;font-weight:600;color:var(--muted);">/mo</span>', '$1,519.80<span style="font-size:13px;font-weight:600;color:var(--muted);">/yr</span>'],
+        online_growth:  ['$299<span style="font-size:13px;font-weight:600;color:var(--muted);">/mo</span>', '$3,049.80<span style="font-size:13px;font-weight:600;color:var(--muted);">/yr</span>'],
+        online_scale:   ['$499<span style="font-size:13px;font-weight:600;color:var(--muted);">/mo</span>', '$5,089.80<span style="font-size:13px;font-weight:600;color:var(--muted);">/yr</span>']
+      };
+      ['online_starter', 'online_growth', 'online_scale'].forEach(t => {
+        const pel = document.getElementById('psh-price-' + t);
+        const sel = document.getElementById('psh-savings-' + t);
+        if (pel) pel.innerHTML = prices[t][cycle === 'annual' ? 1 : 0];
+        if (sel) sel.style.display = cycle === 'annual' ? 'block' : 'none';
+      });
+      if (cycle === 'monthly' && pshPromoApplied?.isPOUF) {
+        const inp = document.getElementById('psh-promo-code');
+        if (inp) inp.value = '';
+        pshPromoApplied = null;
+        const res = document.getElementById('psh-promo-result');
+        if (res) res.style.display = 'none';
+      }
+      updatePshUpgradeBtn();
+    }
+
+    function selectPshTier(tier) {
+      pshSelectedTier = tier;
+      ['online_starter', 'online_growth', 'online_scale'].forEach(t => {
+        const card = document.getElementById('psh-tier-' + t);
+        if (!card) return;
+        const active = t === tier;
+        card.style.border = active ? '2px solid var(--purple)' : '2px solid var(--border)';
+        card.style.background = active ? 'rgba(91,63,165,0.06)' : '#fff';
+      });
+      if (pshPromoApplied?.isPOUF && tier !== 'online_scale') {
+        const inp = document.getElementById('psh-promo-code');
+        if (inp) inp.value = '';
+        pshPromoApplied = null;
+        const res = document.getElementById('psh-promo-result');
+        if (res) res.style.display = 'none';
+      }
+      updatePshUpgradeBtn();
+    }
+
+    async function applyPshPromo() {
+      const inp = document.getElementById('psh-promo-code');
+      const res = document.getElementById('psh-promo-result');
+      const code = (inp?.value || '').trim().toUpperCase();
+      if (!code) {
+        if (res) res.style.display = 'none';
+        pshPromoApplied = null;
+        updatePshUpgradeBtn();
+        return;
+      }
+      try {
+        const r = await fetch(`${BACKEND_URL}/api/v1/admin/access-codes/validate?code=${encodeURIComponent(code)}`);
+        const j = await r.json();
+        if (j.success && j.data?.type === 'pouf') {
+          if (pshBillingCycle !== 'annual') setPshBillingCycle('annual');
+          if (pshSelectedTier !== 'online_scale') selectPshTier('online_scale');
+          pshPromoApplied = { code, isPOUF: true };
+          res.style.cssText = 'display:block;background:rgba(107,193,122,.10);border:1.5px solid rgba(107,193,122,.35);border-radius:12px;padding:12px 16px;font-size:13px;font-weight:800;color:#1e5c38;margin-top:10px';
+          res.textContent = '✓ Pay Once Use Forever applied — switched to Scale ($5,089.80 one-time lifetime fee)!';
+        } else if (j.success && j.data?.type === 'free_for_life') {
+          pshPromoApplied = { code, isFFL: true };
+          res.style.cssText = 'display:block;background:rgba(107,193,122,.10);border:1.5px solid rgba(107,193,122,.35);border-radius:12px;padding:12px 16px;font-size:13px;font-weight:800;color:#1e5c38;margin-top:10px';
+          res.textContent = '✓ Free For Life applied — no billing, ever. Unlimited members, free forever!';
+        } else if (j.success && j.data?.type === 'extended_trial') {
+          pshPromoApplied = null;
+          res.style.cssText = 'display:block;background:rgba(245,158,11,.10);border:1.5px solid rgba(245,158,11,.40);border-radius:12px;padding:12px 16px;font-size:13px;font-weight:800;color:#92400e;margin-top:10px';
+          res.textContent = '⚠️ Extended trial codes are only for new signups. Your account already includes your free member tier.';
+        } else {
+          pshPromoApplied = null;
+          res.style.cssText = 'display:block;background:rgba(220,38,38,.08);border:1.5px solid rgba(220,38,38,.35);border-radius:12px;padding:12px 16px;font-size:13px;font-weight:800;color:#dc2626;margin-top:10px';
+          res.textContent = j.error || '✗ Invalid or expired promo code.';
+        }
+      } catch (e) {
+        pshPromoApplied = null;
+        if (res) {
+          res.style.cssText = 'display:block;color:#dc2626;font-size:13px;margin-top:8px;';
+          res.textContent = 'Could not validate code.';
+        }
+      }
+      updatePshUpgradeBtn();
+    }
+
+    function doPshUpgrade() {
+      doUpgrade(pshSelectedTier, 'psh-upgrade-box', pshBillingCycle, pshPromoApplied?.code || null);
+    }
+
     // ── Upgrade subscription tier ──────────────────────────────────
-    async function doUpgrade(targetTier, warningBoxId) {
+    async function doUpgrade(targetTier, warningBoxId, billingCycle, promoCode) {
       const merchantId = localStorage.getItem('perkfinity_merchant_id');
       const token = localStorage.getItem('perkfinity_token');
       if (!merchantId || !token) return;
       const warningBox = warningBoxId ? document.getElementById(warningBoxId) : null;
       const confirmBtn = warningBox ? warningBox.querySelector('button.btn-purple') : null;
+      const origText = confirmBtn ? confirmBtn.textContent : 'Yes, Upgrade Now';
       if (confirmBtn) { confirmBtn.disabled = true; confirmBtn.textContent = 'Upgrading…'; }
       try {
+        const payload = { target_tier: targetTier };
+        if (billingCycle) payload.billing_cycle = billingCycle;
+        if (promoCode) payload.promo_code = promoCode;
         const res = await fetch(`${BACKEND_URL}/api/v1/merchants/${merchantId}/billing/upgrade`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-          body: JSON.stringify({ target_tier: targetTier })
+          body: JSON.stringify(payload)
         });
         const json = await res.json();
         if (json.success) {
@@ -4810,10 +4986,11 @@
             window.location.href = json.checkout_url;
             return;
           }
-          if (warningBox) warningBox.style.display = 'none';
+          if (warningBox && warningBoxId !== 'psh-upgrade-box') warningBox.style.display = 'none';
           // Show congratulations modal, then refresh billing after dismiss
+          const finalTier = json.upgraded_tier || targetTier;
           const tierNames = { tier1:'Connect', online_starter:'Starter', online_growth:'Growth', online_scale:'Scale', free_for_life:'Free For Life' };
-          const tierLabel = tierNames[targetTier] || targetTier;
+          const tierLabel = tierNames[finalTier] || finalTier;
           const modal = document.createElement('div');
           modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.55);z-index:99999;display:flex;align-items:center;justify-content:center;padding:24px;';
           modal.innerHTML = `
@@ -4830,11 +5007,11 @@
           };
         } else {
           alert('Upgrade failed: ' + (json.error || 'Unknown error'));
-          if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.textContent = 'Yes, Upgrade Now'; }
+          if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.textContent = origText; }
         }
       } catch (e) {
         alert('Error connecting to billing system.');
-        if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.textContent = 'Yes, Upgrade Now'; }
+        if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.textContent = origText; }
       }
     }
 
@@ -5062,6 +5239,8 @@
           sceneName = 'failed';
         } else if (d.tier === 'free_for_life') {
           sceneName = 'free-for-life';
+        } else if (['online_starter', 'online_growth', 'online_scale'].includes(d.tier)) {
+          sceneName = 'online-active';
         } else if (d.tier === 'presetup_50' || d.is_presetup) {
           sceneName = 'presetup-hybrid';
         } else if (d.tier === 'trial' || d.tier === 'free') {
@@ -5069,8 +5248,6 @@
           let count = d.member_count || 0;
           let diff = limit - count;
           sceneName = (diff <= 2 && diff >= 0) ? 'trial-near-20' : 'trial-20';
-        } else if (['online_starter', 'online_growth', 'online_scale'].includes(d.tier)) {
-          sceneName = 'online-active';
         }
 
         // Hide all scenes
