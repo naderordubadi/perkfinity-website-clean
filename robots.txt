@@ -1,33 +1,28 @@
 # Perkfinity robots.txt
-# https://perkfinity.net
+# https://www.perkfinity.net
 
 User-agent: *
 Allow: /
-Allow: /codes.html
-Allow: /localperks.html
+Allow: /codes
+Allow: /localperks
 Allow: /deals/
 Allow: /store/
-Allow: /merchants.html
-Allow: /get-started.html
-Allow: /apply.html
-Allow: /enterprise.html
-Allow: /about.html
-Allow: /faq.html
-Allow: /contact.html
-Allow: /privacy-policy.html
-Allow: /terms-of-use.html
+Allow: /merchants
+Allow: /get-started
+Allow: /apply
+Allow: /enterprise
+Allow: /about
+Allow: /faq
+Allow: /contact
+Allow: /privacy-policy
+Allow: /terms-of-use
 Allow: /assets/
 Allow: /llms.txt
 Allow: /llms-full.txt
 
-# Disallow authenticated, admin, and utility pages
+# Disallow admin and raw API endpoints (auth/private HTML pages use <meta name="robots" content="noindex, nofollow">)
 Disallow: /admin/
-Disallow: /dashboard.html
-Disallow: /login.html
-Disallow: /reset-password.html
-Disallow: /member-reset-password.html
-Disallow: /*preview*.html
-Disallow: /test-qr.html
+Disallow: /api/
 
 # AI Search & Indexing Crawlers (Explicitly Allowed for GEO)
 User-agent: GPTBot
@@ -38,11 +33,6 @@ User-agent: ClaudeBot
 User-agent: Applebot-Extended
 Allow: /
 Disallow: /admin/
-Disallow: /dashboard.html
-Disallow: /login.html
-Disallow: /reset-password.html
-Disallow: /member-reset-password.html
-Disallow: /*preview*.html
-Disallow: /test-qr.html
+Disallow: /api/
 
 Sitemap: https://www.perkfinity.net/sitemap.xml

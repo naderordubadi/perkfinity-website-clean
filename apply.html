@@ -2,18 +2,19 @@
 <meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Perkfinity — Brand Application</title>
 <meta name="description" content="Apply to join Perkfinity as an online business and reach members across the country."/>
+<link rel="canonical" href="https://www.perkfinity.net/apply"/>
 <!-- OpenGraph / Social Media Cards -->
 <meta property="og:type" content="website"/>
-<meta property="og:url" content="https://perkfinity.net/apply.html"/>
+<meta property="og:url" content="https://www.perkfinity.net/apply"/>
 <meta property="og:title" content="Perkfinity — Brand & Business Application Portal"/>
 <meta property="og:description" content="Apply to join the Perkfinity network. Reach verified local and online members with zero commission cuts."/>
-<meta property="og:image" content="https://perkfinity.net/assets/Perkfinity-App-Icon.png"/>
+<meta property="og:image" content="https://www.perkfinity.net/assets/Perkfinity-App-Icon.png"/>
 
 <!-- Twitter / X -->
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:title" content="Perkfinity — Brand & Business Application Portal"/>
 <meta name="twitter:description" content="Apply to join the Perkfinity network. Reach verified local and online members with zero commission cuts."/>
-<meta name="twitter:image" content="https://perkfinity.net/assets/Perkfinity-App-Icon.png"/>
+<meta name="twitter:image" content="https://www.perkfinity.net/assets/Perkfinity-App-Icon.png"/>
 
 <!-- Structured Data / JSON-LD -->
 <script type="application/ld+json">
@@ -22,18 +23,18 @@
   "@graph": [
     {
       "@type": "WebPage",
-      "@id": "https://perkfinity.net/apply.html#webpage",
-      "url": "https://perkfinity.net/apply.html",
+      "@id": "https://www.perkfinity.net/apply#webpage",
+      "url": "https://www.perkfinity.net/apply",
       "name": "Perkfinity Business Application",
       "isPartOf": {
         "@type": "WebSite",
         "name": "Perkfinity",
-        "url": "https://perkfinity.net"
+        "url": "https://www.perkfinity.net"
       },
       "description": "Application portal for online brands, storefronts, and mobile vendors to join Perkfinity.",
       "potentialAction": {
         "@type": "RegisterAction",
-        "target": "https://perkfinity.net/apply.html"
+        "target": "https://www.perkfinity.net/apply"
       }
     }
   ]
@@ -119,12 +120,12 @@
 <body>
 <header style="position:sticky;top:0;z-index:100;background:rgba(45,21,112,0.97);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.08);">
   <div class="container header-inner">
-    <a class="brand" href="index.html" aria-label="Perkfinity home">
+    <a class="brand" href="/" aria-label="Perkfinity home">
       <img src="assets/Perkfinity-Logo.png" alt="Perkfinity logo">
     </a>
     <nav class="nav" aria-label="Business navigation" style="gap:4px">
-      <a href="merchants.html" style="color:rgba(255,255,255,0.6);font-size:13px">← For Businesses</a>
-      <a href="login.html" style="color:rgba(255,255,255,0.7)">Sign In</a>
+      <a href="/merchants" style="color:rgba(255,255,255,0.6);font-size:13px">← For Businesses</a>
+      <a href="/login" style="color:rgba(255,255,255,0.7)">Sign In</a>
     </nav>
   </div>
 </header>
@@ -478,7 +479,7 @@
 </div>
 <div class="agree-row" style="margin-top:4px">
 <input type="checkbox" id="f-terms">
-<label for="f-terms">I agree to the <a href="terms-of-use.html" target="_blank">Terms of Use</a> and <a href="privacy-policy.html" target="_blank">Privacy Policy</a>.</label>
+<label for="f-terms">I agree to the <a href="/terms-of-use" target="_blank">Terms of Use</a> and <a href="/privacy-policy" target="_blank">Privacy Policy</a>.</label>
 </div>
 <div class="err-msg" id="err3"></div>
 <div class="nav-row">
@@ -573,7 +574,7 @@ I understand and want to continue with this logo
 <div class="confirm-icon">🎉</div>
 <div class="confirm-title">Application Submitted!</div>
 <p class="confirm-sub">Thank you for applying to join Perkfinity. We'll review your application and contact you within <strong>1-2 business days</strong>.</p>
-<a href="index.html" class="btn btn-purple" style="display:inline-flex">← Back to Home</a>
+<a href="/" class="btn btn-purple" style="display:inline-flex">← Back to Home</a>
 </div>
 </div>
 </div><!-- end apply-panel -->
@@ -582,8 +583,8 @@ I understand and want to continue with this logo
 <footer class="site-footer">
 <div class="container"><div class="row">
 <a href="mailto:hello@perkfinity.net" style="text-decoration:none;color:inherit">✉ <strong>hello@perkfinity.net</strong></a>
-<span class="sep">|</span><a href="privacy-policy.html" style="text-decoration:none;color:inherit">Privacy Policy</a>
-<span class="sep">|</span><a href="terms-of-use.html" style="text-decoration:none;color:inherit">Terms of Use</a>
+<span class="sep">|</span><a href="/privacy-policy" style="text-decoration:none;color:inherit">Privacy Policy</a>
+<span class="sep">|</span><a href="/terms-of-use" style="text-decoration:none;color:inherit">Terms of Use</a>
 </div></div>
 </footer>
 <script>
@@ -1231,7 +1232,7 @@ async function handlePayment(){
     // back to re-add it, skip Step 5 (Submit) and go straight to the dashboard.
     const urlReason = new URLSearchParams(location.search).get('reason');
     if (urlReason === 'payment_missing') {
-      window.location.href = 'dashboard.html';
+      window.location.href = '/dashboard';
       return;
     }
     buildSummary();

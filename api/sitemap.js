@@ -8,40 +8,39 @@
  *   it automatically appears in /sitemap.xml without running any build script.
  */
 
-const { fetchMerchants, slugify } = require('./store-page');
+const { fetchMerchants, fetchOnlineMerchants, slugify } = require('./store-page');
 
 const CORE_PAGES = [
   { loc: 'https://www.perkfinity.net/', changefreq: 'daily', priority: '1.0' },
-  { loc: 'https://www.perkfinity.net/codes.html', changefreq: 'daily', priority: '0.9' },
-  { loc: 'https://www.perkfinity.net/localperks.html', changefreq: 'daily', priority: '0.9' },
+  { loc: 'https://www.perkfinity.net/codes', changefreq: 'daily', priority: '0.9' },
+  { loc: 'https://www.perkfinity.net/localperks', changefreq: 'daily', priority: '0.9' },
   { loc: 'https://www.perkfinity.net/deals/orange-county', changefreq: 'daily', priority: '0.9' },
-  { loc: 'https://www.perkfinity.net/merchants.html', changefreq: 'weekly', priority: '0.8' },
-  { loc: 'https://www.perkfinity.net/get-started.html', changefreq: 'weekly', priority: '0.8' },
-  { loc: 'https://www.perkfinity.net/apply.html', changefreq: 'weekly', priority: '0.8' },
-  { loc: 'https://www.perkfinity.net/enterprise.html', changefreq: 'monthly', priority: '0.7' },
-  { loc: 'https://www.perkfinity.net/how-it-works.html', changefreq: 'monthly', priority: '0.7' },
-  { loc: 'https://www.perkfinity.net/members.html', changefreq: 'monthly', priority: '0.7' },
-  { loc: 'https://www.perkfinity.net/about.html', changefreq: 'monthly', priority: '0.6' },
-  { loc: 'https://www.perkfinity.net/faq.html', changefreq: 'monthly', priority: '0.6' },
-  { loc: 'https://www.perkfinity.net/contact.html', changefreq: 'monthly', priority: '0.5' },
-  { loc: 'https://www.perkfinity.net/llms.txt', changefreq: 'weekly', priority: '0.6' },
-  { loc: 'https://www.perkfinity.net/llms-full.txt', changefreq: 'weekly', priority: '0.6' }
+  { loc: 'https://www.perkfinity.net/merchants', changefreq: 'weekly', priority: '0.8' },
+  { loc: 'https://www.perkfinity.net/get-started', changefreq: 'weekly', priority: '0.8' },
+  { loc: 'https://www.perkfinity.net/apply', changefreq: 'weekly', priority: '0.8' },
+  { loc: 'https://www.perkfinity.net/enterprise', changefreq: 'monthly', priority: '0.7' },
+  { loc: 'https://www.perkfinity.net/about', changefreq: 'monthly', priority: '0.6' },
+  { loc: 'https://www.perkfinity.net/faq', changefreq: 'monthly', priority: '0.6' },
+  { loc: 'https://www.perkfinity.net/contact', changefreq: 'monthly', priority: '0.5' },
+  { loc: 'https://www.perkfinity.net/privacy-policy', changefreq: 'monthly', priority: '0.4' },
+  { loc: 'https://www.perkfinity.net/terms-of-use', changefreq: 'monthly', priority: '0.4' }
 ];
 
-function buildSitemapXml(merchants) {
+function buildSitemapXml(merchants, onlineMerchants = []) {
   const today = new Date().toISOString().split('T')[0];
 
-  // Collect all unique active city slugs (plus standard OC hubs)
+  // Collect all unique active city slugs (plus standard OC hubs) from local/mobile/hybrid merchants only
   const citySlugs = new Set(['mission-viejo', 'lake-forest', 'irvine']);
   (merchants || []).forEach(m => {
+    if (m.business_presence === 'online') return;
     const cs = slugify(m.city);
     if (cs) citySlugs.add(cs);
   });
 
-  // Collect all unique active store slugs
+  // Collect all unique active store slugs across both local/hybrid/mobile AND online merchants
   const storeSlugs = [];
   const seenStore = new Set();
-  (merchants || []).forEach(m => {
+  [...(merchants || []), ...(onlineMerchants || [])].forEach(m => {
     const s = slugify(m.business_name);
     if (s && !seenStore.has(s)) {
       seenStore.add(s);
@@ -87,14 +86,17 @@ ${urlEntries.join('\n')}
 
 module.exports = async function handler(req, res) {
   try {
-    const merchants = await fetchMerchants();
-    const xml = buildSitemapXml(merchants);
+    const [merchants, onlineMerchants] = await Promise.all([
+      fetchMerchants(),
+      fetchOnlineMerchants().catch(() => [])
+    ]);
+    const xml = buildSitemapXml(merchants, onlineMerchants);
     res.setHeader('Content-Type', 'application/xml; charset=utf-8');
     res.setHeader('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=3600');
     return res.status(200).send(xml);
   } catch (err) {
     console.error('SSR sitemap error:', err);
-    const xml = buildSitemapXml([]);
+    const xml = buildSitemapXml([], []);
     res.setHeader('Content-Type', 'application/xml; charset=utf-8');
     return res.status(200).send(xml);
   }

@@ -6,20 +6,20 @@
   <title>Perkfinity — Promo Codes, Online Coupons, Deals &amp; Discounts</title>
   <meta name="description" content="Discover exclusive, verified promo codes, online coupons, deals, and discounts from top online brands and hybrid stores on Perkfinity. Free to join and unlock." />
   <meta name="keywords" content="promo codes, online coupons, brand discounts, verified deals, shopping vouchers, cash savings, store discounts" />
-  <link rel="canonical" href="https://www.perkfinity.net/codes.html" />
+  <link rel="canonical" href="https://www.perkfinity.net/codes" />
 
   <!-- OpenGraph / Facebook / LinkedIn -->
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://perkfinity.net/codes.html" />
+  <meta property="og:url" content="https://www.perkfinity.net/codes" />
   <meta property="og:title" content="Verified Online Promo Codes, Coupons &amp; Brand Deals — Perkfinity" />
   <meta property="og:description" content="Unlock exclusive promo codes, coupons, deals, and discounts from verified online brands and hybrid stores. Privacy-first, free to join." />
-  <meta property="og:image" content="https://perkfinity.net/assets/Perkfinity-App-Icon.png" />
+  <meta property="og:image" content="https://www.perkfinity.net/assets/Perkfinity-App-Icon.png" />
 
   <!-- Twitter / X -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Verified Online Promo Codes, Coupons &amp; Brand Deals — Perkfinity" />
   <meta name="twitter:description" content="Discover verified discounts, online coupons, and promo codes from top online and hybrid brands on Perkfinity." />
-  <meta name="twitter:image" content="https://perkfinity.net/assets/Perkfinity-App-Icon.png" />
+  <meta name="twitter:image" content="https://www.perkfinity.net/assets/Perkfinity-App-Icon.png" />
 
   <!-- Structured Data / JSON-LD -->
   <script type="application/ld+json">
@@ -28,20 +28,20 @@
     "@graph": [
       {
         "@type": "WebPage",
-        "@id": "https://perkfinity.net/codes.html#webpage",
-        "url": "https://perkfinity.net/codes.html",
+        "@id": "https://www.perkfinity.net/codes#webpage",
+        "url": "https://www.perkfinity.net/codes",
         "name": "Verified Online Promo Codes & Brand Deals",
         "isPartOf": {
           "@type": "WebSite",
           "name": "Perkfinity",
-          "url": "https://perkfinity.net"
+          "url": "https://www.perkfinity.net"
         },
         "description": "Directory of verified online brand promo codes and instant discounts."
       },
       {
         "@type": "OfferCatalog",
         "name": "Perkfinity Online Brand Discounts & Promo Codes",
-        "url": "https://perkfinity.net/codes.html",
+        "url": "https://www.perkfinity.net/codes",
         "numberOfItems": 50,
         "itemListElement": [
           {
@@ -628,16 +628,16 @@
 <body>
   <header class="site-header">
     <div class="nav-inner">
-      <a class="nav-brand" href="index.html" aria-label="Perkfinity home">
+      <a class="nav-brand" href="/" aria-label="Perkfinity home">
         <img src="assets/Perkfinity-Logo.png" alt="Perkfinity" />
       </a>
       <button class="nav-mobile-btn" onclick="this.nextElementSibling.classList.toggle('open')" aria-label="Toggle menu">☰</button>
       <nav class="nav-links" aria-label="Primary navigation">
-        <a href="codes.html" aria-current="page">Promo Codes</a>
-        <a href="localperks.html">Nearby Deals</a>
+        <a href="/codes" aria-current="page">Promo Codes</a>
+        <a href="/localperks">Nearby Deals</a>
         <div class="nav-sep" aria-hidden="true"></div>
-        <a href="merchants.html">For Businesses</a>
-        <a href="about.html">About Us</a>
+        <a href="/merchants">For Businesses</a>
+        <a href="/about">About Us</a>
       </nav>
     </div>
   </header>
@@ -764,10 +764,10 @@
     <div class="footer-inner">
       <span class="footer-brand">Perkfinity</span>
       <nav class="footer-links" aria-label="Footer navigation">
-        <a href="about.html">About Us</a>
-        <a href="merchants.html">For Businesses</a>
-        <a href="privacy-policy.html">Privacy Policy</a>
-        <a href="terms-of-use.html">Terms of Use</a>
+        <a href="/about">About Us</a>
+        <a href="/merchants">For Businesses</a>
+        <a href="/privacy-policy">Privacy Policy</a>
+        <a href="/terms-of-use">Terms of Use</a>
         <a href="mailto:hello@perkfinity.net">Contact</a>
       </nav>
       <div class="footer-copy">© 2025 Perkfinity · perkfinity.net · by SafeBox Financial Technologies</div>
@@ -838,14 +838,14 @@
             <h3>We don’t have “${searchQuery}” yet!</h3>
             <p>Looks like that brand hasn’t joined Perkfinity yet — but they should!<br>
             Think they’d be a great fit? Send them our way — ask them to visit<br>
-            <a href="merchants.html" style="color:var(--purple);font-weight:900;">perkfinity.net → For Businesses</a>.<br>
+            <a href="/merchants" style="color:var(--purple);font-weight:900;">perkfinity.net → For Businesses</a>.<br>
             The more brands that join, the more deals you get! 🎁</p>`;
         } else {
           state.innerHTML = `<div class="state-icon">📦</div>
             <h3>No brands in this category yet!</h3>
             <p>More brands are joining every week — check back soon!<br><br>
             Know a brand that belongs here? Tell them to sign up at<br>
-            <a href="merchants.html" style="color:var(--purple);font-weight:900;">perkfinity.net → For Businesses</a>. 🎉</p>`;
+            <a href="/merchants" style="color:var(--purple);font-weight:900;">perkfinity.net → For Businesses</a>. 🎉</p>`;
         }
         state.style.display = 'block';
         return;

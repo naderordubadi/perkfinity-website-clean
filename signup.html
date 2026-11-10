@@ -7,6 +7,7 @@
   <title>Perkfinity — Merchant Sign Up / Sign In</title>
   <meta name="description"
     content="Sign up your local business for Perkfinity to generate your custom countertop rewards display instantly." />
+  <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" href="assets/Perkfinity-App-Icon.png" />
   <link rel="stylesheet" href="styles.css" />
   <style>
@@ -48,12 +49,12 @@
 <body>
   <header style="position:sticky;top:0;z-index:100;background:rgba(45,21,112,0.97);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.08);">
     <div class="container header-inner">
-      <a class="brand" href="index.html" aria-label="Perkfinity home">
+      <a class="brand" href="/" aria-label="Perkfinity home">
         <img src="assets/Perkfinity-Logo.png" alt="Perkfinity logo">
       </a>
       <nav class="nav" aria-label="Business navigation" style="gap:4px">
-        <a href="merchants.html" style="color:rgba(255,255,255,0.6);font-size:13px">← For Businesses</a>
-        <a href="login.html" style="color:rgba(255,255,255,0.7)">Sign In</a>
+        <a href="/merchants" style="color:rgba(255,255,255,0.6);font-size:13px">← For Businesses</a>
+        <a href="/login" style="color:rgba(255,255,255,0.7)">Sign In</a>
       </nav>
     </div>
   </header>
@@ -424,9 +425,9 @@
                 btn.style.cursor = this.checked ? 'pointer' : 'not-allowed';
               ">
               <span style="line-height:1.4">By creating an account, I acknowledge that I have read and agree to
-                Perkfinity's <a href="terms-of-use.html" target="_blank"
+                Perkfinity's <a href="/terms-of-use" target="_blank"
                   style="color:var(--purple);font-weight:600;text-decoration:none;">Terms of Use</a> and <a
-                  href="privacy-policy.html" target="_blank"
+                  href="/privacy-policy" target="_blank"
                   style="color:var(--purple);font-weight:600;text-decoration:none;">Privacy Policy</a>.</span>
             </label>
 
@@ -522,7 +523,7 @@
                 — your information was not saved for your security.</p>
               <p style="font-size:15px;color:var(--muted);max-width:400px;margin:0 auto 28px;line-height:1.6;">Please
                 sign in to continue where you left off.</p>
-              <button class="btn btn-purple" onclick="window.location.href='login.html'"
+              <button class="btn btn-purple" onclick="window.location.href='/login'"
                 style="padding:15px 36px;font-size:16px;">
                 Sign In & Continue →
               </button>
@@ -636,7 +637,7 @@
             <div style="margin-top:24px; border-top: 1px solid rgba(255,255,255,0.2); padding-top:20px;">
               <button class="btn"
                 style="background:#fff; color:var(--purpleDark); font-size:17px; padding:14px 32px; font-weight:800; border-radius:12px; border:none; box-shadow:0 4px 15px rgba(0,0,0,0.1);"
-                onclick="window.location.href='dashboard.html'">
+                onclick="window.location.href='/dashboard'">
                 Enter Dashboard →
               </button>
             </div>
@@ -1425,7 +1426,7 @@
           currentAccessToken = localStorage.getItem('perkfinity_token');
 
           if (!currentMerchantId || !currentAccessToken) {
-            window.location.href = 'login.html';
+            window.location.href = '/login';
             return;
           }
 
@@ -1446,7 +1447,7 @@
             fetch(`${BACKEND_URL}/api/v1/merchants/${currentMerchantId}/profile`, {
               headers: { 'Authorization': `Bearer ${currentAccessToken}` }
             }).then(r => r.json()).then(json => {
-              if (!json.success) { window.location.href = 'login.html'; return; }
+              if (!json.success) { window.location.href = '/login'; return; }
               const d = json.data;
               const tier = d.subscription_tier || 'trial';
               window._resumeHasLogo = !!d.logo_url;
@@ -1465,7 +1466,7 @@
               document.querySelectorAll('.wizard-step').forEach(el => el.style.display = 'none');
               step4El.style.display = 'block';
               updateSignupStepBar(4);
-            }).catch(() => { window.location.href = 'login.html'; });
+            }).catch(() => { window.location.href = '/login'; });
           });
           // NOTE: Step 4 shown inside ensureSignupReferralSet().then() above.
 
@@ -1475,7 +1476,7 @@
           currentAccessToken = localStorage.getItem('perkfinity_token');
 
           if (!currentMerchantId || !currentAccessToken) {
-            window.location.href = 'login.html';
+            window.location.href = '/login';
             return;
           }
 
@@ -1483,7 +1484,7 @@
           fetch(`${BACKEND_URL}/api/v1/merchants/${currentMerchantId}/profile`, {
             headers: { 'Authorization': `Bearer ${currentAccessToken}` }
           }).then(r => r.json()).then(d => {
-            if (!d.success) { window.location.href = 'login.html'; return; }
+            if (!d.success) { window.location.href = '/login'; return; }
             if (d.data.logo_url) {
               localStorage.setItem('perkfinity_logo_url', d.data.logo_url);
               uploadedLogoBase64 = d.data.logo_url;
@@ -1491,7 +1492,7 @@
             if (d.data.business_name) localStorage.setItem('perkfinity_business_name', d.data.business_name);
             if (d.data.perk) localStorage.setItem('perkfinity_member_perk', d.data.perk);
             if (d.data.qr_url) currentQrUrl = d.data.qr_url;
-          }).catch(() => { window.location.href = 'login.html'; });
+          }).catch(() => { window.location.href = '/login'; });
 
           // Show Step 5 with welcome-back banner
           const step5El = document.getElementById('step-5-logo');
@@ -2004,7 +2005,7 @@
             if (window._resumeMode && window._resumeOnboardingComplete) {
               // Already fully onboarded — only came back to re-add a deleted card.
               // Skip QR sign screen and go straight to dashboard.
-              window.location.href = 'dashboard.html';
+              window.location.href = '/dashboard';
             } else if (window._resumeMode && window._resumeHasLogo) {
               // Resume mode: logo already on file — skip Step 5, go straight to QR sign
               generateSign();
@@ -2462,9 +2463,9 @@
         <span class="sep">|</span>
         <span>🌐 <strong>www.perkfinity.net</strong></span>
         <span class="sep">|</span>
-        <a href="privacy-policy.html" style="text-decoration:none;color:inherit">Privacy Policy</a>
+        <a href="/privacy-policy" style="text-decoration:none;color:inherit">Privacy Policy</a>
         <span class="sep">|</span>
-        <a href="terms-of-use.html" style="text-decoration:none;color:inherit">Terms of Use</a>
+        <a href="/terms-of-use" style="text-decoration:none;color:inherit">Terms of Use</a>
       </div>
     </div>
   </footer>

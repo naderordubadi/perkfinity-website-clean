@@ -13,6 +13,7 @@ const https = require('https');
 const { classifyMerchantSEO } = require('./_seo-keywords');
 
 const API_URL = 'https://perkfinity-backend.vercel.app/api/v1/public/local-merchants';
+const ONLINE_API_URL = 'https://perkfinity-backend.vercel.app/api/v1/public/online-merchants';
 
 function slugify(text) {
   if (!text) return '';
@@ -101,16 +102,44 @@ function fetchMerchants(queryParams = {}) {
   });
 }
 
+function fetchOnlineMerchants() {
+  return new Promise((resolve, reject) => {
+    https.get(ONLINE_API_URL, (res) => {
+      let raw = '';
+      res.on('data', chunk => raw += chunk);
+      res.on('end', () => {
+        try {
+          const json = JSON.parse(raw);
+          if (json.success && Array.isArray(json.data)) {
+            const normalized = json.data.map(m => ({
+              ...m,
+              business_presence: m.business_presence || (m.city ? 'hybrid' : 'online')
+            }));
+            resolve(normalized);
+          } else {
+            reject(new Error('Invalid online-merchants API response format'));
+          }
+        } catch (e) {
+          reject(e);
+        }
+      });
+    }).on('error', reject);
+  });
+}
+
 function buildStorePageHtml(m, allMerchants) {
   const bName = m.business_name || m.merchant_name || 'Brand';
   const slug = slugify(bName);
-  const city = m.city || 'Orange County';
+  const isOnlineOnly = m.business_presence === 'online';
+  const hasCity = Boolean(m.city && String(m.city).trim());
+  const city = hasCity ? String(m.city).trim() : (isOnlineOnly ? 'Online' : 'Orange County');
   const state = m.state || 'CA';
   const zip = m.postal_code || '';
   const address = m.address || '';
-  const fullAddr = [address, city, state, zip].filter(Boolean).join(', ');
+  const fullAddr = [address, hasCity ? city : '', hasCity ? state : '', zip].filter(Boolean).join(', ');
+  const locationDisplay = (isOnlineOnly && !hasCity) ? 'Online Brand (Nationwide)' : `${city}, ${state}`;
   const offer = m.welcome_offer_text || 'Exclusive Member Perk';
-  const category = m.business_category || 'Local Dining & Retail';
+  const category = m.business_category || (isOnlineOnly ? 'Online Shopping & Brand Perks' : 'Local Dining & Retail');
   const isVip = Boolean(m.is_fullpage_sponsored && (!m.fullpage_sponsored_until || new Date(m.fullpage_sponsored_until) >= new Date()));
   const bannerUrl = isVip ? (m.promo_banner_url || m.cover_photo_url || '') : '';
   const logoUrl = m.logo_url || '';
@@ -127,17 +156,17 @@ function buildStorePageHtml(m, allMerchants) {
   const qrPublicCode = m.qr_public_code || '';
   const joinUrl = `https://perkfinity.net/join/${qrPublicCode}`;
   const canonicalUrl = `https://www.perkfinity.net/store/${slug}`;
-  const citySlug = slugify(city);
+  const citySlug = hasCity ? slugify(city) : 'orange-county';
 
   const seo = classifyMerchantSEO(m);
   const initials = bName.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase();
 
   // Find other merchants in same city for bottom carousel
-  const nearbyStores = allMerchants
+  const nearbyStores = (allMerchants || [])
     .filter(other => slugify(other.business_name) !== slug)
     .sort((a, b) => {
-      if ((a.city || '').toLowerCase() === city.toLowerCase()) return -1;
-      if ((b.city || '').toLowerCase() === city.toLowerCase()) return 1;
+      if (hasCity && (a.city || '').toLowerCase() === city.toLowerCase()) return -1;
+      if (hasCity && (b.city || '').toLowerCase() === city.toLowerCase()) return 1;
       return 0;
     })
     .slice(0, 4);
@@ -145,7 +174,9 @@ function buildStorePageHtml(m, allMerchants) {
   const nearbyCardsHtml = nearbyStores.map(ns => {
     const nsName = ns.business_name || 'Store';
     const nsSlug = slugify(nsName);
-    const nsCity = ns.city || 'Orange County';
+    const nsIsOnlineNoCity = ns.business_presence === 'online' && !ns.city;
+    const nsCity = nsIsOnlineNoCity ? 'Online Brand' : (ns.city || 'Orange County');
+    const nsLocPrefix = nsIsOnlineNoCity ? '🌐' : '📍';
     const nsOffer = ns.welcome_offer_text || 'Exclusive member perk';
     const nsInitials = nsName.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase();
     return `
@@ -156,7 +187,7 @@ function buildStorePageHtml(m, allMerchants) {
             : `<div class="nearby-logo-placeholder">${nsInitials}</div>`}
           <div>
             <div class="nearby-title">${escapeHtml(nsName)}</div>
-            <div class="nearby-loc">📍 ${escapeHtml(nsCity)}</div>
+            <div class="nearby-loc">${nsLocPrefix} ${escapeHtml(nsCity)}</div>
           </div>
         </div>
         <div class="nearby-offer">${escapeHtml(nsOffer)}</div>
@@ -165,19 +196,37 @@ function buildStorePageHtml(m, allMerchants) {
     `;
   }).join('');
 
-  // Rich Schema.org JSON-LD with exact @type (AutoRepair, NailSalon, DaySpa, Restaurant, etc.),
+  // Rich Schema.org JSON-LD with exact @type (AutoRepair, NailSalon, DaySpa, Restaurant, OnlineStore, etc.),
   // service keywords (knowsAbout), areaServed, and FAQPage for Google Rich Results
-  const schemaGraph = {
-    "@context": "https://schema.org",
-    "@graph": [
-      {
+  const primarySchemaNode = (isOnlineOnly && !hasCity)
+    ? {
+        "@type": seo.schemaType === 'LocalBusiness' ? 'OnlineStore' : seo.schemaType,
+        "@id": `${canonicalUrl}#business`,
+        "name": bName,
+        "description": seo.metaDescription,
+        "url": canonicalUrl,
+        "sameAs": [website, reviewUrl, orderUrl].filter(Boolean),
+        "image": bannerUrl || logoUrl || "https://www.perkfinity.net/assets/Perkfinity-App-Icon.png",
+        "telephone": phone || undefined,
+        "knowsAbout": seo.serviceKeywords,
+        "areaServed": { "@type": "Country", "name": "United States" },
+        "makesOffer": {
+          "@type": "Offer",
+          "name": offer,
+          "category": seo.primaryNiche,
+          "description": `${offer} — Verified ${seo.primaryNiche.toLowerCase()} promo code & member perk at ${bName}`,
+          "url": canonicalUrl,
+          "eligibleRegion": { "@type": "Country", "name": "US" }
+        }
+      }
+    : {
         "@type": seo.schemaType,
         "@id": `${canonicalUrl}#business`,
         "name": bName,
         "description": seo.metaDescription,
         "url": canonicalUrl,
         "sameAs": [website, reviewUrl, orderUrl].filter(Boolean),
-        "image": bannerUrl || logoUrl || "https://perkfinity.net/assets/Perkfinity-App-Icon.png",
+        "image": bannerUrl || logoUrl || "https://www.perkfinity.net/assets/Perkfinity-App-Icon.png",
         "telephone": phone || undefined,
         "priceRange": "$$",
         "knowsAbout": seo.serviceKeywords,
@@ -204,8 +253,18 @@ function buildStorePageHtml(m, allMerchants) {
             "name": `${city}, ${state} ${zip}`.trim()
           }
         }
-      },
-      {
+      };
+
+  const breadcrumbSchemaNode = (isOnlineOnly && !hasCity)
+    ? {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Perkfinity", "item": "https://www.perkfinity.net/" },
+          { "@type": "ListItem", "position": 2, "name": "Promo Codes & Brand Deals", "item": "https://www.perkfinity.net/codes" },
+          { "@type": "ListItem", "position": 3, "name": `${bName} (${seo.primaryNiche} Deals)`, "item": canonicalUrl }
+        ]
+      }
+    : {
         "@type": "BreadcrumbList",
         "itemListElement": [
           { "@type": "ListItem", "position": 1, "name": "Perkfinity", "item": "https://www.perkfinity.net/" },
@@ -213,8 +272,31 @@ function buildStorePageHtml(m, allMerchants) {
           { "@type": "ListItem", "position": 3, "name": `${city} Deals`, "item": `https://www.perkfinity.net/deals/${citySlug}` },
           { "@type": "ListItem", "position": 4, "name": `${bName} (${seo.primaryNiche} Deals)`, "item": canonicalUrl }
         ]
-      },
-      {
+      };
+
+  const faqSchemaNode = (isOnlineOnly && !hasCity)
+    ? {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": `What promo codes or deals does ${bName} offer?`,
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": `${bName} offers a verified Perkfinity member perk: "${offer}". Specializing in ${seo.primaryNiche.toLowerCase()} (${seo.serviceKeywords.slice(0, 4).join(', ')}).`
+            }
+          },
+          {
+            "@type": "Question",
+            "name": `How do I claim the ${bName} promo code or discount?`,
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": `Scan the official Perkfinity QR code for ${bName} with the free Perkfinity app to unlock "${offer}" instantly with 100% privacy (no phone number or email shared with the business).`
+            }
+          }
+        ]
+      }
+    : {
         "@type": "FAQPage",
         "mainEntity": [
           {
@@ -234,7 +316,14 @@ function buildStorePageHtml(m, allMerchants) {
             }
           }
         ]
-      }
+      };
+
+  const schemaGraph = {
+    "@context": "https://schema.org",
+    "@graph": [
+      primarySchemaNode,
+      breadcrumbSchemaNode,
+      faqSchemaNode
     ]
   };
 
@@ -479,9 +568,9 @@ function buildStorePageHtml(m, allMerchants) {
       </a>
       <button class="nav-mobile-btn" onclick="this.nextElementSibling.classList.toggle('open')" aria-label="Toggle menu">☰</button>
       <nav class="nav-links">
-        <a href="/codes.html">Promo Codes</a>
-        <a href="/localperks.html">Nearby Deals</a>
-        <a href="/index.html#download" onclick="document.getElementById('download-modal').style.display='flex'; return false;" class="nav-signin">Get Free App</a>
+        <a href="/codes">Promo Codes</a>
+        <a href="/localperks">Nearby Deals</a>
+        <a href="/#download" onclick="document.getElementById('download-modal').style.display='flex'; return false;" class="nav-signin">Get Free App</a>
       </nav>
     </div>
   </header>
@@ -489,10 +578,16 @@ function buildStorePageHtml(m, allMerchants) {
   <!-- Breadcrumb Navigation -->
   <div class="breadcrumb-bar">
     <div class="container">
-      <a href="/">Home</a> › 
-      <a href="/deals/orange-county">Orange County</a> › 
-      <a href="/deals/${citySlug}">${escapeHtml(city)}</a> › 
-      <span>${escapeHtml(bName)} Deals</span>
+      ${(isOnlineOnly && !hasCity) ? `
+        <a href="/">Home</a> › 
+        <a href="/codes">Promo Codes</a> › 
+        <span>${escapeHtml(bName)} Deals</span>
+      ` : `
+        <a href="/">Home</a> › 
+        <a href="/deals/orange-county">Orange County</a> › 
+        <a href="/deals/${citySlug}">${escapeHtml(city)}</a> › 
+        <span>${escapeHtml(bName)} Deals</span>
+      `}
     </div>
   </div>
 
@@ -506,7 +601,7 @@ function buildStorePageHtml(m, allMerchants) {
           ${bannerUrl ? `
             <div class="store-banner-wrap">
               <span id="sponsored-badge" class="store-sponsored-badge">Sponsored</span>
-              <img src="${escapeHtml(bannerUrl)}" alt="${escapeHtml(bName)} — ${escapeHtml(seo.primaryNiche)} in ${escapeHtml(city)}, ${escapeHtml(state)}" class="store-banner-img" onerror="this.style.display='none';">
+              <img src="${escapeHtml(bannerUrl)}" alt="${escapeHtml(bName)} — ${escapeHtml(seo.primaryNiche)} ${(isOnlineOnly && !hasCity) ? 'Promo Codes & Deals' : 'in ' + escapeHtml(city) + ', ' + escapeHtml(state)}" class="store-banner-img" onerror="this.style.display='none';">
             </div>
           ` : ''}
 
@@ -521,7 +616,7 @@ function buildStorePageHtml(m, allMerchants) {
               <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
                 <span class="store-cat-badge">🏪 ${escapeHtml(category)}</span>
                 ${m.rating_platform && m.rating_score ? `<span class="store-rating-badge">⭐ ${escapeHtml(m.rating_score)} ${escapeHtml(m.rating_platform)}</span>` : ''}
-                <span style="font-size:13px; color:#64748B; font-weight:600;">📍 ${escapeHtml(city)}, ${escapeHtml(state)}</span>
+                <span style="font-size:13px; color:#64748B; font-weight:600;">${(isOnlineOnly && !hasCity) ? '🌐 ' + escapeHtml(locationDisplay) : '📍 ' + escapeHtml(locationDisplay)}</span>
               </div>
             </div>
           </div>
@@ -552,18 +647,18 @@ function buildStorePageHtml(m, allMerchants) {
             <div class="qr-paths">
               <div class="qr-path-amber">
                 <div class="qr-path-title-amber">📱 DON&#39;T HAVE THE APP?</div>
-                <p class="qr-path-desc-amber">Open your phone&#39;s camera → Scan the QR code → Download Perkfinity → Join the merchant → Visit the store to activate your perk.</p>
+                <p class="qr-path-desc-amber">${isOnlineOnly ? 'Open your phone&#39;s camera → Scan the QR code → Download Perkfinity → Join the store → Your promo code is revealed in the app.' : 'Open your phone&#39;s camera → Scan the QR code → Download Perkfinity → Join the merchant → Visit the store to activate your perk.'}</p>
               </div>
               <div class="qr-path-green">
                 <div class="qr-path-title-green">✅ ALREADY HAVE THE APP?</div>
-                <p class="qr-path-desc-green">Open Perkfinity → Tap <strong>Scan</strong> → Scan this QR code → Join the merchant → Visit the store and scan again to activate.</p>
+                <p class="qr-path-desc-green">${isOnlineOnly ? 'Open Perkfinity → Tap <strong>Scan</strong> → Scan this QR code → Join the store → View your exclusive promo code.' : 'Open Perkfinity → Tap <strong>Scan</strong> → Scan this QR code → Join the merchant → Visit the store and scan again to activate.'}</p>
               </div>
             </div>
 
             <p class="qr-disclaimer">
               Unlock your perk inside the app to redeem in person or online.<br>
-              By joining, you agree to our <a href="/terms-of-use.html" target="_blank">Terms of Use</a> &amp;
-              <a href="/privacy-policy.html" target="_blank">Privacy Policy</a>.
+              By joining, you agree to our <a href="/terms-of-use" target="_blank">Terms of Use</a> &amp;
+              <a href="/privacy-policy" target="_blank">Privacy Policy</a>.
             </p>
           </div>
 
@@ -585,7 +680,12 @@ function buildStorePageHtml(m, allMerchants) {
                 <span>📍 ${escapeHtml(fullAddr)}</span>
               </div>
             </div>
-          ` : ''}
+          ` : (isOnlineOnly ? `
+            <div style="width:100%; margin-top:20px;">
+              <div style="font-weight:700; font-size:13.5px; color:#1E293B; margin-bottom:8px;">📍 Where To Redeem</div>
+              <div style="background:#F1F5F9; border-radius:12px; padding:16px; text-align:center; color:#64748B; font-weight:600; font-size:13px;">🌐 Online Store — Available Nationwide</div>
+            </div>
+          ` : '')}
         </aside>
 
       </article>
@@ -603,7 +703,7 @@ function buildStorePageHtml(m, allMerchants) {
             <div class="standard-meta-row">
               <span>🏪 ${escapeHtml(category)}</span>
               <span>•</span>
-              <span>📍 ${escapeHtml(city)}, ${escapeHtml(state)}</span>
+              <span>${(isOnlineOnly && !hasCity) ? '🌐 ' + escapeHtml(locationDisplay) : '📍 ' + escapeHtml(locationDisplay)}</span>
             </div>
             ${(cleanPhone || email || website) ? `
               <div class="standard-contact-links">
@@ -625,18 +725,18 @@ function buildStorePageHtml(m, allMerchants) {
         <div class="qr-paths" style="margin-bottom:20px;">
           <div class="qr-path-amber">
             <div class="qr-path-title-amber">📱 DON&#39;T HAVE THE APP?</div>
-            <p class="qr-path-desc-amber">Open your phone&#39;s camera → Scan the QR code → Download Perkfinity → Join the merchant → Visit the store to activate your perk.</p>
+            <p class="qr-path-desc-amber">${isOnlineOnly ? 'Open your phone&#39;s camera → Scan the QR code → Download Perkfinity → Join the store → Your promo code is revealed in the app.' : 'Open your phone&#39;s camera → Scan the QR code → Download Perkfinity → Join the merchant → Visit the store to activate your perk.'}</p>
           </div>
           <div class="qr-path-green">
             <div class="qr-path-title-green">✅ ALREADY HAVE THE APP?</div>
-            <p class="qr-path-desc-green">Open Perkfinity → Tap <strong>Scan</strong> → Scan this QR code → Join the merchant → Visit the store and scan again to activate.</p>
+            <p class="qr-path-desc-green">${isOnlineOnly ? 'Open Perkfinity → Tap <strong>Scan</strong> → Scan this QR code → Join the store → View your exclusive promo code.' : 'Open Perkfinity → Tap <strong>Scan</strong> → Scan this QR code → Join the merchant → Visit the store and scan again to activate.'}</p>
           </div>
         </div>
 
         <p class="qr-disclaimer">
           Unlock your perk inside the app to redeem in person or online.<br>
-          By joining, you agree to our <a href="/terms-of-use.html" target="_blank">Terms of Use</a> &amp;
-          <a href="/privacy-policy.html" target="_blank">Privacy Policy</a>.
+          By joining, you agree to our <a href="/terms-of-use" target="_blank">Terms of Use</a> &amp;
+          <a href="/privacy-policy" target="_blank">Privacy Policy</a>.
         </p>
       </article>
     `}
@@ -644,13 +744,15 @@ function buildStorePageHtml(m, allMerchants) {
     <!-- Nearby Merchants Section -->
     ${nearbyCardsHtml ? `
       <section class="nearby-section">
-        <h2 class="nearby-heading">More Verified Local Deals in ${escapeHtml(city)} &amp; Orange County</h2>
-        <p class="nearby-sub">Discover other top-rated neighborhood favorites offering member perks right now:</p>
+        <h2 class="nearby-heading">${(isOnlineOnly && !hasCity) ? 'More Verified Promo Codes &amp; Local Deals on Perkfinity' : 'More Verified Local Deals in ' + escapeHtml(city) + ' &amp; Orange County'}</h2>
+        <p class="nearby-sub">Discover other top-rated favorites offering member perks right now:</p>
         <div class="nearby-grid">
           ${nearbyCardsHtml}
         </div>
         <div style="text-align:center;">
-          <a href="/deals/${citySlug}" style="display:inline-block; background:#5B3FA5; color:#fff; font-weight:700; font-size:14px; padding:12px 28px; border-radius:12px; text-decoration:none;">← Browse All ${escapeHtml(city)} Deals &amp; Perks</a>
+          ${(isOnlineOnly && !hasCity)
+            ? '<a href="/codes" style="display:inline-block; background:#5B3FA5; color:#fff; font-weight:700; font-size:14px; padding:12px 28px; border-radius:12px; text-decoration:none;">← Browse All Promo Codes &amp; Brand Deals</a>'
+            : '<a href="/deals/' + citySlug + '" style="display:inline-block; background:#5B3FA5; color:#fff; font-weight:700; font-size:14px; padding:12px 28px; border-radius:12px; text-decoration:none;">← Browse All ' + escapeHtml(city) + ' Deals &amp; Perks</a>'}
         </div>
       </section>
     ` : ''}
@@ -664,9 +766,9 @@ function buildStorePageHtml(m, allMerchants) {
         <strong style="color:#fff;">Perkfinity</strong> — Privacy-First Local Customer Loyalty
       </div>
       <div class="footer-links">
-        <a href="/privacy-policy.html">Privacy Policy</a>
-        <a href="/terms-of-use.html">Terms of Use</a>
-        <a href="/merchants.html">For Merchants</a>
+        <a href="/privacy-policy">Privacy Policy</a>
+        <a href="/terms-of-use">Terms of Use</a>
+        <a href="/merchants">For Merchants</a>
       </div>
     </div>
   </footer>
@@ -714,27 +816,40 @@ function buildStorePageHtml(m, allMerchants) {
         }
       });
 
+      function applyStoreHydration(currentStore) {
+        if (!currentStore || currentStore.is_hidden) {
+          const card = document.getElementById('store-card');
+          if (card) {
+            card.innerHTML = '<div style="padding:48px; text-align:center; width:100%;"><h2 style="color:#991B1B;">Offer Currently Unavailable</h2><p style="color:#64748B;">This merchant offer has ended or is currently paused.</p><a href="${isOnlineOnly ? '/codes' : '/localperks'}" style="display:inline-block; margin-top:16px; background:#5B3FA5; color:#fff; padding:10px 24px; border-radius:10px; text-decoration:none; font-weight:700;">Explore Other Deals →</a></div>';
+          }
+        } else {
+          if (currentStore.welcome_offer_text && currentStore.welcome_offer_text !== "${escapeHtml(offer)}") {
+            const perkEl = document.getElementById('live-perk-text');
+            if (perkEl) perkEl.textContent = currentStore.welcome_offer_text;
+          }
+          const isNowVip = Boolean(currentStore.is_fullpage_sponsored && (!currentStore.fullpage_sponsored_until || new Date(currentStore.fullpage_sponsored_until) >= new Date()));
+          const badge = document.getElementById('sponsored-badge');
+          if (badge && !isNowVip) {
+            badge.remove();
+          }
+        }
+      }
+
       fetch("${API_URL}?id=${escapeHtml(m.id)}")
         .then(res => res.json())
         .then(json => {
           if (!json.success || !Array.isArray(json.data)) return;
           const currentStore = json.data[0];
-          if (!currentStore || currentStore.is_hidden) {
-            const card = document.getElementById('store-card');
-            if (card) {
-              card.innerHTML = '<div style="padding:48px; text-align:center; width:100%;"><h2 style="color:#991B1B;">Offer Currently Unavailable</h2><p style="color:#64748B;">This merchant offer has ended or is currently paused.</p><a href="/localperks.html" style="display:inline-block; margin-top:16px; background:#5B3FA5; color:#fff; padding:10px 24px; border-radius:10px; text-decoration:none; font-weight:700;">Explore Other Deals →</a></div>';
-            }
-          } else {
-            if (currentStore.welcome_offer_text && currentStore.welcome_offer_text !== "${escapeHtml(offer)}") {
-              const perkEl = document.getElementById('live-perk-text');
-              if (perkEl) perkEl.textContent = currentStore.welcome_offer_text;
-            }
-            const isNowVip = Boolean(currentStore.is_fullpage_sponsored && (!currentStore.fullpage_sponsored_until || new Date(currentStore.fullpage_sponsored_until) >= new Date()));
-            const badge = document.getElementById('sponsored-badge');
-            if (badge && !isNowVip) {
-              badge.remove();
-            }
+          if (!currentStore && ${isOnlineOnly ? 'true' : 'false'}) {
+            return fetch("${ONLINE_API_URL}")
+              .then(r => r.json())
+              .then(oJson => {
+                if (!oJson.success || !Array.isArray(oJson.data)) return;
+                const onlineMatch = oJson.data.find(item => item.id === "${escapeHtml(m.id)}");
+                applyStoreHydration(onlineMatch);
+              });
           }
+          applyStoreHydration(currentStore);
         })
         .catch(err => {
           console.warn('Real-time hydration check skipped:', err);
@@ -748,22 +863,51 @@ function buildStorePageHtml(m, allMerchants) {
 
 module.exports = async function handler(req, res) {
   try {
-    const rawSlug = (req.query && req.query.slug) || (req.url.match(/\/store\/([^/?#]+)/) || [])[1] || '';
+    const rawSlug = (req.query && req.query.slug) || (req.url.match(/\/(?:deals\/)?store\/([^/?#]+)/) || [])[1] || '';
     const targetSlug = slugify(decodeURIComponent(rawSlug));
 
     if (!targetSlug) {
-      res.writeHead(302, { Location: '/localperks.html' });
+      res.writeHead(308, { Location: 'https://www.perkfinity.net/localperks' });
       return res.end();
     }
 
-    const merchants = await fetchMerchants({ slug: targetSlug });
-    const match = merchants.find(m => slugify(m.business_name) === targetSlug)
+    let merchants = await fetchMerchants({ slug: targetSlug });
+    let match = merchants.find(m => slugify(m.business_name) === targetSlug)
       || merchants.find(m => slugify(m.business_name).startsWith(targetSlug) || targetSlug.startsWith(slugify(m.business_name)))
       || merchants[0];
 
+    // Also check online-merchants if no exact match in local-merchants
+    if (!match || slugify(match.business_name) !== targetSlug) {
+      try {
+        const onlineMerchants = await fetchOnlineMerchants();
+        const exactOnline = onlineMerchants.find(m => slugify(m.business_name) === targetSlug);
+        if (exactOnline) {
+          match = exactOnline;
+          if (merchants.length === 0) {
+            merchants = [exactOnline, ...onlineMerchants.filter(o => o.id !== exactOnline.id).slice(0, 4)];
+          }
+        } else if (!match) {
+          const prefixOnline = onlineMerchants.find(m => slugify(m.business_name).startsWith(targetSlug) || targetSlug.startsWith(slugify(m.business_name)));
+          if (prefixOnline) {
+            match = prefixOnline;
+            merchants = [prefixOnline, ...onlineMerchants.filter(o => o.id !== prefixOnline.id).slice(0, 4)];
+          }
+        }
+      } catch (e) {
+        // Ignore online fallback error if local lookup already ran
+      }
+    }
+
     if (!match) {
-      // Fallback to localperks with store query so online brands or unknown slugs are handled gracefully
-      res.writeHead(302, { Location: `/localperks.html?store=${encodeURIComponent(targetSlug)}` });
+      // Fallback to clean /localperks with store query so unknown/hidden slugs are handled gracefully without a .html redirect hop
+      res.writeHead(302, { Location: `/localperks?store=${encodeURIComponent(targetSlug)}` });
+      return res.end();
+    }
+
+    const canonicalSlug = slugify(match.business_name);
+    const isLegacyDealsStorePath = Boolean(req.url && req.url.startsWith('/deals/store/'));
+    if (canonicalSlug && (isLegacyDealsStorePath || targetSlug !== canonicalSlug)) {
+      res.writeHead(308, { Location: `https://www.perkfinity.net/store/${canonicalSlug}` });
       return res.end();
     }
 
@@ -773,11 +917,12 @@ module.exports = async function handler(req, res) {
     return res.status(200).send(html);
   } catch (err) {
     console.error('SSR store-page error:', err);
-    res.writeHead(302, { Location: '/localperks.html' });
+    res.writeHead(302, { Location: '/localperks' });
     return res.end();
   }
 };
 
 module.exports.buildStorePageHtml = buildStorePageHtml;
 module.exports.fetchMerchants = fetchMerchants;
+module.exports.fetchOnlineMerchants = fetchOnlineMerchants;
 module.exports.slugify = slugify;

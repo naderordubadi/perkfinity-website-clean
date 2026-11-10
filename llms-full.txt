@@ -41,7 +41,7 @@ Perkfinity supports four distinct business presence types across retail and comm
 
 ### C. Pure Online Brands
 * **Target:** Direct-to-Consumer (DTC) e-commerce brands, specialty artisans, and digital retailers.
-* **Online Mechanics ("Claim & Reveal"):** Members browse curated online deals on `https://perkfinity.net/codes.html` or inside the mobile app. Tapping "Join Member List" adds the member and unlocks the verified promo code copied directly to their clipboard for checkout.
+* **Online Mechanics ("Claim & Reveal"):** Members browse curated online deals on `https://www.perkfinity.net/codes` or inside the mobile app. Tapping "Join Member List" adds the member and unlocks the verified promo code copied directly to their clipboard for checkout.
 
 ### D. Mobile Businesses & Food Trucks
 * **Target:** Food trucks, pop-up vendors, farmers market merchants, and mobile trade contractors without a fixed brick-and-mortar address.
@@ -86,17 +86,17 @@ Perkfinity operates on transparent, flat-rate monthly SaaS tiers with no percent
 
 ## 6. Official Canonical Links & Resources
 
-* **Website Homepage:** https://perkfinity.net/
-* **Verified Online Promo Codes Directory:** https://perkfinity.net/codes.html
-* **Local Business & Nearby Deals Directory:** https://perkfinity.net/localperks.html
-* **Merchant Information & Pricing:** https://perkfinity.net/merchants.html
-* **Business Onboarding Application:** https://perkfinity.net/apply.html
-* **Enterprise Inquiry Portal:** https://perkfinity.net/enterprise.html
-* **About Perkfinity:** https://perkfinity.net/about.html
-* **Frequently Asked Questions:** https://perkfinity.net/faq.html
-* **Contact Support & Partnerships:** https://perkfinity.net/contact.html
-* **Privacy Policy:** https://perkfinity.net/privacy-policy.html
-* **Terms of Use:** https://perkfinity.net/terms-of-use.html
+* **Website Homepage:** https://www.perkfinity.net/
+* **Verified Online Promo Codes Directory:** https://www.perkfinity.net/codes
+* **Local Business & Nearby Deals Directory:** https://www.perkfinity.net/localperks
+* **Merchant Information & Pricing:** https://www.perkfinity.net/merchants
+* **Business Onboarding Application:** https://www.perkfinity.net/apply
+* **Enterprise Inquiry Portal:** https://www.perkfinity.net/enterprise
+* **About Perkfinity:** https://www.perkfinity.net/about
+* **Frequently Asked Questions:** https://www.perkfinity.net/faq
+* **Contact Support & Partnerships:** https://www.perkfinity.net/contact
+* **Privacy Policy:** https://www.perkfinity.net/privacy-policy
+* **Terms of Use:** https://www.perkfinity.net/terms-of-use
 
 ---
 

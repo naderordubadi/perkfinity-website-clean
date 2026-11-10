@@ -242,12 +242,13 @@ function extractShortOfferHook(offerText) {
 
 function classifyMerchantSEO(m) {
   const bName = m.business_name || m.merchant_name || 'Local Business';
-  const city = m.city || 'Orange County';
+  const isOnlineOnlyNoCity = m.business_presence === 'online' && !m.city;
+  const city = m.city || (isOnlineOnlyNoCity ? '' : 'Orange County');
   const state = m.state || 'CA';
   const zip = m.postal_code || '';
   const offer = m.welcome_offer_text || 'Exclusive Member Perk';
   const desc = m.promo_description || '';
-  const rawCat = m.business_category || 'Local Dining & Retail';
+  const rawCat = m.business_category || (isOnlineOnlyNoCity ? 'Online Shopping & Brand Perks' : 'Local Dining & Retail');
 
   const combinedText = `${bName} ${desc} ${offer} ${rawCat}`;
 
@@ -295,25 +296,39 @@ function classifyMerchantSEO(m) {
   const shortOffer = extractShortOfferHook(offer);
   const localizedKeywords = [];
 
-  // Build localized real-life search phrases (e.g. "auto repair deals in Mission Viejo", "Mission Viejo auto repair coupons")
-  matchedRule.keywords.forEach(kw => {
-    localizedKeywords.push(`${kw} in ${city}`);
-    localizedKeywords.push(`${city} ${kw}`);
-  });
+  if (city) {
+    // Build localized real-life search phrases (e.g. "auto repair deals in Mission Viejo", "Mission Viejo auto repair coupons")
+    matchedRule.keywords.forEach(kw => {
+      localizedKeywords.push(`${kw} in ${city}`);
+      localizedKeywords.push(`${city} ${kw}`);
+    });
+  }
 
   // Add brand + commercial intent variants
-  const allKeywords = [
-    `${bName} deals`,
-    `${bName} coupons`,
-    `${bName} discounts`,
-    `${bName} ${city}`,
-    ...localizedKeywords.slice(0, 8),
-    ...matchedRule.keywords,
-    `${city} deals`,
-    `${city} coupons`,
-    zip ? `${zip} local deals` : null,
-    'Perkfinity'
-  ].filter(Boolean);
+  const allKeywords = isOnlineOnlyNoCity
+    ? [
+        `${bName} promo code`,
+        `${bName} discount code`,
+        `${bName} deals`,
+        `${bName} coupons`,
+        `${bName} discounts`,
+        ...matchedRule.keywords,
+        'online promo codes',
+        'verified brand deals',
+        'Perkfinity'
+      ].filter(Boolean)
+    : [
+        `${bName} deals`,
+        `${bName} coupons`,
+        `${bName} discounts`,
+        `${bName} ${city}`,
+        ...localizedKeywords.slice(0, 8),
+        ...matchedRule.keywords,
+        `${city} deals`,
+        `${city} coupons`,
+        zip ? `${zip} local deals` : null,
+        'Perkfinity'
+      ].filter(Boolean);
 
   // Deduplicate case-insensitively
   const seen = new Set();
@@ -325,11 +340,15 @@ function classifyMerchantSEO(m) {
   });
 
   // Construct high-ranking Title, Meta Description, and Schema metadata
-  const pageTitle = `${bName} — ${matchedRule.primaryNiche} Deals & Coupons in ${city}, ${state} (${shortOffer}) | Perkfinity`;
+  const pageTitle = isOnlineOnlyNoCity
+    ? `${bName} — ${matchedRule.primaryNiche} Promo Codes, Coupons & Deals (${shortOffer}) | Perkfinity`
+    : `${bName} — ${matchedRule.primaryNiche} Deals & Coupons in ${city}, ${state} (${shortOffer}) | Perkfinity`;
   const cleanDescSnippet = desc
     ? ' ' + desc.replace(/\s+/g, ' ').trim().slice(0, 110).replace(/[.,;:\s]+$/, '') + '.'
     : '';
-  const metaDescription = `${offer} at ${bName} in ${city}, ${state}${zip ? ' ' + zip : ''}. Verified ${matchedRule.keywords.slice(0, 3).join(', ')} on Perkfinity.${cleanDescSnippet}`;
+  const metaDescription = isOnlineOnlyNoCity
+    ? `${offer} at ${bName}. Verified ${matchedRule.keywords.slice(0, 3).join(', ')}, promo codes & online brand perks on Perkfinity.${cleanDescSnippet}`
+    : `${offer} at ${bName} in ${city}, ${state}${zip ? ' ' + zip : ''}. Verified ${matchedRule.keywords.slice(0, 3).join(', ')} on Perkfinity.${cleanDescSnippet}`;
 
   return {
     nicheId: matchedRule.id,

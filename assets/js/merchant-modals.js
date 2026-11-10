@@ -174,8 +174,8 @@ window.openFullPageTakeover = function(merchant) {
 
               <p style="font-size:11px; color:#94A3B8; font-weight:700; text-align:center; line-height:1.4; margin:0; border-top:1px solid #F1F5F9; padding-top:10px;">
                 Unlock your perk inside the app to redeem in person or online.<br>
-                By joining, you agree to our <a href="terms-of-use.html" target="_blank" style="color:#5B3FA5;">Terms of Use</a> &amp;
-                <a href="privacy-policy.html" target="_blank" style="color:#5B3FA5;">Privacy Policy</a>.
+                By joining, you agree to our <a href="/terms-of-use" target="_blank" style="color:#5B3FA5;">Terms of Use</a> &amp;
+                <a href="/privacy-policy" target="_blank" style="color:#5B3FA5;">Privacy Policy</a>.
               </p>
             </div>
 
@@ -279,8 +279,8 @@ window.openPopup = function(merchant) {
       </div>
       <p class="popup-disclaimer" style="font-size: 11px; color: #94A3B8; text-align: center; line-height: 1.5; margin: 0;">
         Unlock your perk inside the app to redeem in person or online.<br>
-        By joining, you agree to our <a href="terms-of-use.html" target="_blank" style="color:#64748B;font-weight:700;">Terms of Use</a> &amp;
-        <a href="privacy-policy.html" target="_blank" style="color:#64748B;font-weight:700;">Privacy Policy</a>.
+        By joining, you agree to our <a href="/terms-of-use" target="_blank" style="color:#64748B;font-weight:700;">Terms of Use</a> &amp;
+        <a href="/privacy-policy" target="_blank" style="color:#64748B;font-weight:700;">Privacy Policy</a>.
       </p>
     </div>
   `;

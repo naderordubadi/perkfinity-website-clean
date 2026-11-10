@@ -252,7 +252,17 @@ module.exports = async function handler(req, res) {
       || (req.url.match(/\/deals\/([^/?#]+)/) || [])[1]
       || 'orange-county';
 
-    const cleanLoc = slugify(decodeURIComponent(rawLoc));
+    const decodedLoc = decodeURIComponent(rawLoc);
+    const cleanLoc = slugify(decodedLoc);
+    if (!cleanLoc) {
+      res.writeHead(308, { Location: 'https://www.perkfinity.net/localperks' });
+      return res.end();
+    }
+    if (decodedLoc !== cleanLoc) {
+      res.writeHead(308, { Location: `https://www.perkfinity.net/deals/${cleanLoc}` });
+      return res.end();
+    }
+
     const isCounty = Boolean(COUNTY_MAP[cleanLoc] || cleanLoc.endsWith('-county'));
     let merchants = [];
     if (!isCounty && cleanLoc) {
@@ -262,14 +272,14 @@ module.exports = async function handler(req, res) {
     if (!merchants || merchants.length === 0) {
       merchants = await fetchMerchants();
     }
-    const html = buildDealsPageHtml(decodeURIComponent(rawLoc), merchants);
+    const html = buildDealsPageHtml(cleanLoc, merchants);
 
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
     return res.status(200).send(html);
   } catch (err) {
     console.error('SSR deals-page error:', err);
-    res.writeHead(302, { Location: '/localperks.html' });
+    res.writeHead(302, { Location: '/localperks' });
     return res.end();
   }
 };
