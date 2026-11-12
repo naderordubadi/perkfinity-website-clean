@@ -18,7 +18,7 @@
     { "source": "/sitemap.xml", "destination": "/api/sitemap" },
     { "source": "/sitemap-live.xml", "destination": "/api/sitemap" },
     { "source": "/join/:code", "destination": "/join/index.html" },
-    { "source": "/codes", "destination": "/codes.html" },
+    { "source": "/codes", "destination": "/api/deals-page?mode=codes" },
     {
       "source": "/localperks.html",
       "has": [{ "type": "query", "key": "city" }],
@@ -70,6 +70,7 @@
     { "source": "/get-started", "destination": "/get-started.html" }
   ],
   "redirects": [
+    { "source": "/codes.html", "destination": "/codes", "permanent": true },
     { "source": "/deals/store/:merchant", "destination": "/store/:merchant", "permanent": true },
     { "source": "/deals", "destination": "/localperks", "permanent": true },
     { "source": "/how-it-works", "destination": "/merchants", "permanent": true },

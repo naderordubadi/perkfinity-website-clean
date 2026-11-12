@@ -14,9 +14,10 @@
 const fs = require('fs');
 const path = require('path');
 const { classifyMerchantSEO } = require('./_seo-keywords');
-const { fetchMerchants, slugify } = require('./store-page');
+const { fetchMerchants, fetchOnlineMerchants, slugify } = require('./store-page');
 
 const LOCALPERKS_PATH = path.resolve(__dirname, '..', 'localperks-view.html');
+const CODES_PATH = path.resolve(__dirname, '..', 'codes-view.html');
 
 const COUNTY_MAP = {
   'orange-county': { name: 'Orange County', type: 'county', state: 'CA' },
@@ -246,11 +247,204 @@ function buildDealsPageHtml(rawLocSlug, allMerchants) {
   return html;
 }
 
+function buildDirectoryPageHtml(allMerchants) {
+  let html = fs.readFileSync(LOCALPERKS_PATH, 'utf8');
+  if (!Array.isArray(allMerchants) || allMerchants.length === 0) {
+    return html;
+  }
+
+  const enriched = allMerchants.map(m => ({
+    merchant: m,
+    seo: classifyMerchantSEO(m),
+    slug: slugify(m.business_name || m.merchant_name)
+  })).filter(e => e.slug);
+
+  const cityMap = new Map();
+  enriched.forEach(({ merchant: m }) => {
+    if (m.city && String(m.city).trim()) {
+      const cName = String(m.city).trim();
+      const cSlug = slugify(cName);
+      if (cSlug && !cityMap.has(cSlug)) {
+        cityMap.set(cSlug, cName);
+      }
+    }
+  });
+
+  const regionalLinks = [
+    `<a href="/deals/orange-county" style="color:#5b3fa5; font-weight:700; text-decoration:underline;">Orange County Deals Hub</a>`,
+    ...Array.from(cityMap.entries()).map(([cSlug, cName]) =>
+      `<a href="/deals/${cSlug}" style="color:#5b3fa5; font-weight:700; text-decoration:underline;">${escapeHtml(cName)} Local Perks</a>`
+    )
+  ].join(' · \n              ');
+
+  const merchantLinks = enriched.map(({ merchant: m, seo, slug }) => {
+    const mCity = m.city ? ` (${escapeHtml(String(m.city).trim())})` : '';
+    const mOffer = m.welcome_offer_text || 'Exclusive Member Perk';
+    return `<a href="/store/${slug}" style="color:#5b3fa5; font-weight:700; text-decoration:underline;">${escapeHtml(m.business_name || m.merchant_name)}${mCity} Deals &amp; Coupons</a> — ${escapeHtml(mOffer)} (${escapeHtml(seo.primaryNiche)})`;
+  }).join(' · \n              ');
+
+  const schemaGraph = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebPage",
+        "@id": "https://www.perkfinity.net/localperks#webpage",
+        "url": "https://www.perkfinity.net/localperks",
+        "name": "Nearby Deals & Local Business Perks",
+        "isPartOf": {
+          "@type": "WebSite",
+          "name": "Perkfinity",
+          "url": "https://www.perkfinity.net"
+        },
+        "description": "Directory of local storefronts, food trucks, and pop-ups offering member perks in Orange County, CA and surrounding areas."
+      },
+      {
+        "@type": "ItemList",
+        "name": "Local Store & Food Truck Perks",
+        "url": "https://www.perkfinity.net/localperks",
+        "itemListOrder": "https://schema.org/ItemListOrderAscending",
+        "numberOfItems": enriched.length,
+        "itemListElement": enriched.map((e, idx) => ({
+          "@type": "ListItem",
+          "position": idx + 1,
+          "item": {
+            "@type": e.seo.schemaType,
+            "name": e.merchant.business_name || e.merchant.merchant_name,
+            "url": `https://www.perkfinity.net/store/${e.slug}`,
+            "description": e.seo.metaDescription
+          }
+        }))
+      }
+    ]
+  };
+
+  html = html.replace(
+    /<script\s+type="application\/ld\+json">[\s\S]*?<\/script>/i,
+    `<script type="application/ld+json">\n${JSON.stringify(schemaGraph, null, 2)}\n  </script>`
+  );
+
+  html = html.replace(
+    /<noscript>[\s\S]*?<\/noscript>/i,
+    `<noscript>
+          <div style="background:#fff; border-radius:16px; padding:32px; margin-top:24px; box-shadow:0 4px 20px rgba(0,0,0,0.06); max-width:800px; margin-left:auto; margin-right:auto;">
+            <h2 style="font-size:20px; font-weight:800; color:#1a1a2e; margin-top:0;">Local Business &amp; Food Truck Perks in Orange County</h2>
+            <p style="color:#555; line-height:1.6;">Perkfinity connects shoppers with independent storefronts, food trucks, pop-up markets, and local services in Mission Viejo, Lake Forest, Irvine, and across South Orange County. Scan the countertop QR stand at participating counters to unlock instant rewards.</p>
+            <h3 style="font-size:16px; font-weight:700; color:#5b3fa5;">Active Regional Directories</h3>
+            <p style="color:#555; line-height:1.6; margin-bottom:14px;">
+              ${regionalLinks}
+            </p>
+            <h3 style="font-size:16px; font-weight:700; color:#5b3fa5;">Featured Local Merchant Deals, Coupons &amp; Offers</h3>
+            <p style="color:#555; line-height:1.8; margin-bottom:0;">
+              ${merchantLinks}
+            </p>
+          </div>
+        </noscript>`
+  );
+
+  return html;
+}
+
+function buildCodesPageHtml(onlineMerchants) {
+  let html = fs.readFileSync(CODES_PATH, 'utf8');
+  if (!Array.isArray(onlineMerchants) || onlineMerchants.length === 0) {
+    return html;
+  }
+
+  const enriched = onlineMerchants.map(m => ({
+    merchant: m,
+    seo: classifyMerchantSEO(m),
+    slug: slugify(m.business_name || m.merchant_name)
+  })).filter(e => e.slug);
+
+  const brandLinks = enriched.map(({ merchant: m, seo, slug }) => {
+    const bName = m.business_name || m.merchant_name || 'Brand';
+    const bOffer = m.welcome_offer_text || 'Exclusive Member Perk';
+    const bLoc = m.city ? ` (${escapeHtml(String(m.city).trim())})` : ' (Online)';
+    return `<li><a href="/store/${slug}" style="color:#5b3fa5; font-weight:700; text-decoration:underline;"><strong>${escapeHtml(bName)}${bLoc} Promo Codes &amp; Deals</strong></a>: ${escapeHtml(bOffer)} — <em>${escapeHtml(seo.primaryNiche)}</em></li>`;
+  }).join('\n              ');
+
+  const schemaGraph = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebPage",
+        "@id": "https://www.perkfinity.net/codes#webpage",
+        "url": "https://www.perkfinity.net/codes",
+        "name": "Verified Online Promo Codes & Brand Deals",
+        "isPartOf": {
+          "@type": "WebSite",
+          "name": "Perkfinity",
+          "url": "https://www.perkfinity.net"
+        },
+        "description": "Directory of verified online brand promo codes and instant discounts."
+      },
+      {
+        "@type": "ItemList",
+        "name": "Perkfinity Online Brand Discounts & Promo Codes",
+        "url": "https://www.perkfinity.net/codes",
+        "numberOfItems": enriched.length,
+        "itemListElement": enriched.map((e, idx) => ({
+          "@type": "ListItem",
+          "position": idx + 1,
+          "item": {
+            "@type": e.seo.schemaType,
+            "name": e.merchant.business_name || e.merchant.merchant_name,
+            "url": `https://www.perkfinity.net/store/${e.slug}`,
+            "description": e.seo.metaDescription,
+            "makesOffer": {
+              "@type": "Offer",
+              "name": e.merchant.welcome_offer_text || 'Exclusive Member Perk',
+              "category": e.seo.primaryNiche
+            }
+          }
+        }))
+      }
+    ]
+  };
+
+  html = html.replace(
+    /<script\s+type="application\/ld\+json">[\s\S]*?<\/script>/i,
+    `<script type="application/ld+json">\n${JSON.stringify(schemaGraph, null, 2)}\n  </script>`
+  );
+
+  html = html.replace(
+    /<noscript>[\s\S]*?<\/noscript>/i,
+    `<noscript>
+          <div style="background:#fff; border-radius:16px; padding:32px; margin-top:24px; box-shadow:0 4px 20px rgba(0,0,0,0.06); max-width:800px; margin-left:auto; margin-right:auto;">
+            <h2 style="font-size:20px; font-weight:800; color:#1a1a2e; margin-top:0;">Browse Verified Perkfinity Deals &amp; Promo Codes</h2>
+            <p style="color:#555; line-height:1.6;">Perkfinity partners with leading online, hybrid, and local merchants across Orange County and nationwide to offer verified member discounts and exclusive perks with zero customer tracking.</p>
+            <h3 style="font-size:16px; font-weight:700; color:#5b3fa5;">Featured Online &amp; Hybrid Brand Deals, Promo Codes &amp; Coupons</h3>
+            <ul style="color:#444; line-height:1.8;">
+              ${brandLinks}
+            </ul>
+            <p style="color:#555; font-size:14px; margin-bottom:0;">To unlock promo codes and scan in-store QR counter stands, download the free Perkfinity app on iOS or Android, or enable JavaScript in your browser.</p>
+          </div>
+        </noscript>`
+  );
+
+  return html;
+}
+
 module.exports = async function handler(req, res) {
   try {
+    if (req.query && req.query.mode === 'codes') {
+      let onlineMerchants = [];
+      try {
+        onlineMerchants = await fetchOnlineMerchants();
+      } catch (e) {}
+      const html = buildCodesPageHtml(onlineMerchants);
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
+      res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
+      return res.status(200).send(html);
+    }
+
     const hasCityQuery = Boolean(req.query && (req.query.city || req.query.loc || req.query.location));
     if (req.query && req.query.mode === 'directory' && !hasCityQuery) {
-      const html = fs.readFileSync(LOCALPERKS_PATH, 'utf8');
+      let localMerchants = [];
+      try {
+        localMerchants = await fetchMerchants();
+      } catch (e) {}
+      const html = buildDirectoryPageHtml(localMerchants);
       res.setHeader('Content-Type', 'text/html; charset=utf-8');
       res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
       return res.status(200).send(html);

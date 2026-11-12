@@ -1009,6 +1009,8 @@
             ${bannerUrl ? `<img src="${bannerUrl}" alt="Cover" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-top-left-radius: 23px; border-top-right-radius: 23px;" onerror="this.style.display='none';">` : ''}
           </div>`;
 
+          const merchName = (m.business_name || m.merchant_name || 'Brand');
+          const merchSlug = slugify(merchName);
           const row = document.createElement('article');
           row.className = 'merchant-row';
           row.onclick = () => {
@@ -1022,7 +1024,7 @@
             <div class="merch-card-top">
               ${logoHtml}
               <div>
-                <div class="merch-name">${(m.business_name || m.merchant_name || 'Brand')}</div>
+                <div class="merch-name"><a href="/store/${merchSlug}" onclick="event.preventDefault();" style="color:inherit;text-decoration:none;">${merchName}</a></div>
                 <div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px;margin-top:3px;">
                   ${loc ? `<span class="merch-location">📍 ${loc}</span>` : ''}
                   ${presLabel}
