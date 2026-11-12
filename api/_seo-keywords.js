@@ -145,7 +145,7 @@ const NICHE_RULES = [
   },
   {
     id: 'restaurant_dining',
-    test: /\b(restaurant|dining|grill|bistro|taco|tacos|mexican|pizza|pizzeria|italian|sushi|ramen|thai|mediterranean|burger|burgers|bbq|deli|eatery|food truck|catering)\b/i,
+    test: /\b(restaurant|dining|grill|bistro|taco|tacos|mexican|pizza|pizzeria|italian|sushi|ramen|thai|mediterranean|burger|burgers|bbq|deli|eatery|food truck|catering|brunch|breakfast|diner|pancake|pancakes|waffle|omelet|omelette|yolk|steakhouse|seafood)\b/i,
     primaryNiche: 'Restaurant & Local Dining',
     categoryHeading: 'Restaurant, Dining & Takeout Deals',
     schemaType: 'Restaurant',
@@ -265,6 +265,19 @@ function classifyMerchantSEO(m) {
   // 3. Third priority: match including raw category
   if (!matchedRule) {
     matchedRule = NICHE_RULES.find(r => r.test.test(combinedText));
+  }
+
+  // Guard: restaurants/brunch spots with "Cafe" in the name (e.g. "Broken Yolk Cafe")
+  // should classify as restaurant_dining when either category is Restaurants & Dining
+  // OR explicit dining/brunch terms appear, unless explicit coffee/tea/chai terms are present.
+  if (matchedRule && matchedRule.id === 'coffee_tea_chai') {
+    const coreCopy = `${bName} ${offer} ${desc}`;
+    const hasExplicitCoffeeTea = /\b(coffee|espresso|roaster|roasters|chai|tea|matcha|latte|cappuccino|boba)\b/i.test(coreCopy);
+    const isDiningByCategoryOrCopy = /restaurant|dining/i.test(rawCat) ||
+      /\b(restaurant|dining|grill|bistro|taco|tacos|mexican|pizza|pizzeria|italian|sushi|ramen|thai|mediterranean|burger|burgers|bbq|deli|eatery|catering|brunch|breakfast|diner|pancake|pancakes|waffle|omelet|omelette|yolk|steakhouse|seafood|burrito|burritos)\b/i.test(coreCopy);
+    if (!hasExplicitCoffeeTea && isDiningByCategoryOrCopy) {
+      matchedRule = NICHE_RULES.find(r => r.id === 'restaurant_dining') || matchedRule;
+    }
   }
 
   // Fallback based on broad business_category if no specific regex matched

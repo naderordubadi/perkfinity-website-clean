@@ -274,19 +274,43 @@ function buildStorePageHtml(m, allMerchants) {
         ]
       };
 
-  const seoOverviewText = (isOnlineOnly && !hasCity)
-    ? `${bName} is a verified Perkfinity partner specializing in ${seo.primaryNiche.toLowerCase()} (${seo.serviceKeywords.slice(0, 5).join(', ')}). Perkfinity members unlock an exclusive brand perk at ${bName}: "${offer}"${m.welcome_promo_code ? ` (member promo code ${m.welcome_promo_code} unlocked inside the free Perkfinity app)` : ''}.${website ? ` Visit ${website.replace(/^https?:\/\//, '').replace(/\/$/, '')} and redeem your member discount with 100% privacy.` : ''}`
-    : `${bName} in ${city}, ${state}${zip ? ' ' + zip : ''} is a verified local business on Perkfinity specializing in ${seo.primaryNiche.toLowerCase()} (${seo.serviceKeywords.slice(0, 5).join(', ')}). Local shoppers and neighborhood members unlock an exclusive deal at ${bName}: "${offer}".${fullAddr ? ` Visit ${bName} at ${fullAddr} and scan the counter QR code with the free Perkfinity app to redeem.` : ''}`;
+  const presence = m.business_presence || (isOnlineOnly ? 'online' : 'physical');
+  const isMobileNoStreet = presence === 'mobile' && !address;
+  const nicheLabel = seo.primaryNiche.toLowerCase();
+  const locationLabel = hasCity ? `${city}, ${state}` : (city || 'Orange County');
+  const cleanSite = website ? website.replace(/^https?:\/\//, '').replace(/\/$/, '') : '';
+  const placeRef = address && fullAddr ? fullAddr : locationLabel;
+
+  let seoOverviewText;
+  if (isOnlineOnly && !hasCity) {
+    seoOverviewText = `${bName} is a verified Perkfinity partner specializing in ${nicheLabel}. Perkfinity members unlock an exclusive offer at ${bName}: "${offer}" inside the free Perkfinity app.${cleanSite ? ` Shop online at ${cleanSite} and redeem with 100% privacy.` : ' Redeem online with 100% privacy.'}`;
+  } else {
+    let redeemSentence;
+    if (presence === 'hybrid') {
+      redeemSentence = address && fullAddr
+        ? `Visit ${bName} at ${fullAddr}${cleanSite ? ` or online at ${cleanSite}` : ''} and scan the Perkfinity QR code with the free Perkfinity app to redeem.`
+        : `Redeem in-store in ${locationLabel}${cleanSite ? ` or online at ${cleanSite}` : ''} using the free Perkfinity app.`;
+    } else if (isMobileNoStreet) {
+      redeemSentence = `Scan the ${bName} Perkfinity QR code anywhere they serve in ${locationLabel} with the free Perkfinity app to redeem.`;
+    } else if (address && fullAddr) {
+      redeemSentence = `Visit ${bName} at ${fullAddr} and scan the counter QR code with the free Perkfinity app to redeem.`;
+    } else if (cleanSite && isOnlineOnly) {
+      redeemSentence = `Shop online at ${cleanSite} and redeem your member perk with the free Perkfinity app.`;
+    } else {
+      redeemSentence = `Scan the ${bName} Perkfinity QR code in ${locationLabel} with the free Perkfinity app to redeem.`;
+    }
+    seoOverviewText = `${bName} in ${city}, ${state}${zip ? ' ' + zip : ''} is a verified ${isOnlineOnly ? 'brand partner' : 'local business'} on Perkfinity specializing in ${nicheLabel}. Members unlock an exclusive deal at ${bName}: "${offer}". ${redeemSentence}`;
+  }
 
   const faqItems = (isOnlineOnly && !hasCity)
     ? [
         {
           q: `What promo codes or deals does ${bName} offer?`,
-          a: `${bName} offers a verified Perkfinity member perk: "${offer}". Specializing in ${seo.primaryNiche.toLowerCase()} (${seo.serviceKeywords.slice(0, 4).join(', ')}), this offer is available nationwide to Perkfinity members.`
+          a: `${bName} offers a verified Perkfinity member perk for ${nicheLabel}: "${offer}". This offer is unlocked inside the free Perkfinity app and available nationwide.`
         },
         {
           q: `How do I claim the ${bName} promo code or discount?`,
-          a: `Scan the official Perkfinity QR code for ${bName} with the free Perkfinity app to unlock "${offer}" instantly with 100% privacy (no phone number or email shared with the business).`
+          a: `Open the free Perkfinity app or scan the official ${bName} QR code to unlock "${offer}" instantly with 100% privacy — no personal email or phone number shared.`
         },
         {
           q: `Is my personal information shared with ${bName} when I claim this perk?`,
@@ -296,15 +320,23 @@ function buildStorePageHtml(m, allMerchants) {
     : [
         {
           q: `What deals or coupons does ${bName} in ${city} offer?`,
-          a: `${bName} in ${city}, ${state} offers a verified Perkfinity member perk: "${offer}". Specializing in ${seo.primaryNiche.toLowerCase()} (${seo.serviceKeywords.slice(0, 4).join(', ')}).`
+          a: `${bName} in ${locationLabel} offers a verified Perkfinity member perk for ${nicheLabel}: "${offer}".`
         },
         {
-          q: `How do I claim the ${bName} discount in ${city}, ${state}?`,
-          a: `Scan the official Perkfinity QR code at ${bName} (${fullAddr || city + ', ' + state}) with the free Perkfinity app to unlock "${offer}" instantly with 100% privacy (no phone number or email shared with the business).`
+          q: `How do I claim the ${bName} discount in ${locationLabel}?`,
+          a: presence === 'hybrid'
+            ? `Visit ${bName} in ${placeRef}${cleanSite ? ` or shop online at ${cleanSite}` : ''} and scan the official Perkfinity QR code with the free Perkfinity app to unlock "${offer}" instantly with 100% privacy.`
+            : isMobileNoStreet
+              ? `Meet ${bName} anywhere they serve in ${locationLabel} and scan their official Perkfinity QR code with the free Perkfinity app to unlock "${offer}" instantly with 100% privacy.`
+              : `Scan the official Perkfinity QR code at ${bName} (${placeRef}) with the free Perkfinity app to unlock "${offer}" instantly with 100% privacy — no phone number or email shared with the business.`
         },
         {
           q: `Where is ${bName} located and is my privacy protected?`,
-          a: `${bName} serves customers in ${fullAddr || city + ', ' + state}. When you scan the Perkfinity QR code, your identity remains 100% anonymous — ${bName} never receives your phone number, email address, or personal data.`
+          a: presence === 'hybrid'
+            ? `${bName} serves members ${address && fullAddr ? `at ${fullAddr}` : `in ${locationLabel}`}${cleanSite ? ` and online at ${cleanSite}` : ''}. Your identity remains 100% anonymous — ${bName} never receives your phone number, email address, or personal data.`
+            : isMobileNoStreet
+              ? `${bName} is a mobile business serving ${locationLabel}. When you scan their Perkfinity QR code, your identity remains 100% anonymous — ${bName} never receives your phone number, email address, or personal data.`
+              : `${bName} serves customers ${address && fullAddr ? `at ${fullAddr}` : `in ${locationLabel}`}. When you scan the Perkfinity QR code, your identity remains 100% anonymous — ${bName} never receives your phone number, email address, or personal data.`
         }
       ];
 
@@ -553,6 +585,21 @@ function buildStorePageHtml(m, allMerchants) {
     .nearby-offer { font-size: 13px; font-weight: 700; color: #8B5CF6; margin: 0 0 14px; flex-grow: 1; }
     .nearby-view-btn { font-size: 12.5px; font-weight: 700; color: #5B3FA5; text-decoration: underline; margin-top: auto; }
 
+    /* Store Overview & Collapsed FAQ Accordion */
+    .store-seo-details { max-width: 860px; margin: 44px auto 0; background: #fff; border: 1px solid #E2E8F0; border-radius: 16px; padding: 24px 28px; box-shadow: 0 2px 12px rgba(15,23,42,0.03); }
+    .store-seo-overview-title { font-size: 17px; font-weight: 800; color: #0F172A; margin: 0 0 8px; }
+    .store-seo-overview-text { font-size: 14px; color: #475569; line-height: 1.65; margin: 0 0 20px; }
+    .store-faq-heading { font-size: 14.5px; font-weight: 800; color: #1E293B; margin: 0 0 12px; }
+    .store-faq-list { display: flex; flex-direction: column; gap: 10px; }
+    .store-faq-item { background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; overflow: hidden; transition: border-color 0.15s ease; }
+    .store-faq-item[open] { border-color: #CBD5E1; background: #FFFFFF; }
+    .store-faq-q { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 13px 16px; font-size: 13.5px; font-weight: 700; color: #311C87; user-select: none; }
+    .store-faq-q::-webkit-details-marker { display: none; }
+    .store-faq-chevron { flex-shrink: 0; font-size: 16px; font-weight: 700; color: #64748B; transition: transform 0.18s ease; line-height: 1; }
+    .store-faq-item[open] .store-faq-chevron { transform: rotate(45deg); color: #311C87; }
+    .store-faq-a { font-size: 13.5px; color: #475569; line-height: 1.6; margin: 0; padding: 0 16px 14px; }
+    @media (max-width: 600px) { .store-seo-details { padding: 18px; } }
+
     /* Footer */
     .site-footer { background: #0F172A; color: #94A3B8; padding: 48px 24px 32px; font-size: 13px; }
     .footer-inner { max-width: 1040px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
@@ -750,21 +797,6 @@ function buildStorePageHtml(m, allMerchants) {
       </article>
     `}
 
-    <!-- Store Overview & FAQ Section (Matches FAQPage Schema.org JSON-LD for Rich Results & Indexing Quality) -->
-    <section class="store-seo-details" style="max-width:860px; margin:0 auto 48px; background:#fff; border:1px solid #E2E8F0; border-radius:20px; padding:28px 32px; box-shadow:0 4px 16px rgba(15,23,42,0.03);">
-      <h2 style="font-size:19px; font-weight:800; color:#0F172A; margin:0 0 10px;">About ${escapeHtml(bName)} Deals &amp; Member Perks</h2>
-      <p style="font-size:14.5px; color:#334155; line-height:1.65; margin:0 0 24px;">${escapeHtml(seoOverviewText)}</p>
-      <h3 style="font-size:16px; font-weight:800; color:#1E293B; margin:0 0 14px;">Frequently Asked Questions — ${escapeHtml(bName)}</h3>
-      <div style="display:flex; flex-direction:column; gap:14px;">
-        ${faqItems.map(item => `
-          <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:12px; padding:14px 18px;">
-            <div style="font-size:14px; font-weight:800; color:#311C87; margin-bottom:6px;">${escapeHtml(item.q)}</div>
-            <p style="font-size:13.5px; color:#475569; line-height:1.55; margin:0;">${escapeHtml(item.a)}</p>
-          </div>
-        `).join('')}
-      </div>
-    </section>
-
     <!-- Nearby Merchants Section -->
     ${nearbyCardsHtml ? `
       <section class="nearby-section">
@@ -780,6 +812,21 @@ function buildStorePageHtml(m, allMerchants) {
         </div>
       </section>
     ` : ''}
+
+    <!-- Store Overview & Collapsed FAQ Section (Matches FAQPage Schema.org JSON-LD) -->
+    <section class="store-seo-details" id="store-seo-details">
+      <h2 class="store-seo-overview-title">About ${escapeHtml(bName)} Deals &amp; Member Perks</h2>
+      <p class="store-seo-overview-text">${escapeHtml(seoOverviewText)}</p>
+      <h3 class="store-faq-heading">Frequently Asked Questions</h3>
+      <div class="store-faq-list">
+        ${faqItems.map(item => `
+          <details class="store-faq-item">
+            <summary class="store-faq-q"><span>${escapeHtml(item.q)}</span><span class="store-faq-chevron" aria-hidden="true">+</span></summary>
+            <p class="store-faq-a">${escapeHtml(item.a)}</p>
+          </details>
+        `).join('')}
+      </div>
+    </section>
 
   </main>
 
@@ -842,20 +889,18 @@ function buildStorePageHtml(m, allMerchants) {
 
       function applyStoreHydration(currentStore) {
         if (!currentStore || currentStore.is_hidden) {
-          const card = document.getElementById('store-card');
-          if (card) {
-            card.innerHTML = '<div style="padding:48px; text-align:center; width:100%;"><h2 style="color:#991B1B;">Offer Currently Unavailable</h2><p style="color:#64748B;">This merchant offer has ended or is currently paused.</p><a href="${isOnlineOnly ? '/codes' : '/localperks'}" style="display:inline-block; margin-top:16px; background:#5B3FA5; color:#fff; padding:10px 24px; border-radius:10px; text-decoration:none; font-weight:700;">Explore Other Deals →</a></div>';
-          }
-        } else {
-          if (currentStore.welcome_offer_text && currentStore.welcome_offer_text !== "${escapeHtml(offer)}") {
-            const perkEl = document.getElementById('live-perk-text');
-            if (perkEl) perkEl.textContent = currentStore.welcome_offer_text;
-          }
-          const isNowVip = Boolean(currentStore.is_fullpage_sponsored && (!currentStore.fullpage_sponsored_until || new Date(currentStore.fullpage_sponsored_until) >= new Date()));
-          const badge = document.getElementById('sponsored-badge');
-          if (badge && !isNowVip) {
-            badge.remove();
-          }
+          document.documentElement.style.visibility = 'hidden';
+          window.location.replace('${isOnlineOnly ? '/codes' : '/localperks'}');
+          return;
+        }
+        if (currentStore.welcome_offer_text && currentStore.welcome_offer_text !== "${escapeHtml(offer)}") {
+          const perkEl = document.getElementById('live-perk-text');
+          if (perkEl) perkEl.textContent = currentStore.welcome_offer_text;
+        }
+        const isNowVip = Boolean(currentStore.is_fullpage_sponsored && (!currentStore.fullpage_sponsored_until || new Date(currentStore.fullpage_sponsored_until) >= new Date()));
+        const badge = document.getElementById('sponsored-badge');
+        if (badge && !isNowVip) {
+          badge.remove();
         }
       }
 
@@ -863,17 +908,7 @@ function buildStorePageHtml(m, allMerchants) {
         .then(res => res.json())
         .then(json => {
           if (!json.success || !Array.isArray(json.data)) return;
-          const currentStore = json.data[0];
-          if (!currentStore && ${isOnlineOnly ? 'true' : 'false'}) {
-            return fetch("${ONLINE_API_URL}")
-              .then(r => r.json())
-              .then(oJson => {
-                if (!oJson.success || !Array.isArray(oJson.data)) return;
-                const onlineMatch = oJson.data.find(item => item.id === "${escapeHtml(m.id)}");
-                applyStoreHydration(onlineMatch);
-              });
-          }
-          applyStoreHydration(currentStore);
+          applyStoreHydration(json.data[0]);
         })
         .catch(err => {
           console.warn('Real-time hydration check skipped:', err);
