@@ -274,49 +274,51 @@ function buildStorePageHtml(m, allMerchants) {
         ]
       };
 
-  const faqSchemaNode = (isOnlineOnly && !hasCity)
-    ? {
-        "@type": "FAQPage",
-        "mainEntity": [
-          {
-            "@type": "Question",
-            "name": `What promo codes or deals does ${bName} offer?`,
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": `${bName} offers a verified Perkfinity member perk: "${offer}". Specializing in ${seo.primaryNiche.toLowerCase()} (${seo.serviceKeywords.slice(0, 4).join(', ')}).`
-            }
-          },
-          {
-            "@type": "Question",
-            "name": `How do I claim the ${bName} promo code or discount?`,
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": `Scan the official Perkfinity QR code for ${bName} with the free Perkfinity app to unlock "${offer}" instantly with 100% privacy (no phone number or email shared with the business).`
-            }
-          }
-        ]
+  const seoOverviewText = (isOnlineOnly && !hasCity)
+    ? `${bName} is a verified Perkfinity partner specializing in ${seo.primaryNiche.toLowerCase()} (${seo.serviceKeywords.slice(0, 5).join(', ')}). Perkfinity members unlock an exclusive brand perk at ${bName}: "${offer}"${m.welcome_promo_code ? ` (member promo code ${m.welcome_promo_code} unlocked inside the free Perkfinity app)` : ''}.${website ? ` Visit ${website.replace(/^https?:\/\//, '').replace(/\/$/, '')} and redeem your member discount with 100% privacy.` : ''}`
+    : `${bName} in ${city}, ${state}${zip ? ' ' + zip : ''} is a verified local business on Perkfinity specializing in ${seo.primaryNiche.toLowerCase()} (${seo.serviceKeywords.slice(0, 5).join(', ')}). Local shoppers and neighborhood members unlock an exclusive deal at ${bName}: "${offer}".${fullAddr ? ` Visit ${bName} at ${fullAddr} and scan the counter QR code with the free Perkfinity app to redeem.` : ''}`;
+
+  const faqItems = (isOnlineOnly && !hasCity)
+    ? [
+        {
+          q: `What promo codes or deals does ${bName} offer?`,
+          a: `${bName} offers a verified Perkfinity member perk: "${offer}". Specializing in ${seo.primaryNiche.toLowerCase()} (${seo.serviceKeywords.slice(0, 4).join(', ')}), this offer is available nationwide to Perkfinity members.`
+        },
+        {
+          q: `How do I claim the ${bName} promo code or discount?`,
+          a: `Scan the official Perkfinity QR code for ${bName} with the free Perkfinity app to unlock "${offer}" instantly with 100% privacy (no phone number or email shared with the business).`
+        },
+        {
+          q: `Is my personal information shared with ${bName} when I claim this perk?`,
+          a: `No. Perkfinity is 100% privacy-first — ${bName} never sees your name, phone number, or email address when you join or redeem "${offer}".`
+        }
+      ]
+    : [
+        {
+          q: `What deals or coupons does ${bName} in ${city} offer?`,
+          a: `${bName} in ${city}, ${state} offers a verified Perkfinity member perk: "${offer}". Specializing in ${seo.primaryNiche.toLowerCase()} (${seo.serviceKeywords.slice(0, 4).join(', ')}).`
+        },
+        {
+          q: `How do I claim the ${bName} discount in ${city}, ${state}?`,
+          a: `Scan the official Perkfinity QR code at ${bName} (${fullAddr || city + ', ' + state}) with the free Perkfinity app to unlock "${offer}" instantly with 100% privacy (no phone number or email shared with the business).`
+        },
+        {
+          q: `Where is ${bName} located and is my privacy protected?`,
+          a: `${bName} serves customers in ${fullAddr || city + ', ' + state}. When you scan the Perkfinity QR code, your identity remains 100% anonymous — ${bName} never receives your phone number, email address, or personal data.`
+        }
+      ];
+
+  const faqSchemaNode = {
+    "@type": "FAQPage",
+    "mainEntity": faqItems.map(item => ({
+      "@type": "Question",
+      "name": item.q,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": item.a
       }
-    : {
-        "@type": "FAQPage",
-        "mainEntity": [
-          {
-            "@type": "Question",
-            "name": `What deals or coupons does ${bName} in ${city} offer?`,
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": `${bName} in ${city}, ${state} offers a verified Perkfinity member perk: "${offer}". Specializing in ${seo.primaryNiche.toLowerCase()} (${seo.serviceKeywords.slice(0, 4).join(', ')}).`
-            }
-          },
-          {
-            "@type": "Question",
-            "name": `How do I claim the ${bName} discount in ${city}, ${state}?`,
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": `Scan the official Perkfinity QR code at ${bName} (${fullAddr || city + ', ' + state}) with the free Perkfinity app to unlock "${offer}" instantly with 100% privacy (no phone number or email shared with the business).`
-            }
-          }
-        ]
-      };
+    }))
+  };
 
   const schemaGraph = {
     "@context": "https://schema.org",
@@ -715,6 +717,13 @@ function buildStorePageHtml(m, allMerchants) {
           </div>
         </div>
 
+        ${m.promo_description ? `
+          <div class="store-desc-box" style="text-align:left; margin:0 0 20px 0;">
+            <strong>📝 About this Business &amp; Promotion:</strong>
+            ${escapeHtml(m.promo_description).replace(/\n/g, '<br>')}
+          </div>
+        ` : ''}
+
         <div class="standard-qr-box">
           <div class="qr-canvas-holder" id="qr-container" style="width:160px; height:160px; margin:0 auto 12px;">
             <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&amp;data=${encodeURIComponent(joinUrl)}" alt="Perkfinity Counter QR Code" width="160" height="160" style="border-radius:12px; display:block;" />
@@ -740,6 +749,21 @@ function buildStorePageHtml(m, allMerchants) {
         </p>
       </article>
     `}
+
+    <!-- Store Overview & FAQ Section (Matches FAQPage Schema.org JSON-LD for Rich Results & Indexing Quality) -->
+    <section class="store-seo-details" style="max-width:860px; margin:0 auto 48px; background:#fff; border:1px solid #E2E8F0; border-radius:20px; padding:28px 32px; box-shadow:0 4px 16px rgba(15,23,42,0.03);">
+      <h2 style="font-size:19px; font-weight:800; color:#0F172A; margin:0 0 10px;">About ${escapeHtml(bName)} Deals &amp; Member Perks</h2>
+      <p style="font-size:14.5px; color:#334155; line-height:1.65; margin:0 0 24px;">${escapeHtml(seoOverviewText)}</p>
+      <h3 style="font-size:16px; font-weight:800; color:#1E293B; margin:0 0 14px;">Frequently Asked Questions — ${escapeHtml(bName)}</h3>
+      <div style="display:flex; flex-direction:column; gap:14px;">
+        ${faqItems.map(item => `
+          <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:12px; padding:14px 18px;">
+            <div style="font-size:14px; font-weight:800; color:#311C87; margin-bottom:6px;">${escapeHtml(item.q)}</div>
+            <p style="font-size:13.5px; color:#475569; line-height:1.55; margin:0;">${escapeHtml(item.a)}</p>
+          </div>
+        `).join('')}
+      </div>
+    </section>
 
     <!-- Nearby Merchants Section -->
     ${nearbyCardsHtml ? `
@@ -863,8 +887,12 @@ function buildStorePageHtml(m, allMerchants) {
 
 module.exports = async function handler(req, res) {
   try {
-    const rawSlug = (req.query && req.query.slug) || (req.url.match(/\/(?:deals\/)?store\/([^/?#]+)/) || [])[1] || '';
+    const rawSlug = (req.query && (req.query.slug || req.query.store)) || (req.url.match(/\/(?:deals\/)?store\/([^/?#]+)/) || [])[1] || '';
     const targetSlug = slugify(decodeURIComponent(rawSlug));
+    const isLegacyStoreRequest = Boolean(
+      (req.query && req.query.store) ||
+      (req.url && (req.url.startsWith('/localperks') || req.url.startsWith('/deals/store/')))
+    );
 
     if (!targetSlug) {
       res.writeHead(308, { Location: 'https://www.perkfinity.net/localperks' });
@@ -899,14 +927,13 @@ module.exports = async function handler(req, res) {
     }
 
     if (!match) {
-      // Fallback to clean /localperks with store query so unknown/hidden slugs are handled gracefully without a .html redirect hop
-      res.writeHead(302, { Location: `/localperks?store=${encodeURIComponent(targetSlug)}` });
+      // Redirect unknown/hidden store slugs cleanly to canonical /localperks (without ?store= query string so Google Search Console never flags an Alternate Canonical page)
+      res.writeHead(isLegacyStoreRequest ? 308 : 302, { Location: 'https://www.perkfinity.net/localperks' });
       return res.end();
     }
 
     const canonicalSlug = slugify(match.business_name);
-    const isLegacyDealsStorePath = Boolean(req.url && req.url.startsWith('/deals/store/'));
-    if (canonicalSlug && (isLegacyDealsStorePath || targetSlug !== canonicalSlug)) {
+    if (canonicalSlug && (isLegacyStoreRequest || targetSlug !== canonicalSlug)) {
       res.writeHead(308, { Location: `https://www.perkfinity.net/store/${canonicalSlug}` });
       return res.end();
     }

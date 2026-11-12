@@ -248,17 +248,21 @@ function buildDealsPageHtml(rawLocSlug, allMerchants) {
 
 module.exports = async function handler(req, res) {
   try {
-    const rawLoc = (req.query && (req.query.location || req.query.loc))
+    const rawLoc = (req.query && (req.query.location || req.query.loc || req.query.city))
       || (req.url.match(/\/deals\/([^/?#]+)/) || [])[1]
       || 'orange-county';
 
     const decodedLoc = decodeURIComponent(rawLoc);
     const cleanLoc = slugify(decodedLoc);
-    if (!cleanLoc) {
+    if (!cleanLoc || cleanLoc === 'parentslug' || /[\${}]/.test(decodedLoc) || /[\${}]/.test(rawLoc)) {
       res.writeHead(308, { Location: 'https://www.perkfinity.net/localperks' });
       return res.end();
     }
-    if (decodedLoc !== cleanLoc) {
+    const isFromLocalperksQuery = Boolean(
+      (req.url && req.url.startsWith('/localperks')) ||
+      (req.query && (req.query.city || req.query.loc))
+    );
+    if (isFromLocalperksQuery || decodedLoc !== cleanLoc) {
       res.writeHead(308, { Location: `https://www.perkfinity.net/deals/${cleanLoc}` });
       return res.end();
     }

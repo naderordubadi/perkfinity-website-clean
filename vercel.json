@@ -19,6 +19,26 @@
     { "source": "/sitemap-live.xml", "destination": "/api/sitemap" },
     { "source": "/join/:code", "destination": "/join/index.html" },
     { "source": "/codes", "destination": "/codes.html" },
+    {
+      "source": "/localperks",
+      "has": [{ "type": "query", "key": "store" }],
+      "destination": "/api/store-page"
+    },
+    {
+      "source": "/localperks",
+      "has": [{ "type": "query", "key": "city" }],
+      "destination": "/api/deals-page"
+    },
+    {
+      "source": "/localperks",
+      "has": [{ "type": "query", "key": "loc" }],
+      "destination": "/api/deals-page"
+    },
+    {
+      "source": "/localperks",
+      "has": [{ "type": "query", "key": "location" }],
+      "destination": "/api/deals-page"
+    },
     { "source": "/localperks", "destination": "/localperks.html" },
     { "source": "/merchants", "destination": "/merchants.html" },
     { "source": "/about", "destination": "/about.html" },

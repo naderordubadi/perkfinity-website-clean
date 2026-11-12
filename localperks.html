@@ -1138,7 +1138,8 @@
         }
         if (breadcrumb) {
           const parentSlug = slugify(bCity);
-          breadcrumb.innerHTML = `<a href="/deals/orange-county" style="color:#c4b5fd; text-decoration:none;">Orange County</a> &rsaquo; <a href="/deals/${parentSlug}" style="color:#c4b5fd; text-decoration:none;">${bCity}</a> &rsaquo; <span style="color:#fff;">${bName}</span>`;
+          const parentDealsHref = '/deals/' + parentSlug;
+          breadcrumb.innerHTML = `<a href="/deals/orange-county" style="color:#c4b5fd; text-decoration:none;">Orange County</a> &rsaquo; <a href="` + parentDealsHref + `" style="color:#c4b5fd; text-decoration:none;">${bCity}</a> &rsaquo; <span style="color:#fff;">${bName}</span>`;
           breadcrumb.style.display = 'block';
         }
 
@@ -1350,7 +1351,8 @@
         if (breadcrumb) {
           const parentName = geo.county || 'Orange County';
           const parentSlug = geo.parentSlug || 'orange-county';
-          breadcrumb.innerHTML = `<a href="/deals/${parentSlug}" style="color:#c4b5fd; text-decoration:none;">${parentName}</a> &rsaquo; <span style="color:#fff;">${geo.name}</span>`;
+          const parentDealsHref = '/deals/' + parentSlug;
+          breadcrumb.innerHTML = `<a href="` + parentDealsHref + `" style="color:#c4b5fd; text-decoration:none;">${parentName}</a> &rsaquo; <span style="color:#fff;">${geo.name}</span>`;
           breadcrumb.style.display = 'block';
         }
       }
