@@ -18,7 +18,10 @@ class PerkfinityHandler(http.server.SimpleHTTPRequestHandler):
         _, ext = os.path.splitext(path)
         if not ext and path != '/':
             candidate = path.lstrip('/')
-            if os.path.isfile(candidate + '.html'):
+            if candidate == 'localperks' and os.path.isfile('localperks-view.html'):
+                self.path = '/localperks-view.html' + (self.path[len(path):] if len(self.path) > len(path) else '')
+                print(f"  → Mapped {path} to {self.path}")
+            elif os.path.isfile(candidate + '.html'):
                 self.path = path + '.html' + (self.path[len(path):] if len(self.path) > len(path) else '')
                 print(f"  → Mapped {path} to {self.path}")
 

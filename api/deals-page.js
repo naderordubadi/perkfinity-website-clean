@@ -16,7 +16,7 @@ const path = require('path');
 const { classifyMerchantSEO } = require('./_seo-keywords');
 const { fetchMerchants, slugify } = require('./store-page');
 
-const LOCALPERKS_PATH = path.resolve(__dirname, '..', '_localperks.html');
+const LOCALPERKS_PATH = path.resolve(__dirname, '..', 'localperks-view.html');
 
 const COUNTY_MAP = {
   'orange-county': { name: 'Orange County', type: 'county', state: 'CA' },
