@@ -58,7 +58,7 @@
       "has": [{ "type": "query", "key": "location" }],
       "destination": "/api/deals-page"
     },
-    { "source": "/localperks", "destination": "/localperks-view.html" },
+    { "source": "/localperks", "destination": "/api/deals-page?mode=directory" },
     { "source": "/merchants", "destination": "/merchants.html" },
     { "source": "/about", "destination": "/about.html" },
     { "source": "/faq", "destination": "/faq.html" },

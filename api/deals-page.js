@@ -248,6 +248,14 @@ function buildDealsPageHtml(rawLocSlug, allMerchants) {
 
 module.exports = async function handler(req, res) {
   try {
+    const hasCityQuery = Boolean(req.query && (req.query.city || req.query.loc || req.query.location));
+    if (req.query && req.query.mode === 'directory' && !hasCityQuery) {
+      const html = fs.readFileSync(LOCALPERKS_PATH, 'utf8');
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
+      res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
+      return res.status(200).send(html);
+    }
+
     const rawLoc = (req.query && (req.query.location || req.query.loc || req.query.city))
       || (req.url.match(/\/deals\/([^/?#]+)/) || [])[1]
       || 'orange-county';
