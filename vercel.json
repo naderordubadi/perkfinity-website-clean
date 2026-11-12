@@ -20,6 +20,25 @@
     { "source": "/join/:code", "destination": "/join/index.html" },
     { "source": "/codes", "destination": "/codes.html" },
     {
+      "source": "/localperks.html",
+      "has": [{ "type": "query", "key": "city" }],
+      "destination": "/api/deals-page"
+    },
+    {
+      "source": "/localperks.html",
+      "has": [{ "type": "query", "key": "loc" }],
+      "destination": "/api/deals-page"
+    },
+    {
+      "source": "/localperks.html",
+      "has": [{ "type": "query", "key": "location" }],
+      "destination": "/api/deals-page"
+    },
+    {
+      "source": "/localperks.html",
+      "destination": "/api/store-page"
+    },
+    {
       "source": "/localperks",
       "has": [{ "type": "query", "key": "store" }],
       "destination": "/api/store-page"
@@ -39,7 +58,7 @@
       "has": [{ "type": "query", "key": "location" }],
       "destination": "/api/deals-page"
     },
-    { "source": "/localperks", "destination": "/localperks.html" },
+    { "source": "/localperks", "destination": "/_localperks.html" },
     { "source": "/merchants", "destination": "/merchants.html" },
     { "source": "/about", "destination": "/about.html" },
     { "source": "/faq", "destination": "/faq.html" },

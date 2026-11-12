@@ -895,7 +895,11 @@ module.exports = async function handler(req, res) {
     );
 
     if (!targetSlug) {
-      res.writeHead(308, { Location: 'https://www.perkfinity.net/localperks' });
+      const mCode = req.query && (req.query.m || req.query.merchant || req.query.code);
+      const dest = mCode
+        ? `https://www.perkfinity.net/localperks?m=${encodeURIComponent(mCode)}`
+        : 'https://www.perkfinity.net/localperks';
+      res.writeHead(308, { Location: dest });
       return res.end();
     }
 
