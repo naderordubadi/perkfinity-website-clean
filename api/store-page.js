@@ -10,7 +10,7 @@
  */
 
 const https = require('https');
-const { classifyMerchantSEO } = require('./_seo-keywords');
+const { classifyMerchantSEO, resolveRegionHub } = require('./_seo-keywords');
 
 const API_URL = 'https://perkfinity-backend.vercel.app/api/v1/public/local-merchants';
 const ONLINE_API_URL = 'https://perkfinity-backend.vercel.app/api/v1/public/online-merchants';
@@ -159,6 +159,7 @@ function buildStorePageHtml(m, allMerchants) {
   const citySlug = hasCity ? slugify(city) : 'orange-county';
 
   const seo = classifyMerchantSEO(m);
+  const regionHub = resolveRegionHub(hasCity ? city : '', state);
   const initials = bName.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase();
 
   // Find other merchants in same city for bottom carousel
@@ -230,15 +231,19 @@ function buildStorePageHtml(m, allMerchants) {
         "telephone": phone || undefined,
         "priceRange": "$$",
         "knowsAbout": seo.serviceKeywords,
-        "areaServed": [
-          { "@type": "City", "name": city },
-          { "@type": "AdministrativeArea", "name": "Orange County, CA" }
-        ],
+        "areaServed": (hasCity && citySlug !== regionHub.slug)
+          ? [
+              { "@type": "City", "name": city },
+              { "@type": regionHub.isCountyHub ? "AdministrativeArea" : "State", "name": regionHub.isCountyHub ? regionHub.areaName : state }
+            ]
+          : [
+              { "@type": "AdministrativeArea", "name": regionHub.areaName }
+            ],
         "address": {
           "@type": "PostalAddress",
           "streetAddress": address,
-          "addressLocality": city,
-          "addressRegion": state,
+          "addressLocality": hasCity ? city : '',
+          "addressRegion": hasCity ? state : '',
           "postalCode": zip,
           "addressCountry": "US"
         },
@@ -246,14 +251,23 @@ function buildStorePageHtml(m, allMerchants) {
           "@type": "Offer",
           "name": offer,
           "category": seo.primaryNiche,
-          "description": `${offer} — Verified ${seo.primaryNiche.toLowerCase()} deal & member perk at ${bName} in ${city}, ${state}`,
+          "description": `${offer} — Verified ${seo.primaryNiche.toLowerCase()} deal & member perk at ${bName}${hasCity ? ` in ${city}, ${state}` : ''}`,
           "url": canonicalUrl,
           "eligibleRegion": {
             "@type": "Place",
-            "name": `${city}, ${state} ${zip}`.trim()
+            "name": (hasCity ? `${city}, ${state} ${zip}` : regionHub.areaName).trim()
           }
         }
       };
+
+  const bcItems = [
+    { "@type": "ListItem", "position": 1, "name": "Perkfinity", "item": "https://www.perkfinity.net/" },
+    { "@type": "ListItem", "position": 2, "name": regionHub.isCountyHub ? `${regionHub.name} Deals` : "Nearby Deals", "item": `https://www.perkfinity.net${regionHub.href}` }
+  ];
+  if (hasCity && citySlug !== regionHub.slug) {
+    bcItems.push({ "@type": "ListItem", "position": 3, "name": `${city} Deals`, "item": `https://www.perkfinity.net/deals/${citySlug}` });
+  }
+  bcItems.push({ "@type": "ListItem", "position": bcItems.length + 1, "name": `${bName} (${seo.primaryNiche} Deals)`, "item": canonicalUrl });
 
   const breadcrumbSchemaNode = (isOnlineOnly && !hasCity)
     ? {
@@ -266,24 +280,20 @@ function buildStorePageHtml(m, allMerchants) {
       }
     : {
         "@type": "BreadcrumbList",
-        "itemListElement": [
-          { "@type": "ListItem", "position": 1, "name": "Perkfinity", "item": "https://www.perkfinity.net/" },
-          { "@type": "ListItem", "position": 2, "name": "Orange County Deals", "item": "https://www.perkfinity.net/deals/orange-county" },
-          { "@type": "ListItem", "position": 3, "name": `${city} Deals`, "item": `https://www.perkfinity.net/deals/${citySlug}` },
-          { "@type": "ListItem", "position": 4, "name": `${bName} (${seo.primaryNiche} Deals)`, "item": canonicalUrl }
-        ]
+        "itemListElement": bcItems
       };
 
   const presence = m.business_presence || (isOnlineOnly ? 'online' : 'physical');
   const isMobileNoStreet = presence === 'mobile' && !address;
   const nicheLabel = seo.primaryNiche.toLowerCase();
-  const locationLabel = hasCity ? `${city}, ${state}` : (city || 'Orange County');
+  const locationLabel = hasCity ? `${city}, ${state}` : regionHub.areaName;
   const cleanSite = website ? website.replace(/^https?:\/\//, '').replace(/\/$/, '') : '';
   const placeRef = address && fullAddr ? fullAddr : locationLabel;
+  const topSpecialtySummary = seo.serviceKeywords.slice(0, 3).join(', ');
 
   let seoOverviewText;
   if (isOnlineOnly && !hasCity) {
-    seoOverviewText = `${bName} is a verified Perkfinity partner specializing in ${nicheLabel}. Perkfinity members unlock an exclusive offer at ${bName}: "${offer}" inside the free Perkfinity app.${cleanSite ? ` Shop online at ${cleanSite} and redeem with 100% privacy.` : ' Redeem online with 100% privacy.'}`;
+    seoOverviewText = `${bName} is a verified Perkfinity partner specializing in ${nicheLabel}. Perkfinity members unlock an exclusive offer at ${bName}: "${offer}" inside the free Perkfinity app.${cleanSite ? ` Shop online at ${cleanSite} and redeem with 100% privacy.` : ' Redeem online with 100% privacy.'} Popular member searches and savings include ${topSpecialtySummary}.`;
   } else {
     let redeemSentence;
     if (presence === 'hybrid') {
@@ -299,14 +309,14 @@ function buildStorePageHtml(m, allMerchants) {
     } else {
       redeemSentence = `Scan the ${bName} Perkfinity QR code in ${locationLabel} with the free Perkfinity app to redeem.`;
     }
-    seoOverviewText = `${bName} in ${city}, ${state}${zip ? ' ' + zip : ''} is a verified ${isOnlineOnly ? 'brand partner' : 'local business'} on Perkfinity specializing in ${nicheLabel}. Members unlock an exclusive deal at ${bName}: "${offer}". ${redeemSentence}`;
+    seoOverviewText = `${bName}${hasCity ? ` in ${city}, ${state}${zip ? ' ' + zip : ''}` : ''} is a verified ${isOnlineOnly ? 'brand partner' : 'local business'} on Perkfinity specializing in ${nicheLabel}. Members unlock an exclusive deal at ${bName}: "${offer}". ${redeemSentence} Popular member searches and savings include ${topSpecialtySummary}.`;
   }
 
   const faqItems = (isOnlineOnly && !hasCity)
     ? [
         {
           q: `What promo codes or deals does ${bName} offer?`,
-          a: `${bName} offers a verified Perkfinity member perk for ${nicheLabel}: "${offer}". This offer is unlocked inside the free Perkfinity app and available nationwide.`
+          a: `${bName} offers a verified Perkfinity member perk for ${nicheLabel}: "${offer}". Coverage includes ${topSpecialtySummary}. This offer is unlocked inside the free Perkfinity app and available nationwide.`
         },
         {
           q: `How do I claim the ${bName} promo code or discount?`,
@@ -319,8 +329,8 @@ function buildStorePageHtml(m, allMerchants) {
       ]
     : [
         {
-          q: `What deals or coupons does ${bName} in ${city} offer?`,
-          a: `${bName} in ${locationLabel} offers a verified Perkfinity member perk for ${nicheLabel}: "${offer}".`
+          q: `What deals or coupons does ${bName}${hasCity ? ` in ${city}` : ''} offer?`,
+          a: `${bName} in ${locationLabel} offers a verified Perkfinity member perk for ${nicheLabel}: "${offer}". Coverage includes ${topSpecialtySummary}.`
         },
         {
           q: `How do I claim the ${bName} discount in ${locationLabel}?`,
@@ -633,8 +643,8 @@ function buildStorePageHtml(m, allMerchants) {
         <span>${escapeHtml(bName)} Deals</span>
       ` : `
         <a href="/">Home</a> › 
-        <a href="/deals/orange-county">Orange County</a> › 
-        <a href="/deals/${citySlug}">${escapeHtml(city)}</a> › 
+        <a href="${regionHub.href}">${escapeHtml(regionHub.name)}</a> › 
+        ${(hasCity && citySlug !== regionHub.slug) ? `<a href="/deals/${citySlug}">${escapeHtml(city)}</a> › ` : ''}
         <span>${escapeHtml(bName)} Deals</span>
       `}
     </div>
@@ -800,7 +810,7 @@ function buildStorePageHtml(m, allMerchants) {
     <!-- Nearby Merchants Section -->
     ${nearbyCardsHtml ? `
       <section class="nearby-section">
-        <h2 class="nearby-heading">${(isOnlineOnly && !hasCity) ? 'More Verified Promo Codes &amp; Local Deals on Perkfinity' : 'More Verified Local Deals in ' + escapeHtml(city) + ' &amp; Orange County'}</h2>
+        <h2 class="nearby-heading">${(isOnlineOnly && !hasCity) ? 'More Verified Promo Codes &amp; Local Deals on Perkfinity' : 'More Verified Local Deals in ' + escapeHtml(hasCity ? city : locationLabel) + (regionHub.isCountyHub && citySlug !== regionHub.slug ? ' &amp; ' + escapeHtml(regionHub.name) : '')}</h2>
         <p class="nearby-sub">Discover other top-rated favorites offering member perks right now:</p>
         <div class="nearby-grid">
           ${nearbyCardsHtml}
@@ -808,7 +818,7 @@ function buildStorePageHtml(m, allMerchants) {
         <div style="text-align:center;">
           ${(isOnlineOnly && !hasCity)
             ? '<a href="/codes" style="display:inline-block; background:#5B3FA5; color:#fff; font-weight:700; font-size:14px; padding:12px 28px; border-radius:12px; text-decoration:none;">← Browse All Promo Codes &amp; Brand Deals</a>'
-            : '<a href="/deals/' + citySlug + '" style="display:inline-block; background:#5B3FA5; color:#fff; font-weight:700; font-size:14px; padding:12px 28px; border-radius:12px; text-decoration:none;">← Browse All ' + escapeHtml(city) + ' Deals &amp; Perks</a>'}
+            : '<a href="' + (hasCity ? '/deals/' + citySlug : regionHub.href) + '" style="display:inline-block; background:#5B3FA5; color:#fff; font-weight:700; font-size:14px; padding:12px 28px; border-radius:12px; text-decoration:none;">← Browse All ' + escapeHtml(hasCity ? city : regionHub.name) + ' Deals &amp; Perks</a>'}
         </div>
       </section>
     ` : ''}

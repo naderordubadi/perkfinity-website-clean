@@ -700,7 +700,7 @@
         <noscript>
           <div style="background:#fff; border-radius:16px; padding:32px; margin-top:24px; box-shadow:0 4px 20px rgba(0,0,0,0.06); max-width:800px; margin-left:auto; margin-right:auto;">
             <h2 style="font-size:20px; font-weight:800; color:#1a1a2e; margin-top:0;">Local Business &amp; Food Truck Perks in Orange County</h2>
-            <p style="color:#555; line-height:1.6;">Perkfinity connects shoppers with independent storefronts, food trucks, pop-up markets, and local services in Mission Viejo, Lake Forest, Irvine, and across South Orange County. Scan the countertop QR stand at participating counters to unlock instant rewards.</p>
+            <p style="color:#555; line-height:1.6;">Perkfinity connects shoppers with independent storefronts, food trucks, pop-up markets, and local services in Mission Viejo, Laguna Niguel, Laguna Hills, Aliso Viejo, and across South Orange County. Scan the countertop QR stand at participating counters to unlock instant rewards.</p>
             <h3 style="font-size:16px; font-weight:700; color:#5b3fa5;">Service Areas &amp; Categories</h3>
             <ul style="color:#444; line-height:1.8;">
               <li><strong>Local Dining &amp; Drinks:</strong> Local cafes, juice bars, family restaurants, smoothie shops, and food trucks.</li>
@@ -713,8 +713,8 @@
             <p style="color:#555; line-height:1.6; margin-bottom:14px;">
               <a href="/deals/orange-county" style="color:#5b3fa5; font-weight:700; text-decoration:underline;">Orange County Deals Hub</a> · 
               <a href="/deals/mission-viejo" style="color:#5b3fa5; font-weight:700; text-decoration:underline;">Mission Viejo Local Perks</a> · 
-              <a href="/deals/lake-forest" style="color:#5b3fa5; font-weight:700; text-decoration:underline;">Lake Forest Perks</a> · 
-              <a href="/deals/irvine" style="color:#5b3fa5; font-weight:700; text-decoration:underline;">Irvine Deals</a>
+              <a href="/deals/laguna-niguel" style="color:#5b3fa5; font-weight:700; text-decoration:underline;">Laguna Niguel Perks</a> · 
+              <a href="/deals/aliso-viejo" style="color:#5b3fa5; font-weight:700; text-decoration:underline;">Aliso Viejo Deals</a>
             </p>
             <h3 style="font-size:16px; font-weight:700; color:#5b3fa5;">Featured Local Merchant Deals, Coupons &amp; Offers</h3>
             <p style="color:#555; line-height:1.8; margin-bottom:0;">
@@ -724,9 +724,9 @@
               <a href="/store/cali-curry-house" style="color:#5b3fa5; font-weight:700; text-decoration:underline;">Cali Curry House Deals &amp; Coupons</a> — Indian cuisine, curry specials, lunch combos &amp; dining discounts · 
               <a href="/store/chai-me-to-the-moon" style="color:#5b3fa5; font-weight:700; text-decoration:underline;">Chai Me To The Moon Deals &amp; Specials</a> — Artisanal chai, specialty teas, bakery treats &amp; cafe offers · 
               <a href="/store/a-z-tech-automotive" style="color:#5b3fa5; font-weight:700; text-decoration:underline;">A-Z Tech Automotive (Mission Viejo) Coupons &amp; Deals</a> — Auto repair, brake service, tire specials &amp; oil change discounts · 
-              <a href="/store/chaska" style="color:#5b3fa5; font-weight:700; text-decoration:underline;">Chaska (Lake Forest) Deals &amp; Offers</a> — Indian street food, dinner combos &amp; dining discounts · 
+              <a href="/store/chaska" style="color:#5b3fa5; font-weight:700; text-decoration:underline;">Chaska (Laguna Niguel) Deals &amp; Offers</a> — Indian street food, dinner combos &amp; dining discounts · 
               <a href="/store/highseas-trading-co" style="color:#5b3fa5; font-weight:700; text-decoration:underline;">Highseas Trading Co Deals &amp; Discounts</a> — Hawaiian shirts, coastal apparel &amp; clothing offers · 
-              <a href="/store/dermfx" style="color:#5b3fa5; font-weight:700; text-decoration:underline;">DermFx (Orange County) Deals &amp; Specials</a> — Med spa treatments, skincare, Botox &amp; laser discounts
+              <a href="/store/dermfx" style="color:#5b3fa5; font-weight:700; text-decoration:underline;">DermFx (Mission Viejo) Deals &amp; Specials</a> — Med spa treatments, skincare, Botox &amp; laser discounts
             </p>
           </div>
         </noscript>
@@ -893,6 +893,8 @@
       doSearch();
     }
 
+    let _didEmptyCityFallback = false;
+
     async function doSearch() {
       // Read direct inputs — works without needing +Add
       const q       = document.getElementById('search-q').value.trim();
@@ -930,6 +932,22 @@
           results = results.filter(m => m.business_category === activeCategory);
         }
 
+        // One-time regional fallback for 0-merchant /deals/:city pages so human visitors see nearby deals
+        let usedEmptyCityFallback = false;
+        const onDealsPath = window.location.pathname.startsWith('/deals/');
+        if (results.length === 0 && (window.__PERKFINITY_EMPTY_LOCATION_FALLBACK || onDealsPath) && !_didEmptyCityFallback && !q && !zipVal && (cityVal || extraCities.length > 0)) {
+          _didEmptyCityFallback = true;
+          const fbRes = await fetch(`${BACKEND}/api/v1/public/local-merchants`);
+          const fbJson = await fbRes.json();
+          let fbResults = fbJson.data || [];
+          if (activePresence !== 'all') fbResults = fbResults.filter(m => m.business_presence === activePresence);
+          if (activeCategory !== 'all') fbResults = fbResults.filter(m => m.business_category === activeCategory);
+          if (fbResults.length > 0) {
+            results = fbResults;
+            usedEmptyCityFallback = true;
+          }
+        }
+
         results = results.sort((a, b) => a.business_name.localeCompare((b.business_name || b.merchant_name || 'Brand')));
 
         // If a store slug is requested in the URL, pin that store to the very top
@@ -952,9 +970,11 @@
         const hasFilters = q || cityVal || zipVal || allCities.length || allZips.length;
         countEl.textContent = results.length === 0
           ? 'No deals found'
-          : hasFilters
-            ? `${results.length} deal${results.length !== 1 ? 's' : ''} found — sorted A–Z`
-            : `${results.length} nearby deal${results.length !== 1 ? 's' : ''} — sorted A–Z`;
+          : usedEmptyCityFallback
+            ? `No businesses in ${cityVal || 'this city'} yet — showing ${results.length} verified nearby deal${results.length !== 1 ? 's' : ''}`
+            : hasFilters
+              ? `${results.length} deal${results.length !== 1 ? 's' : ''} found — sorted A–Z`
+              : `${results.length} nearby deal${results.length !== 1 ? 's' : ''} — sorted A–Z`;
 
         if (!results.length) {
           const hasLocation = cityVal || zipVal || allCities.length || allZips.length;
@@ -1337,7 +1357,9 @@
 
       if (geo.type === 'county') {
         if (heroTitle) heroTitle.textContent = `Exclusive Deals & Local Perks Across ${geo.name}, ${geo.state}`;
-        if (heroSub) heroSub.textContent = `Discover verified dining, retail, and service perks from local businesses across ${geo.name}.`;
+        if (heroSub && !window.__PERKFINITY_EMPTY_LOCATION_FALLBACK) {
+          heroSub.textContent = `Discover verified dining, retail, and service perks from local businesses across ${geo.name}.`;
+        }
         if (!isSsrDealsPage) document.title = `${geo.name} Deals, Local Discounts & Promo Codes | Perkfinity`;
         if (breadcrumb) {
           breadcrumb.innerHTML = `<span style="color:#a78bfa;">📍 California</span> &rsaquo; <span style="color:#fff;">${geo.name}</span>`;
@@ -1345,16 +1367,20 @@
         }
       } else {
         // City level
-        if (heroTitle) heroTitle.textContent = `Exclusive Deals & Local Perks in ${geo.name}, ${geo.state}`;
-        if (heroSub) heroSub.textContent = `Discover verified dining, retail, and local service perks in ${geo.name}.`;
+        if (!isSsrDealsPage && heroTitle) heroTitle.textContent = `Exclusive Deals & Local Perks in ${geo.name}, ${geo.state}`;
+        if (heroSub && !window.__PERKFINITY_EMPTY_LOCATION_FALLBACK) {
+          heroSub.textContent = `Discover verified dining, retail, and local service perks in ${geo.name}.`;
+        }
         if (!isSsrDealsPage) document.title = `${geo.name} Deals, Local Discounts & Promo Codes | Perkfinity`;
         const cityInput = document.getElementById('city-input');
         if (cityInput) cityInput.value = geo.name;
         if (breadcrumb) {
-          const parentName = geo.county || 'Orange County';
-          const parentSlug = geo.parentSlug || 'orange-county';
-          const parentDealsHref = '/deals/' + parentSlug;
-          breadcrumb.innerHTML = `<a href="` + parentDealsHref + `" style="color:#c4b5fd; text-decoration:none;">${parentName}</a> &rsaquo; <span style="color:#fff;">${geo.name}</span>`;
+          if (geo.county && geo.parentSlug) {
+            const parentDealsHref = '/deals/' + geo.parentSlug;
+            breadcrumb.innerHTML = `<a href="` + parentDealsHref + `" style="color:#c4b5fd; text-decoration:none;">${geo.county}</a> &rsaquo; <span style="color:#fff;">${geo.name}</span>`;
+          } else {
+            breadcrumb.innerHTML = `<a href="/localperks" style="color:#c4b5fd; text-decoration:none;">Nearby Deals</a> &rsaquo; <span style="color:#fff;">${geo.name}</span>`;
+          }
           breadcrumb.style.display = 'block';
         }
       }

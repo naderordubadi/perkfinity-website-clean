@@ -1,19 +1,18 @@
 /**
  * Website-Perkfinity/api/deals-page.js
  *
- * Dynamic Server-Side Rendered (SSR) City & County Hub (/deals/:location).
- * - Serves the 100% identical visual UI of localperks.html for human visitors.
- * - Dynamically resolves ANY city or county (e.g., /deals/mission-viejo, /deals/lake-forest,
- *   /deals/irvine, /deals/orange-county, or any future city where a merchant signs up).
- * - Fixes the canonical tag bug (sets self-referencing canonical https://www.perkfinity.net/deals/:location).
- * - Injects server-side <title>, <h1>, <meta description>, <meta keywords>, Schema.org ItemList,
- *   and a category-grouped <noscript> directory (Auto Repair Deals, Spa Deals, Nail Salon Deals,
- *   Restaurant Deals, etc.) so Google ranks both the city page AND the linked /store/:slug pages.
+ * Dynamic Server-Side Rendered (SSR) City & County Hub (/deals/:location),
+ * Directory Hub (/localperks), and Brand Codes Hub (/codes).
+ * - Preserves the exact visual UI of localperks-view.html / codes-view.html.
+ * - Exposes category-grouped /store/:slug and active /deals/:city links inside the real DOM
+ *   via a clean, collapsed-by-default <details> directory at the bottom of the page (plus <noscript>).
+ * - Marks 0-merchant cities/counties with <meta name="robots" content="noindex, follow" /> while keeping
+ *   HTTP 200 and showing nearby deals for human visitors, automatically turning indexable once ≥1 store joins.
  */
 
 const fs = require('fs');
 const path = require('path');
-const { classifyMerchantSEO } = require('./_seo-keywords');
+const { classifyMerchantSEO, resolveRegionHub } = require('./_seo-keywords');
 const { fetchMerchants, fetchOnlineMerchants, slugify } = require('./store-page');
 
 const LOCALPERKS_PATH = path.resolve(__dirname, '..', 'localperks-view.html');
@@ -37,6 +36,87 @@ function escapeHtml(str) {
     .replace(/'/g, '&#39;');
 }
 
+function isCountySlug(slug) {
+  return !slug || Boolean(COUNTY_MAP[slug]) || slug.endsWith('-county');
+}
+
+function extractActiveCities(merchants) {
+  const cityMap = new Map();
+  (merchants || []).forEach(m => {
+    if (m.business_presence === 'online') return;
+    if (!m.city || !String(m.city).trim()) return;
+    const cName = String(m.city).trim();
+    const cSlug = slugify(cName);
+    if (cSlug && !isCountySlug(cSlug) && !cityMap.has(cSlug)) {
+      cityMap.set(cSlug, cName);
+    }
+  });
+  return Array.from(cityMap.entries())
+    .map(([slug, name]) => ({ slug, name }))
+    .sort((a, b) => a.name.localeCompare(b.name));
+}
+
+function buildBottomSeoDirectoryHtml({ summaryTitle, activeCities = [], groups = null, onlineItems = null, locName = '' }) {
+  const navLinks = [
+    `<a href="/deals/orange-county" style="color:#5b3fa5;font-weight:600;text-decoration:none;">Orange County Deals</a>`,
+    ...activeCities.map(c =>
+      `<a href="/deals/${c.slug}" style="color:#5b3fa5;font-weight:600;text-decoration:none;">${escapeHtml(c.name)} Deals</a>`
+    ),
+    `<a href="/localperks" style="color:#5b3fa5;font-weight:600;text-decoration:none;">All Nearby Deals</a>`,
+    `<a href="/codes" style="color:#5b3fa5;font-weight:600;text-decoration:none;">Online Promo Codes</a>`
+  ].join(' &middot; ');
+
+  let bodyHtml = '';
+  if (groups) {
+    const locSuffix = locName ? ` in ${escapeHtml(locName)}` : '';
+    bodyHtml = Object.entries(groups).map(([heading, items]) => {
+      const lis = items.map(({ merchant: m, seo, slug }) => {
+        const mCity = m.city ? String(m.city).trim() : (locName || 'Orange County');
+        const mOffer = m.welcome_offer_text || 'Exclusive Member Perk';
+        return `<li style="margin:4px 0;"><a href="/store/${slug}" style="color:#5b3fa5;font-weight:700;text-decoration:underline;">${escapeHtml(m.business_name || m.merchant_name)} (${escapeHtml(mCity)}) — ${escapeHtml(seo.primaryNiche)} Deals &amp; Coupons</a>: ${escapeHtml(mOffer)} <span style="color:#64748b;">(${escapeHtml(seo.shortOffer)})</span></li>`;
+      }).join('\n            ');
+      return `
+          <div style="margin-top:14px;">
+            <h3 style="margin:0 0 6px;font-size:14.5px;font-weight:800;color:#1e293b;">${escapeHtml(heading)}${locSuffix}</h3>
+            <ul style="margin:0;padding-left:18px;font-size:13px;line-height:1.65;color:#475569;">
+              ${lis}
+            </ul>
+          </div>`;
+    }).join('\n');
+  } else if (onlineItems) {
+    const lis = onlineItems.map(({ merchant: m, seo, slug }) => {
+      const bName = m.business_name || m.merchant_name || 'Brand';
+      const bOffer = m.welcome_offer_text || 'Exclusive Member Perk';
+      const bLoc = m.city ? String(m.city).trim() : 'Online Nationwide';
+      return `<li style="margin:4px 0;"><a href="/store/${slug}" style="color:#5b3fa5;font-weight:700;text-decoration:underline;">${escapeHtml(bName)} (${escapeHtml(bLoc)}) — ${escapeHtml(seo.primaryNiche)} Promo Codes &amp; Deals</a>: ${escapeHtml(bOffer)} <span style="color:#64748b;">(${escapeHtml(seo.shortOffer)})</span></li>`;
+    }).join('\n            ');
+    bodyHtml = `
+          <div style="margin-top:14px;">
+            <h3 style="margin:0 0 6px;font-size:14.5px;font-weight:800;color:#1e293b;">Verified Brand Promo Codes &amp; Store Pages</h3>
+            <ul style="margin:0;padding-left:18px;font-size:13px;line-height:1.65;color:#475569;">
+              ${lis}
+            </ul>
+          </div>`;
+  }
+
+  return `
+    <section class="seo-directory-footer" aria-label="Verified Directory Index" style="max-width:1100px;margin:12px auto 36px;padding:0 20px;">
+      <details style="background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:14px 20px;box-shadow:0 2px 10px rgba(15,23,42,0.03);">
+        <summary style="cursor:pointer;font-size:13.5px;font-weight:700;color:#475569;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:12px;">
+          <span>${escapeHtml(summaryTitle)}</span>
+          <span aria-hidden="true" style="font-size:16px;font-weight:700;color:#64748b;">+</span>
+        </summary>
+        <div style="margin-top:14px;padding-top:14px;border-top:1px solid #f1f5f9;">
+          <nav aria-label="Active location hubs" style="font-size:13px;line-height:1.8;color:#64748b;margin-bottom:8px;">
+            <strong style="color:#1e293b;">Active Deal Hubs:</strong> ${navLinks}
+          </nav>
+          ${bodyHtml}
+        </div>
+      </details>
+    </section>
+  </main>`;
+}
+
 function resolveLocationInfo(rawSlug, merchants) {
   const clean = slugify(rawSlug || 'orange-county');
   if (COUNTY_MAP[clean]) {
@@ -47,7 +127,6 @@ function resolveLocationInfo(rawSlug, merchants) {
     return { slug: clean, name: title, type: 'county', state: 'CA' };
   }
 
-  // Check if any active merchant matches this city slug for exact capitalization/state
   const cityMerchant = (merchants || []).find(m => slugify(m.city) === clean);
   if (cityMerchant) {
     return {
@@ -63,16 +142,25 @@ function resolveLocationInfo(rawSlug, merchants) {
 }
 
 function buildDealsPageHtml(rawLocSlug, allMerchants) {
-  const loc = resolveLocationInfo(rawLocSlug, allMerchants);
+  const safeAll = Array.isArray(allMerchants) ? allMerchants : [];
+  const loc = resolveLocationInfo(rawLocSlug, safeAll);
   const canonicalUrl = `https://www.perkfinity.net/deals/${loc.slug}`;
+  const activeCities = extractActiveCities(safeAll);
 
-  // Filter merchants for this city (or all merchants if county-level / fallback)
-  let matchingMerchants = allMerchants;
+  // Determine exact merchant matches vs 0-merchant fallback
+  let hasExactMerchants = true;
+  let matchingMerchants = safeAll;
+
   if (loc.type === 'city') {
-    const cityMatches = allMerchants.filter(m => slugify(m.city) === loc.slug);
-    if (cityMatches.length > 0) {
-      matchingMerchants = cityMatches;
-    }
+    const cityMatches = safeAll.filter(m => m.business_presence !== 'online' && slugify(m.city) === loc.slug);
+    hasExactMerchants = cityMatches.length > 0;
+    matchingMerchants = hasExactMerchants ? cityMatches : safeAll;
+  } else if (loc.type === 'county') {
+    const countyMatches = safeAll.filter(
+      m => m.business_presence !== 'online' && resolveRegionHub(m.city, m.state).slug === loc.slug
+    );
+    hasExactMerchants = countyMatches.length > 0;
+    matchingMerchants = hasExactMerchants ? countyMatches : safeAll;
   }
 
   // Classify all matching merchants
@@ -80,9 +168,9 @@ function buildDealsPageHtml(rawLocSlug, allMerchants) {
     merchant: m,
     seo: classifyMerchantSEO(m),
     slug: slugify(m.business_name)
-  }));
+  })).filter(e => e.slug);
 
-  // Group by categoryHeading for semantic <noscript> & keyword summary
+  // Group by categoryHeading
   const groups = {};
   enriched.forEach(item => {
     const heading = item.seo.categoryHeading;
@@ -90,7 +178,6 @@ function buildDealsPageHtml(rawLocSlug, allMerchants) {
     groups[heading].push(item);
   });
 
-  // Collect distinct niches & top keyword phrases in this location
   const distinctNiches = [...new Set(enriched.map(e => e.seo.primaryNiche.split(/[,&]/)[0].trim()))].slice(0, 6);
   const nicheSummary = distinctNiches.length > 0
     ? distinctNiches.join(', ')
@@ -121,7 +208,6 @@ function buildDealsPageHtml(rawLocSlug, allMerchants) {
     return true;
   }).slice(0, 22).join(', ');
 
-  // Build Schema.org CollectionPage + ItemList
   const schemaGraph = {
     "@context": "https://schema.org",
     "@graph": [
@@ -169,7 +255,6 @@ function buildDealsPageHtml(rawLocSlug, allMerchants) {
     ]
   };
 
-  // Build category-grouped <noscript> HTML so Googlebot sees H2 sections for "Auto Repair Deals in Mission Viejo", etc.
   const noscriptSectionsHtml = Object.entries(groups).map(([heading, items]) => {
     const lis = items.map(({ merchant: m, seo, slug }) => {
       const mCity = m.city || loc.name;
@@ -185,7 +270,14 @@ function buildDealsPageHtml(rawLocSlug, allMerchants) {
 
   let html = fs.readFileSync(LOCALPERKS_PATH, 'utf8');
 
-  // 1. Replace <title>, <meta description>, <meta keywords>, and <link rel="canonical">
+  // Inject noindex for 0-merchant cities/counties so Google does not index thin/duplicate fallback hubs
+  if (!hasExactMerchants) {
+    html = html.replace(
+      /(<meta\s+name="viewport"[^>]*>)/i,
+      `$1\n  <meta name="robots" content="noindex, follow" />\n  <script>window.__PERKFINITY_EMPTY_LOCATION_FALLBACK = true;</script>`
+    );
+  }
+
   html = html.replace(
     /<title>[\s\S]*?<\/title>/i,
     `<title>${escapeHtml(pageTitle)}</title>`
@@ -202,8 +294,6 @@ function buildDealsPageHtml(rawLocSlug, allMerchants) {
     /<link\s+rel="canonical"\s+href="[^"]*"\s*\/?>/i,
     `<link rel="canonical" href="${canonicalUrl}" />`
   );
-
-  // 2. Replace OpenGraph & Twitter tags
   html = html.replace(
     /<meta\s+property="og:url"\s+content="[^"]*"\s*\/?>/i,
     `<meta property="og:url" content="${canonicalUrl}" />`
@@ -216,23 +306,26 @@ function buildDealsPageHtml(rawLocSlug, allMerchants) {
     /<meta\s+property="og:description"\s+content="[^"]*"\s*\/?>/i,
     `<meta property="og:description" content="${escapeHtml(metaDescription)}" />`
   );
-
-  // 3. Replace JSON-LD script block
   html = html.replace(
     /<script\s+type="application\/ld\+json">[\s\S]*?<\/script>/i,
     `<script type="application/ld+json">\n${JSON.stringify(schemaGraph, null, 2)}\n  </script>`
   );
 
-  // 4. Replace initial H1 (#hero-title) so Googlebot sees the city/county H1 immediately
   const heroHeading = loc.type === 'county'
     ? `Exclusive Deals &amp; Local Perks Across ${escapeHtml(loc.name)}, ${escapeHtml(loc.state)}`
     : `Exclusive Deals &amp; Local Perks in ${escapeHtml(loc.name)}, ${escapeHtml(loc.state)}`;
   html = html.replace(
-    /<h1\s+id="hero-title">[\s\S]*?<\/h1>/i,
-    `<h1 id="hero-title">${heroHeading}</h1>`
+    /<h1\s+id="hero-title"[^>]*>[\s\S]*?<\/h1>/i,
+    `<h1 id="hero-title" style="font-size: 20px; margin: 0 0 4px 0; color: #fff;">${heroHeading}</h1>`
   );
 
-  // 5. Enrich <noscript> block with live category-grouped links for this city/county
+  if (!hasExactMerchants) {
+    html = html.replace(
+      /<p\s+id="hero-sub"[^>]*>[\s\S]*?<\/p>/i,
+      `<p id="hero-sub" style="font-size: 14px; margin: 0; color: rgba(255,255,255,0.8);">No businesses in ${escapeHtml(loc.name)} have joined yet — showing verified nearby perks.</p>`
+    );
+  }
+
   html = html.replace(
     /<noscript>[\s\S]*?<\/noscript>/i,
     `<noscript>
@@ -243,6 +336,17 @@ function buildDealsPageHtml(rawLocSlug, allMerchants) {
       </div>
     </noscript>`
   );
+
+  // Inject real-DOM collapsed SEO directory at bottom of page ONLY when exact location has merchants
+  if (hasExactMerchants && enriched.length > 0) {
+    const bottomDirectory = buildBottomSeoDirectoryHtml({
+      summaryTitle: `Explore Verified Categories & Store Directory in ${loc.name}, ${loc.state} (${enriched.length} Businesses)`,
+      activeCities,
+      groups,
+      locName: `${loc.name}, ${loc.state}`
+    });
+    html = html.replace(/<\/main>/i, bottomDirectory);
+  }
 
   return html;
 }
@@ -259,21 +363,18 @@ function buildDirectoryPageHtml(allMerchants) {
     slug: slugify(m.business_name || m.merchant_name)
   })).filter(e => e.slug);
 
-  const cityMap = new Map();
-  enriched.forEach(({ merchant: m }) => {
-    if (m.city && String(m.city).trim()) {
-      const cName = String(m.city).trim();
-      const cSlug = slugify(cName);
-      if (cSlug && !cityMap.has(cSlug)) {
-        cityMap.set(cSlug, cName);
-      }
-    }
+  const activeCities = extractActiveCities(allMerchants);
+  const groups = {};
+  enriched.forEach(item => {
+    const heading = item.seo.categoryHeading;
+    if (!groups[heading]) groups[heading] = [];
+    groups[heading].push(item);
   });
 
   const regionalLinks = [
     `<a href="/deals/orange-county" style="color:#5b3fa5; font-weight:700; text-decoration:underline;">Orange County Deals Hub</a>`,
-    ...Array.from(cityMap.entries()).map(([cSlug, cName]) =>
-      `<a href="/deals/${cSlug}" style="color:#5b3fa5; font-weight:700; text-decoration:underline;">${escapeHtml(cName)} Local Perks</a>`
+    ...activeCities.map(c =>
+      `<a href="/deals/${c.slug}" style="color:#5b3fa5; font-weight:700; text-decoration:underline;">${escapeHtml(c.name)} Local Perks</a>`
     )
   ].join(' · \n              ');
 
@@ -296,11 +397,11 @@ function buildDirectoryPageHtml(allMerchants) {
           "name": "Perkfinity",
           "url": "https://www.perkfinity.net"
         },
-        "description": "Directory of local storefronts, food trucks, and pop-ups offering member perks in Orange County, CA and surrounding areas."
+        "description": "Directory of local storefronts, food trucks, and services offering member perks in Orange County, CA and participating cities."
       },
       {
         "@type": "ItemList",
-        "name": "Local Store & Food Truck Perks",
+        "name": "Local Store & Service Perks",
         "url": "https://www.perkfinity.net/localperks",
         "itemListOrder": "https://schema.org/ItemListOrderAscending",
         "numberOfItems": enriched.length,
@@ -327,8 +428,8 @@ function buildDirectoryPageHtml(allMerchants) {
     /<noscript>[\s\S]*?<\/noscript>/i,
     `<noscript>
           <div style="background:#fff; border-radius:16px; padding:32px; margin-top:24px; box-shadow:0 4px 20px rgba(0,0,0,0.06); max-width:800px; margin-left:auto; margin-right:auto;">
-            <h2 style="font-size:20px; font-weight:800; color:#1a1a2e; margin-top:0;">Local Business &amp; Food Truck Perks in Orange County</h2>
-            <p style="color:#555; line-height:1.6;">Perkfinity connects shoppers with independent storefronts, food trucks, pop-up markets, and local services in Mission Viejo, Lake Forest, Irvine, and across South Orange County. Scan the countertop QR stand at participating counters to unlock instant rewards.</p>
+            <h2 style="font-size:20px; font-weight:800; color:#1a1a2e; margin-top:0;">Local Business &amp; Service Perks</h2>
+            <p style="color:#555; line-height:1.6;">Perkfinity connects shoppers with independent storefronts, food trucks, pop-up markets, and local services across participating cities. Scan the countertop QR stand at participating counters to unlock instant rewards.</p>
             <h3 style="font-size:16px; font-weight:700; color:#5b3fa5;">Active Regional Directories</h3>
             <p style="color:#555; line-height:1.6; margin-bottom:14px;">
               ${regionalLinks}
@@ -341,10 +442,18 @@ function buildDirectoryPageHtml(allMerchants) {
         </noscript>`
   );
 
+  const bottomDirectory = buildBottomSeoDirectoryHtml({
+    summaryTitle: `Explore Verified Categories & Local Business Directory (${enriched.length} Active Businesses)`,
+    activeCities,
+    groups,
+    locName: ''
+  });
+  html = html.replace(/<\/main>/i, bottomDirectory);
+
   return html;
 }
 
-function buildCodesPageHtml(onlineMerchants) {
+function buildCodesPageHtml(onlineMerchants, localMerchants = []) {
   let html = fs.readFileSync(CODES_PATH, 'utf8');
   if (!Array.isArray(onlineMerchants) || onlineMerchants.length === 0) {
     return html;
@@ -355,6 +464,8 @@ function buildCodesPageHtml(onlineMerchants) {
     seo: classifyMerchantSEO(m),
     slug: slugify(m.business_name || m.merchant_name)
   })).filter(e => e.slug);
+
+  const activeCities = extractActiveCities(localMerchants);
 
   const brandLinks = enriched.map(({ merchant: m, seo, slug }) => {
     const bName = m.business_name || m.merchant_name || 'Brand';
@@ -422,6 +533,13 @@ function buildCodesPageHtml(onlineMerchants) {
         </noscript>`
   );
 
+  const bottomDirectory = buildBottomSeoDirectoryHtml({
+    summaryTitle: `Explore Verified Brand Store Pages & Promo Code Directory (${enriched.length} Brands)`,
+    activeCities,
+    onlineItems: enriched
+  });
+  html = html.replace(/<\/main>/i, bottomDirectory);
+
   return html;
 }
 
@@ -429,10 +547,14 @@ module.exports = async function handler(req, res) {
   try {
     if (req.query && req.query.mode === 'codes') {
       let onlineMerchants = [];
+      let localMerchants = [];
       try {
-        onlineMerchants = await fetchOnlineMerchants();
+        [onlineMerchants, localMerchants] = await Promise.all([
+          fetchOnlineMerchants(),
+          fetchMerchants().catch(() => [])
+        ]);
       } catch (e) {}
-      const html = buildCodesPageHtml(onlineMerchants);
+      const html = buildCodesPageHtml(onlineMerchants, localMerchants);
       res.setHeader('Content-Type', 'text/html; charset=utf-8');
       res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
       return res.status(200).send(html);
@@ -469,15 +591,8 @@ module.exports = async function handler(req, res) {
       return res.end();
     }
 
-    const isCounty = Boolean(COUNTY_MAP[cleanLoc] || cleanLoc.endsWith('-county'));
-    let merchants = [];
-    if (!isCounty && cleanLoc) {
-      const cityQuery = cleanLoc.replace(/-/g, ' ');
-      merchants = await fetchMerchants({ city: cityQuery });
-    }
-    if (!merchants || merchants.length === 0) {
-      merchants = await fetchMerchants();
-    }
+    // Fetch all active local/hybrid merchants once so we know exact city/county matches AND active hubs
+    const merchants = await fetchMerchants();
     const html = buildDealsPageHtml(cleanLoc, merchants);
 
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
@@ -491,3 +606,5 @@ module.exports = async function handler(req, res) {
 };
 
 module.exports.buildDealsPageHtml = buildDealsPageHtml;
+module.exports.buildDirectoryPageHtml = buildDirectoryPageHtml;
+module.exports.buildCodesPageHtml = buildCodesPageHtml;

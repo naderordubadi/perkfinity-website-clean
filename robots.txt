@@ -19,6 +19,7 @@ Allow: /terms-of-use
 Allow: /assets/
 Allow: /llms.txt
 Allow: /llms-full.txt
+Allow: /4f8b2e9c7a1d6035b8e4c2a9f1d7063e.txt
 
 # Disallow admin and raw API endpoints (auth/private HTML pages use <meta name="robots" content="noindex, nofollow">)
 Disallow: /admin/
