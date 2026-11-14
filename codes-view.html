@@ -657,7 +657,7 @@
         <div style="display: flex; align-items: center; justify-content: space-between; max-width: 1100px; margin: 0 auto 24px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 16px 24px; flex-wrap: wrap; gap: 16px;">
           <div style="text-align: left;">
             <h1 style="font-size: 20px; margin: 0 0 4px 0; color: #fff;">Online &amp; In-Store Deals</h1>
-            <p style="font-size: 14px; margin: 0; color: rgba(255,255,255,0.8);">Exclusive promo codes from top brands — plus Claim &amp; Visit deals.</p>
+            <p style="font-size: 14px; margin: 0; color: rgba(255,255,255,0.8);">Exclusive promo codes from top brands.</p>
           </div>
           <button id="filter-toggle-btn" class="filter-toggle-btn" onclick="toggleFilters()" style="margin: 0; border-radius: 12px; padding: 12px 20px;">
             <span style="font-size:16px;">🔍</span> Search &amp; Filters
@@ -777,7 +777,7 @@
   
   <!-- Shared Modal Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
-  <script src="assets/js/merchant-modals.js?v=1.8"></script>
+  <script src="assets/js/merchant-modals.js?v=1.9"></script>
   <script>
     const BACKEND = (typeof PerkfinityConfig !== 'undefined') ? PerkfinityConfig.BACKEND_URL : 'https://perkfinity-backend.vercel.app';
     function slugify(text) {
@@ -865,10 +865,6 @@
         const logoHtml = b.logo_url
           ? `<img class="brand-logo" src="${b.logo_url}" alt="${(b.business_name || b.merchant_name || 'Brand')} logo" onerror="this.style.display='none';this.nextElementSibling.style.display='grid';"><div class="brand-logo-placeholder" style="display:none;font-size:16px;font-weight:900;color:var(--purple);background:rgba(91,63,165,.1);">${initials}</div>`
           : `<div class="brand-logo-placeholder" style="font-size:16px;font-weight:900;color:var(--purple);background:rgba(91,63,165,.1);">${initials}</div>`;
-        const isHybrid = b.business_presence === 'hybrid';
-        const hybridBadge = isHybrid
-          ? `<span class="hybrid-badge">📱 Claim &amp; Visit</span>`
-          : '';
         const gradients = [
           'linear-gradient(135deg, #FF9A9E 0%, #FECFEF 100%)',
           'linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%)',
@@ -907,13 +903,11 @@
               <div class="brand-name"><a href="/store/${brandSlug}" onclick="event.preventDefault();" style="color:inherit;text-decoration:none;">${brandName}</a></div>
               <div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px;margin-top:3px;">
                 <span class="brand-cat-badge">${catIcons[b.business_category] || ''} ${b.business_category || 'Brand'}</span>
-                ${hybridBadge}
               </div>
             </div>
           </div>
           <div class="brand-card-body">
             <div class="brand-offer">${b.welcome_offer_text || 'Exclusive member perk'}</div>
-            ${isHybrid ? `<p style="font-size:12px;color:#92400e;background:#fef3c7;border-radius:8px;padding:7px 10px;margin:0;font-weight:700;">📍 Reveal your code here, then visit a location to redeem.</p>` : ''}
             <button class="reveal-btn" onclick="event.stopPropagation();openPopupById('${b.id}')" id="reveal-${b.id}">
               Get This Perk →
             </button>
