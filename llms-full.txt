@@ -75,7 +75,7 @@ Perkfinity operates on transparent, flat-rate monthly SaaS tiers with no percent
 ## 5. Consumer Features & Mobile App Experience
 
 * **Platforms:**
-  * iOS: Available on the Apple App Store (`https://apps.apple.com/app/perkfinity/id6479982461`).
+  * iOS: Available on the Apple App Store (`https://apps.apple.com/us/app/perkfinity-privacy-first-perks/id6759945540`).
   * Android: Available on Google Play (`https://play.google.com/store/apps/details?id=net.perkfinity.app`).
   * Web Directory: Discoverable at `https://perkfinity.net`.
 * **VIP Action Hub:** Centralized mobile wallet holding all joined store memberships, active unlocked perks, and expiration timers.
