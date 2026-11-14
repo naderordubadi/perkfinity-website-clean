@@ -391,15 +391,28 @@
     .brand-cat-badge {
       display: inline-flex;
       align-items: center;
-      gap: 4px;
-      font-size: 11px;
+      justify-content: center;
+      gap: 6px;
+      max-width: 100%;
+      font-size: 0.65625rem;
       font-weight: 800;
       color: var(--purple);
       background: rgba(91,63,165,.08);
-      border-radius: 999px;
-      padding: 2px 8px;
+      border-radius: 12px;
+      padding: 5px 10px;
       text-transform: uppercase;
-      letter-spacing: .04em;
+      letter-spacing: .03em;
+    }
+    .brand-cat-icon {
+      flex-shrink: 0;
+      font-size: 0.8125rem;
+      line-height: 1;
+    }
+    .brand-cat-label {
+      text-align: center;
+      line-height: 1.3;
+      overflow-wrap: break-word;
+      text-box: trim-both cap alphabetic;
     }
     .brand-card-body {
       padding: 16px 24px 20px;
@@ -804,6 +817,32 @@
       'Photography & Creative': '📸',
       'Other': '🔖'
     };
+    function escapeCatHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+    function formatCategoryLabel(cat) {
+      const text = String(cat || 'Brand').trim();
+      const words = text.split(/\s+/);
+      if (words.length < 2 || text.length <= 12) {
+        return escapeCatHtml(text);
+      }
+      let bestIdx = 1;
+      let bestDiff = Infinity;
+      for (let i = 1; i < words.length; i++) {
+        const line1 = words.slice(0, i).join(' ');
+        const line2 = words.slice(i).join(' ');
+        const diff = Math.abs(line1.length - line2.length);
+        if (diff < bestDiff) {
+          bestDiff = diff;
+          bestIdx = i;
+        }
+      }
+      return `${escapeCatHtml(words.slice(0, bestIdx).join(' '))}<br>${escapeCatHtml(words.slice(bestIdx).join(' '))}`;
+    }
     let allBrands = [];
     let activeCategory = 'all';
 
@@ -899,10 +938,10 @@
           ${coverHtml}
           <div class="brand-card-top">
             ${logoHtml}
-            <div>
+            <div style="flex:1;min-width:0;">
               <div class="brand-name"><a href="/store/${brandSlug}" onclick="event.preventDefault();" style="color:inherit;text-decoration:none;">${brandName}</a></div>
-              <div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px;margin-top:3px;">
-                <span class="brand-cat-badge">${catIcons[b.business_category] || ''} ${b.business_category || 'Brand'}</span>
+              <div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px;margin-top:4px;">
+                <span class="brand-cat-badge">${catIcons[b.business_category] ? `<span class="brand-cat-icon" aria-hidden="true">${catIcons[b.business_category]}</span>` : ''}<span class="brand-cat-label">${formatCategoryLabel(b.business_category)}</span></span>
               </div>
             </div>
           </div>
