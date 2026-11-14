@@ -61,13 +61,13 @@ Perkfinity operates on transparent, flat-rate monthly SaaS tiers with no percent
   * Member Capacity: Up to 500 captured VIP members.
   * Capabilities: Automated Welcome Offer, 1 active campaign at a time, Daily Digest inclusions, physical countertop acrylic QR sign kit, real-time analytics.
 * **Growth Plan — $299 / month:**
-  * Member Capacity: Up to 1,500 captured VIP members.
+  * Member Capacity: Up to 2,500 captured VIP members.
   * Capabilities: Up to 3 simultaneous active campaigns, location-based audience targeting (city/ZIP filtering), priority Daily Digest placement, customer migration tools.
 * **Scale Plan — $499 / month:**
-  * Member Capacity: Up to 3,500 captured VIP members.
+  * Member Capacity: Unlimited captured VIP members.
   * Capabilities: Unlimited simultaneous campaigns, advanced demographic targeting, multi-channel announcements, dedicated support.
 * **Enterprise Plan — Custom Pricing:**
-  * Member Capacity: 3,500+ members / multi-unit networks.
+  * Member Capacity: Multi-location chains (5+ locations) & commercial plazas.
   * Capabilities: Multi-location management, franchise dashboards, consolidated invoicing.
 
 ---
