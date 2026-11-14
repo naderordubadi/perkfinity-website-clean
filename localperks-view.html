@@ -656,14 +656,6 @@
             <button class="clear-btn" onclick="clearSearch()" title="Clear search">✕ Clear</button>
           </div>
 
-          <!-- Row 2: Presence filter chips -->
-          <div class="presence-row" style="margin-top: 4px;">
-            <button class="pres-chip active" data-pres="all"      onclick="setPres(this)">All</button>
-            <button class="pres-chip"        data-pres="physical" onclick="setPres(this)">🏪 Stores</button>
-            <button class="pres-chip"        data-pres="mobile"   onclick="setPres(this)">🚐 Mobile / Pop-up</button>
-            <button class="pres-chip"        data-pres="hybrid"   onclick="setPres(this)">📱 Claim &amp; Visit</button>
-          </div>
-
           <!-- Row 3: Category filter chips -->
           <div class="filter-bar" style="margin-top: 4px;">
             <button class="filter-chip active" data-cat="all" onclick="setCat(this)">✦ All</button>
@@ -751,7 +743,7 @@
 
     <!-- Shared Modal Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
-    <script src="/assets/js/merchant-modals.js?v=1.9"></script>
+    <script src="/assets/js/merchant-modals.js?v=2.0"></script>
     <script>
     const BACKEND = (typeof PerkfinityConfig !== 'undefined' && PerkfinityConfig.BACKEND_URL)
       ? PerkfinityConfig.BACKEND_URL
@@ -838,7 +830,6 @@
     }
     // Multi-value tag arrays (optional power feature — add multiple cities/zips)
     const extraCities = [], extraZips = [];
-    let activePresence = 'all';
     let activeCategory = 'all';
 
     function clearSearch() {
@@ -847,10 +838,7 @@
       document.getElementById('zip-input').value = '';
       extraCities.length = 0;
       extraZips.length = 0;
-      activePresence = 'all';
       activeCategory = 'all';
-      document.querySelectorAll('.presence-row .pres-chip').forEach(c => c.classList.remove('active'));
-      document.querySelector('.presence-row .pres-chip[data-pres="all"]')?.classList.add('active');
       document.querySelectorAll('.filter-bar .filter-chip').forEach(c => c.classList.remove('active'));
       document.querySelector('.filter-bar .filter-chip[data-cat="all"]')?.classList.add('active');
       const breadcrumb = document.getElementById('geo-breadcrumb');
@@ -877,13 +865,6 @@
         ...extraCities.map(c => `<span class="tag-pill" title="Click to remove" onclick="removeTag('city','${c}')">🏙 ${c} ✕</span>`),
         ...extraZips.map(z =>   `<span class="tag-pill" title="Click to remove" onclick="removeTag('zip','${z}')">📮 ${z} ✕</span>`)
       ].join('');
-    }
-
-    function setPres(btn) {
-      document.querySelectorAll('.presence-row .pres-chip').forEach(c => c.classList.remove('active'));
-      btn.classList.add('active');
-      activePresence = btn.dataset.pres;
-      doSearch();
     }
 
     function setCat(btn) {
@@ -923,10 +904,6 @@
         const json = await res.json();
         let results = json.data || [];
 
-        // Client-side presence filter
-        if (activePresence !== 'all') {
-          results = results.filter(m => m.business_presence === activePresence);
-        }
         // Client-side category filter
         if (activeCategory !== 'all') {
           results = results.filter(m => m.business_category === activeCategory);
@@ -940,7 +917,6 @@
           const fbRes = await fetch(`${BACKEND}/api/v1/public/local-merchants`);
           const fbJson = await fbRes.json();
           let fbResults = fbJson.data || [];
-          if (activePresence !== 'all') fbResults = fbResults.filter(m => m.business_presence === activePresence);
           if (activeCategory !== 'all') fbResults = fbResults.filter(m => m.business_category === activeCategory);
           if (fbResults.length > 0) {
             results = fbResults;
@@ -998,11 +974,6 @@
           const logoHtml = m.logo_url
             ? `<img class="merch-logo" src="${m.logo_url}" alt="${(m.business_name || m.merchant_name || 'Brand')} logo" onerror="this.style.display='none';this.nextElementSibling.style.display='grid';"><div class="merch-logo-placeholder" style="display:none;font-size:16px;font-weight:900;color:var(--purple);background:rgba(91,63,165,.1);">${initials}</div>`
             : `<div class="merch-logo-placeholder" style="font-size:16px;font-weight:900;color:var(--purple);background:rgba(91,63,165,.1);">${initials}</div>`;
-          const presLabel = m.business_presence === 'mobile'
-            ? '<span class="pres-badge mobile">🚐 Mobile</span>'
-            : m.business_presence === 'hybrid'
-            ? '<span class="pres-badge hybrid">📱 Claim &amp; Visit</span>'
-            : '<span class="pres-badge physical">🏪 Store</span>';
           const loc = [m.city, m.state, m.postal_code].filter(Boolean).join(', ');
           const gradients = [
             'linear-gradient(135deg, #FF9A9E 0%, #FECFEF 100%)',
@@ -1045,10 +1016,7 @@
               ${logoHtml}
               <div>
                 <div class="merch-name"><a href="/store/${merchSlug}" onclick="event.preventDefault();" style="color:inherit;text-decoration:none;">${merchName}</a></div>
-                <div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px;margin-top:3px;">
-                  ${loc ? `<span class="merch-location">📍 ${loc}</span>` : ''}
-                  ${presLabel}
-                </div>
+                ${loc ? `<div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px;margin-top:3px;"><span class="merch-location">📍 ${loc}</span></div>` : ''}
               </div>
             </div>
             <div class="merch-card-body">

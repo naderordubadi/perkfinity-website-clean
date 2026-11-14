@@ -405,7 +405,7 @@ function buildStorePageHtml(m, allMerchants) {
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <script src="/config.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
-  <script src="/assets/js/merchant-modals.js?v=1.9"></script>
+  <script src="/assets/js/merchant-modals.js?v=2.0"></script>
 
   <style>
     *, *::before, *::after { box-sizing: border-box; }
@@ -706,16 +706,15 @@ function buildStorePageHtml(m, allMerchants) {
             <div class="qr-paths">
               <div class="qr-path-amber">
                 <div class="qr-path-title-amber">📱 DON&#39;T HAVE THE APP?</div>
-                <p class="qr-path-desc-amber">${isOnlineOnly ? 'Open camera &amp; scan QR → Download Perkfinity → Join this brand → Reveal &amp; copy your promo code in-app for online checkout.' : 'Open camera &amp; scan QR → Download Perkfinity → Join this store → Scan in-store to activate, or unlock your code in-app if offered online.'}</p>
+                <p class="qr-path-desc-amber">${isOnlineOnly ? 'Scan QR with camera → Download Perkfinity → Join brand → Reveal code for online.' : 'Scan QR with camera → Download Perkfinity → Join store → Scan in-store, or reveal code for online.'}</p>
               </div>
               <div class="qr-path-green">
                 <div class="qr-path-title-green">✅ ALREADY HAVE THE APP?</div>
-                <p class="qr-path-desc-green">${isOnlineOnly ? 'Open Perkfinity → Tap <strong>Scan</strong> → Scan this QR → Join this brand → Reveal &amp; copy your promo code in-app.' : 'Open Perkfinity → Tap <strong>Scan</strong> → Scan this QR → Join this store → Scan again in-store to activate, or use your in-app code online.'}</p>
+                <p class="qr-path-desc-green">${isOnlineOnly ? 'Open Perkfinity → Tap <strong>Scan</strong> → Join brand → Reveal code for online.' : 'Open Perkfinity → Tap <strong>Scan</strong> → Join store → Scan again in-store, or reveal code for online.'}</p>
               </div>
             </div>
 
             <p class="qr-disclaimer">
-              Unlock your perk inside the app to redeem in person or online.<br>
               By joining, you agree to our <a href="/terms-of-use" target="_blank">Terms of Use</a> &amp;
               <a href="/privacy-policy" target="_blank">Privacy Policy</a>.
             </p>
@@ -791,16 +790,15 @@ function buildStorePageHtml(m, allMerchants) {
         <div class="qr-paths" style="margin-bottom:20px;">
           <div class="qr-path-amber">
             <div class="qr-path-title-amber">📱 DON&#39;T HAVE THE APP?</div>
-            <p class="qr-path-desc-amber">${isOnlineOnly ? 'Open camera &amp; scan QR → Download Perkfinity → Join this brand → Reveal &amp; copy your promo code in-app for online checkout.' : 'Open camera &amp; scan QR → Download Perkfinity → Join this store → Scan in-store to activate, or unlock your code in-app if offered online.'}</p>
+            <p class="qr-path-desc-amber">${isOnlineOnly ? 'Scan QR with camera → Download Perkfinity → Join brand → Reveal code for online.' : 'Scan QR with camera → Download Perkfinity → Join store → Scan in-store, or reveal code for online.'}</p>
           </div>
           <div class="qr-path-green">
             <div class="qr-path-title-green">✅ ALREADY HAVE THE APP?</div>
-            <p class="qr-path-desc-green">${isOnlineOnly ? 'Open Perkfinity → Tap <strong>Scan</strong> → Scan this QR → Join this brand → Reveal &amp; copy your promo code in-app.' : 'Open Perkfinity → Tap <strong>Scan</strong> → Scan this QR → Join this store → Scan again in-store to activate, or use your in-app code online.'}</p>
+            <p class="qr-path-desc-green">${isOnlineOnly ? 'Open Perkfinity → Tap <strong>Scan</strong> → Join brand → Reveal code for online.' : 'Open Perkfinity → Tap <strong>Scan</strong> → Join store → Scan again in-store, or reveal code for online.'}</p>
           </div>
         </div>
 
         <p class="qr-disclaimer">
-          Unlock your perk inside the app to redeem in person or online.<br>
           By joining, you agree to our <a href="/terms-of-use" target="_blank">Terms of Use</a> &amp;
           <a href="/privacy-policy" target="_blank">Privacy Policy</a>.
         </p>

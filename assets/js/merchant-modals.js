@@ -165,16 +165,15 @@ window.openFullPageTakeover = function(merchant) {
               <div style="display:flex; flex-direction:column; gap:10px; text-align:left; margin-bottom:12px;">
                 <div style="background:#FFFBEB; border:1.5px solid #FDE68A; border-radius:10px; padding:10px 12px;">
                   <div style="font-size:11px; font-weight:900; color:#B45309; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:4px;">📱 DON'T HAVE THE APP?</div>
-                  <p style="margin:0; font-size:11.5px; font-weight:700; color:#78350F; line-height:1.4;">${isOnlineOnly ? 'Open camera &amp; scan QR → Download Perkfinity → Join this brand → Reveal &amp; copy your promo code in-app for online checkout.' : 'Open camera &amp; scan QR → Download Perkfinity → Join this store → Scan in-store to activate, or unlock your code in-app if offered online.'}</p>
+                  <p style="margin:0; font-size:11.5px; font-weight:700; color:#78350F; line-height:1.4;">${isOnlineOnly ? 'Scan QR with camera → Download Perkfinity → Join brand → Reveal code for online.' : 'Scan QR with camera → Download Perkfinity → Join store → Scan in-store, or reveal code for online.'}</p>
                 </div>
                 <div style="background:#F0FDF4; border:1.5px solid #BBF7D0; border-radius:10px; padding:10px 12px;">
                   <div style="font-size:11px; font-weight:900; color:#15803D; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:4px;">✅ ALREADY HAVE THE APP?</div>
-                  <p style="margin:0; font-size:11.5px; font-weight:700; color:#166534; line-height:1.4;">${isOnlineOnly ? 'Open Perkfinity → Tap <strong>Scan</strong> → Scan this QR → Join this brand → Reveal &amp; copy your promo code in-app.' : 'Open Perkfinity → Tap <strong>Scan</strong> → Scan this QR → Join this store → Scan again in-store to activate, or use your in-app code online.'}</p>
+                  <p style="margin:0; font-size:11.5px; font-weight:700; color:#166534; line-height:1.4;">${isOnlineOnly ? 'Open Perkfinity → Tap <strong>Scan</strong> → Join brand → Reveal code for online.' : 'Open Perkfinity → Tap <strong>Scan</strong> → Join store → Scan again in-store, or reveal code for online.'}</p>
                 </div>
               </div>
 
               <p style="font-size:11px; color:#94A3B8; font-weight:700; text-align:center; line-height:1.4; margin:0; border-top:1px solid #F1F5F9; padding-top:10px;">
-                Unlock your perk inside the app to redeem in person or online.<br>
                 By joining, you agree to our <a href="/terms-of-use" target="_blank" style="color:#5B3FA5;">Terms of Use</a> &amp;
                 <a href="/privacy-policy" target="_blank" style="color:#5B3FA5;">Privacy Policy</a>.
               </p>
@@ -272,15 +271,14 @@ window.openPopup = function(merchant) {
       <div class="popup-paths" style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px;">
         <div class="popup-path" style="background: #FFFBF1; border: 1px solid #FDE68A; border-radius: 12px; padding: 16px;">
           <div class="popup-path-title" style="font-size: 12px; font-weight: 800; color: #92400E; margin-bottom: 6px;">📱 Don't have the app?</div>
-          <p style="margin: 0; font-size: 12px; color: #92400E; font-weight: 500; line-height: 1.5;">${isOnlineOnly ? 'Open camera &amp; scan QR → Download Perkfinity → Join this brand → Reveal &amp; copy your promo code in-app for online checkout.' : 'Open camera &amp; scan QR → Download Perkfinity → Join this store → Scan in-store to activate, or unlock your code in-app if offered online.'}</p>
+          <p style="margin: 0; font-size: 12px; color: #92400E; font-weight: 500; line-height: 1.5;">${isOnlineOnly ? 'Scan QR with camera → Download Perkfinity → Join brand → Reveal code for online.' : 'Scan QR with camera → Download Perkfinity → Join store → Scan in-store, or reveal code for online.'}</p>
         </div>
         <div class="popup-path" style="background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 12px; padding: 16px;">
           <div class="popup-path-title" style="font-size: 12px; font-weight: 800; color: #166534; margin-bottom: 6px;">✅ Already have the app?</div>
-          <p style="margin: 0; font-size: 12px; color: #166534; font-weight: 500; line-height: 1.5;">${isOnlineOnly ? 'Open Perkfinity → Tap <strong>Scan</strong> → Scan this QR → Join this brand → Reveal &amp; copy your promo code in-app.' : 'Open Perkfinity → Tap <strong>Scan</strong> → Scan this QR → Join this store → Scan again in-store to activate, or use your in-app code online.'}</p>
+          <p style="margin: 0; font-size: 12px; color: #166534; font-weight: 500; line-height: 1.5;">${isOnlineOnly ? 'Open Perkfinity → Tap <strong>Scan</strong> → Join brand → Reveal code for online.' : 'Open Perkfinity → Tap <strong>Scan</strong> → Join store → Scan again in-store, or reveal code for online.'}</p>
         </div>
       </div>
       <p class="popup-disclaimer" style="font-size: 11px; color: #94A3B8; text-align: center; line-height: 1.5; margin: 0;">
-        Unlock your perk inside the app to redeem in person or online.<br>
         By joining, you agree to our <a href="/terms-of-use" target="_blank" style="color:#64748B;font-weight:700;">Terms of Use</a> &amp;
         <a href="/privacy-policy" target="_blank" style="color:#64748B;font-weight:700;">Privacy Policy</a>.
       </p>
