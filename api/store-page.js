@@ -198,7 +198,10 @@ function buildStorePageHtml(m, allMerchants) {
   }).join('');
 
   // Rich Schema.org JSON-LD with exact @type (AutoRepair, NailSalon, DaySpa, Restaurant, OnlineStore, etc.),
-  // service keywords (knowsAbout), areaServed, and FAQPage for Google Rich Results
+  // expanded search metadata (knowsAbout, WebPage keywords), areaServed, and FAQPage for Google & AI Search
+  const schemaSearchKeywords = Array.isArray(seo.allSearchKeywords) && seo.allSearchKeywords.length > 0
+    ? seo.allSearchKeywords
+    : seo.serviceKeywords;
   const primarySchemaNode = (isOnlineOnly && !hasCity)
     ? {
         "@type": seo.schemaType === 'LocalBusiness' ? 'OnlineStore' : seo.schemaType,
@@ -209,13 +212,13 @@ function buildStorePageHtml(m, allMerchants) {
         "sameAs": [website, reviewUrl, orderUrl].filter(Boolean),
         "image": bannerUrl || logoUrl || "https://www.perkfinity.net/assets/Perkfinity-App-Icon.png",
         "telephone": phone || undefined,
-        "knowsAbout": seo.serviceKeywords,
+        "knowsAbout": schemaSearchKeywords,
         "areaServed": { "@type": "Country", "name": "United States" },
         "makesOffer": {
           "@type": "Offer",
           "name": offer,
-          "category": seo.primaryNiche,
-          "description": `${offer} — Verified ${seo.primaryNiche.toLowerCase()} promo code & member perk at ${bName}`,
+          "category": category,
+          "description": `${offer} — Verified ${bName} deal, member perk, special offer, promo code, coupon & voucher`,
           "url": canonicalUrl,
           "eligibleRegion": { "@type": "Country", "name": "US" }
         }
@@ -230,7 +233,7 @@ function buildStorePageHtml(m, allMerchants) {
         "image": bannerUrl || logoUrl || "https://www.perkfinity.net/assets/Perkfinity-App-Icon.png",
         "telephone": phone || undefined,
         "priceRange": "$$",
-        "knowsAbout": seo.serviceKeywords,
+        "knowsAbout": schemaSearchKeywords,
         "areaServed": (hasCity && citySlug !== regionHub.slug)
           ? [
               { "@type": "City", "name": city },
@@ -250,8 +253,8 @@ function buildStorePageHtml(m, allMerchants) {
         "makesOffer": {
           "@type": "Offer",
           "name": offer,
-          "category": seo.primaryNiche,
-          "description": `${offer} — Verified ${seo.primaryNiche.toLowerCase()} deal & member perk at ${bName}${hasCity ? ` in ${city}, ${state}` : ''}`,
+          "category": category,
+          "description": `${offer} — Verified ${bName} deal, member perk, offer, coupon & voucher${hasCity ? ` in ${city}, ${state}` : ''}`,
           "url": canonicalUrl,
           "eligibleRegion": {
             "@type": "Place",
@@ -267,7 +270,7 @@ function buildStorePageHtml(m, allMerchants) {
   if (hasCity && citySlug !== regionHub.slug) {
     bcItems.push({ "@type": "ListItem", "position": 3, "name": `${city} Deals`, "item": `https://www.perkfinity.net/deals/${citySlug}` });
   }
-  bcItems.push({ "@type": "ListItem", "position": bcItems.length + 1, "name": `${bName} (${seo.primaryNiche} Deals)`, "item": canonicalUrl });
+  bcItems.push({ "@type": "ListItem", "position": bcItems.length + 1, "name": `${bName} Deals & Perks`, "item": canonicalUrl });
 
   const breadcrumbSchemaNode = (isOnlineOnly && !hasCity)
     ? {
@@ -275,7 +278,7 @@ function buildStorePageHtml(m, allMerchants) {
         "itemListElement": [
           { "@type": "ListItem", "position": 1, "name": "Perkfinity", "item": "https://www.perkfinity.net/" },
           { "@type": "ListItem", "position": 2, "name": "Promo Codes & Brand Deals", "item": "https://www.perkfinity.net/codes" },
-          { "@type": "ListItem", "position": 3, "name": `${bName} (${seo.primaryNiche} Deals)`, "item": canonicalUrl }
+          { "@type": "ListItem", "position": 3, "name": `${bName} Deals & Perks`, "item": canonicalUrl }
         ]
       }
     : {
@@ -285,15 +288,16 @@ function buildStorePageHtml(m, allMerchants) {
 
   const presence = m.business_presence || (isOnlineOnly ? 'online' : 'physical');
   const isMobileNoStreet = presence === 'mobile' && !address;
-  const nicheLabel = seo.primaryNiche.toLowerCase();
   const locationLabel = hasCity ? `${city}, ${state}` : regionHub.areaName;
   const cleanSite = website ? website.replace(/^https?:\/\//, '').replace(/\/$/, '') : '';
   const placeRef = address && fullAddr ? fullAddr : locationLabel;
-  const topSpecialtySummary = seo.serviceKeywords.slice(0, 3).join(', ');
+  const cleanOfficialCat = (m.business_category && !/^other$/i.test(String(m.business_category).trim()))
+    ? String(m.business_category).trim()
+    : '';
 
   let seoOverviewText;
   if (isOnlineOnly && !hasCity) {
-    seoOverviewText = `${bName} is a verified Perkfinity partner specializing in ${nicheLabel}. Perkfinity members unlock an exclusive offer at ${bName}: "${offer}" inside the free Perkfinity app.${cleanSite ? ` Shop online at ${cleanSite} and redeem with 100% privacy.` : ' Redeem online with 100% privacy.'} Popular member searches and savings include ${topSpecialtySummary}.`;
+    seoOverviewText = `${bName}${cleanOfficialCat ? ` (${cleanOfficialCat})` : ''} is a verified brand partner on Perkfinity. Members unlock an exclusive deal and perk at ${bName}: "${offer}" inside the free Perkfinity app.${cleanSite ? ` Shop online at ${cleanSite} and redeem with 100% privacy.` : ' Redeem online with 100% privacy.'}`;
   } else {
     let redeemSentence;
     if (presence === 'hybrid') {
@@ -309,14 +313,14 @@ function buildStorePageHtml(m, allMerchants) {
     } else {
       redeemSentence = `Scan the ${bName} Perkfinity QR code in ${locationLabel} with the free Perkfinity app to redeem.`;
     }
-    seoOverviewText = `${bName}${hasCity ? ` in ${city}, ${state}${zip ? ' ' + zip : ''}` : ''} is a verified ${isOnlineOnly ? 'brand partner' : 'local business'} on Perkfinity specializing in ${nicheLabel}. Members unlock an exclusive deal at ${bName}: "${offer}". ${redeemSentence} Popular member searches and savings include ${topSpecialtySummary}.`;
+    seoOverviewText = `${bName}${hasCity ? ` in ${city}, ${state}${zip ? ' ' + zip : ''}` : ''} is a verified ${isOnlineOnly ? 'brand partner' : 'local business'} on Perkfinity${cleanOfficialCat ? ` in ${cleanOfficialCat}` : ''}. Members unlock an exclusive deal and perk at ${bName}: "${offer}". ${redeemSentence}`;
   }
 
   const faqItems = (isOnlineOnly && !hasCity)
     ? [
         {
-          q: `What promo codes or deals does ${bName} offer?`,
-          a: `${bName} offers a verified Perkfinity member perk for ${nicheLabel}: "${offer}". Coverage includes ${topSpecialtySummary}. This offer is unlocked inside the free Perkfinity app and available nationwide.`
+          q: `What promo codes, deals, or offers does ${bName} have?`,
+          a: `${bName} offers a verified Perkfinity member perk: "${offer}". This offer is unlocked inside the free Perkfinity app and available nationwide.`
         },
         {
           q: `How do I claim the ${bName} promo code or discount?`,
@@ -329,8 +333,8 @@ function buildStorePageHtml(m, allMerchants) {
       ]
     : [
         {
-          q: `What deals or coupons does ${bName}${hasCity ? ` in ${city}` : ''} offer?`,
-          a: `${bName} in ${locationLabel} offers a verified Perkfinity member perk for ${nicheLabel}: "${offer}". Coverage includes ${topSpecialtySummary}.`
+          q: `What deals, coupons, or offers does ${bName}${hasCity ? ` in ${city}` : ''} provide?`,
+          a: `${bName} in ${locationLabel} offers a verified Perkfinity member perk: "${offer}".`
         },
         {
           q: `How do I claim the ${bName} discount in ${locationLabel}?`,
@@ -362,10 +366,26 @@ function buildStorePageHtml(m, allMerchants) {
     }))
   };
 
+  const webPageSchemaNode = {
+    "@type": "WebPage",
+    "@id": `${canonicalUrl}#webpage`,
+    "url": canonicalUrl,
+    "name": seo.pageTitle,
+    "description": seo.metaDescription,
+    "keywords": seo.metaKeywords,
+    "about": { "@id": `${canonicalUrl}#business` },
+    "isPartOf": {
+      "@type": "WebSite",
+      "name": "Perkfinity",
+      "url": "https://www.perkfinity.net"
+    }
+  };
+
   const schemaGraph = {
     "@context": "https://schema.org",
     "@graph": [
       primarySchemaNode,
+      webPageSchemaNode,
       breadcrumbSchemaNode,
       faqSchemaNode
     ]
@@ -660,7 +680,7 @@ function buildStorePageHtml(m, allMerchants) {
           ${bannerUrl ? `
             <div class="store-banner-wrap">
               <span id="sponsored-badge" class="store-sponsored-badge">Sponsored</span>
-              <img src="${escapeHtml(bannerUrl)}" alt="${escapeHtml(bName)} — ${escapeHtml(seo.primaryNiche)} ${(isOnlineOnly && !hasCity) ? 'Promo Codes & Deals' : 'in ' + escapeHtml(city) + ', ' + escapeHtml(state)}" class="store-banner-img" onerror="this.style.display='none';">
+              <img src="${escapeHtml(bannerUrl)}" alt="${escapeHtml(bName)}${(isOnlineOnly && !hasCity) ? ' — Verified Deals, Perks &amp; Promo Codes' : ' in ' + escapeHtml(city) + ', ' + escapeHtml(state) + ' — Perkfinity Deals'}" class="store-banner-img" onerror="this.style.display='none';">
             </div>
           ` : ''}
 

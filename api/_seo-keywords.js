@@ -650,6 +650,35 @@ function refineMatchedRule(rule, merchantText) {
       };
     }
   }
+  if (rule.id === 'restaurant_dining') {
+    if (/\b(italian|italy|pasta|risotto|trattoria|osteria|tiramisu|lasagna)\b/i.test(merchantText)) {
+      return {
+        ...rule,
+        primaryNiche: 'Italian Restaurant & Catering',
+        keywords: [
+          'Italian restaurant deals',
+          'Italian dining coupons',
+          'Italian catering specials',
+          'pasta & gourmet Italian discounts',
+          'lunch & dinner offers',
+          'local Italian food vouchers'
+        ]
+      };
+    }
+    if (/\b(catering|caterer|corporate\s+catering|event\s+catering)\b/i.test(merchantText)) {
+      return {
+        ...rule,
+        primaryNiche: 'Restaurant & Event Catering',
+        keywords: [
+          'catering deals',
+          'restaurant & event catering coupons',
+          'party & corporate catering discounts',
+          'dining & food offers',
+          'local restaurant vouchers'
+        ]
+      };
+    }
+  }
   if (rule.id === 'coffee_tea_chai') {
     if (/\b(chai|matcha|tea|boba)\b/i.test(merchantText) && !/\b(coffee|espresso|roaster\w*)\b/i.test(merchantText)) {
       return {
@@ -691,8 +720,16 @@ const SPECIALTY_TERM_EXTRACTORS = [
   { test: /\bmatcha\b/i, term: 'ceremonial matcha' },
   { test: /\breiki\b/i, term: 'Reiki energy healing' },
   { test: /\baesthetic\s+(?:medicine|procedure)/i, term: 'aesthetic medicine & injectables' },
+  { test: /\bbotox\b|\bdysport\b|\bfiller\w*\b/i, term: 'Botox & cosmetic fillers' },
   { test: /\bhawaiian\s+shirts\b/i, term: 'USA-made Hawaiian shirts' },
-  { test: /\btandoori\b|\bbiryani\b/i, term: 'tandoori specialties & biryani' }
+  { test: /\btandoori\b|\bbiryani\b/i, term: 'tandoori specialties & biryani' },
+  { test: /\bitalian\b|\bitaly\b|\bpasta\b/i, term: 'Italian cuisine & dining' },
+  { test: /\bcatering\b/i, term: 'event & party catering' },
+  { test: /\bgourmet\b/i, term: 'gourmet dining' },
+  { test: /\bsmoothie\w*\b|\bacai\b/i, term: 'smoothies & acai bowls' },
+  { test: /\bhaircut\w*\b|\bbarber/i, term: 'haircuts & grooming' },
+  { test: /\bstem\b|\bcoding\b|\brobotics\b/i, term: 'STEM & coding classes' },
+  { test: /\bvoip\b|\bucaas\b|\btelecom\b/i, term: 'UCaaS & cloud telecom' }
 ];
 
 function extractDynamicSpecialtyTerms(bName, desc, offer) {
@@ -701,7 +738,7 @@ function extractDynamicSpecialtyTerms(bName, desc, offer) {
   for (const item of SPECIALTY_TERM_EXTRACTORS) {
     if (item.test.test(fullText)) {
       found.push(item.term);
-      if (found.length >= 4) break;
+      if (found.length >= 8) break;
     }
   }
   return found;
@@ -846,56 +883,88 @@ function classifyMerchantSEO(m) {
   });
 
   const shortOffer = extractShortOfferHook(offer);
-  const localizedKeywords = [];
+  const regionHub = city ? resolveRegionHub(city, state) : null;
+  const intentModifiers = ['deals', 'offers', 'perks', 'coupons', 'vouchers'];
 
-  if (city) {
-    serviceKeywords.forEach(kw => {
-      localizedKeywords.push(`${kw} in ${city}`);
-      localizedKeywords.push(`${city} ${kw}`);
-    });
+  // Extract clean root stems (without trailing modifier) to pair with deals/offers/perks/coupons/vouchers
+  const rawStems = [];
+  const addStem = (s) => {
+    const cleaned = String(s || '')
+      .replace(/[^\w\s&'-]/g, ' ')
+      .replace(/\b(deals?|offers?|perks?|coupons?|vouchers?|discounts?|specials?|promo\s+codes?|and)\s*$/i, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+    if (cleaned && cleaned.length >= 3 && !rawStems.some(x => x.toLowerCase() === cleaned.toLowerCase())) {
+      rawStems.push(cleaned);
+    }
+  };
+  dynamicTerms.forEach(addStem);
+  serviceKeywords.forEach(addStem);
+  if (rawCat && !/^other$/i.test(rawCat)) {
+    rawCat.split(/[,&/]/).forEach(part => addStem(part));
+  }
+  const topStems = rawStems.slice(0, 7);
+
+  const expandedSearchTerms = [];
+  // 1. Store-specific searches with all 5 required modifiers + discounts/promo codes
+  intentModifiers.forEach(mod => {
+    expandedSearchTerms.push(`${bName} ${mod}`);
+    if (city) expandedSearchTerms.push(`${bName} ${city} ${mod}`);
+  });
+  expandedSearchTerms.push(`${bName} discounts`, `${bName} promo codes`, `${bName} specials`);
+
+  // 2. Location / Online umbrella discovery keywords across all 5 modifiers
+  if (isOnlineOnlyNoCity) {
+    intentModifiers.forEach(mod => expandedSearchTerms.push(`online ${mod}`, `brand ${mod}`));
+    expandedSearchTerms.push('online promo codes', 'digital vouchers', 'verified brand discounts');
+  } else {
+    if (city) {
+      intentModifiers.forEach(mod => expandedSearchTerms.push(`${city} ${mod}`, `${city} local ${mod}`));
+      expandedSearchTerms.push(`${city} ${state} deals & coupons`);
+    }
+    if (regionHub && regionHub.isCountyHub) {
+      intentModifiers.forEach(mod => expandedSearchTerms.push(`${regionHub.name} ${mod}`));
+    }
+    if (zip) {
+      expandedSearchTerms.push(`${zip} deals`, `${zip} coupons`, `${zip} vouchers`, `${zip} offers`, `${zip} perks`);
+    }
   }
 
-  const allKeywords = isOnlineOnlyNoCity
-    ? [
-        `${bName} promo code`,
-        `${bName} discount code`,
-        `${bName} deals`,
-        `${bName} coupons`,
-        `${bName} discounts`,
-        ...serviceKeywords,
-        'online promo codes',
-        'verified brand deals',
-        'Perkfinity'
-      ].filter(Boolean)
-    : [
-        `${bName} deals`,
-        `${bName} coupons`,
-        `${bName} discounts`,
-        `${bName} ${city}`,
-        ...localizedKeywords.slice(0, 10),
-        ...serviceKeywords,
-        `${city} deals`,
-        `${city} coupons`,
-        zip ? `${zip} local deals` : null,
-        'Perkfinity'
-      ].filter(Boolean);
-
-  const seen = new Set();
-  const dedupedKeywords = allKeywords.filter(k => {
-    const low = k.toLowerCase();
-    if (seen.has(low)) return false;
-    seen.add(low);
-    return true;
+  // 3. Niche, extracted specialty & official category stems paired with deals, offers, perks, coupons, vouchers
+  topStems.forEach((stem, idx) => {
+    intentModifiers.forEach(mod => {
+      expandedSearchTerms.push(`${stem} ${mod}`);
+      if (city) {
+        expandedSearchTerms.push(`${city} ${stem} ${mod}`);
+        if (idx < 2) {
+          expandedSearchTerms.push(`${stem} ${mod} in ${city}`);
+        }
+      }
+    });
   });
 
+  expandedSearchTerms.push(...serviceKeywords, 'Perkfinity', 'Perkfinity perks', 'Perkfinity deals');
+
+  const seen = new Set();
+  const allSearchKeywords = expandedSearchTerms
+    .map(k => String(k || '').replace(/\s+/g, ' ').trim())
+    .filter(k => {
+      if (!k) return false;
+      const low = k.toLowerCase();
+      if (seen.has(low)) return false;
+      seen.add(low);
+      return true;
+    });
+
+  // Clean title without guessed category labels (avoids visible misclassification)
   const pageTitle = isOnlineOnlyNoCity
-    ? `${bName} — ${matchedRule.primaryNiche} Promo Codes, Coupons & Deals (${shortOffer}) | Perkfinity`
-    : `${bName} — ${matchedRule.primaryNiche} Deals & Coupons in ${city}, ${state} (${shortOffer}) | Perkfinity`;
+    ? `${bName} — Deals, Offers, Perks, Coupons & Vouchers (${shortOffer}) | Perkfinity`
+    : `${bName} — Deals, Offers, Perks, Coupons & Vouchers in ${city}, ${state} (${shortOffer}) | Perkfinity`;
 
   const cleanDescSnippet = buildSmartBioSnippet(bName, desc);
   const metaDescription = isOnlineOnlyNoCity
-    ? `${offer} at ${bName}. Verified ${serviceKeywords.slice(0, 3).join(', ')}, promo codes & online brand perks on Perkfinity.${cleanDescSnippet}`
-    : `${offer} at ${bName} in ${city}, ${state}${zip ? ' ' + zip : ''}. Verified ${serviceKeywords.slice(0, 3).join(', ')} on Perkfinity.${cleanDescSnippet}`;
+    ? `${offer} at ${bName}. Unlock verified ${bName} deals, offers, member perks, coupons, promo codes & vouchers on Perkfinity.${cleanDescSnippet}`
+    : `${offer} at ${bName} in ${city}, ${state}${zip ? ' ' + zip : ''}. Unlock verified local deals, offers, perks, coupons & vouchers on Perkfinity.${cleanDescSnippet}`;
 
   return {
     nicheId: matchedRule.id,
@@ -905,7 +974,8 @@ function classifyMerchantSEO(m) {
     shortOffer,
     pageTitle,
     metaDescription: metaDescription.slice(0, 310),
-    metaKeywords: dedupedKeywords.slice(0, 20).join(', '),
+    metaKeywords: allSearchKeywords.slice(0, 95).join(', '),
+    allSearchKeywords: allSearchKeywords.slice(0, 95),
     serviceKeywords
   };
 }
