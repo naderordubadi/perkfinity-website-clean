@@ -154,7 +154,7 @@ function buildStorePageHtml(m, allMerchants) {
   const attributedWebsiteUrl = buildAttributedUrl(website, 'web_store_page', 'official_website');
   const reviewBtnLabel = getReviewSocialBtnLabel(reviewUrl, m.rating_platform, m.rating_score);
   const qrPublicCode = m.qr_public_code || '';
-  const joinUrl = `https://perkfinity.net/join/${qrPublicCode}`;
+  const joinUrl = `https://www.perkfinity.net/join/${qrPublicCode}`;
   const canonicalUrl = `https://www.perkfinity.net/store/${slug}`;
   const citySlug = hasCity ? slugify(city) : 'orange-county';
 
@@ -721,7 +721,7 @@ function buildStorePageHtml(m, allMerchants) {
             <div class="qr-canvas-holder" id="qr-container">
               <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&amp;data=${encodeURIComponent(joinUrl)}" alt="Perkfinity Counter QR Code" width="180" height="180" style="border-radius:12px; display:block;" />
             </div>
-            <a href="${joinUrl}" target="_blank" rel="noopener" class="qr-link">${escapeHtml(joinUrl)}</a>
+            <a href="${joinUrl}" target="_blank" rel="noopener nofollow" class="qr-link">${escapeHtml(joinUrl)}</a>
 
             <div class="qr-paths">
               <div class="qr-path-amber">
@@ -804,7 +804,7 @@ function buildStorePageHtml(m, allMerchants) {
           <div class="qr-canvas-holder" id="qr-container" style="width:160px; height:160px; margin:0 auto 12px;">
             <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&amp;data=${encodeURIComponent(joinUrl)}" alt="Perkfinity Counter QR Code" width="160" height="160" style="border-radius:12px; display:block;" />
           </div>
-          <a href="${joinUrl}" target="_blank" rel="noopener" class="qr-link">${escapeHtml(joinUrl)}</a>
+          <a href="${joinUrl}" target="_blank" rel="noopener nofollow" class="qr-link">${escapeHtml(joinUrl)}</a>
         </div>
 
         <div class="qr-paths" style="margin-bottom:20px;">

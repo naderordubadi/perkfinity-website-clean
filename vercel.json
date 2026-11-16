@@ -17,7 +17,7 @@
     { "source": "/deals/:location", "destination": "/api/deals-page?location=:location" },
     { "source": "/sitemap.xml", "destination": "/api/sitemap" },
     { "source": "/sitemap-live.xml", "destination": "/api/sitemap" },
-    { "source": "/join/:code", "destination": "/join/index.html" },
+    { "source": "/join/:code", "destination": "/join" },
     { "source": "/codes", "destination": "/api/deals-page?mode=codes" },
     {
       "source": "/localperks.html",
