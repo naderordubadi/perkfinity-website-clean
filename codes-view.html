@@ -790,7 +790,7 @@
   
   <!-- Shared Modal Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
-  <script src="assets/js/merchant-modals.js?v=2.0"></script>
+  <script src="/assets/js/merchant-modals.js?v=2.1"></script>
   <script>
     const BACKEND = (typeof PerkfinityConfig !== 'undefined') ? PerkfinityConfig.BACKEND_URL : 'https://perkfinity-backend.vercel.app';
     function slugify(text) {
@@ -933,7 +933,7 @@
         const brandSlug = slugify(brandName);
         const card = document.createElement('article');
         card.className = 'brand-card';
-        card.onclick = () => openPopup(b);
+        card.onclick = () => openOnlineBrandCard(b);
         card.innerHTML = `
           ${coverHtml}
           <div class="brand-card-top">
@@ -979,9 +979,18 @@
       loadBrands(activeCategory);
     }
 
+    function openOnlineBrandCard(b) {
+      if (!b) return;
+      const isVip = Boolean(b.is_fullpage_sponsored && (!b.fullpage_sponsored_until || new Date(b.fullpage_sponsored_until) >= new Date()));
+      if (!isVip && typeof window.trackOutboundClick === 'function') {
+        window.trackOutboundClick(b.id, 'view', null, 'web_codes', 'web');
+      }
+      openPopup(b, 'web_codes');
+    }
+
     function openPopupById(id) {
       const b = window._onlineBrandsMap ? window._onlineBrandsMap[id] : null;
-      if (b) openPopup(b);
+      if (b) openOnlineBrandCard(b);
     }
 
     
@@ -1043,8 +1052,13 @@
                 </div>
               </div>
             `;
-            // Re-use openPopup for carousel items too!
-            item.onclick = () => openPopup(m);
+            // Re-use openPopup for carousel items too, and track carousel click!
+            item.onclick = () => {
+              if (typeof window.trackOutboundClick === 'function') {
+                window.trackOutboundClick(m.id, 'view', null, 'web_sponsored', 'web');
+              }
+              openPopup(m, 'web_codes');
+            };
             track.appendChild(item);
           });
 

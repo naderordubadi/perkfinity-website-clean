@@ -446,11 +446,16 @@
       <div style="background:var(--card2);border:1px solid var(--border);border-radius:14px;padding:18px 20px;margin-bottom:22px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-size:12.5px;font-weight:700;">
           <span>📱 Mobile App: <strong id="channel-app-val">0</strong> (<span id="channel-app-pct">0%</span>)</span>
-          <span>💻 Web &amp; Directory: <strong id="channel-web-val">0</strong> (<span id="channel-web-pct">0%</span>)</span>
+          <span>💻 Web &amp; Search: <strong id="channel-web-val">0</strong> (<span id="channel-web-pct">0%</span>)</span>
         </div>
         <div style="height:10px;background:rgba(255,255,255,0.06);border-radius:999px;overflow:hidden;display:flex;">
           <div id="channel-app-bar" style="width:50%;background:#7c5cc2;transition:width 0.4s ease;"></div>
           <div id="channel-web-bar" style="width:50%;background:#22c55e;transition:width 0.4s ease;"></div>
+        </div>
+        <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border);display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;font-size:11.5px;color:var(--muted);font-weight:600;">
+          <span>🔍 Store SEO Pages: <strong style="color:var(--text);" id="rep-web-store-seo">0</strong></span>
+          <span>🏙️ City Deal Hubs: <strong style="color:var(--text);" id="rep-web-city-hubs">0</strong></span>
+          <span>🌐 Directory &amp; Codes: <strong style="color:var(--text);" id="rep-web-directory">0</strong></span>
         </div>
       </div>
 
@@ -1409,6 +1414,14 @@
 
     document.getElementById('channel-app-bar').style.width = (totalViews > 0 ? appPct : 50) + '%';
     document.getElementById('channel-web-bar').style.width = (totalViews > 0 ? webPct : 50) + '%';
+
+    const webSrc = metrics.channels?.web_sources || {};
+    const repStoreSeoEl = document.getElementById('rep-web-store-seo');
+    const repCityHubsEl = document.getElementById('rep-web-city-hubs');
+    const repWebDirEl = document.getElementById('rep-web-directory');
+    if (repStoreSeoEl) repStoreSeoEl.textContent = (webSrc.store_seo_pages || 0).toLocaleString();
+    if (repCityHubsEl) repCityHubsEl.textContent = (webSrc.city_deal_hubs || 0).toLocaleString();
+    if (repWebDirEl) repWebDirEl.textContent = (webSrc.web_directory || 0).toLocaleString();
 
     // Itemized Actions
     const acts = metrics.actions_breakdown || {};

@@ -136,11 +136,16 @@ function buildStorePageHtml(m, allMerchants) {
   const state = m.state || 'CA';
   const zip = m.postal_code || '';
   const address = m.address || '';
+  const isMobileBiz = m.business_presence === 'mobile' || address === 'Mobile Business';
   const fullAddr = [address, hasCity ? city : '', hasCity ? state : '', zip].filter(Boolean).join(', ');
+  const mapsDirectionsUrl = (!isOnlineOnly && !isMobileBiz && address && fullAddr)
+    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fullAddr)}`
+    : '';
   const locationDisplay = (isOnlineOnly && !hasCity) ? 'Online Brand (Nationwide)' : `${city}, ${state}`;
   const offer = m.welcome_offer_text || 'Exclusive Member Perk';
   const category = m.business_category || (isOnlineOnly ? 'Online Shopping & Brand Perks' : 'Local Dining & Retail');
   const isVip = Boolean(m.is_fullpage_sponsored && (!m.fullpage_sponsored_until || new Date(m.fullpage_sponsored_until) >= new Date()));
+  const storeSource = isVip ? 'web_store_page_vip' : 'web_store_page';
   const bannerUrl = isVip ? (m.promo_banner_url || m.cover_photo_url || '') : '';
   const logoUrl = m.logo_url || '';
   const phone = formatPhone(m.public_phone || '');
@@ -149,9 +154,9 @@ function buildStorePageHtml(m, allMerchants) {
   const website = m.website || '';
   const orderUrl = m.order_url || '';
   const reviewUrl = m.review_url || '';
-  const attributedOrderUrl = buildAttributedUrl(orderUrl, 'web_store_page', 'order_booking');
-  const attributedReviewUrl = buildAttributedUrl(reviewUrl, 'web_store_page', 'review_social');
-  const attributedWebsiteUrl = buildAttributedUrl(website, 'web_store_page', 'official_website');
+  const attributedOrderUrl = buildAttributedUrl(orderUrl, storeSource, 'order_booking');
+  const attributedReviewUrl = buildAttributedUrl(reviewUrl, storeSource, 'review_social');
+  const attributedWebsiteUrl = buildAttributedUrl(website, storeSource, 'official_website');
   const reviewBtnLabel = getReviewSocialBtnLabel(reviewUrl, m.rating_platform, m.rating_score);
   const qrPublicCode = m.qr_public_code || '';
   const joinUrl = `https://www.perkfinity.net/join/${qrPublicCode}`;
@@ -425,7 +430,7 @@ function buildStorePageHtml(m, allMerchants) {
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <script src="/config.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
-  <script src="/assets/js/merchant-modals.js?v=2.0"></script>
+  <script src="/assets/js/merchant-modals.js?v=2.1"></script>
 
   <style>
     *, *::before, *::after { box-sizing: border-box; }
@@ -741,21 +746,23 @@ function buildStorePageHtml(m, allMerchants) {
           </div>
 
           <div class="action-btn-group">
-            ${orderUrl ? `<a href="${escapeHtml(attributedOrderUrl)}" target="_blank" rel="noopener nofollow" onclick="if(window.trackOutboundClick)window.trackOutboundClick('${escapeHtml(m.id)}','order','${escapeHtml(attributedOrderUrl)}','web_store_page')" class="act-btn act-btn-order">🛒 Order / Book Now</a>` : ''}
-            ${reviewUrl ? `<a href="${escapeHtml(attributedReviewUrl)}" target="_blank" rel="noopener nofollow" onclick="if(window.trackOutboundClick)window.trackOutboundClick('${escapeHtml(m.id)}','review_social','${escapeHtml(attributedReviewUrl)}','web_store_page')" class="act-btn act-btn-review">${escapeHtml(reviewBtnLabel)}</a>` : ''}
-            ${website ? `<a href="${escapeHtml(attributedWebsiteUrl)}" target="_blank" rel="noopener nofollow" onclick="if(window.trackOutboundClick)window.trackOutboundClick('${escapeHtml(m.id)}','website','${escapeHtml(attributedWebsiteUrl)}','web_store_page')" class="act-btn act-btn-web">🌐 Official Website</a>` : ''}
-            ${cleanPhone ? `<a href="tel:${escapeHtml(cleanPhone)}" onclick="if(window.trackOutboundClick)window.trackOutboundClick('${escapeHtml(m.id)}','phone','tel:${escapeHtml(cleanPhone)}','web_store_page')" class="act-btn act-btn-phone">📞 Call Business</a>` : ''}
-            ${email ? `<a href="mailto:${escapeHtml(email)}" onclick="if(window.trackOutboundClick)window.trackOutboundClick('${escapeHtml(m.id)}','email','mailto:${escapeHtml(email)}','web_store_page')" class="act-btn act-btn-email">✉️ Email Business</a>` : ''}
+            ${orderUrl ? `<a href="${escapeHtml(attributedOrderUrl)}" target="_blank" rel="noopener nofollow" onclick="if(window.trackOutboundClick)window.trackOutboundClick('${escapeHtml(m.id)}','order','${escapeHtml(attributedOrderUrl)}','${storeSource}')" class="act-btn act-btn-order">🛒 Order / Book Now</a>` : ''}
+            ${reviewUrl ? `<a href="${escapeHtml(attributedReviewUrl)}" target="_blank" rel="noopener nofollow" onclick="if(window.trackOutboundClick)window.trackOutboundClick('${escapeHtml(m.id)}','review_social','${escapeHtml(attributedReviewUrl)}','${storeSource}')" class="act-btn act-btn-review">${escapeHtml(reviewBtnLabel)}</a>` : ''}
+            ${website ? `<a href="${escapeHtml(attributedWebsiteUrl)}" target="_blank" rel="noopener nofollow" onclick="if(window.trackOutboundClick)window.trackOutboundClick('${escapeHtml(m.id)}','website','${escapeHtml(attributedWebsiteUrl)}','${storeSource}')" class="act-btn act-btn-web">🌐 Official Website</a>` : ''}
+            ${cleanPhone ? `<a href="tel:${escapeHtml(cleanPhone)}" onclick="if(window.trackOutboundClick)window.trackOutboundClick('${escapeHtml(m.id)}','phone','tel:${escapeHtml(cleanPhone)}','${storeSource}')" class="act-btn act-btn-phone">📞 Call Business</a>` : ''}
+            ${email ? `<a href="mailto:${escapeHtml(email)}" onclick="if(window.trackOutboundClick)window.trackOutboundClick('${escapeHtml(m.id)}','email','mailto:${escapeHtml(email)}','${storeSource}')" class="act-btn act-btn-email">✉️ Email Business</a>` : ''}
           </div>
 
-          ${fullAddr ? `
+          ${(fullAddr && !isOnlineOnly && !isMobileBiz) ? `
             <div style="width:100%; margin-top:20px;">
               <div style="font-weight:700; font-size:13.5px; color:#1E293B; margin-bottom:8px;">📍 Where To Redeem</div>
               <div class="store-map-wrap" style="margin-top:0;">
                 <iframe width="100%" height="180" frameborder="0" style="border:0;" src="https://maps.google.com/maps?q=${encodeURIComponent(fullAddr)}&t=&z=14&ie=UTF8&iwloc=&output=embed" allowfullscreen loading="lazy"></iframe>
               </div>
               <div class="store-address-text">
-                <span>📍 ${escapeHtml(fullAddr)}</span>
+                ${mapsDirectionsUrl
+                  ? `<a href="${escapeHtml(mapsDirectionsUrl)}" target="_blank" rel="noopener nofollow" onclick="if(window.trackOutboundClick)window.trackOutboundClick('${escapeHtml(m.id)}','map_directions','${escapeHtml(mapsDirectionsUrl)}','${storeSource}')" style="color:#5B3FA5; font-weight:700; text-decoration:underline;">📍 ${escapeHtml(fullAddr)} · Get Directions ↗</a>`
+                  : `<span>📍 ${escapeHtml(fullAddr)}</span>`}
               </div>
             </div>
           ` : (isOnlineOnly ? `
@@ -783,11 +790,12 @@ function buildStorePageHtml(m, allMerchants) {
               <span>•</span>
               <span>${(isOnlineOnly && !hasCity) ? '🌐 ' + escapeHtml(locationDisplay) : '📍 ' + escapeHtml(locationDisplay)}</span>
             </div>
-            ${(cleanPhone || email || website) ? `
+            ${(cleanPhone || email || website || mapsDirectionsUrl) ? `
               <div class="standard-contact-links">
                 ${cleanPhone ? `<a href="tel:${escapeHtml(cleanPhone)}" onclick="if(window.trackOutboundClick)window.trackOutboundClick('${escapeHtml(m.id)}','phone','tel:${escapeHtml(cleanPhone)}','web_store_page')">📞 Call Business</a>` : ''}
                 ${email ? `<a href="mailto:${escapeHtml(email)}" onclick="if(window.trackOutboundClick)window.trackOutboundClick('${escapeHtml(m.id)}','email','mailto:${escapeHtml(email)}','web_store_page')">✉️ Email Business</a>` : ''}
                 ${website ? `<a href="${escapeHtml(attributedWebsiteUrl)}" target="_blank" rel="noopener nofollow" onclick="if(window.trackOutboundClick)window.trackOutboundClick('${escapeHtml(m.id)}','website','${escapeHtml(attributedWebsiteUrl)}','web_store_page')">🌐 Website</a>` : ''}
+                ${mapsDirectionsUrl ? `<a href="${escapeHtml(mapsDirectionsUrl)}" target="_blank" rel="noopener nofollow" onclick="if(window.trackOutboundClick)window.trackOutboundClick('${escapeHtml(m.id)}','map_directions','${escapeHtml(mapsDirectionsUrl)}','web_store_page')">📍 Directions</a>` : ''}
               </div>
             ` : ''}
           </div>
@@ -895,6 +903,31 @@ function buildStorePageHtml(m, allMerchants) {
   <!-- Real-Time Client Hydration & QR Code Enhancement -->
   <script>
     (function() {
+      const storeMerchantId = "${escapeHtml(m.id)}";
+      const storeViewAction = "${isVip ? 'vip_takeover' : 'view'}";
+      const storeViewSource = "${storeSource}";
+
+      function recordStorePageImpressionOnce() {
+        if (!storeMerchantId || typeof window.trackOutboundClick !== 'function') return;
+        const storageKey = 'pf_store_view_' + storeMerchantId;
+        try {
+          if (window.sessionStorage && window.sessionStorage.getItem(storageKey)) return;
+          if (window.sessionStorage) window.sessionStorage.setItem(storageKey, '1');
+        } catch (e) {}
+        window.trackOutboundClick(storeMerchantId, storeViewAction, window.location.href, storeViewSource, 'web');
+      }
+
+      if (document.visibilityState === 'visible') {
+        recordStorePageImpressionOnce();
+      } else {
+        document.addEventListener('visibilitychange', function onVis() {
+          if (document.visibilityState === 'visible') {
+            document.removeEventListener('visibilitychange', onVis);
+            recordStorePageImpressionOnce();
+          }
+        });
+      }
+
       const joinUrl = "${joinUrl}";
       const qrCanvasSize = ${isVip ? 180 : 160};
       if (typeof QRCode !== 'undefined') {

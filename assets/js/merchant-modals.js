@@ -50,13 +50,22 @@ window.trackOutboundClick = function(merchantId, actionType, targetUrl, source =
   }
 };
 
+window.getWebAttributionSource = function() {
+  if (typeof window === 'undefined' || !window.location) return 'web_localperks';
+  const p = window.location.pathname || '';
+  if (p.startsWith('/deals/')) return 'web_deals_city';
+  if (p.startsWith('/codes')) return 'web_codes';
+  if (p.startsWith('/store/')) return 'web_store_page';
+  return 'web_localperks';
+};
+
 window.closeFullPageTakeover = function() {
   const modal = document.getElementById('fullpage-takeover-overlay');
   if (modal) modal.style.display = 'none';
   document.body.style.overflow = '';
 };
 
-window.openFullPageTakeover = function(merchant) {
+window.openFullPageTakeover = function(merchant, sourceContext) {
   let modal = document.getElementById('fullpage-takeover-overlay');
   if (!modal) {
     modal = document.createElement('div');
@@ -70,9 +79,12 @@ window.openFullPageTakeover = function(merchant) {
     document.body.appendChild(modal);
   }
 
+  const baseSrc = sourceContext || window.getWebAttributionSource();
+  const vipSource = baseSrc.startsWith('web_deals_city') ? 'web_deals_city_vip' : 'web_vip_takeover';
+
   // Telemetry: record VIP takeover view
   if (merchant.id) {
-    window.trackOutboundClick(merchant.id, 'vip_takeover', null, 'web_vip_takeover', 'web');
+    window.trackOutboundClick(merchant.id, 'vip_takeover', null, vipSource, 'web');
   }
 
   const isHybrid = merchant.business_presence === 'hybrid';
@@ -101,23 +113,28 @@ window.openFullPageTakeover = function(merchant) {
   window.getReviewSocialBtnLabel = getReviewSocialBtnLabel;
 
   const reviewBtnLabel = getReviewSocialBtnLabel(merchant.review_url, merchant.rating_platform, merchant.rating_score, false);
-  const attributedOrderUrl = window.buildAttributedUrl(merchant.order_url, 'web_vip_takeover', 'order_booking');
-  const attributedReviewUrl = window.buildAttributedUrl(merchant.review_url, 'web_vip_takeover', 'review_social');
-  const attributedWebsiteUrl = window.buildAttributedUrl(merchant.website, 'web_vip_takeover', 'official_website');
+  const attributedOrderUrl = window.buildAttributedUrl(merchant.order_url, vipSource, 'order_booking');
+  const attributedReviewUrl = window.buildAttributedUrl(merchant.review_url, vipSource, 'review_social');
+  const attributedWebsiteUrl = window.buildAttributedUrl(merchant.website, vipSource, 'official_website');
 
-  const orderBtn = merchant.order_url ? `<a href="${attributedOrderUrl}" target="_blank" onclick="window.trackOutboundClick('${merchant.id}', 'order', '${attributedOrderUrl}', 'web_vip_takeover')" style="background:#16A34A; color:#fff; padding:12px 20px; border-radius:10px; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; gap:8px; width:100%; box-sizing:border-box;">🛒 Order / Book Now</a>` : '';
-  const reviewBtn = merchant.review_url ? `<a href="${attributedReviewUrl}" target="_blank" onclick="window.trackOutboundClick('${merchant.id}', 'review_social', '${attributedReviewUrl}', 'web_vip_takeover')" style="background:#3B82F6; color:#fff; padding:12px 20px; border-radius:10px; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; gap:8px; width:100%; box-sizing:border-box;">${reviewBtnLabel}</a>` : '';
-  const websiteBtn = merchant.website ? `<a href="${attributedWebsiteUrl}" target="_blank" onclick="window.trackOutboundClick('${merchant.id}', 'website', '${attributedWebsiteUrl}', 'web_vip_takeover')" style="background:#64748B; color:#fff; padding:12px 20px; border-radius:10px; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; gap:8px; width:100%; box-sizing:border-box;">🌐 Official Website</a>` : '';
-  const phoneBtn = merchant.public_phone ? `<a href="tel:${merchant.public_phone.replace(/\D/g, '')}" onclick="window.trackOutboundClick('${merchant.id}', 'phone', 'tel:${merchant.public_phone}', 'web_vip_takeover')" style="background:#0D9488; color:#fff; padding:12px 20px; border-radius:10px; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; gap:8px; width:100%; box-sizing:border-box;">📞 Call Business</a>` : '';
-  const emailBtn = merchant.public_email ? `<a href="mailto:${merchant.public_email}" onclick="window.trackOutboundClick('${merchant.id}', 'email', 'mailto:${merchant.public_email}', 'web_vip_takeover')" style="background:#4F46E5; color:#fff; padding:12px 20px; border-radius:10px; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; gap:8px; width:100%; box-sizing:border-box;">✉️ Email Business</a>` : '';
+  const orderBtn = merchant.order_url ? `<a href="${attributedOrderUrl}" target="_blank" onclick="window.trackOutboundClick('${merchant.id}', 'order', '${attributedOrderUrl}', '${vipSource}')" style="background:#16A34A; color:#fff; padding:12px 20px; border-radius:10px; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; gap:8px; width:100%; box-sizing:border-box;">🛒 Order / Book Now</a>` : '';
+  const reviewBtn = merchant.review_url ? `<a href="${attributedReviewUrl}" target="_blank" onclick="window.trackOutboundClick('${merchant.id}', 'review_social', '${attributedReviewUrl}', '${vipSource}')" style="background:#3B82F6; color:#fff; padding:12px 20px; border-radius:10px; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; gap:8px; width:100%; box-sizing:border-box;">${reviewBtnLabel}</a>` : '';
+  const websiteBtn = merchant.website ? `<a href="${attributedWebsiteUrl}" target="_blank" onclick="window.trackOutboundClick('${merchant.id}', 'website', '${attributedWebsiteUrl}', '${vipSource}')" style="background:#64748B; color:#fff; padding:12px 20px; border-radius:10px; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; gap:8px; width:100%; box-sizing:border-box;">🌐 Official Website</a>` : '';
+  const phoneBtn = merchant.public_phone ? `<a href="tel:${merchant.public_phone.replace(/\D/g, '')}" onclick="window.trackOutboundClick('${merchant.id}', 'phone', 'tel:${merchant.public_phone}', '${vipSource}')" style="background:#0D9488; color:#fff; padding:12px 20px; border-radius:10px; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; gap:8px; width:100%; box-sizing:border-box;">📞 Call Business</a>` : '';
+  const emailBtn = merchant.public_email ? `<a href="mailto:${merchant.public_email}" onclick="window.trackOutboundClick('${merchant.id}', 'email', 'mailto:${merchant.public_email}', '${vipSource}')" style="background:#4F46E5; color:#fff; padding:12px 20px; border-radius:10px; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; gap:8px; width:100%; box-sizing:border-box;">✉️ Email Business</a>` : '';
 
-  const fullAddr = [merchant.address_line1 || merchant.address, merchant.city, merchant.state, merchant.zip_code].filter(Boolean).join(', ');
-  const mapHtml = fullAddr ? `
+  const streetAddr = merchant.address_line1 || merchant.address || '';
+  const isMobileBiz = merchant.business_presence === 'mobile' || streetAddr === 'Mobile Business';
+  const fullAddr = [streetAddr, merchant.city, merchant.state, merchant.zip_code || merchant.postal_code].filter(Boolean).join(', ');
+  const mapsDirectionsUrl = fullAddr ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fullAddr)}` : '';
+  const mapHtml = (fullAddr && merchant.business_presence !== 'online' && !isMobileBiz) ? `
     <div style="border-radius:12px; overflow:hidden; border:1px solid #E2E8F0; height:180px; margin-top:8px;">
       <iframe width="100%" height="180" frameborder="0" style="border:0" src="https://maps.google.com/maps?q=${encodeURIComponent(fullAddr)}&t=&z=14&ie=UTF8&iwloc=&output=embed" allowfullscreen></iframe>
     </div>
-    <div style="font-size:12px; color:#64748B; margin-top:6px; font-weight:600;">📍 ${fullAddr}</div>
-  ` : (merchant.business_presence === 'online' ? `<div style="background:#F1F5F9; border-radius:12px; padding:16px; text-align:center; color:#64748B; font-weight:600; font-size:13px;">🌐 Online Store — Available Nationwide</div>` : `<div style="background:#F1F5F9; border-radius:12px; padding:16px; text-align:center; color:#64748B; font-weight:600; font-size:13px;">📍 Contact business for location details</div>`);
+    <div style="font-size:12px; margin-top:6px; font-weight:600;">
+      <a href="${mapsDirectionsUrl}" target="_blank" rel="noopener nofollow" onclick="window.trackOutboundClick('${merchant.id}', 'map_directions', '${mapsDirectionsUrl}', '${vipSource}')" style="color:#5B3FA5; text-decoration:underline;">📍 ${fullAddr} · Get Directions ↗</a>
+    </div>
+  ` : (merchant.business_presence === 'online' ? `<div style="background:#F1F5F9; border-radius:12px; padding:16px; text-align:center; color:#64748B; font-weight:600; font-size:13px;">🌐 Online Store — Available Nationwide</div>` : `<div style="background:#F1F5F9; border-radius:12px; padding:16px; text-align:center; color:#64748B; font-weight:600; font-size:13px;">📍 ${fullAddr || 'Contact business for location details'}</div>`);
 
   const businessName = merchant.business_name || merchant.merchant_name || 'Brand';
   const logoUrl = merchant.logo_url || 'https://perkfinity-backend.vercel.app/uploads/placeholder.jpg';
@@ -216,9 +233,10 @@ window.closePopup = function() {
   document.body.style.overflow = '';
 };
 
-window.openPopup = function(merchant) {
+window.openPopup = function(merchant, sourceContext) {
+  const src = sourceContext || window.getWebAttributionSource();
   if (merchant.is_fullpage_sponsored && (!merchant.fullpage_sponsored_until || new Date(merchant.fullpage_sponsored_until) >= new Date())) {
-    openFullPageTakeover(merchant);
+    openFullPageTakeover(merchant, src);
     return;
   }
 
@@ -240,11 +258,20 @@ window.openPopup = function(merchant) {
   const businessName = merchant.business_name || merchant.merchant_name || 'Brand';
   const offerText = merchant.welcome_offer_text || 'Exclusive member perk';
   const isOnlineOnly = merchant.business_presence === 'online';
+  const streetAddr = merchant.address_line1 || merchant.address || '';
+  const isMobileBiz = merchant.business_presence === 'mobile' || streetAddr === 'Mobile Business';
+  const fullAddr = [streetAddr, merchant.city, merchant.state, merchant.zip_code || merchant.postal_code].filter(Boolean).join(', ');
+  const mapsDirectionsUrl = (!isOnlineOnly && !isMobileBiz && streetAddr && fullAddr)
+    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fullAddr)}`
+    : '';
+  const attributedWebsiteUrl = merchant.website ? window.buildAttributedUrl(merchant.website, src, 'official_website').replace(/'/g, '%27') : '';
   const initials = businessName.split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
   
   let contactParts = [];
-  if (merchant.public_phone) contactParts.push(`<a href="tel:${merchant.public_phone}" onclick="window.trackOutboundClick('${merchant.id}', 'phone', 'tel:${merchant.public_phone}', 'web_localperks')" style="color:var(--purple);font-weight:700;text-decoration:none;">📞 Call Business</a>`);
-  if (merchant.public_email) contactParts.push(`<a href="mailto:${merchant.public_email}" onclick="window.trackOutboundClick('${merchant.id}', 'email', 'mailto:${merchant.public_email}', 'web_localperks')" style="color:var(--purple);font-weight:700;text-decoration:none;">✉️ Email Business</a>`);
+  if (merchant.public_phone) contactParts.push(`<a href="tel:${merchant.public_phone.replace(/\D/g, '')}" onclick="window.trackOutboundClick('${merchant.id}', 'phone', 'tel:${merchant.public_phone.replace(/\D/g, '')}', '${src}')" style="color:var(--purple);font-weight:700;text-decoration:none;">📞 Call Business</a>`);
+  if (merchant.public_email) contactParts.push(`<a href="mailto:${merchant.public_email}" onclick="window.trackOutboundClick('${merchant.id}', 'email', 'mailto:${merchant.public_email}', '${src}')" style="color:var(--purple);font-weight:700;text-decoration:none;">✉️ Email Business</a>`);
+  if (attributedWebsiteUrl) contactParts.push(`<a href="${attributedWebsiteUrl}" target="_blank" rel="noopener nofollow" onclick="window.trackOutboundClick('${merchant.id}', 'website', '${attributedWebsiteUrl}', '${src}')" style="color:var(--purple);font-weight:700;text-decoration:none;">🌐 Website</a>`);
+  if (mapsDirectionsUrl) contactParts.push(`<a href="${mapsDirectionsUrl}" target="_blank" rel="noopener nofollow" onclick="window.trackOutboundClick('${merchant.id}', 'map_directions', '${mapsDirectionsUrl}', '${src}')" style="color:var(--purple);font-weight:700;text-decoration:none;">📍 Directions</a>`);
   const contactHtml = contactParts.length > 0 ? `<div style="margin-top:6px;font-size:12.5px;display:flex;gap:10px;flex-wrap:wrap;">${contactParts.join('<span style="color:var(--muted)">•</span>')}</div>` : '';
 
   const logoHtml = merchant.logo_url

@@ -921,7 +921,7 @@
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;">
           <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:14px;text-align:center;">
             <div style="font-size:22px;font-weight:800;color:#a78bfa;" id="roi-stat-reach">—</div>
-            <div style="font-size:11px;font-weight:700;color:var(--mutedLight);text-transform:uppercase;">Directory Views</div>
+            <div style="font-size:11px;font-weight:700;color:var(--mutedLight);text-transform:uppercase;">Storefront Views &amp; Reach</div>
           </div>
           <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:14px;text-align:center;">
             <div style="font-size:22px;font-weight:800;color:#34d399;" id="roi-stat-actions">—</div>
@@ -944,9 +944,14 @@
                 <span style="font-size:15px;font-weight:800;color:#fff;" id="roi-chan-app">0</span>
               </div>
               <div style="flex:1;background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.25);border-radius:10px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;">
-                <span style="font-size:12px;font-weight:600;color:#93c5fd;">🌐 Web Directory</span>
+                <span style="font-size:12px;font-weight:600;color:#93c5fd;">🌐 Web &amp; Search</span>
                 <span style="font-size:15px;font-weight:800;color:#fff;" id="roi-chan-web">0</span>
               </div>
+            </div>
+            <div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.08);display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;font-size:11.5px;color:var(--mutedLight);font-weight:600;">
+              <span>🔍 Store SEO Pages: <strong style="color:#fff;" id="roi-web-store-seo">0</strong></span>
+              <span>🏙️ City Deal Hubs: <strong style="color:#fff;" id="roi-web-city-hubs">0</strong></span>
+              <span>🌐 Directory &amp; Codes: <strong style="color:#fff;" id="roi-web-directory">0</strong></span>
             </div>
           </div>
 
@@ -1472,10 +1477,12 @@
           <div class="stat-card">
             <div class="stat-value green" id="stat-traffic-total">—</div>
             <div class="stat-label">Total Outbound Actions</div>
+            <div id="stat-traffic-reach-sub" style="font-size:11px; color:var(--mutedLight); margin-top:4px; font-weight:600;"></div>
           </div>
           <div class="stat-card">
             <div class="stat-value purple" id="stat-traffic-web">—</div>
             <div class="stat-label">Web Actions</div>
+            <div id="stat-traffic-web-sub" style="font-size:11px; color:var(--mutedLight); margin-top:4px; font-weight:600;"></div>
           </div>
           <div class="stat-card">
             <div class="stat-value purple" id="stat-traffic-app">—</div>
@@ -1484,6 +1491,7 @@
           <div class="stat-card">
             <div class="stat-value amber" id="stat-traffic-merchants">—</div>
             <div class="stat-label">Stores Receiving Traffic</div>
+            <div id="stat-traffic-merchants-sub" style="font-size:11px; color:var(--mutedLight); margin-top:4px; font-weight:600;"></div>
           </div>
         </div>
 
@@ -4793,7 +4801,21 @@
         document.getElementById('stat-traffic-total').textContent = (summary.total_actions || 0).toLocaleString();
         document.getElementById('stat-traffic-web').textContent = (summary.web_actions || 0).toLocaleString();
         document.getElementById('stat-traffic-app').textContent = (summary.app_actions || 0).toLocaleString();
-        document.getElementById('stat-traffic-merchants').textContent = (summary.total_merchants_with_actions || 0).toLocaleString();
+        const storesWithTraffic = summary.total_merchants_with_traffic !== undefined ? summary.total_merchants_with_traffic : (summary.total_merchants_with_actions || 0);
+        document.getElementById('stat-traffic-merchants').textContent = storesWithTraffic.toLocaleString();
+
+        const reachSubEl = document.getElementById('stat-traffic-reach-sub');
+        if (reachSubEl) {
+          reachSubEl.textContent = `${(summary.total_reach || 0).toLocaleString()} total reach (${(summary.total_views || 0).toLocaleString()} views)`;
+        }
+        const webSubEl = document.getElementById('stat-traffic-web-sub');
+        if (webSubEl) {
+          webSubEl.textContent = `${(summary.seo_store_reach || 0).toLocaleString()} Store SEO · ${(summary.seo_city_reach || 0).toLocaleString()} City Hubs`;
+        }
+        const merchSubEl = document.getElementById('stat-traffic-merchants-sub');
+        if (merchSubEl) {
+          merchSubEl.textContent = `${(summary.total_merchants_with_actions || 0).toLocaleString()} with direct actions`;
+        }
 
         // Breakdown cards
         const bd = summary.action_breakdown || {};
@@ -4869,7 +4891,10 @@
             <td>${tierBadge}</td>
             <td style="color:var(--mutedLight); text-transform:capitalize;">${escapeHtml(m.business_presence || 'Physical')}</td>
             <td>${sponsorshipDisplay}</td>
-            <td style="text-align:right; font-weight:600; color:#93c5fd;">${(m.web_actions || 0).toLocaleString()}</td>
+            <td style="text-align:right; font-weight:600; color:#93c5fd;">
+              ${(m.web_actions || 0).toLocaleString()}
+              ${(m.total_views > 0 || m.seo_total_reach > 0) ? `<div style="font-size:10.5px;color:var(--mutedLight);font-weight:500;margin-top:2px;">${(m.total_views || 0).toLocaleString()} views · ${(m.seo_total_reach || 0).toLocaleString()} SEO</div>` : ''}
+            </td>
             <td style="text-align:right; font-weight:600; color:#c4b5fd;">${(m.app_actions || 0).toLocaleString()}</td>
             <td style="text-align:right; font-weight:800; color:#34d399; font-size:14px;">${(m.total_actions || 0).toLocaleString()}</td>
             <td style="text-align:center;">
@@ -4966,6 +4991,13 @@
         if (chanApp) chanApp.textContent = Number(channels.app || 0).toLocaleString();
         const chanWeb = document.getElementById('roi-chan-web');
         if (chanWeb) chanWeb.textContent = Number(channels.web || 0).toLocaleString();
+        const webSrc = channels.web_sources || {};
+        const roiStoreSeo = document.getElementById('roi-web-store-seo');
+        if (roiStoreSeo) roiStoreSeo.textContent = Number(webSrc.store_seo_pages || 0).toLocaleString();
+        const roiCityHubs = document.getElementById('roi-web-city-hubs');
+        if (roiCityHubs) roiCityHubs.textContent = Number(webSrc.city_deal_hubs || 0).toLocaleString();
+        const roiWebDir = document.getElementById('roi-web-directory');
+        if (roiWebDir) roiWebDir.textContent = Number(webSrc.web_directory || 0).toLocaleString();
 
         // Itemized actions
         const actions = metrics.actions_breakdown || metrics.actionsBreakdown || {};
@@ -5058,14 +5090,18 @@
         return;
       }
       const merchants = _trafficSummaryData.merchants;
-      const headers = ['Merchant Name', 'Subscription Tier', 'Presence', 'Web Actions', 'App Actions', 'Total Actions', 'Website', 'Orders', 'Reviews', 'Calls', 'Emails', 'Map Directions', 'VIP Takeover'];
+      const headers = ['Merchant Name', 'Subscription Tier', 'Presence', 'Storefront Views', 'Total Reach', 'Web Actions', 'Store SEO Reach', 'City Hub Reach', 'App Actions', 'Total Actions', 'Website', 'Orders', 'Reviews', 'Calls', 'Emails', 'Map Directions', 'VIP Takeover'];
       const rows = merchants.map(m => {
         const bd = m.action_breakdown || {};
         return [
           `"${(m.merchant_name || '').replace(/"/g, '""')}"`,
           m.subscription_tier || 'free',
           m.business_presence || 'physical',
+          m.total_views || 0,
+          m.total_reach || 0,
           m.web_actions || 0,
+          m.seo_store_reach || 0,
+          m.seo_city_reach || 0,
           m.app_actions || 0,
           m.total_actions || 0,
           bd.website || 0,
@@ -5094,7 +5130,8 @@
       const m = d.metrics || {};
       const bd = m.actions_breakdown || {};
       const ch = m.channels || {};
-      const headers = ['Merchant Name', 'Tier', 'Directory Views', 'Total Actions', 'In-Store Redemptions', 'App Actions', 'Web Actions', 'Website Clicks', 'Orders', 'Reviews', 'Calls', 'Emails', 'Directions', 'VIP Takeovers'];
+      const ws = ch.web_sources || {};
+      const headers = ['Merchant Name', 'Tier', 'Storefront Views & Reach', 'Total Actions', 'In-Store Redemptions', 'App Traffic', 'Web Traffic (Total)', 'Store SEO Pages', 'City Deal Hubs', 'Web Directory & Codes', 'Website Clicks', 'Orders', 'Reviews', 'Calls', 'Emails', 'Directions', 'VIP Takeovers'];
       const row = [
         `"${(d.merchant_name || '').replace(/"/g, '""')}"`,
         d.tier || 'free',
@@ -5103,6 +5140,9 @@
         m.in_store_redemptions || 0,
         ch.app || 0,
         ch.web || 0,
+        ws.store_seo_pages || 0,
+        ws.city_deal_hubs || 0,
+        ws.web_directory || 0,
         bd.website || 0,
         bd.order || 0,
         bd.review_social || 0,

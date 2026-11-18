@@ -2797,11 +2797,11 @@
               </div>
               <div style="background:#f8fafc; border:1.5px solid #e2e8f0; border-radius:12px; padding:18px;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                  <span style="font-size:14px; font-weight:700; color:#1e293b;">🌐 Web &amp; Directory Traffic</span>
+                  <span style="font-size:14px; font-weight:700; color:#1e293b;">🌐 Web &amp; Search Traffic</span>
                   <span id="traffic-pct-web" style="font-size:13px; font-weight:800; color:#0284c7;">0%</span>
                 </div>
                 <div id="traffic-count-web" style="font-size:24px; font-weight:900; color:#0f172a; margin-bottom:4px;">0</div>
-                <div style="font-size:12px; color:var(--muted);">Online directory searches &amp; web referrals</div>
+                <div style="font-size:12px; color:var(--muted);">Google SEO store pages, city deal hubs &amp; web directory</div>
               </div>
             </div>
 
@@ -2812,7 +2812,12 @@
             </div>
             <div style="display:flex; justify-content:space-between; font-size:11.5px; font-weight:600; color:var(--muted); margin-top:6px;">
               <span>📱 Mobile App (<span id="traffic-leg-app">0</span>)</span>
-              <span>🌐 Web (<span id="traffic-leg-web">0</span>)</span>
+              <span>🌐 Web &amp; Search (<span id="traffic-leg-web">0</span>)</span>
+            </div>
+            <div style="margin-top:12px; padding-top:12px; border-top:1px solid #e2e8f0; display:flex; flex-wrap:wrap; gap:14px; justify-content:space-between; font-size:12px; font-weight:600; color:#475569;">
+              <span>🔍 Store SEO Pages: <strong style="color:#0f172a;" id="traffic-web-store-seo">0</strong></span>
+              <span>🏙️ City Deal Hubs: <strong style="color:#0f172a;" id="traffic-web-city-hubs">0</strong></span>
+              <span>🌐 Directory &amp; Codes: <strong style="color:#0f172a;" id="traffic-web-directory">0</strong></span>
             </div>
           </div>
 
@@ -8312,6 +8317,14 @@ You're receiving this because you're a valued customer of ${businessName}.`;
         document.getElementById('traffic-leg-app').textContent = appCount.toLocaleString();
         document.getElementById('traffic-leg-web').textContent = webCount.toLocaleString();
 
+        const webSrc = channels.web_sources || (data.metrics && data.metrics.channels && data.metrics.channels.web_sources) || {};
+        const elStoreSeo = document.getElementById('traffic-web-store-seo');
+        const elCityHubs = document.getElementById('traffic-web-city-hubs');
+        const elWebDir = document.getElementById('traffic-web-directory');
+        if (elStoreSeo) elStoreSeo.textContent = (webSrc.store_seo_pages || 0).toLocaleString();
+        if (elCityHubs) elCityHubs.textContent = (webSrc.city_deal_hubs || 0).toLocaleString();
+        if (elWebDir) elWebDir.textContent = (webSrc.web_directory || 0).toLocaleString();
+
         // Populate Itemized Actions
         document.getElementById('action-order').textContent = (actions.order || 0).toLocaleString();
         document.getElementById('action-website').textContent = (actions.website || 0).toLocaleString();
@@ -8429,7 +8442,10 @@ You're receiving this because you're a valued customer of ${businessName}.`;
         ['Overview', 'In-Store Perks Redeemed', d.summary?.inStoreRedemptions || 0, periodStr],
         ['Overview', 'New Members Joined', d.summary?.inStoreMembersJoined || 0, periodStr],
         ['Channel', 'Mobile App Referrals', d.channelBreakdown?.app || 0, periodStr],
-        ['Channel', 'Web & Directory Referrals', d.channelBreakdown?.web || 0, periodStr],
+        ['Channel', 'Web & Search Referrals (Total)', d.channelBreakdown?.web || 0, periodStr],
+        ['Channel', 'Web — Store SEO Pages (/store)', d.channelBreakdown?.web_sources?.store_seo_pages || 0, periodStr],
+        ['Channel', 'Web — City Deal Hubs (/deals)', d.channelBreakdown?.web_sources?.city_deal_hubs || 0, periodStr],
+        ['Channel', 'Web — Directory & Promo Codes', d.channelBreakdown?.web_sources?.web_directory || 0, periodStr],
         ['Itemized Actions', 'Online Orders / Bookings', d.actionsBreakdown?.order || 0, periodStr],
         ['Itemized Actions', 'Website Visits', d.actionsBreakdown?.website || 0, periodStr],
         ['Itemized Actions', 'Map Directions & Navigation', d.actionsBreakdown?.map_directions || 0, periodStr],

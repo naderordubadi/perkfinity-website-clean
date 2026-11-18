@@ -743,7 +743,7 @@
 
     <!-- Shared Modal Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
-    <script src="/assets/js/merchant-modals.js?v=2.0"></script>
+    <script src="/assets/js/merchant-modals.js?v=2.1"></script>
     <script>
     const BACKEND = (typeof PerkfinityConfig !== 'undefined' && PerkfinityConfig.BACKEND_URL)
       ? PerkfinityConfig.BACKEND_URL
@@ -1004,12 +1004,7 @@
           const merchSlug = slugify(merchName);
           const row = document.createElement('article');
           row.className = 'merchant-row';
-          row.onclick = () => {
-            if (typeof window.trackOutboundClick === 'function') {
-              window.trackOutboundClick(m.id, 'view', null, 'web_localperks', 'web');
-            }
-            openPopup(m);
-          };
+          row.onclick = () => openLocalMerchantCard(m);
           row.innerHTML = `
             ${coverHtml}
             <div class="merch-card-top">
@@ -1021,7 +1016,7 @@
             </div>
             <div class="merch-card-body">
               <div class="merch-offer">${m.welcome_offer_text || 'Exclusive member perk'}</div>
-              <button class="join-btn" onclick="event.stopPropagation();if(typeof window.trackOutboundClick==='function'){window.trackOutboundClick('${m.id}','view',null,'web_localperks','web');}openPopupById('${m.id}')">Get Perk →</button>
+              <button class="join-btn" onclick="event.stopPropagation();openPopupById('${m.id}')">Get Perk →</button>
             </div>`;
           listEl.appendChild(row);
         });
@@ -1033,9 +1028,23 @@
       }
     }
 
+    function getLocalPageSource() {
+      return (window.location.pathname || '').startsWith('/deals/') ? 'web_deals_city' : 'web_localperks';
+    }
+
+    function openLocalMerchantCard(m) {
+      if (!m) return;
+      const src = getLocalPageSource();
+      const isVip = Boolean(m.is_fullpage_sponsored && (!m.fullpage_sponsored_until || new Date(m.fullpage_sponsored_until) >= new Date()));
+      if (!isVip && typeof window.trackOutboundClick === 'function') {
+        window.trackOutboundClick(m.id, 'view', null, src, 'web');
+      }
+      openPopup(m, src);
+    }
+
     function openPopupById(id) {
       const m = window._localMerchantsMap ? window._localMerchantsMap[id] : null;
-      if (m) openPopup(m);
+      if (m) openLocalMerchantCard(m);
     }
 
     let _autoOpenTriggered = false;
@@ -1141,13 +1150,8 @@
         const ogTitle = document.querySelector('meta[property="og:title"]');
         if (ogTitle) ogTitle.setAttribute('content', `${bName} (${bCity}) Deals, Coupons & Discounts — Perkfinity`);
 
-        // Automatically open the appropriate modal:
-        // openPopup() handles both: VIP Takeover if is_fullpage_sponsored, else standard perk modal!
-        if (typeof openPopup === 'function') {
-          openPopup(targetMerchant);
-        } else if (typeof openFullPageTakeover === 'function') {
-          openFullPageTakeover(targetMerchant);
-        }
+        // Automatically open the appropriate modal and track impression:
+        openLocalMerchantCard(targetMerchant);
       } else if (storeParam) {
         // Friendly notice when store not found
         const heroTitle = document.getElementById('hero-title');
@@ -1219,10 +1223,12 @@
             `;
             // Re-use openPopup for carousel items too, and track carousel click!
             item.onclick = () => {
+              const src = getLocalPageSource();
+              const carouselSrc = src === 'web_deals_city' ? 'web_deals_city_sponsored' : 'web_sponsored';
               if (typeof window.trackOutboundClick === 'function') {
-                window.trackOutboundClick(m.id, 'view', null, 'web_sponsored', 'web');
+                window.trackOutboundClick(m.id, 'view', null, carouselSrc, 'web');
               }
-              openPopup(m);
+              openPopup(m, src);
             };
             track.appendChild(item);
           });
