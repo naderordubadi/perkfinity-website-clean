@@ -1478,7 +1478,8 @@
         const res = await fetch(`${BACKEND}/api/v1/merchants/sponsored?platform=web`);
         const json = await res.json();
         if (json.success && json.data && json.data.length > 0) {
-          container.style.display = 'block';
+          _carouselHasData = true;
+          syncWebCarouselAndMapButton();
           track.innerHTML = '';
           json.data.forEach(m => {
             const initials = (m.business_name || m.merchant_name || 'Brand').split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
@@ -1664,7 +1665,8 @@
       if (cityInput) cityInput.value = cityParam;
     }
 
-    // ── Unified MapLibre GL JS Controller (Lazy-Loaded on See Map) ──
+    // ── Unified MapLibre GL JS Controller (Default Split on Desktop & Horizontal Duo) ──
+    const SPLIT_DEFAULT_MQ = '(horizontal-viewport-segments: 2), (min-width: 768px) and (min-height: 560px) and (orientation: landscape)';
     let _webMapOpen = false;
     let _webMapFullPage = false;
     let _webMapInstance = null;
@@ -1672,7 +1674,31 @@
     let _webMapUserMarker = null;
     let _webSelectedPinId = null;
     let _mapLibreLoadingPromise = null;
-    let _carouselWasVisibleBeforeMap = false;
+    let _carouselHasData = false;
+    let _userManuallyToggledMap = false;
+
+    function syncWebCarouselAndMapButton() {
+      const carousel = document.getElementById('carousel-container');
+      const icon = document.getElementById('map-toggle-icon');
+      const label = document.getElementById('map-toggle-label');
+      const isWide = window.innerWidth >= 768;
+      const isFullMap = _webMapFullPage || (_webMapOpen && !isWide);
+
+      if (carousel) {
+        carousel.style.display = (_carouselHasData && !isFullMap) ? 'block' : 'none';
+      }
+      if (!_webMapOpen) {
+        if (icon) icon.textContent = '🗺️';
+        if (label) label.textContent = 'See Map';
+      } else if (isWide && !_webMapFullPage) {
+        if (icon) icon.textContent = '☰';
+        if (label) label.textContent = 'Hide Map';
+      } else {
+        if (icon) icon.textContent = '☰';
+        if (label) label.textContent = 'See List';
+      }
+    }
+    window.addEventListener('resize', syncWebCarouselAndMapButton);
 
     if (_webUserCoords) {
       const nmBtn = document.getElementById('near-me-btn');
@@ -1756,33 +1782,28 @@
       return out;
     }
 
-    async function toggleWebMapView() {
-      _webMapOpen = !_webMapOpen;
+    async function setWebMapView(open) {
+      _webMapOpen = !!open;
       const wrap = document.getElementById('results-split-wrap');
-      const icon = document.getElementById('map-toggle-icon');
-      const label = document.getElementById('map-toggle-label');
-      const carousel = document.getElementById('carousel-container');
 
       if (_webMapOpen) {
         if (wrap) wrap.classList.add('map-active');
-        if (icon) icon.textContent = '☰';
-        if (label) label.textContent = 'See List';
-        if (carousel) {
-          _carouselWasVisibleBeforeMap = carousel.style.display !== 'none';
-          carousel.style.display = 'none';
-        }
+        syncWebCarouselAndMapButton();
         await ensureWebMapInitialized();
-        syncWebMapResults(_lastRenderedResults);
+        if (_lastRenderedResults && _lastRenderedResults.length > 0) {
+          syncWebMapResults(_lastRenderedResults);
+        }
         setTimeout(() => { if (_webMapInstance) _webMapInstance.resize(); }, 60);
       } else {
         setWebMapFullPage(false);
         if (wrap) wrap.classList.remove('map-active');
-        if (icon) icon.textContent = '🗺️';
-        if (label) label.textContent = 'See Map';
-        if (carousel && _carouselWasVisibleBeforeMap) {
-          carousel.style.display = 'block';
-        }
+        syncWebCarouselAndMapButton();
       }
+    }
+
+    function toggleWebMapView() {
+      _userManuallyToggledMap = true;
+      return setWebMapView(!_webMapOpen);
     }
 
     function setWebMapFullPage(expanded) {
@@ -1806,6 +1827,7 @@
       if (panel) panel.classList.toggle('web-map-fullscreen', _webMapFullPage);
       if (backdrop) backdrop.classList.toggle('active', _webMapFullPage);
       document.body.style.overflow = _webMapFullPage ? 'hidden' : '';
+      syncWebCarouselAndMapButton();
 
       if (btn) btn.title = _webMapFullPage ? 'Exit full page map' : 'Full page map';
       if (svg) {
@@ -1832,8 +1854,12 @@
       }
     });
 
+    let _webMapInitializingPromise = null;
+
     async function ensureWebMapInitialized() {
       if (_webMapInstance) return _webMapInstance;
+      if (_webMapInitializingPromise) return _webMapInitializingPromise;
+      _webMapInitializingPromise = (async () => {
       const maplibregl = await loadMapLibreAssets();
       const container = document.getElementById('web-maplibre-canvas');
       if (!container) return null;
@@ -1868,6 +1894,10 @@
       map.on('style.load', hidePois);
       map.on('load', () => {
         hidePois();
+        try { map.resize(); } catch {}
+        if (!_webSelectedPinId && _webCurrentSpreadPins.length > 0) {
+          fitWebMapStartingBounds(_webCurrentSpreadPins, 0);
+        }
         setTimeout(collapseWebAttrib, 2000);
       });
       map.on('click', () => {
@@ -1882,6 +1912,8 @@
       _webMapInstance = map;
       renderWebUserGpsDot();
       return map;
+      })();
+      return _webMapInitializingPromise;
     }
 
     function renderWebUserGpsDot() {
@@ -2097,9 +2129,20 @@
       fitWebMapStartingBounds(pins, 350);
     }
 
-    // Auto-load all merchants on page open
+    // Auto-load all merchants on page open (and default to 50/50 Split View on Desktop & Horizontal Duo!)
     doSearch();
     loadCarousel();
+    if (window.matchMedia) {
+      const splitMql = window.matchMedia(SPLIT_DEFAULT_MQ);
+      if (splitMql.matches) {
+        setWebMapView(true);
+      }
+      if (typeof splitMql.addEventListener === 'function') {
+        splitMql.addEventListener('change', e => {
+          if (!_userManuallyToggledMap) setWebMapView(e.matches);
+        });
+      }
+    }
   </script>
 </body>
 </html>
