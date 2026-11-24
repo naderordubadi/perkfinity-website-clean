@@ -1788,6 +1788,13 @@
             <option value="android">🤖 Android</option>
             <option value="web">🌐 Web</option>
           </select>
+          <select class="toolbar-select" id="member-filter-gender" onchange="filterTable('members')">
+            <option value="">All Genders</option>
+            <option value="Female">Female</option>
+            <option value="Male">Male</option>
+            <option value="Non-binary">Non-binary</option>
+            <option value="Prefer not to answer">Prefer not to answer</option>
+          </select>
           <div class="tag-picker">
             <button class="tag-picker-btn" id="member-filter-city-btn" data-label="Cities" onclick="event.stopPropagation();tagPickerToggle('member-filter-city')">
               <span class="tp-label">Cities</span><span class="tp-arrow">▾</span>
@@ -1823,6 +1830,7 @@
                 <th onclick="sortTable('members','full_name')">Name <span class="sort-arrow">▲</span></th>
                 <th onclick="sortTable('members','city')">City <span class="sort-arrow">▲</span></th>
                 <th onclick="sortTable('members','zip_code')">ZIP <span class="sort-arrow">▲</span></th>
+                <th onclick="sortTable('members','gender')">Gender <span class="sort-arrow">▲</span></th>
                 <th onclick="sortTable('members','push_enabled')">Push <span class="sort-arrow">▲</span></th>
                 <th onclick="sortTable('members','device_platform')">Platform <span class="sort-arrow">▲</span></th>
                 <th onclick="sortTable('members','merchant_count')">Merchants <span class="sort-arrow">▲</span></th>
@@ -1832,7 +1840,7 @@
               </tr>
             </thead>
             <tbody id="members-tbody">
-              <tr><td colspan="9" style="color:var(--muted);text-align:center;padding:40px;">Loading members...</td></tr>
+              <tr><td colspan="10" style="color:var(--muted);text-align:center;padding:40px;">Loading members...</td></tr>
             </tbody>
           </table>
           <div class="pagination" id="members-pagination"></div>
@@ -7408,6 +7416,7 @@
               <td><strong>${m.full_name || '—'}</strong></td>
               <td>${m.city || '—'}</td>
               <td>${m.zip_code || '—'}</td>
+              <td><span style="font-size:12px;color:var(--mutedLight);font-weight:600;">${escapeHtml(m.gender || 'Prefer not to answer')}</span></td>
               <td>${m.push_token ? '<span class="badge active">Yes</span>' : '<span class="badge free">No</span>'}</td>
               <td>${m.device_platform ? `<span class="badge ${platformClass}">${platformLabel}</span>` : '—'}</td>
               <td>${m.merchant_count || 0}</td>
@@ -7416,7 +7425,7 @@
               <td>${formatDate(m.created_at)}</td>
             </tr>
           `;
-          }).join('') || emptyRow(9, 'No members found');
+          }).join('') || emptyRow(10, 'No members found');
           break;
 
         case 'campaigns':
@@ -7647,6 +7656,7 @@
           search = document.getElementById('member-search').value.toLowerCase();
           const pushFilter = document.getElementById('member-filter-push').value;
           const platformFilter = document.getElementById('member-filter-platform').value;
+          const genderFilter = (document.getElementById('member-filter-gender') || {}).value || '';
           const redeemedFilter = document.getElementById('member-filter-redeemed').value;
           
           if (typeof window.showDeletedMembers === 'undefined') window.showDeletedMembers = false;
@@ -7668,6 +7678,7 @@
           if (pushFilter === 'push') data = data.filter(m => m.push_token);
           if (pushFilter === 'nopush') data = data.filter(m => !m.push_token);
           if (platformFilter) data = data.filter(m => m.device_platform === platformFilter);
+          if (genderFilter) data = data.filter(m => (m.gender || 'Prefer not to answer') === genderFilter);
           if (selectedCities.length) data = data.filter(m => selectedCities.includes(m.city));
           if (selectedZips.length) data = data.filter(m => selectedZips.includes(m.zip_code));
           if (redeemedFilter === 'yes') data = data.filter(m => parseInt(m.redemption_count) > 0);
