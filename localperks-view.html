@@ -673,8 +673,8 @@
       display: none;
       position: relative;
       width: 100%;
-      height: calc(100vh - 210px);
-      min-height: 440px;
+      height: max(360px, calc(100vh - 210px));
+      min-height: 360px;
       border-radius: 24px;
       overflow: hidden;
       border: 1px solid var(--border);
@@ -684,12 +684,12 @@
     .results-split-wrap.map-active .web-map-panel {
       display: block;
     }
-    @media (max-width: 767px) {
+    @media (max-width: 759px), (max-height: 319px) {
       .results-split-wrap.map-active .merchants-list {
         display: none !important;
       }
     }
-    @media (min-width: 768px) {
+    @media (min-width: 760px) and (min-height: 320px), (horizontal-viewport-segments: 2) {
       .results-split-wrap.map-active {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -698,7 +698,7 @@
       }
       .results-split-wrap.map-active .merchants-list {
         grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
-        max-height: calc(100vh - 130px);
+        max-height: max(360px, calc(100vh - 130px));
         overflow-y: auto;
         padding-right: 6px;
         padding-bottom: 24px;
@@ -706,7 +706,8 @@
       .results-split-wrap.map-active .web-map-panel {
         position: sticky;
         top: 84px;
-        height: calc(100vh - 130px);
+        height: max(360px, calc(100vh - 130px));
+        min-height: 360px;
       }
     }
     .web-map-fs-backdrop {
@@ -1665,8 +1666,8 @@
       if (cityInput) cityInput.value = cityParam;
     }
 
-    // ── Unified MapLibre GL JS Controller (Default Split on Desktop & Horizontal Duo) ──
-    const SPLIT_DEFAULT_MQ = '(horizontal-viewport-segments: 2), (min-width: 768px) and (min-height: 560px) and (orientation: landscape)';
+    // ── Unified MapLibre GL JS Controller (Default Split on Desktop, Duo & Regular Landscape Phones) ──
+    const SPLIT_DEFAULT_MQ = '(horizontal-viewport-segments: 2), (min-width: 760px) and (min-height: 320px) and (orientation: landscape), (min-width: 900px) and (min-height: 500px)';
     let _webMapOpen = false;
     let _webMapFullPage = false;
     let _webMapInstance = null;
@@ -1681,7 +1682,8 @@
       const carousel = document.getElementById('carousel-container');
       const icon = document.getElementById('map-toggle-icon');
       const label = document.getElementById('map-toggle-label');
-      const isWide = window.innerWidth >= 768;
+      const hasDuoSegments = Boolean(window.matchMedia && window.matchMedia('(horizontal-viewport-segments: 2)').matches);
+      const isWide = hasDuoSegments || (window.innerWidth >= 760 && window.innerHeight >= 320);
       const isFullMap = _webMapFullPage || (_webMapOpen && !isWide);
 
       if (carousel) {
